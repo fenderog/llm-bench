@@ -1,0 +1,377 @@
+{
+  "lifecycleArtifactVersion": 3,
+  "runId": "a5f49175-eab8-4b63-96b2-4eeaf40c2f87",
+  "mode": "single",
+  "state": "complete",
+  "steering": {
+    "requested": 0,
+    "scheduled": 0,
+    "pending": 0,
+    "delivered": 0,
+    "failed": 0,
+    "recovered": 0,
+    "recent": []
+  },
+  "lastActivityAt": 1790406883442,
+  "startedAt": 1790406762009,
+  "lastUpdate": 1790406883454,
+  "timeoutMs": 1800000,
+  "deadlineAt": 1790408561290,
+  "cwd": "<vol>/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse",
+  "currentStep": 0,
+  "chainStepCount": 1,
+  "parallelGroups": [],
+  "launchResolvedExtensions": {
+    "version": 1,
+    "source": "launch-resolved",
+    "disableAmbientExtensions": false,
+    "runtime": [
+      "sha256:99150343d35d8319"
+    ],
+    "configured": [],
+    "required": [],
+    "effective": [
+      "sha256:99150343d35d8319"
+    ],
+    "omitted": {
+      "runtime": 0,
+      "configured": 0,
+      "required": 0,
+      "effective": 0
+    }
+  },
+  "runFanoutBudget": {
+    "used": 3,
+    "limit": 64,
+    "remaining": 61
+  },
+  "parentWorkflowRunId": "af3128aa-784a-4027-9e87-7cec3d94ac81",
+  "workflowKey": "horse-medium",
+  "processTerminal": {
+    "version": 1,
+    "state": "observed",
+    "runId": "a5f49175-eab8-4b63-96b2-4eeaf40c2f87",
+    "runnerProcessInstanceId": "16b5bfeb-fb23-4afc-8c6b-4ab399104e2f",
+    "observedAt": 1790406883462,
+    "instances": [
+      {
+        "kind": "runner",
+        "processInstanceId": "16b5bfeb-fb23-4afc-8c6b-4ab399104e2f",
+        "closeObservedAt": 1790406883462,
+        "exitCode": 0,
+        "signal": null
+      }
+    ],
+    "resumeDisposition": "resumable"
+  },
+  "steps": [
+    {
+      "agent": "worker",
+      "sessionName": "worker: Goal: Generate a complete, playable Godot 4.7.2 project t...",
+      "description": "[prompt redacted]",
+      "context": "fresh",
+      "launchResolvedExtensions": {
+        "version": 1,
+        "source": "launch-resolved",
+        "disableAmbientExtensions": false,
+        "runtime": [
+          "sha256:99150343d35d8319"
+        ],
+        "configured": [],
+        "required": [],
+        "effective": [
+          "sha256:99150343d35d8319"
+        ],
+        "omitted": {
+          "runtime": 0,
+          "configured": 0,
+          "required": 0,
+          "effective": 0
+        }
+      },
+      "status": "complete",
+      "transcriptPath": "~/.pi/agent/sessions/--vol-dev--/subagent-artifacts/a5f49175-eab8-4b63-96b2-4eeaf40c2f87_worker_transcript.jsonl",
+      "skills": [],
+      "model": "openai-codex/gpt-6-sol:medium",
+      "contextLimit": 272000,
+      "thinking": "medium",
+      "requestedModel": "openai-codex/gpt-6-sol:medium",
+      "recentTools": [
+        {
+          "tool": "ls",
+          "args": ".",
+          "endMs": 1790406767094
+        },
+        {
+          "tool": "bash",
+          "args": "command -v godot || command -v godot4 || true; pwd; git s...",
+          "endMs": 1790406767101
+        },
+        {
+          "tool": "write",
+          "args": "medium/project.godot",
+          "endMs": 1790406787826
+        },
+        {
+          "tool": "write",
+          "args": "medium/scenes/main.tscn",
+          "endMs": 1790406790776
+        },
+        {
+          "tool": "write",
+          "args": "medium/scripts/horse_run.gd",
+          "endMs": 1790406839581
+        },
+        {
+          "tool": "write",
+          "args": "medium/README.md",
+          "endMs": 1790406844089
+        },
+        {
+          "tool": "bash",
+          "args": "godot --headless --path \"$PWD/medium\" --editor --quit; pr...",
+          "endMs": 1790406859618
+        },
+        {
+          "tool": "edit",
+          "args": "medium/scripts/horse_run.gd",
+          "endMs": 1790406863708
+        },
+        {
+          "tool": "bash",
+          "args": "godot --headless --path \"$PWD/medium\" --editor --quit > /...",
+          "endMs": 1790406871371
+        }
+      ],
+      "recentOutput": [
+        "Implemented a self-contained Godot 4.7.2 project with a box-built horse that runs continuously, animated legs, head, body and tail, plus ground, lighting and camera.",
+        "Changed files: `medium/project.godot`, `medium/scenes/main.tscn`, `medium/scripts/horse_run.gd`, `medium/README.md`. Godot-generated cache remains under `medium/.godot/`.",
+        "Validation: Headless editor import exited 0; a 20-frame headless run exited 0, with no errors in the final runs. Open risks/questions: visual appearance was not checked in a graphical window. Recommended next step: run `godot --path medium` to view it."
+      ],
+      "processTerminal": {
+        "version": 1,
+        "runId": "a5f49175-eab8-4b63-96b2-4eeaf40c2f87",
+        "childIndex": 0,
+        "runnerProcessInstanceId": "16b5bfeb-fb23-4afc-8c6b-4ab399104e2f",
+        "resumeDisposition": "resumable",
+        "state": "not-started"
+      },
+      "startedAt": 1790406762012,
+      "lastActivityAt": 1790406883442,
+      "turnCount": 9,
+      "tokens": {
+        "input": 11271,
+        "output": 4906,
+        "total": 16177,
+        "window": 10213,
+        "windowPeak": 10213
+      },
+      "toolCount": 9,
+      "endedAt": 1790406883453,
+      "durationMs": 121441,
+      "exitCode": 0,
+      "totalCost": {
+        "inputTokens": 11271,
+        "outputTokens": 4906,
+        "costUsd": 0.0798452
+      },
+      "acceptance": {
+        "status": "review-required",
+        "evidenceStatus": "checked",
+        "explicit": false,
+        "effectiveAcceptance": {
+          "level": "checked",
+          "explicit": false,
+          "inferredReason": [
+            "async declared writer"
+          ],
+          "criteria": [
+            {
+              "id": "criterion-1",
+              "must": "Implement the requested change without widening scope",
+              "evidence": [
+                "changed-files",
+                "tests-added",
+                "commands-run",
+                "residual-risks",
+                "no-staged-files"
+              ],
+              "severity": "required"
+            },
+            {
+              "id": "criterion-2",
+              "must": "Return evidence sufficient for an independent acceptance review",
+              "evidence": [
+                "changed-files",
+                "tests-added",
+                "commands-run",
+                "residual-risks",
+                "no-staged-files"
+              ],
+              "severity": "required"
+            }
+          ],
+          "evidence": [
+            "changed-files",
+            "tests-added",
+            "commands-run",
+            "residual-risks",
+            "no-staged-files"
+          ],
+          "verify": [],
+          "review": {
+            "agent": "reviewer",
+            "required": true
+          },
+          "stopRules": []
+        },
+        "inferredReason": [
+          "async declared writer"
+        ],
+        "criteria": [
+          {
+            "id": "criterion-1",
+            "must": "Implement the requested change without widening scope",
+            "evidence": [
+              "changed-files",
+              "tests-added",
+              "commands-run",
+              "residual-risks",
+              "no-staged-files"
+            ],
+            "severity": "required"
+          },
+          {
+            "id": "criterion-2",
+            "must": "Return evidence sufficient for an independent acceptance review",
+            "evidence": [
+              "changed-files",
+              "tests-added",
+              "commands-run",
+              "residual-risks",
+              "no-staged-files"
+            ],
+            "severity": "required"
+          }
+        ],
+        "runtimeChecks": [
+          {
+            "id": "criterion:criterion-1",
+            "status": "passed",
+            "message": "Required criterion 'criterion-1' satisfied."
+          },
+          {
+            "id": "criterion:criterion-2",
+            "status": "passed",
+            "message": "Required criterion 'criterion-2' satisfied."
+          },
+          {
+            "id": "evidence:changed-files",
+            "status": "passed",
+            "message": "changed-files evidence present."
+          },
+          {
+            "id": "evidence:tests-added",
+            "status": "not-applicable",
+            "message": "tests-added evidence explicitly reported as not applicable."
+          },
+          {
+            "id": "evidence:commands-run",
+            "status": "passed",
+            "message": "commands-run evidence present."
+          },
+          {
+            "id": "evidence:residual-risks",
+            "status": "passed",
+            "message": "residual-risks evidence present."
+          },
+          {
+            "id": "evidence:no-staged-files",
+            "status": "passed",
+            "message": "no-staged-files evidence present."
+          },
+          {
+            "id": "no-staged-files",
+            "status": "not-applicable",
+            "message": "git status unavailable; no staged-files check skipped"
+          }
+        ],
+        "verifyRuns": [],
+        "childReport": {
+          "criteriaSatisfied": [
+            {
+              "id": "criterion-1",
+              "status": "satisfied",
+              "evidence": "Created the requested project entirely under medium/ with procedural horse geometry and continuous GDScript animation."
+            },
+            {
+              "id": "criterion-2",
+              "status": "satisfied",
+              "evidence": "Headless editor import and 20-frame runtime both exited 0 without errors."
+            }
+          ],
+          "changedFiles": [
+            "medium/project.godot",
+            "medium/scenes/main.tscn",
+            "medium/scripts/horse_run.gd",
+            "medium/README.md"
+          ],
+          "testsAddedOrUpdated": [],
+          "commandsRun": [
+            {
+              "command": "godot --headless --path \"$PWD/medium\" --editor --quit",
+              "result": "passed",
+              "summary": "Exit 0; no errors in final run."
+            },
+            {
+              "command": "godot --headless --path \"$PWD/medium\" --quit-after 20",
+              "result": "passed",
+              "summary": "Exit 0; no errors in final run."
+            }
+          ],
+          "validationOutput": [
+            "Godot 4.7.2 completed the editor import and brief headless runtime."
+          ],
+          "residualRisks": [
+            "Graphical appearance was not visually inspected."
+          ],
+          "noStagedFiles": true,
+          "diffSummary": "Added a runnable main scene, procedural horse and world script, project configuration, and run instructions.",
+          "reviewFindings": [
+            "no blockers"
+          ],
+          "manualNotes": "The effort directory is not a Git repository; no files were staged."
+        },
+        "reviewResult": {
+          "status": "review-required",
+          "findings": [
+            {
+              "severity": "non-blocking",
+              "issue": "Independent review has not been supplied.",
+              "rationale": "The run cannot be marked reviewed from child evidence alone."
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "artifactsDir": "~/.pi/agent/sessions/--vol-dev--/subagent-artifacts",
+  "sessionDir": "~/.pi/agent/sessions/--vol-dev--/2026-09-26T06-55-32-371Z_01a0dc7f-6812-75a0-8289-77fd2ffd6394/03c0ef6d-4ae5-4215-a452-ffa8992b5f59/async-a5f49175-eab8-4b63-96b2-4eeaf40c2f87",
+  "outputFile": "/var/folders/t9/0ryz89553db0xv3j24mszllh0000gn/T/pi-subagents-uid-501/async-subagent-runs/a5f49175-eab8-4b63-96b2-4eeaf40c2f87/output-0.log",
+  "totalTokens": {
+    "input": 11271,
+    "output": 4906,
+    "total": 16177,
+    "window": 10213,
+    "windowPeak": 10213
+  },
+  "turnCount": 9,
+  "toolCount": 9,
+  "outputs": {},
+  "endedAt": 1790406883454,
+  "totalCost": {
+    "inputTokens": 11271,
+    "outputTokens": 4906,
+    "costUsd": 0.0798452
+  }
+}

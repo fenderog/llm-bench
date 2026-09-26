@@ -1,0 +1,12 @@
+[
+  {
+    "slug": "voxel-horse",
+    "title": "Voxel horse",
+    "n_runs": 3,
+    "models": [
+      "openai-codex/gpt-6-sol"
+    ],
+    "updated": "2026-09-26T07:15:58Z",
+    "thumb": "data/voxel-horse/runs/gpt-6-sol-high-20260926-001158/thumb.png"
+  }
+]

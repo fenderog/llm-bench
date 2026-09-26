@@ -1,0 +1,41 @@
+{
+  "id": "model-x-high-20260101-001000",
+  "page": "demo",
+  "model": "test-org/model-x",
+  "effort": "high",
+  "started_at": "2026-01-01T00:10:00Z",
+  "source_dir": "2026-01-01-high-modelx-demo",
+  "verified": null,
+  "metrics": {
+    "duration_ms": 196192,
+    "cost_usd": 0.146,
+    "tool_calls": 5,
+    "turns": 6,
+    "tokens_total": 32732,
+    "tokens_input": 25280,
+    "tokens_output": 7452,
+    "tokens_reasoning": 3073,
+    "tokens_cache_read": 105984
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "custom",
+    "entry": "game/index.html",
+    "engine": null,
+    "godot": null,
+    "threads": false
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "output": "session/output.md"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "main.py"
+    ]
+  }
+}

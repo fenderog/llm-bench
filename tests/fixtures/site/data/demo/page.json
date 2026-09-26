@@ -1,0 +1,7 @@
+{
+  "slug": "demo",
+  "title": "Demo",
+  "prompt": "Build a tiny **demo** project that prints a friendly greeting.\n\n- Keep it self-contained\n- Add a short README\n",
+  "created": "2026-01-01T00:00:00Z",
+  "updated": "2026-01-01T00:10:00Z"
+}

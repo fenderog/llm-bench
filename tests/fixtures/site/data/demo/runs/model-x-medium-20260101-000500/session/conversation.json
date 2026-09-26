@@ -1,0 +1,120 @@
+[
+  {
+    "type": "session",
+    "id": "s1",
+    "parentId": null,
+    "timestamp": "2026-01-01T00:05:00.000Z",
+    "cwd": "~/work/demo"
+  },
+  {
+    "type": "message",
+    "id": "m-sys",
+    "parentId": "s1",
+    "timestamp": "2026-01-01T00:05:00.050Z",
+    "message": {
+      "role": "system",
+      "content": "You are a careful engineer working in a sandboxed repo.",
+      "sections": null
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-user",
+    "parentId": "m-sys",
+    "timestamp": "2026-01-01T00:05:00.100Z",
+    "message": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Please write a friendly greeting script and a README."
+        }
+      ],
+      "timestamp": 300100
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-a1",
+    "parentId": "m-user",
+    "timestamp": "2026-01-01T00:05:00.900Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_1",
+          "name": "write",
+          "arguments": {
+            "path": "main.py",
+            "content": "print('hello world')\n"
+          }
+        }
+      ],
+      "model": "model-x",
+      "provider": "test-org",
+      "usage": {
+        "input": 300,
+        "output": 60,
+        "cacheRead": 200,
+        "cacheWrite": 0,
+        "reasoning": 30,
+        "totalTokens": 360,
+        "cost": {
+          "total": 0.004
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 300900
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-r1",
+    "parentId": "m-a1",
+    "timestamp": "2026-01-01T00:05:01.300Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_1",
+      "toolName": "write",
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully wrote to main.py"
+        }
+      ],
+      "isError": false,
+      "timestamp": 301300
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-final",
+    "parentId": "m-r1",
+    "timestamp": "2026-01-01T00:05:01.800Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "Done \u2014 `main.py` now prints a greeting."
+        }
+      ],
+      "model": "model-x",
+      "provider": "test-org",
+      "usage": {
+        "input": 1600,
+        "output": 440,
+        "cacheRead": 100,
+        "cacheWrite": 0,
+        "reasoning": 30,
+        "totalTokens": 2400,
+        "cost": {
+          "total": 0.0147
+        }
+      },
+      "stopReason": "stop",
+      "timestamp": 301800
+    }
+  }
+]

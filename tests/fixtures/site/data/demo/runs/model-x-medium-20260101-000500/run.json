@@ -1,0 +1,35 @@
+{
+  "id": "model-x-medium-20260101-000500",
+  "page": "demo",
+  "model": "test-org/model-x",
+  "effort": "medium",
+  "started_at": "2026-01-01T00:05:00Z",
+  "source_dir": "2026-01-01-medium-modelx-demo",
+  "verified": true,
+  "metrics": {
+    "duration_ms": 38250,
+    "cost_usd": 0.0187,
+    "tool_calls": 1,
+    "turns": 2,
+    "tokens_total": 2400,
+    "tokens_input": 1900,
+    "tokens_output": 500,
+    "tokens_reasoning": 60,
+    "tokens_cache_read": 300
+  },
+  "thumb": "thumb.png",
+  "game": null,
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": null,
+    "status": "session/status.json",
+    "output": "session/output.md"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "main.py"
+    ]
+  }
+}

@@ -1,0 +1,3 @@
+[clean]
+# Extra path prefixes to hide in published session/source files (home dir -> "~" is always applied).
+rewrite = { "/Volumes/M2SSD" = "<vol>", "--Volumes-M2SSD-" = "--vol-" }

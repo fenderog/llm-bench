@@ -1,0 +1,99 @@
+"""End to end: import the real voxel-horse effort run, serve it, and check all 3 Godot games boot sandboxed."""
+
+import json
+import shutil
+import socket
+import subprocess
+import sys
+import time
+import urllib.request
+from pathlib import Path
+
+import pytest
+
+REAL_RUN = Path.home() / "dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse"
+REPO = Path(__file__).resolve().parents[1]
+
+pytestmark = pytest.mark.skipif(not REAL_RUN.is_dir(), reason="real effort run not on this machine")
+
+
+def bench(*args, root):
+    return subprocess.run([sys.executable, "-m", "bench", *args, "--root", str(root)], capture_output=True, text=True)
+
+
+def free_port():
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+@pytest.fixture(scope="module")
+def site(tmp_path_factory):
+    root = tmp_path_factory.mktemp("site")
+    (root / "docs").mkdir()
+    for f in [*REPO.glob("docs/*.html"), REPO / "docs/.nojekyll"]:
+        shutil.copy(f, root / "docs")
+    shutil.copytree(REPO / "docs/assets", root / "docs/assets")
+    shutil.copy(REPO / "bench.toml", root)
+    r = bench("import", str(REAL_RUN), root=root)
+    assert r.returncode == 0, r.stderr
+    port = free_port()
+    server = subprocess.Popen([sys.executable, "-m", "bench", "serve", "--port", str(port), "--root", str(root)])
+    for _ in range(50):
+        try:
+            urllib.request.urlopen(f"http://127.0.0.1:{port}/data/pages.json")
+            break
+        except OSError:
+            time.sleep(0.1)
+    yield root, f"http://127.0.0.1:{port}/"
+    server.terminate()
+    server.wait()
+
+
+def test_import_output(site):
+    root, _ = site
+    docs = root / "docs"
+    runs = json.loads((docs / "data/voxel-horse/results.json").read_text())
+    assert sorted(r["effort"] for r in runs) == ["high", "low", "medium"]
+    assert len(list((docs / "engines").iterdir())) == 1, "engine should be stored once"
+    for r in runs:
+        run_dir = docs / "data/voxel-horse/runs" / r["id"]
+        assert not list(run_dir.rglob("*.wasm")), "engine must not be copied into runs"
+        text = "".join(p.read_text(errors="ignore") for p in (run_dir / "session").iterdir())
+        assert "/Users/" not in text and "/Volumes/" not in text and "encrypted_content" not in text
+    total = sum(p.stat().st_size for p in (docs / "data").rglob("*") if p.is_file())
+    assert total < 3_000_000, f"data dir unexpectedly large: {total} bytes"
+
+
+def test_all_games_boot_sandboxed_in_compare(site):
+    from playwright.sync_api import sync_playwright
+
+    root, base = site
+    runs = json.loads((root / "docs/data/voxel-horse/results.json").read_text())
+    ids = ",".join(r["id"] for r in runs)
+    with sync_playwright() as p:
+        browser = p.chromium.launch(channel="chrome", args=["--enable-unsafe-swiftshader", "--use-angle=swiftshader"])
+        page = browser.new_page(viewport={"width": 1500, "height": 900})
+        errors = []
+        page.on("pageerror", lambda e: errors.append(str(e)))
+        page.goto(f"{base}compare.html?p=voxel-horse&r={ids}")
+        assert page.locator("iframe").count() == 0, "games must not boot before a click"
+        overlays = page.locator("[data-play]")
+        assert overlays.count() == 3
+        for i in range(3):
+            overlays.nth(0).click()  # a clicked overlay is replaced by its iframe
+        frames = page.locator("iframe")
+        assert frames.count() == 3
+        for i in range(3):
+            assert "allow-same-origin" not in frames.nth(i).get_attribute("sandbox")
+        deadline = time.time() + 60
+        while time.time() < deadline:
+            game_frames = [f for f in page.frames if "/game/" in f.url]
+            booted = [f.evaluate("!document.getElementById('status')") for f in game_frames]
+            if len(booted) == 3 and all(booted):
+                break
+            time.sleep(1)
+        assert len(booted) == 3 and all(booted), f"games not booted: {booted}"
+        page.screenshot(path=str(root / "compare.png"))
+        browser.close()
+    assert not errors, errors

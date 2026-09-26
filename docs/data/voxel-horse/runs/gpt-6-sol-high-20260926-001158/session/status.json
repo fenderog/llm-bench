@@ -1,0 +1,415 @@
+{
+  "lifecycleArtifactVersion": 3,
+  "runId": "a4eced1b-a62b-435e-96bf-c54bb99abf78",
+  "mode": "single",
+  "state": "complete",
+  "steering": {
+    "requested": 0,
+    "scheduled": 0,
+    "pending": 0,
+    "delivered": 0,
+    "failed": 0,
+    "recovered": 0,
+    "recent": []
+  },
+  "lastActivityAt": 1790406957107,
+  "startedAt": 1790406762009,
+  "lastUpdate": 1790406957122,
+  "timeoutMs": 1800000,
+  "deadlineAt": 1790408561300,
+  "cwd": "<vol>/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse",
+  "currentStep": 0,
+  "chainStepCount": 1,
+  "parallelGroups": [],
+  "launchResolvedExtensions": {
+    "version": 1,
+    "source": "launch-resolved",
+    "disableAmbientExtensions": false,
+    "runtime": [
+      "sha256:99150343d35d8319"
+    ],
+    "configured": [],
+    "required": [],
+    "effective": [
+      "sha256:99150343d35d8319"
+    ],
+    "omitted": {
+      "runtime": 0,
+      "configured": 0,
+      "required": 0,
+      "effective": 0
+    }
+  },
+  "runFanoutBudget": {
+    "used": 3,
+    "limit": 64,
+    "remaining": 61
+  },
+  "parentWorkflowRunId": "af3128aa-784a-4027-9e87-7cec3d94ac81",
+  "workflowKey": "horse-high",
+  "processTerminal": {
+    "version": 1,
+    "state": "observed",
+    "runId": "a4eced1b-a62b-435e-96bf-c54bb99abf78",
+    "runnerProcessInstanceId": "527285ae-ac32-4038-9af0-e56daa2057ea",
+    "observedAt": 1790406957142,
+    "instances": [
+      {
+        "kind": "runner",
+        "processInstanceId": "527285ae-ac32-4038-9af0-e56daa2057ea",
+        "closeObservedAt": 1790406957142,
+        "exitCode": 0,
+        "signal": null
+      }
+    ],
+    "resumeDisposition": "resumable"
+  },
+  "steps": [
+    {
+      "agent": "worker",
+      "sessionName": "worker: Goal: Generate a complete, playable Godot 4.7.2 project t...",
+      "description": "[prompt redacted]",
+      "context": "fresh",
+      "launchResolvedExtensions": {
+        "version": 1,
+        "source": "launch-resolved",
+        "disableAmbientExtensions": false,
+        "runtime": [
+          "sha256:99150343d35d8319"
+        ],
+        "configured": [],
+        "required": [],
+        "effective": [
+          "sha256:99150343d35d8319"
+        ],
+        "omitted": {
+          "runtime": 0,
+          "configured": 0,
+          "required": 0,
+          "effective": 0
+        }
+      },
+      "status": "complete",
+      "transcriptPath": "~/.pi/agent/sessions/--vol-dev--/subagent-artifacts/a4eced1b-a62b-435e-96bf-c54bb99abf78_worker_transcript.jsonl",
+      "skills": [],
+      "model": "openai-codex/gpt-6-sol:high",
+      "contextLimit": 272000,
+      "thinking": "high",
+      "requestedModel": "openai-codex/gpt-6-sol:high",
+      "recentTools": [
+        {
+          "tool": "ls",
+          "args": ".",
+          "endMs": 1790406766439
+        },
+        {
+          "tool": "ls",
+          "args": "high",
+          "endMs": 1790406767982
+        },
+        {
+          "tool": "bash",
+          "args": "command -v godot || command -v godot4 || true; git status...",
+          "endMs": 1790406798825
+        },
+        {
+          "tool": "write",
+          "args": "high/project.godot",
+          "endMs": 1790406811470
+        },
+        {
+          "tool": "write",
+          "args": "high/scenes/main.tscn",
+          "endMs": 1790406814714
+        },
+        {
+          "tool": "write",
+          "args": "high/scripts/main.gd",
+          "endMs": 1790406876859
+        },
+        {
+          "tool": "write",
+          "args": "high/README.md",
+          "endMs": 1790406881647
+        },
+        {
+          "tool": "bash",
+          "args": "godot --version; godot --headless --path \"$PWD/high\" --ed...",
+          "endMs": 1790406888007
+        },
+        {
+          "tool": "bash",
+          "args": "godot --headless --path \"$PWD/high\" --quit-after 5; print...",
+          "endMs": 1790406892207
+        },
+        {
+          "tool": "edit",
+          "args": "high/scripts/main.gd",
+          "endMs": 1790406897113
+        },
+        {
+          "tool": "bash",
+          "args": "godot --headless --path \"$PWD/high\" --editor --quit > /tm...",
+          "endMs": 1790406907464
+        },
+        {
+          "tool": "bash",
+          "args": "rm -f /tmp/horse_editor_check.log /tmp/horse_run_check.lo...",
+          "endMs": 1790406919246
+        },
+        {
+          "tool": "edit",
+          "args": "high/README.md",
+          "endMs": 1790406924541
+        },
+        {
+          "tool": "bash",
+          "args": "rm -rf high/.godot; find high -type f | sort; if git -C h...",
+          "endMs": 1790406928949
+        },
+        {
+          "tool": "read",
+          "args": "high/scripts/main.gd.uid",
+          "endMs": 1790406934551
+        },
+        {
+          "tool": "bash",
+          "args": "godot --headless --path \"$PWD/high\" --editor --quit; edit...",
+          "endMs": 1790406946489
+        }
+      ],
+      "recentOutput": [
+        "Implemented a self-contained Godot 4.7.2 project with a procedurally built voxel horse that runs continuously.",
+        "Changed files: `high/project.godot`, `high/scenes/main.tscn`, `high/scripts/main.gd`, `high/scripts/main.gd.uid`, `high/README.md`.  ",
+        "Validation: Headless editor check and brief headless run both exited 0 with no errors.  ",
+        "Open risks/questions: Visual framing was not inspected in a graphical window.  ",
+        "Recommended next step: Run `godot --path high` to view the animation."
+      ],
+      "processTerminal": {
+        "version": 1,
+        "runId": "a4eced1b-a62b-435e-96bf-c54bb99abf78",
+        "childIndex": 0,
+        "runnerProcessInstanceId": "527285ae-ac32-4038-9af0-e56daa2057ea",
+        "resumeDisposition": "resumable",
+        "state": "not-started"
+      },
+      "startedAt": 1790406762012,
+      "lastActivityAt": 1790406957107,
+      "turnCount": 17,
+      "tokens": {
+        "input": 25280,
+        "output": 7452,
+        "total": 32732,
+        "window": 11963,
+        "windowPeak": 11963
+      },
+      "toolCount": 16,
+      "endedAt": 1790406957121,
+      "durationMs": 195109,
+      "exitCode": 0,
+      "totalCost": {
+        "inputTokens": 25280,
+        "outputTokens": 7452,
+        "costUsd": 0.1462768
+      },
+      "acceptance": {
+        "status": "review-required",
+        "evidenceStatus": "checked",
+        "explicit": false,
+        "effectiveAcceptance": {
+          "level": "checked",
+          "explicit": false,
+          "inferredReason": [
+            "async declared writer"
+          ],
+          "criteria": [
+            {
+              "id": "criterion-1",
+              "must": "Implement the requested change without widening scope",
+              "evidence": [
+                "changed-files",
+                "tests-added",
+                "commands-run",
+                "residual-risks",
+                "no-staged-files"
+              ],
+              "severity": "required"
+            },
+            {
+              "id": "criterion-2",
+              "must": "Return evidence sufficient for an independent acceptance review",
+              "evidence": [
+                "changed-files",
+                "tests-added",
+                "commands-run",
+                "residual-risks",
+                "no-staged-files"
+              ],
+              "severity": "required"
+            }
+          ],
+          "evidence": [
+            "changed-files",
+            "tests-added",
+            "commands-run",
+            "residual-risks",
+            "no-staged-files"
+          ],
+          "verify": [],
+          "review": {
+            "agent": "reviewer",
+            "required": true
+          },
+          "stopRules": []
+        },
+        "inferredReason": [
+          "async declared writer"
+        ],
+        "criteria": [
+          {
+            "id": "criterion-1",
+            "must": "Implement the requested change without widening scope",
+            "evidence": [
+              "changed-files",
+              "tests-added",
+              "commands-run",
+              "residual-risks",
+              "no-staged-files"
+            ],
+            "severity": "required"
+          },
+          {
+            "id": "criterion-2",
+            "must": "Return evidence sufficient for an independent acceptance review",
+            "evidence": [
+              "changed-files",
+              "tests-added",
+              "commands-run",
+              "residual-risks",
+              "no-staged-files"
+            ],
+            "severity": "required"
+          }
+        ],
+        "runtimeChecks": [
+          {
+            "id": "criterion:criterion-1",
+            "status": "passed",
+            "message": "Required criterion 'criterion-1' satisfied."
+          },
+          {
+            "id": "criterion:criterion-2",
+            "status": "passed",
+            "message": "Required criterion 'criterion-2' satisfied."
+          },
+          {
+            "id": "evidence:changed-files",
+            "status": "passed",
+            "message": "changed-files evidence present."
+          },
+          {
+            "id": "evidence:tests-added",
+            "status": "not-applicable",
+            "message": "tests-added evidence explicitly reported as not applicable."
+          },
+          {
+            "id": "evidence:commands-run",
+            "status": "passed",
+            "message": "commands-run evidence present."
+          },
+          {
+            "id": "evidence:residual-risks",
+            "status": "passed",
+            "message": "residual-risks evidence present."
+          },
+          {
+            "id": "evidence:no-staged-files",
+            "status": "passed",
+            "message": "no-staged-files evidence present."
+          },
+          {
+            "id": "no-staged-files",
+            "status": "not-applicable",
+            "message": "git status unavailable; no staged-files check skipped"
+          }
+        ],
+        "verifyRuns": [],
+        "childReport": {
+          "criteriaSatisfied": [
+            {
+              "id": "criterion-1",
+              "status": "satisfied",
+              "evidence": "All project files are under high/; the main scene builds and animates the horse, track, lighting, and camera without external assets."
+            },
+            {
+              "id": "criterion-2",
+              "status": "satisfied",
+              "evidence": "Godot 4.7.2 headless editor check and brief runtime check both exited 0 without errors."
+            }
+          ],
+          "changedFiles": [
+            "high/project.godot",
+            "high/scenes/main.tscn",
+            "high/scripts/main.gd",
+            "high/scripts/main.gd.uid",
+            "high/README.md"
+          ],
+          "testsAddedOrUpdated": [],
+          "commandsRun": [
+            {
+              "command": "godot --headless --path \"$PWD/high\" --editor --quit",
+              "result": "passed",
+              "summary": "Exit 0; no errors."
+            },
+            {
+              "command": "godot --headless --path \"$PWD/high\" --quit-after 10",
+              "result": "passed",
+              "summary": "Exit 0; no errors."
+            }
+          ],
+          "validationOutput": [
+            "Godot version: 4.7.2.stable.official.ed1daf0bf",
+            "Final editor_exit=0 run_exit=0"
+          ],
+          "residualRisks": [
+            "Visual framing was not manually inspected in a graphical window."
+          ],
+          "noStagedFiles": true,
+          "diffSummary": "Added a runnable Godot project, procedural animated horse scene, and run instructions.",
+          "reviewFindings": [
+            "No blockers found in final headless checks."
+          ]
+        },
+        "reviewResult": {
+          "status": "review-required",
+          "findings": [
+            {
+              "severity": "non-blocking",
+              "issue": "Independent review has not been supplied.",
+              "rationale": "The run cannot be marked reviewed from child evidence alone."
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "artifactsDir": "~/.pi/agent/sessions/--vol-dev--/subagent-artifacts",
+  "sessionDir": "~/.pi/agent/sessions/--vol-dev--/2026-09-26T06-55-32-371Z_01a0dc7f-6812-75a0-8289-77fd2ffd6394/d28f253f-d96e-4bee-8e12-7a7965222023/async-a4eced1b-a62b-435e-96bf-c54bb99abf78",
+  "outputFile": "/var/folders/t9/0ryz89553db0xv3j24mszllh0000gn/T/pi-subagents-uid-501/async-subagent-runs/a4eced1b-a62b-435e-96bf-c54bb99abf78/output-0.log",
+  "totalTokens": {
+    "input": 25280,
+    "output": 7452,
+    "total": 32732,
+    "window": 11963,
+    "windowPeak": 11963
+  },
+  "turnCount": 17,
+  "toolCount": 16,
+  "outputs": {},
+  "endedAt": 1790406957122,
+  "totalCost": {
+    "inputTokens": 25280,
+    "outputTokens": 7452,
+    "costUsd": 0.1462768
+  }
+}

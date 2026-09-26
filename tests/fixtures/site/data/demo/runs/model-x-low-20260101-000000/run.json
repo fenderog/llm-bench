@@ -1,0 +1,24 @@
+{
+  "id": "model-x-low-20260101-000000",
+  "page": "demo",
+  "model": "test-org/model-x",
+  "effort": "low",
+  "started_at": "2026-01-01T00:00:00Z",
+  "source_dir": "2026-01-01-low-modelx-demo",
+  "verified": false,
+  "metrics": {
+    "duration_ms": 4200,
+    "cost_usd": 0.0021,
+    "tool_calls": 0,
+    "turns": 1,
+    "tokens_total": 180,
+    "tokens_input": 140,
+    "tokens_output": 40,
+    "tokens_reasoning": 0,
+    "tokens_cache_read": 0
+  },
+  "thumb": null,
+  "game": null,
+  "session": null,
+  "source": null
+}

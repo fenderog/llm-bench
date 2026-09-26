@@ -1,0 +1,343 @@
+[
+  {
+    "type": "session",
+    "id": "s1",
+    "parentId": null,
+    "timestamp": "2026-01-01T00:10:00.000Z",
+    "cwd": "~/work/demo"
+  },
+  {
+    "type": "message",
+    "id": "m-sys",
+    "parentId": "s1",
+    "timestamp": "2026-01-01T00:10:00.050Z",
+    "message": {
+      "role": "system",
+      "content": "You are a careful engineer working in a sandboxed repo.",
+      "sections": null
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-user",
+    "parentId": "m-sys",
+    "timestamp": "2026-01-01T00:10:00.100Z",
+    "message": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Please write a friendly greeting script and a README."
+        }
+      ],
+      "timestamp": 600100
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-a1",
+    "parentId": "m-user",
+    "timestamp": "2026-01-01T00:10:00.900Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "Let's check the environment for a runner first."
+        },
+        {
+          "type": "toolCall",
+          "id": "call_1",
+          "name": "bash",
+          "arguments": {
+            "command": "whichx godot",
+            "timeout": 10
+          }
+        }
+      ],
+      "model": "model-x",
+      "provider": "test-org",
+      "usage": {
+        "input": 500,
+        "output": 40,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "reasoning": 120,
+        "totalTokens": 660,
+        "cost": {
+          "total": 0.003
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 600900
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-r1",
+    "parentId": "m-a1",
+    "timestamp": "2026-01-01T00:10:01.400Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_1",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "bash: whichx: command not found"
+        }
+      ],
+      "isError": true,
+      "timestamp": 601400
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-a2",
+    "parentId": "m-r1",
+    "timestamp": "2026-01-01T00:10:01.900Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_2",
+          "name": "ls",
+          "arguments": {
+            "path": "."
+          }
+        }
+      ],
+      "model": "model-x",
+      "provider": "test-org",
+      "usage": {
+        "input": 200,
+        "output": 15,
+        "cacheRead": 400,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 215,
+        "cost": {
+          "total": 0.0009
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 601900
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-r2",
+    "parentId": "m-a2",
+    "timestamp": "2026-01-01T00:10:02.100Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_2",
+      "toolName": "ls",
+      "content": [
+        {
+          "type": "text",
+          "text": "README.md\nmain.py"
+        }
+      ],
+      "isError": false,
+      "timestamp": 602100
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-a3",
+    "parentId": "m-r2",
+    "timestamp": "2026-01-01T00:10:02.600Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_3",
+          "name": "write",
+          "arguments": {
+            "path": "main.py",
+            "content": "print('hello world')\n"
+          }
+        }
+      ],
+      "model": "model-x",
+      "provider": "test-org",
+      "usage": {
+        "input": 260,
+        "output": 55,
+        "cacheRead": 500,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 315,
+        "cost": {
+          "total": 0.0011
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 602600
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-r3",
+    "parentId": "m-a3",
+    "timestamp": "2026-01-01T00:10:03.000Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_3",
+      "toolName": "write",
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully wrote to main.py"
+        }
+      ],
+      "isError": false,
+      "timestamp": 603000
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-a4",
+    "parentId": "m-r3",
+    "timestamp": "2026-01-01T00:10:03.500Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_4",
+          "name": "edit",
+          "arguments": {
+            "path": "main.py",
+            "edits": [
+              {
+                "oldText": "print('hello world')",
+                "newText": "print('hello, world!')"
+              }
+            ]
+          }
+        }
+      ],
+      "model": "model-x",
+      "provider": "test-org",
+      "usage": {
+        "input": 300,
+        "output": 70,
+        "cacheRead": 600,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 370,
+        "cost": {
+          "total": 0.0014
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 603500
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-r4",
+    "parentId": "m-a4",
+    "timestamp": "2026-01-01T00:10:03.900Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_4",
+      "toolName": "edit",
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully replaced 1 block(s) in main.py."
+        }
+      ],
+      "isError": false,
+      "timestamp": 603900
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-a5",
+    "parentId": "m-r4",
+    "timestamp": "2026-01-01T00:10:04.400Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_5",
+          "name": "read",
+          "arguments": {
+            "path": "README.md"
+          }
+        }
+      ],
+      "model": "model-x",
+      "provider": "test-org",
+      "usage": {
+        "input": 180,
+        "output": 20,
+        "cacheRead": 700,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 200,
+        "cost": {
+          "total": 0.0007
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 604400
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-r5",
+    "parentId": "m-a5",
+    "timestamp": "2026-01-01T00:10:04.700Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_5",
+      "toolName": "read",
+      "content": [
+        {
+          "type": "text",
+          "text": "# Demo\n\nA tiny demo project used as a viewer fixture.\n"
+        }
+      ],
+      "isError": false,
+      "timestamp": 604700
+    }
+  },
+  {
+    "type": "message",
+    "id": "m-final",
+    "parentId": "m-r5",
+    "timestamp": "2026-01-01T00:10:05.200Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "Done. I fixed the greeting and re-read the README to confirm it. <script>alert(1)</script> should render as text, not run.\n\n**Changed files:** `main.py`, checked `README.md`.\n\n```\nif x < 5 && y > 2:\n```\n\n[bad link](javascript:alert(2)) and [docs](https://example.com)."
+        }
+      ],
+      "model": "model-x",
+      "provider": "test-org",
+      "usage": {
+        "input": 25280,
+        "output": 7452,
+        "cacheRead": 105984,
+        "cacheWrite": 0,
+        "reasoning": 3073,
+        "totalTokens": 32732,
+        "cost": {
+          "total": 0.146
+        }
+      },
+      "stopReason": "stop",
+      "timestamp": 605200
+    }
+  }
+]

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run &ndash; llm-bench</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">llm-bench</a>
+  <span class="crumb">/ <a id="page-link" href="index.html">page</a> / run</span>
+</header>
+<main class="container" id="main">
+  <div class="run-header">
+    <h1 id="title">Loading&hellip;</h1>
+  </div>
+  <div class="metric-strip" id="metric-strip"></div>
+
+  <div class="tabs" id="tabs">
+    <button data-tab="game" class="active" type="button">Game</button>
+    <button data-tab="transcript" type="button">Transcript</button>
+    <button data-tab="source" type="button">Source</button>
+    <button data-tab="metrics" type="button">Metrics</button>
+  </div>
+
+  <section class="tab-panel" id="panel-game"></section>
+  <section class="tab-panel" id="panel-transcript" hidden></section>
+  <section class="tab-panel" id="panel-source" hidden></section>
+  <section class="tab-panel" id="panel-metrics" hidden></section>
+</main>
+<script type="module" src="assets/run.js"></script>
+</body>
+</html>
