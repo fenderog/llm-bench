@@ -118,13 +118,18 @@ button.btn-secondary { background: transparent; color: var(--fg); border: 1px so
 .badge-error { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
 .badge-neutral { color: var(--muted); }
 
-/* ---- run header / sections ---- */
+/* ---- run header / tabs ---- */
 .run-header { display: flex; flex-wrap: wrap; gap: 16px; align-items: baseline; margin-bottom: 8px; }
 .metric-strip { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 14px; margin-bottom: 16px; }
 .metric-strip strong { color: var(--fg); }
 
-.run-section { margin: 28px 0; }
-.run-section > h2 { font-size: 1.1rem; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.tabs button {
+  background: none; border: none; padding: 10px 14px; font-size: 14px; cursor: pointer;
+  color: var(--muted); border-bottom: 2px solid transparent;
+}
+.tabs button.active { color: var(--fg); border-bottom-color: var(--accent); font-weight: 600; }
+.tab-panel[hidden] { display: none; }
 
 /* ---- game / play overlay ---- */
 .game-frame {
@@ -192,10 +197,16 @@ details.system-block summary, details.out-collapse summary { cursor: pointer; co
 .transcript[data-filter="tools"] .turn:not([data-has-tool="1"]) { display: none; }
 .transcript[data-filter="errors"] .turn:not([data-has-error="1"]) { display: none; }
 
-/* ---- source ---- */
-details.source-file { margin: 0 0 10px; }
-details.source-file summary { cursor: pointer; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; padding: 4px 0; }
-details.source-file pre { background: var(--code-bg); padding: 12px; border-radius: 6px; overflow: auto; max-height: 60vh; margin: 4px 0 0; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+/* ---- source tab ---- */
+.source-layout { display: flex; gap: 16px; flex-wrap: wrap; }
+.source-files { min-width: 180px; }
+.source-files button {
+  display: block; width: 100%; text-align: left; background: none; border: none; padding: 6px 8px;
+  color: var(--fg); cursor: pointer; border-radius: 4px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px;
+}
+.source-files button.active { background: var(--accent); color: var(--accent-fg); }
+.source-view { flex: 1; min-width: 260px; }
+.source-view pre { background: var(--code-bg); padding: 12px; border-radius: 6px; overflow: auto; max-height: 70vh; }
 
 /* ---- metrics ---- */
 table.metrics { border-collapse: collapse; }

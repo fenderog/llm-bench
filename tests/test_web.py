@@ -141,7 +141,7 @@ def test_page_invalid_slug_shows_message(site, page):
 
 
 # ---------------------------------------------------------------- run.html
-def test_run_game_click_to_play(site, page):
+def test_run_game_tab_click_to_play(site, page):
     page.goto(f"{site}run.html?p=demo&r={HIGH_ID}")
     page.wait_for_selector("[data-play]")
     assert page.locator("iframe").count() == 0
@@ -161,16 +161,17 @@ def test_run_game_click_to_play(site, page):
     assert_no_errors(page)
 
 
-def test_run_game_null_game(site, page):
+def test_run_game_tab_null_game(site, page):
     page.goto(f"{site}run.html?p=demo&r={MEDIUM_ID}")
-    page.wait_for_selector("#section-game .msg")
-    assert "No game" in page.locator("#section-game").inner_text()
+    page.wait_for_selector("#panel-game")
+    assert "No game" in page.locator("#panel-game").inner_text()
     assert page.locator("[data-play]").count() == 0
     assert_no_errors(page)
 
 
 def test_run_transcript_tool_calls_and_filters(site, page):
     page.goto(f"{site}run.html?p=demo&r={HIGH_ID}")
+    page.locator('#tabs button[data-tab="transcript"]').click()
     page.wait_for_selector(".transcript .turn")
 
     assert page.locator(".tool-block").count() == 5  # bash, ls, write, edit, read
@@ -205,26 +206,20 @@ def test_run_transcript_tool_calls_and_filters(site, page):
 
 def test_run_transcript_null_session(site, page):
     page.goto(f"{site}run.html?p=demo&r={LOW_ID}")
-    page.wait_for_selector("#section-transcript .msg")
-    assert "No transcript" in page.locator("#section-transcript").inner_text()
+    page.locator('#tabs button[data-tab="transcript"]').click()
+    page.wait_for_selector("#panel-transcript .msg")
+    assert "No transcript" in page.locator("#panel-transcript").inner_text()
     assert_no_errors(page)
 
 
-def test_run_page_shows_everything_inline(site, page):
+def test_run_source_tab_shows_file_content(site, page):
     page.goto(f"{site}run.html?p=demo&r={HIGH_ID}")
-    page.wait_for_selector(".transcript .turn")
-    page.wait_for_selector("details.source-file pre")
-    # all sections are on the page and visible at once, no tabs
-    assert page.locator("#tabs").count() == 0
-    for name in ["game", "metrics", "source", "transcript"]:
-        assert page.locator(f"#section-{name}").is_visible()
-    assert page.locator("[data-play]").is_visible()
-    assert page.locator("table.metrics").is_visible()
-    # every source file is shown expanded
-    files = page.locator("details.source-file")
-    assert files.count() == 2
-    assert all(files.nth(i).get_attribute("open") is not None for i in range(2))
-    assert "Demo" in page.locator("#section-source").inner_text()
+    page.locator('#tabs button[data-tab="source"]').click()
+    page.wait_for_selector(".source-files button")
+    assert page.locator(".source-files button").count() == 2
+    page.locator('.source-files button:has-text("README.md")').click()
+    page.wait_for_function("document.querySelector('.source-view pre').textContent.includes('Demo')")
+    assert "Demo" in page.locator(".source-view pre").inner_text()
     assert_no_errors(page)
 
 

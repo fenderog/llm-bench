@@ -42,25 +42,29 @@ function render(run, base) {
     metric("started", fmtDate(run.started_at))
   );
 
+  setupTabs();
   renderGame(run, base);
-  renderMetrics(run, base);
+  renderTranscriptTab(run, base);
   renderSource(run, base);
-  renderTranscriptSection(run, base);
-}
-
-// Each section keeps its <h2>; content goes into a body div below it.
-function sectionBody(name) {
-  const body = el("div", { class: "section-body" });
-  document.getElementById(`section-${name}`).append(body);
-  return body;
+  renderMetrics(run, base);
 }
 
 function metric(label, value) {
   return el("span", {}, [el("strong", { text: value }), el("span", { text: ` ${label}` })]);
 }
 
+function setupTabs() {
+  const buttons = document.querySelectorAll("#tabs button");
+  for (const b of buttons) {
+    b.addEventListener("click", () => {
+      for (const other of buttons) other.classList.toggle("active", other === b);
+      for (const panel of document.querySelectorAll(".tab-panel")) panel.hidden = panel.id !== `panel-${b.dataset.tab}`;
+    });
+  }
+}
+
 function renderGame(run, base) {
-  const panel = sectionBody("game");
+  const panel = document.getElementById("panel-game");
   if (!run.game) {
     showMessage(panel, "No game recorded for this run.");
     return;
@@ -75,8 +79,8 @@ function renderGame(run, base) {
   );
 }
 
-async function renderTranscriptSection(run, base) {
-  const panel = sectionBody("transcript");
+async function renderTranscriptTab(run, base) {
+  const panel = document.getElementById("panel-transcript");
   const session = run.session;
   if (!session || !session.conversation) {
     showMessage(panel, "No transcript recorded for this run.");
@@ -93,23 +97,37 @@ async function renderTranscriptSection(run, base) {
   }
 }
 
-async function renderSource(run, base) {
-  const panel = sectionBody("source");
+function renderSource(run, base) {
+  const panel = document.getElementById("panel-source");
   const source = run.source;
   if (!source || !source.files || !source.files.length) {
     showMessage(panel, "No source files recorded for this run.");
     return;
   }
-  const texts = await Promise.all(
-    source.files.map((f) => getText(base + source.root + f).catch((err) => `Could not load ${f}: ${err.message}`))
-  );
-  source.files.forEach((f, i) => {
-    panel.append(el("details", { class: "source-file", attrs: { open: "" } }, [el("summary", { text: f }), el("pre", { text: texts[i] })]));
-  });
+  const layout = el("div", { class: "source-layout" });
+  const list = el("div", { class: "source-files" });
+  const view = el("div", { class: "source-view" }, [el("pre", { text: "Select a file…" })]);
+  layout.append(list, view);
+  panel.append(layout);
+
+  for (const f of source.files) {
+    const btn = el("button", { text: f, attrs: { type: "button" } });
+    btn.addEventListener("click", async () => {
+      for (const b of list.children) b.classList.remove("active");
+      btn.classList.add("active");
+      try {
+        const text = await getText(base + source.root + f);
+        view.replaceChildren(el("pre", { text }));
+      } catch (err) {
+        view.replaceChildren(el("pre", { text: `Could not load ${f}: ${err.message}` }));
+      }
+    });
+    list.append(btn);
+  }
 }
 
 function renderMetrics(run, base) {
-  const panel = sectionBody("metrics");
+  const panel = document.getElementById("panel-metrics");
   const rows = [
     ["id", run.id],
     ["model", run.model],
