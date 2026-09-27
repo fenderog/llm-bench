@@ -50,6 +50,7 @@ function render(page, runs) {
 
   const headRow = el("tr", {}, [
     el("th", { text: "" }),
+    el("th", { text: "" }),
     ...COLUMNS.map((c) =>
       el("th", { text: c.label, attrs: { "data-key": c.key }, on: { click: () => sortBy(c.key) } })
     ),
@@ -91,11 +92,15 @@ function render(page, runs) {
         else selected.delete(r.id);
         compareBtn.disabled = selected.size === 0;
       });
-      const tds = [el("td", {}, [cb])];
+      const runUrl = `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}`;
+      const thumb = r.thumb
+        ? el("a", { attrs: { href: runUrl } }, [el("img", { class: "row-thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })])
+        : el("span", { class: "muted", text: "–" });
+      const tds = [el("td", {}, [cb]), el("td", { class: "thumb-cell" }, [thumb])];
       for (const c of COLUMNS) {
         const v = c.get(r);
         if (c.key === "model") {
-          tds.push(el("td", {}, [el("a", { text: v, attrs: { href: `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}` } })]));
+          tds.push(el("td", {}, [el("a", { text: v, attrs: { href: runUrl } })]));
         } else if (c.key === "verified") {
           tds.push(el("td", {}, [v === true ? badge("✓", "good") : v === false ? badge("✗", "bad") : el("span", { class: "muted", text: "–" })]));
         } else if (c.num) {
@@ -116,20 +121,4 @@ function render(page, runs) {
     }
   }
   drawTable();
-
-  const gallery = document.getElementById("gallery");
-  for (const r of runs) {
-    const thumbUrl = r.thumb ? `${runDir(slug, r.id)}${r.thumb}` : null;
-    const thumb = thumbUrl
-      ? el("img", { class: "thumb", attrs: { src: thumbUrl, alt: "" } })
-      : el("div", { class: "thumb-ph", text: "no preview" });
-    gallery.append(
-      el("a", { class: "card", attrs: { href: `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}` } }, [
-        thumb,
-        el("div", { class: "card-body" }, [
-          el("div", { class: "card-title", text: `${r.model} · ${r.effort}` }),
-        ]),
-      ])
-    );
-  }
 }

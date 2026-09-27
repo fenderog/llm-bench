@@ -102,10 +102,21 @@ def test_page_table_and_sorting(site, page):
     assert_no_errors(page)
 
 
-def test_gallery_has_no_iframes(site, page):
+def test_runs_table_shows_each_runs_image(site, page):
     page.goto(f"{site}page.html?p=demo")
-    page.wait_for_selector("#gallery .card")
-    assert page.locator("#gallery .card").count() == 3
+    page.wait_for_selector("table.runs tbody tr")
+    assert page.locator("#gallery").count() == 0  # images live in the table, no separate gallery
+    thumbs = page.locator("table.runs img.row-thumb")
+    assert thumbs.count() == 2  # medium + high have a thumb, low doesn't
+    page.wait_for_function("[...document.querySelectorAll('img.row-thumb')].every(i => i.complete && i.naturalWidth > 0)")
+    for i in range(2):
+        href = thumbs.nth(i).locator("xpath=..").get_attribute("href")
+        assert href.startswith("run.html?p=demo&r=model-x-")
+    # thumbs stay with their row when sorting
+    page.locator('th[data-key="effort"]').click()
+    efforts = page.locator("table.runs tbody tr td:nth-child(4)").all_inner_texts()
+    has_img = [page.locator("table.runs tbody tr").nth(i).locator("img.row-thumb").count() for i in range(3)]
+    assert dict(zip(efforts, has_img)) == {"low": 0, "medium": 1, "high": 1}
     assert page.locator("iframe").count() == 0
     assert_no_errors(page)
 
