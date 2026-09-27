@@ -21,7 +21,7 @@ def test_pages_and_results_json_shapes(bench_root, effort_run):
     page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
     for key in ("slug", "title", "prompt", "created", "updated"):
         assert key in page
-    assert page["prompt"] == "Task: draw a running horse in ~/effort-runs/x. Output directory: ./<effort>/."
+    assert page["prompt"] == "draw a running horse"
     assert page["title"] == "Voxel horse"
 
     results = json.loads((bench_root / "docs/data/voxel-horse/results.json").read_text())
@@ -44,13 +44,26 @@ def _high_id(bench_root):
     return next(r["id"] for r in results if r["effort"] == "high")
 
 
-def test_prompt_is_the_models_task_not_prompt_md(bench_root, effort_run):
-    # prompt.md is the orchestrator's instruction; the page shows what the model was actually asked
-    (effort_run / "prompt.md").write_text("use gpt-6-sol in low medium high to draw a horse")
+def test_prompt_md_is_cleaned_and_secret_scanned(bench_root, effort_run):
+    from pathlib import Path
+
+    (effort_run / "prompt.md").write_text(f"draw a horse in {Path.home()}/x with key sk-abcdefghijklmnopqrstuvwxyz123456")
+    rc = main(["import", str(effort_run), "--root", str(bench_root)])
+    assert rc != 0 and not (bench_root / "docs/data/voxel-horse").exists()  # aborted before writing
+    main(["import", str(effort_run), "--root", str(bench_root), "--redact"])
+    page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
+    assert page["prompt"] == "draw a horse in ~/x with key [REDACTED]"
+
+
+def test_prompt_is_the_originating_prompt_md_and_refreshes(bench_root, effort_run):
+    # the page shows prompt.md (the originating prompt), not the subagent brief in the transcript
     main(["import", str(effort_run), "--root", str(bench_root)])
     page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
-    assert page["prompt"].startswith("Task: draw a running horse")
-    assert "./<effort>/" in page["prompt"] and "gpt-6-sol" not in page["prompt"]
+    assert page["prompt"] == "draw a running horse"
+    (effort_run / "prompt.md").write_text("draw a galloping horse\n")
+    main(["import", str(effort_run), "--root", str(bench_root)])
+    page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
+    assert page["prompt"] == "draw a galloping horse"
 
 
 def test_rm_run_then_rm_page(bench_root, effort_run):

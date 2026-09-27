@@ -67,21 +67,6 @@ def write_cleaned(src, dest, kind, rewrites, redact, batch):
     dest.write_text(text, encoding="utf-8")
 
 
-def task_prompt(run_dir, level):
-    """The task the model was given: the cleaned session's first user message, with the
-    effort-specific output dir (./low/, ./high/, ...) normalized so all levels share one prompt."""
-    convo = run_dir / "session" / "conversation.json"
-    if not convo.is_file():
-        return None
-    for entry in json.loads(convo.read_text()):
-        msg = entry.get("message") or {}
-        if msg.get("role") == "user":
-            content = msg.get("content") or ""
-            text = content if isinstance(content, str) else "".join(b.get("text", "") for b in content if b.get("type") == "text")
-            return text.replace(f"./{level}/", "./<effort>/")
-    return None
-
-
 def stage_session(level_dir, run_dir, rewrites, redact, batch):
     if not level_dir.is_dir():
         return None
@@ -160,7 +145,6 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
     n_bytes = sum(p.stat().st_size for p in run_dir.rglob("*") if p.is_file())
     return SimpleNamespace(
         run_id=run_id,
-        level=level,
         run_dir=run_dir,
         engine_sha=engine_sha,
         engine_files=engine_files,
@@ -186,6 +170,11 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
     (docs_root / "data").mkdir(parents=True, exist_ok=True)
     (docs_root / "engines").mkdir(parents=True, exist_ok=True)
     rewrites = load_rewrites(root)
+    # The originating prompt (not the brief given to subagents); cleaned and scanned like everything else.
+    prompt_path = effort_dir / "prompt.md"
+    prompt = clean.rewrite_text(prompt_path.read_text().strip(), rewrites)[0] if prompt_path.is_file() else None
+    if prompt and redact:
+        prompt = clean.redact_secrets(prompt)[0]
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_root = Path(tmp)
@@ -198,6 +187,8 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
             results.append(r)
 
         all_hits = [h for r in results for h in r.hits]
+        if prompt and not redact:
+            all_hits += [("page", "prompt.md", line, secret) for line, secret in clean.scan_secrets(prompt)]
         if all_hits and not redact:
             for run_id, rel, line, secret in all_hits:
                 print(f"secret: {run_id}/{rel}:{line}: {mask(secret)}", file=sys.stderr)
@@ -215,8 +206,6 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
 
         if dry_run:
             return 0
-
-        prompt = next((p for r in results if (p := task_prompt(r.run_dir, r.level))), None)
 
         for r in results:
             if r.engine_sha and r.engine_files is not None:

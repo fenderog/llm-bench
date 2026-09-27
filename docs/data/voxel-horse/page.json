@@ -1,7 +1,7 @@
 {
   "slug": "voxel-horse",
   "title": "Voxel horse",
-  "prompt": "Task: Goal: Generate a complete, playable Godot 4.7.2 project that shows a recognizable voxel-style horse running continuously. Use procedural geometry (e.g. a hierarchy of colored BoxMesh cube parts) and animate a leg gait, head/tail bob and body motion in GDScript. Include a ground plane, lighting, a camera with a useful framing, a runnable main scene configured in project.godot, and a short README with exact run instructions. Avoid downloads/external assets/plugins; keep everything self-contained. Target: this run-root cwd. Authority: edit/create files ONLY inside the designated effort directory; do not change siblings, root prompt/archive files, or paths outside it; no commits or publishing. Success: project.godot and scenes/scripts live under the effort directory, Godot can load the project and horse visibly runs when started. Validation: run a headless Godot editor import/check (godot --headless --path <effort-dir> --editor --quit) and report its exit status and any errors; optionally a brief headless run. Return concise summary, file list and validation; if blocked, report it. Do not launch subagents. Output directory: ./<effort>/. All project files and any generated Godot cache must stay under that directory. Use relative paths within the project.",
+  "prompt": "use gpt-6-sol in low medium high to generate a voxel horse running as a godot project",
   "created": "2026-09-26T07:12:42Z",
   "updated": "2026-09-26T07:15:58Z"
 }

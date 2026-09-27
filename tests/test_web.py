@@ -106,7 +106,7 @@ def test_page_shows_labeled_prompt(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("#prompt-box:not([hidden])")
     assert page.locator(".prompt-label").inner_text().strip().lower() == "prompt"
-    assert page.locator("#prompt").inner_text().startswith("Task: Build a tiny demo project")
+    assert page.locator("#prompt").inner_text().startswith("build a tiny demo project")
     assert_no_errors(page)
 
 

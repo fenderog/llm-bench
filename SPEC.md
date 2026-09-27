@@ -56,7 +56,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 ### Page (`data/<slug>/page.json`)
 ```json
 { "slug": "voxel-horse", "title": "Voxel horse",
-  "prompt": "<the model's task: first user message of the session, ./<level>/ normalized to ./<effort>/>",
+  "prompt": "<contents of prompt.md, the originating prompt; refreshed on every import>",
   "created": "2026-09-26T07:12:42Z", "updated": "2026-09-26T07:15:57Z" }
 ```
 
@@ -92,7 +92,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 A real example (READ ONLY, never modify): `~/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse/`
 
 ```
-prompt.md                     # orchestrator prompt (not shown; the page shows the model's task from conversation.json)
+prompt.md                     # the originating prompt, shown on the page (the subagent brief lives in <level>/conversation.json)
 data.json                     # {"schema": "fe-model-effort-fanout/1", "runs": {"low": {...}, "medium": {...}, "high": {...}}, "totals": {...}}
                               #   runs.<level>: model, thinkingLevel, startedAt (epoch ms), durationMs, costUsd, toolCalls, turns,
                               #                 tokens: {input, output, total, reasoning, cacheRead, cacheWrite, ...}
