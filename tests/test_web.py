@@ -120,9 +120,8 @@ def test_clicking_a_row_expands_the_game_inline(site, page):
     high.locator("td").nth(3).click()  # collapse removes the game
     assert page.locator("tr.run-detail").count() == 0 and page.locator("iframe").count() == 0
 
-    # checkbox and links don't toggle; a run without a game says so
-    row("low").locator("input[type=checkbox]").click()
-    assert page.locator("tr.run-detail").count() == 0
+    # keyboard works too; a run without a game says so
+    assert page.locator("table.runs input[type=checkbox]").count() == 0
     row("low").focus()
     page.keyboard.press("Enter")
     assert "No playable build" in page.locator("tr.run-detail").inner_text()
@@ -148,7 +147,7 @@ def test_every_column_header_has_hover_help(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")
     headers = page.locator("table.runs thead th")
-    assert headers.count() == 12
+    assert headers.count() == 12  # caret, thumb, 10 data columns
     helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(12)}
     assert all(t and len(t) > 20 for t in helps.values()), helps
     assert "reasoning" in helps["Reasoning tok"].lower()
@@ -187,20 +186,16 @@ def test_runs_table_shows_each_runs_image(site, page):
     assert_no_errors(page)
 
 
-def test_compare_button_builds_url(site, page):
+def test_compare_all_opens_every_run(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")
-    checkboxes = page.locator('table.runs tbody input[type="checkbox"]')
-    for i in range(checkboxes.count()):
-        checkboxes.nth(i).check()
-    btn = page.locator("#compare-btn")
-    assert not btn.is_disabled()
+    link = page.locator("#compare-all")
+    assert link.inner_text().strip() == "Compare all"
     with page.expect_navigation():
-        btn.click()
-    url = page.url
-    assert "compare.html?p=demo&r=" in url
-    ids = url.split("r=", 1)[1].split(",")
-    assert sorted(ids) == sorted([LOW_ID, MEDIUM_ID, HIGH_ID])
+        link.click()
+    assert page.url.endswith("compare.html?p=demo")
+    page.wait_for_selector(".compare-col")
+    assert page.locator(".compare-col").count() == 3
     assert_no_errors(page)
 
 
@@ -307,45 +302,30 @@ def test_run_invalid_run_id_shows_message(site, page):
 
 
 # ---------------------------------------------------------------- compare.html
-def test_compare_three_runs_no_iframes_until_clicked(site, page):
-    ids = ",".join([LOW_ID, MEDIUM_ID, HIGH_ID])
-    page.goto(f"{site}compare.html?p=demo&r={ids}")
+def test_compare_shows_metrics_and_games_only(site, page):
+    page.goto(f"{site}compare.html?p=demo")
     page.wait_for_selector(".compare-col")
-    assert page.locator(".compare-col").count() == 3
+    cols = page.locator(".compare-col")
+    assert cols.count() == 3
+    text = page.locator("#columns").inner_text()
+    assert "Tool calls" not in text and "Source" not in text
+    assert page.locator("#file-picker, .tool-summary-list").count() == 0
+    for i in range(3):
+        metrics = cols.nth(i).locator(".compare-metrics").inner_text()
+        assert "tokens" in metrics and "$" in metrics
+
+    # games never boot on their own; in the fixture only the high run has one
     assert page.locator("iframe").count() == 0
-
-    # only medium + high have a game (2 overlays); low has none
-    overlays = page.locator("[data-play]")
-    assert overlays.count() >= 1
-    n = overlays.count()
-    for _ in range(n):
-        page.locator("[data-play]").first.click()
-    assert page.locator("iframe").count() == n
-    for i in range(n):
-        sandbox = page.locator("iframe").nth(i).get_attribute("sandbox")
-        assert "allow-same-origin" not in sandbox
-
+    assert page.locator("[data-play]").count() == 1
+    page.locator("[data-play]").click()
+    assert page.locator("iframe").count() == 1
+    assert "allow-same-origin" not in page.locator("iframe").get_attribute("sandbox")
+    assert page.locator(".compare-col", has_text="No game recorded").count() == 2
     assert_no_errors(page)
 
 
-def test_compare_source_file_picker_syncs_columns(site, page):
-    ids = ",".join([LOW_ID, MEDIUM_ID, HIGH_ID])
-    page.goto(f"{site}compare.html?p=demo&r={ids}")
-    page.wait_for_selector("#file-picker button")
-    page.locator('#file-picker button:has-text("main.py")').click()
-    page.wait_for_function(
-        "[...document.querySelectorAll('.compare-col pre')].some(p => p.textContent.includes('hello'))"
-    )
-    views = page.locator(".compare-col pre")
-    texts = [views.nth(i).inner_text() for i in range(views.count())]
-    assert any("not present" in t for t in texts)  # low has no source
-    assert any("hello" in t for t in texts)  # medium/high do
-    assert_no_errors(page)
-
-
-def test_compare_tool_call_summary_has_error_badge(site, page):
-    ids = ",".join([MEDIUM_ID, HIGH_ID])
-    page.goto(f"{site}compare.html?p=demo&r={ids}")
-    page.wait_for_selector(".tool-summary-list li")
-    assert page.locator(".badge-bad").count() >= 1
+def test_compare_can_be_limited_to_listed_runs(site, page):
+    page.goto(f"{site}compare.html?p=demo&r={MEDIUM_ID},{HIGH_ID}")
+    page.wait_for_selector(".compare-col")
+    assert page.locator(".compare-col").count() == 2
     assert_no_errors(page)

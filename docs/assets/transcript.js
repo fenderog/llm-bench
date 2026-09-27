@@ -178,21 +178,3 @@ export async function renderTranscript(root, conversation, eventsText) {
   }
   return list;
 }
-
-/** Compact ordered list of {name, isError} for a compare-view summary. */
-export function summarizeToolCalls(conversation) {
-  const messages = conversation.filter((e) => e.type === "message");
-  const toolResults = new Map();
-  for (const m of messages) if (m.message.role === "toolResult") toolResults.set(m.message.toolCallId, m.message);
-  const out = [];
-  for (const m of messages) {
-    if (m.message.role !== "assistant") continue;
-    for (const b of m.message.content || []) {
-      if (b.type === "toolCall") {
-        const r = toolResults.get(b.id);
-        out.push({ name: b.name, isError: !!(r && r.isError) });
-      }
-    }
-  }
-  return out;
-}

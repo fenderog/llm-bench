@@ -52,12 +52,7 @@ function render(page, runs) {
     document.getElementById("final-prompt-box").hidden = false;
   }
 
-  const selected = new Set();
-  const compareBtn = document.getElementById("compare-btn");
-  compareBtn.addEventListener("click", () => {
-    if (!selected.size) return;
-    location.href = `compare.html?p=${encodeURIComponent(slug)}&r=${[...selected].join(",")}`;
-  });
+  document.getElementById("compare-all").href = `compare.html?p=${encodeURIComponent(slug)}`;
 
   let sortKey = "duration_ms";
   let sortDir = 1;
@@ -66,7 +61,7 @@ function render(page, runs) {
   const tbody = table.querySelector("tbody");
 
   const headRow = el("tr", {}, [
-    el("th", { attrs: { "data-help": "Select runs, then press Compare selected to view them side by side." } }),
+    el("th", { attrs: { "data-help": "Click a row to expand it and play that run's game inline." } }),
     el("th", { attrs: { "data-help": "Screenshot of the running game taken during verification. Click to open the run." } }),
     ...COLUMNS.map((c) =>
       el("th", { text: c.label, class: "has-help", attrs: { "data-key": c.key, "data-help": `${c.help}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
@@ -103,18 +98,11 @@ function render(page, runs) {
 
     tbody.replaceChildren();
     for (const r of rows) {
-      const cb = el("input", { attrs: { type: "checkbox" } });
-      cb.checked = selected.has(r.id);
-      cb.addEventListener("change", () => {
-        if (cb.checked) selected.add(r.id);
-        else selected.delete(r.id);
-        compareBtn.disabled = selected.size === 0;
-      });
       const runUrl = `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}`;
       const thumb = r.thumb
         ? el("a", { attrs: { href: runUrl } }, [el("img", { class: "row-thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })])
         : el("span", { class: "muted", text: "–" });
-      const tds = [el("td", {}, [cb, el("span", { class: "caret", text: "▸" })]), el("td", { class: "thumb-cell" }, [thumb])];
+      const tds = [el("td", {}, [el("span", { class: "caret", text: "▸" })]), el("td", { class: "thumb-cell" }, [thumb])];
       for (const c of COLUMNS) {
         const v = c.get(r);
         if (c.key === "model") {
@@ -143,7 +131,7 @@ function render(page, runs) {
         else tr.after(detailRow(r, runUrl));
       };
       tr.addEventListener("click", (e) => {
-        if (!e.target.closest("a, input, button")) toggle();
+        if (!e.target.closest("a, button")) toggle();
       });
       tr.addEventListener("keydown", (e) => {
         if (e.target === tr && (e.key === "Enter" || e.key === " ")) {

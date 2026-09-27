@@ -22,7 +22,7 @@ docs/
   index.html                      # home: list of pages            (reads data/pages.json)
   page.html?p=<slug>              # one page: runs table + gallery (reads data/<slug>/results.json)
   run.html?p=<slug>&r=<run_id>    # one run: tabs Game | Transcript | Source | Metrics
-  compare.html?p=<slug>&r=<id>,<id>[,<id>]   # side by side
+  compare.html?p=<slug>[&r=<id>,<id>]   # side by side: all runs of the page, or just the listed ones
   assets/                         # shared JS/CSS
   engines/<sha12>/godot.wasm      # deduplicated Godot engine files, one dir per unique engine
   engines/<sha12>/godot.js
@@ -164,10 +164,10 @@ bench publish [-m MSG]          # git add docs && git commit && git push
 ## Viewer (docs/)
 
 - **index.html**: cards per page (thumb, title, n_runs, models, updated) → page.html.
-- **page.html**: title and prompt, then a runs table (model, effort, verified ✓/✗, duration, tokens total/output/reasoning,
-  cost, tool calls, turns). The table is sortable, and the numeric columns show an inline CSS bar scaled to the column max.
-  Each row has a checkbox, with a "Compare selected" button → compare.html. Gallery below: thumb per run → run.html.
-  **The gallery never loads games.**
+- **page.html**: title, the Prompt (prompt.md) and a collapsed Final prompt, then a "Compare all" link → compare.html and
+  a runs table (thumb, model, effort, verified ✓/✗, duration, tokens total/output/reasoning, cost, tool calls, turns).
+  The table is sortable, numeric columns show an inline CSS bar scaled to the column max, and every header has a help
+  tooltip (shown after 0.5s). Clicking a row expands it and boots that run's game inline; clicking again removes it.
 - **run.html**: a header with model, effort, and key metrics, then tabs:
   - *Game*: click-to-play overlay (shows thumb). On click it inserts
     `<iframe sandbox="allow-scripts allow-pointer-lock" allow="fullscreen; autoplay; gamepad">` pointing at `game.entry`.
@@ -180,9 +180,8 @@ bench publish [-m MSG]          # git add docs && git commit && git push
     (matched by `toolCallId`) when present. Filter buttons: all / tool calls / errors.
   - *Source*: a file list, and clicking a file shows it in a `<pre>`.
   - *Metrics*: all metrics as a table, plus links to download the raw session files.
-- **compare.html**: one column per run. Each column has a header with metrics, a game with click-to-play (each
-  column boots independently, never automatically), a transcript summary (the list of tool calls with ✓/✗), and a
-  source file picker (picking a file shows it in every column).
+- **compare.html**: one column per run (all runs of the page by default). Each column has the run title, one line with
+  duration, tokens and cost, and its game with click-to-play (each column boots independently, never automatically).
 - Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/llm-bench/`),
   so use only relative URLs. It supports dark mode via `prefers-color-scheme`, has readable defaults, and has no frameworks.
 
