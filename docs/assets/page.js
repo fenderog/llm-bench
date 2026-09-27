@@ -66,13 +66,14 @@ function render(page, runs) {
   const tbody = table.querySelector("tbody");
 
   const headRow = el("tr", {}, [
-    el("th", { attrs: { title: "Select runs, then press Compare selected to view them side by side." } }),
-    el("th", { attrs: { title: "Screenshot of the running game taken during verification. Click to open the run." } }),
+    el("th", { attrs: { "data-help": "Select runs, then press Compare selected to view them side by side." } }),
+    el("th", { attrs: { "data-help": "Screenshot of the running game taken during verification. Click to open the run." } }),
     ...COLUMNS.map((c) =>
-      el("th", { text: c.label, class: "has-help", attrs: { "data-key": c.key, title: `${c.help}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
+      el("th", { text: c.label, class: "has-help", attrs: { "data-key": c.key, "data-help": `${c.help}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
     ),
   ]);
   thead.append(headRow);
+  addHelpTooltips(headRow.querySelectorAll("th[data-help]"));
 
   function sortBy(key) {
     sortDir = key === sortKey ? -sortDir : 1;
@@ -138,4 +139,33 @@ function render(page, runs) {
     }
   }
   drawTable();
+}
+
+// Column help as a custom tooltip: native title tooltips can't be shown sooner than ~1-2s.
+const TIP_DELAY_MS = 500;
+
+function addHelpTooltips(cells) {
+  const tip = el("div", { class: "col-tip", attrs: { role: "tooltip", id: "col-tip" } });
+  document.body.append(tip);
+  let timer;
+  const hide = () => {
+    clearTimeout(timer);
+    tip.classList.remove("show");
+  };
+  const show = (cell) => {
+    tip.textContent = cell.dataset.help;
+    tip.classList.add("show");
+    const r = cell.getBoundingClientRect();
+    tip.style.left = `${Math.max(8, Math.min(r.left, innerWidth - tip.offsetWidth - 8))}px`;
+    tip.style.top = `${r.bottom + 6}px`;
+  };
+  for (const cell of cells) {
+    cell.setAttribute("aria-description", cell.dataset.help);
+    cell.addEventListener("mouseenter", () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => show(cell), TIP_DELAY_MS);
+    });
+    cell.addEventListener("mouseleave", hide);
+  }
+  addEventListener("scroll", hide, true);
 }

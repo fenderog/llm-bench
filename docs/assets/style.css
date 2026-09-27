@@ -104,6 +104,12 @@ details.final-prompt summary { cursor: pointer; font-weight: 600; padding: 4px 0
 details.final-prompt .prompt-text { max-height: 40vh; overflow: auto; margin-top: 6px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card-bg); }
 
 /* ---- table ---- */
+.col-tip {
+  position: fixed; z-index: 20; display: none; max-width: 320px; padding: 8px 10px; border-radius: 6px;
+  background: var(--fg); color: var(--bg); font-size: 13px; line-height: 1.4; white-space: pre-line;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); pointer-events: none;
+}
+.col-tip.show { display: block; }
 .table-wrap { overflow-x: auto; }
 table.runs { border-collapse: collapse; width: 100%; font-size: 14px; }
 table.runs th, table.runs td { padding: 8px 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }

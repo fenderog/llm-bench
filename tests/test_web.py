@@ -121,9 +121,22 @@ def test_every_column_header_has_hover_help(site, page):
     page.wait_for_selector("table.runs tbody tr")
     headers = page.locator("table.runs thead th")
     assert headers.count() == 12
-    titles = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("title") for i in range(12)}
-    assert all(t and len(t) > 20 for t in titles.values()), titles
-    assert "reasoning" in titles["Reasoning tok"].lower()
+    helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(12)}
+    assert all(t and len(t) > 20 for t in helps.values()), helps
+    assert "reasoning" in helps["Reasoning tok"].lower()
+    assert headers.nth(0).get_attribute("title") is None  # no slow native tooltip competing
+
+    # custom tooltip: not instant, shown after ~0.5s, stays on screen, hidden on leave
+    tip = page.locator(".col-tip")
+    page.locator('th[data-key="turns"]').hover()
+    page.wait_for_timeout(150)
+    assert not tip.is_visible()
+    page.wait_for_timeout(600)
+    assert tip.is_visible() and "model responses" in tip.inner_text()
+    box = tip.bounding_box()
+    assert box["x"] >= 0 and box["x"] + box["width"] <= page.viewport_size["width"]
+    page.locator("h1").hover()
+    assert not tip.is_visible()
     assert_no_errors(page)
 
 
