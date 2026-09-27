@@ -102,6 +102,17 @@ def test_page_table_and_sorting(site, page):
     assert_no_errors(page)
 
 
+def test_every_column_header_has_hover_help(site, page):
+    page.goto(f"{site}page.html?p=demo")
+    page.wait_for_selector("table.runs tbody tr")
+    headers = page.locator("table.runs thead th")
+    assert headers.count() == 12
+    titles = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("title") for i in range(12)}
+    assert all(t and len(t) > 20 for t in titles.values()), titles
+    assert "reasoning" in titles["Reasoning tok"].lower()
+    assert_no_errors(page)
+
+
 def test_runs_table_shows_each_runs_image(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")

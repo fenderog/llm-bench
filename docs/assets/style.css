@@ -97,6 +97,7 @@ h2 { font-size: 1.1rem; margin: 24px 0 10px; }
 table.runs { border-collapse: collapse; width: 100%; font-size: 14px; }
 table.runs th, table.runs td { padding: 8px 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
 table.runs th { cursor: pointer; user-select: none; color: var(--muted); font-weight: 600; }
+table.runs th.has-help { text-decoration: underline dotted; text-underline-offset: 4px; text-decoration-color: var(--muted); }
 table.runs th[aria-sort="ascending"]::after { content: " \25B2"; }
 table.runs th[aria-sort="descending"]::after { content: " \25BC"; }
 table.runs tbody tr:hover { background: var(--card-bg); }
