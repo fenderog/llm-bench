@@ -78,10 +78,8 @@ def test_all_games_boot_sandboxed_in_compare(site):
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.goto(f"{base}compare.html?p=voxel-horse&r={ids}")
         assert page.locator("iframe").count() == 0, "games must not boot before a click"
-        overlays = page.locator("[data-play]")
-        assert overlays.count() == 3
-        for i in range(3):
-            overlays.nth(0).click()  # a clicked overlay is replaced by its iframe
+        assert page.locator("[data-play]").count() == 3
+        page.locator("#play-all").click()  # starts all three at once
         frames = page.locator("iframe")
         assert frames.count() == 3
         for i in range(3):

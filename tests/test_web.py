@@ -324,6 +324,22 @@ def test_compare_shows_metrics_and_games_only(site, page):
     assert_no_errors(page)
 
 
+def test_compare_play_all_starts_every_game(site, page):
+    page.goto(f"{site}compare.html?p=demo")
+    page.wait_for_selector(".compare-col")
+    btn = page.locator("#play-all")
+    assert btn.is_enabled() and page.locator("iframe").count() == 0
+    btn.click()
+    assert page.locator("[data-play]").count() == 0
+    assert page.locator("iframe").count() == 1
+    assert btn.is_disabled()  # nothing left to play
+
+    page.goto(f"{site}compare.html?p=demo&r={LOW_ID}")  # no games at all
+    page.wait_for_selector(".compare-col")
+    assert page.locator("#play-all").is_disabled()
+    assert_no_errors(page)
+
+
 def test_compare_can_be_limited_to_listed_runs(site, page):
     page.goto(f"{site}compare.html?p=demo&r={MEDIUM_ID},{HIGH_ID}")
     page.wait_for_selector(".compare-col")

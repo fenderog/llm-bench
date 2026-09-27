@@ -23,9 +23,23 @@ if (!slug) {
     const shown = ids.length ? runs.filter((r) => ids.includes(r.id)) : runs;
     if (!shown.length) showMessage(main, "No matching runs to compare.", "error");
     for (const r of shown) columnsEl.append(column(r));
+    setupPlayAll();
   } catch (err) {
     showMessage(main, `Could not load comparison: ${err.message}`, "error");
   }
+}
+
+// Starts every game at once by pressing each column's play overlay. Each sandboxed game
+// has its own opaque origin, so each downloads and runs its own copy of the engine.
+function setupPlayAll() {
+  const btn = document.getElementById("play-all");
+  const update = () => (btn.disabled = !columnsEl.querySelector("[data-play]"));
+  btn.addEventListener("click", () => {
+    for (const overlay of columnsEl.querySelectorAll("[data-play]")) overlay.click();
+    update();
+  });
+  columnsEl.addEventListener("click", () => setTimeout(update)); // a game started from its own overlay
+  update();
 }
 
 function column(r) {
