@@ -55,6 +55,7 @@ def rebuild(root):
             "slug": slug,
             "title": existing.get("title") or title_from_slug(slug),
             "prompt": existing.get("prompt", ""),
+            "final_prompt": existing.get("final_prompt"),
             "created": existing.get("created") or min(r["started_at"] for r in runs),
             "updated": max(_ended_at(r) for r in runs),
         }

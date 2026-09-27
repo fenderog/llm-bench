@@ -57,6 +57,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 ```json
 { "slug": "voxel-horse", "title": "Voxel horse",
   "prompt": "<contents of prompt.md, the originating prompt; refreshed on every import>",
+  "final_prompt": "<brief the main agent sent each run: first user message of the cleaned session, ./<level>/ -> ./<effort>/; null if none>",
   "created": "2026-09-26T07:12:42Z", "updated": "2026-09-26T07:15:57Z" }
 ```
 

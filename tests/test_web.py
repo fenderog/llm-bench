@@ -107,6 +107,12 @@ def test_page_shows_labeled_prompt(site, page):
     page.wait_for_selector("#prompt-box:not([hidden])")
     assert page.locator(".prompt-label").inner_text().strip().lower() == "prompt"
     assert page.locator("#prompt").inner_text().startswith("build a tiny demo project")
+    # final prompt: present but collapsed to one line until clicked
+    final = page.locator("details.final-prompt")
+    assert final.is_visible() and final.get_attribute("open") is None
+    assert not page.locator("#final-prompt").is_visible()
+    final.locator("summary").click()
+    assert page.locator("#final-prompt").inner_text().startswith("Task: Goal: build a tiny demo")
     assert_no_errors(page)
 
 

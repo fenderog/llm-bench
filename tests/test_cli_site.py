@@ -44,6 +44,16 @@ def _high_id(bench_root):
     return next(r["id"] for r in results if r["effort"] == "high")
 
 
+def test_final_prompt_is_the_subagent_brief(bench_root, effort_run):
+    main(["import", str(effort_run), "--root", str(bench_root)])
+    page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
+    # first user message of the cleaned session, with the per-effort output dir normalized
+    assert page["final_prompt"] == "Task: draw a running horse in ~/effort-runs/x. Output directory: ./<effort>/."
+    main(["rebuild", "--root", str(bench_root)])
+    page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
+    assert page["final_prompt"].startswith("Task: draw a running horse")
+
+
 def test_prompt_md_is_cleaned_and_secret_scanned(bench_root, effort_run):
     from pathlib import Path
 

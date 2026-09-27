@@ -47,6 +47,10 @@ function render(page, runs) {
     document.getElementById("prompt").textContent = page.prompt;
     document.getElementById("prompt-box").hidden = false;
   }
+  if (page.final_prompt) {
+    document.getElementById("final-prompt").textContent = page.final_prompt;
+    document.getElementById("final-prompt-box").hidden = false;
+  }
 
   const selected = new Set();
   const compareBtn = document.getElementById("compare-btn");

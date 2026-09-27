@@ -67,6 +67,21 @@ def write_cleaned(src, dest, kind, rewrites, redact, batch):
     dest.write_text(text, encoding="utf-8")
 
 
+def final_prompt(run_dir, level):
+    """The brief the main agent sent this run: the cleaned session's first user message, with the
+    effort-specific output dir (./low/, ./high/, ...) normalized so all levels share one text."""
+    convo = run_dir / "session" / "conversation.json"
+    if not convo.is_file():
+        return None
+    for entry in json.loads(convo.read_text()):
+        msg = entry.get("message") or {}
+        if msg.get("role") == "user":
+            content = msg.get("content") or ""
+            text = content if isinstance(content, str) else "".join(b.get("text", "") for b in content if b.get("type") == "text")
+            return text.replace(f"./{level}/", "./<effort>/")
+    return None
+
+
 def stage_session(level_dir, run_dir, rewrites, redact, batch):
     if not level_dir.is_dir():
         return None
@@ -145,6 +160,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
     n_bytes = sum(p.stat().st_size for p in run_dir.rglob("*") if p.is_file())
     return SimpleNamespace(
         run_id=run_id,
+        level=level,
         run_dir=run_dir,
         engine_sha=engine_sha,
         engine_files=engine_files,
@@ -207,6 +223,8 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
         if dry_run:
             return 0
 
+        final = next((p for r in results if (p := final_prompt(r.run_dir, r.level))), None)
+
         for r in results:
             if r.engine_sha and r.engine_files is not None:
                 engine_dir = docs_root / "engines" / r.engine_sha
@@ -224,6 +242,8 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
         page_json = json.loads(page_path.read_text()) if page_path.is_file() else {"slug": slug}
         if prompt:
             page_json["prompt"] = prompt
+        if final:
+            page_json["final_prompt"] = final
         page_path.write_text(json.dumps(page_json, indent=2) + "\n")
 
         site.rebuild(root)
