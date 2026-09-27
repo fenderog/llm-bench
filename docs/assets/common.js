@@ -128,6 +128,14 @@ export function badge(text, kind) {
   return el("span", { class: `badge badge-${kind}`, text });
 }
 
+// The one place games are embedded: sandboxed without allow-same-origin, so game
+// code gets an opaque origin and can't touch this site's storage or cookies.
+export function sandboxedGame(entryUrl) {
+  return el("iframe", {
+    attrs: { src: entryUrl, sandbox: "allow-scripts allow-pointer-lock", allow: "fullscreen; autoplay; gamepad" },
+  });
+}
+
 // Builds a click-to-play `.game-frame`: an overlay (thumb + play button,
 // carrying `data-play`) that is replaced in place by a sandboxed iframe on
 // click. Games never boot on their own. Returns the frame element.
@@ -142,16 +150,7 @@ export function buildGameFrame(entryUrl, thumbUrl) {
     [el("span", { class: "play-icon", text: "▶" }), el("span", { class: "play-label", text: "Click to play" })]
   );
   if (thumbUrl) overlay.style.backgroundImage = `url("${thumbUrl}")`;
-  overlay.addEventListener("click", () => {
-    const iframe = el("iframe", {
-      attrs: {
-        src: entryUrl,
-        sandbox: "allow-scripts allow-pointer-lock",
-        allow: "fullscreen; autoplay; gamepad",
-      },
-    });
-    overlay.replaceWith(iframe);
-  });
+  overlay.addEventListener("click", () => overlay.replaceWith(sandboxedGame(entryUrl)));
   frame.append(overlay);
   return frame;
 }

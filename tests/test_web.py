@@ -102,6 +102,34 @@ def test_page_table_and_sorting(site, page):
     assert_no_errors(page)
 
 
+def test_clicking_a_row_expands_the_game_inline(site, page):
+    page.goto(f"{site}page.html?p=demo")
+    page.wait_for_selector("table.runs tbody tr.run-row")
+    assert page.locator("iframe").count() == 0
+
+    rows = page.locator("tr.run-row")
+    row = lambda effort: rows.filter(has=page.locator("td", has_text=effort)).first
+    high = row("high")
+    high.locator("td").nth(3).click()  # click a plain cell
+    assert high.get_attribute("aria-expanded") == "true"
+    frame = page.locator("tr.run-detail iframe")
+    assert frame.count() == 1
+    assert "allow-same-origin" not in frame.get_attribute("sandbox")
+    assert frame.get_attribute("src").endswith(f"/{HIGH_ID}/game/index.html")
+
+    high.locator("td").nth(3).click()  # collapse removes the game
+    assert page.locator("tr.run-detail").count() == 0 and page.locator("iframe").count() == 0
+
+    # checkbox and links don't toggle; a run without a game says so
+    row("low").locator("input[type=checkbox]").click()
+    assert page.locator("tr.run-detail").count() == 0
+    row("low").focus()
+    page.keyboard.press("Enter")
+    assert "No playable build" in page.locator("tr.run-detail").inner_text()
+    assert page.locator("iframe").count() == 0
+    assert_no_errors(page)
+
+
 def test_page_shows_labeled_prompt(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("#prompt-box:not([hidden])")

@@ -1,4 +1,4 @@
-import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, runDir } from "./common.js";
+import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, runDir, sandboxedGame } from "./common.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
@@ -114,7 +114,7 @@ function render(page, runs) {
       const thumb = r.thumb
         ? el("a", { attrs: { href: runUrl } }, [el("img", { class: "row-thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })])
         : el("span", { class: "muted", text: "–" });
-      const tds = [el("td", {}, [cb]), el("td", { class: "thumb-cell" }, [thumb])];
+      const tds = [el("td", {}, [cb, el("span", { class: "caret", text: "▸" })]), el("td", { class: "thumb-cell" }, [thumb])];
       for (const c of COLUMNS) {
         const v = c.get(r);
         if (c.key === "model") {
@@ -135,8 +135,40 @@ function render(page, runs) {
           tds.push(el("td", { text: v ?? "–" }));
         }
       }
-      tbody.append(el("tr", {}, tds));
+      const tr = el("tr", { class: "run-row", attrs: { tabindex: "0", "aria-expanded": "false" } }, tds);
+      const toggle = () => {
+        const open = tr.getAttribute("aria-expanded") === "true";
+        tr.setAttribute("aria-expanded", String(!open));
+        if (open) tr.nextElementSibling.remove(); // removing the iframe stops the game
+        else tr.after(detailRow(r, runUrl));
+      };
+      tr.addEventListener("click", (e) => {
+        if (!e.target.closest("a, input, button")) toggle();
+      });
+      tr.addEventListener("keydown", (e) => {
+        if (e.target === tr && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          toggle();
+        }
+      });
+      tbody.append(tr);
     }
+  }
+
+  // Expanded row: the game boots right away (the row click is the explicit play action).
+  function detailRow(r, runUrl) {
+    const links = el("div", { class: "game-links" }, [
+      el("a", { text: "Open run page →", attrs: { href: runUrl } }),
+    ]);
+    let body;
+    if (r.game) {
+      const entry = runDir(slug, r.id) + r.game.entry;
+      links.append(" · ", el("a", { text: "Open full screen ↗ (unsandboxed)", attrs: { href: entry, target: "_blank", rel: "noopener noreferrer" } }));
+      body = [el("div", { class: "game-frame" }, [sandboxedGame(entry)]), links];
+    } else {
+      body = [el("p", { class: "muted", text: "No playable build recorded for this run." }), links];
+    }
+    return el("tr", { class: "run-detail" }, [el("td", { attrs: { colspan: String(COLUMNS.length + 2) } }, body)]);
   }
   drawTable();
 }

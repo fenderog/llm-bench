@@ -92,8 +92,31 @@ def test_all_games_boot_sandboxed_in_compare(site):
             booted = [f.evaluate("!document.getElementById('status')") for f in game_frames]
             if len(booted) == 3 and all(booted):
                 break
-            time.sleep(1)
+            page.wait_for_timeout(1000)
         assert len(booted) == 3 and all(booted), f"games not booted: {booted}"
         page.screenshot(path=str(root / "compare.png"))
+        browser.close()
+    assert not errors, errors
+
+
+def test_game_boots_when_a_row_is_expanded(site):
+    from playwright.sync_api import sync_playwright
+
+    _, base = site
+    with sync_playwright() as p:
+        browser = p.chromium.launch(channel="chrome", args=["--enable-unsafe-swiftshader", "--use-angle=swiftshader"])
+        page = browser.new_page(viewport={"width": 1400, "height": 1000})
+        errors = []
+        page.on("pageerror", lambda e: errors.append(str(e)))
+        page.goto(f"{base}page.html?p=voxel-horse")
+        row = page.locator("tr.run-row").filter(has=page.locator("td", has_text="high")).first
+        row.locator("td").nth(3).click()
+        deadline = time.time() + 60
+        booted = False
+        while time.time() < deadline and not booted:
+            frames = [f for f in page.frames if "/game/" in f.url]
+            booted = bool(frames) and frames[0].evaluate("!document.getElementById('status')")
+            page.wait_for_timeout(500)  # not time.sleep: Playwright only sees new frames while it runs
+        assert booted, "game did not boot in the expanded row"
         browser.close()
     assert not errors, errors
