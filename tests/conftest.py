@@ -21,13 +21,21 @@ ENGINE_BYTES = {
 }
 
 
-def _write_conversation(path, home, secret=None):
+def _write_conversation(path, home, level, secret=None):
     thinking_sig = json.dumps({"id": "rs_1", "type": "reasoning", "encrypted_content": "gAAAAA-secret-blob-not-real"})
     text = f"Working in {home}/effort-runs/x now."
     if secret:
         text += f" token={secret}"
     convo = [
         {"type": "session", "id": "s1", "timestamp": "2026-09-26T07:12:42.000Z", "cwd": f"{home}/effort-runs/x"},
+        {
+            "type": "message",
+            "id": "u1",
+            "message": {
+                "role": "user",
+                "content": [{"type": "text", "text": f"Task: draw a running horse in {home}/effort-runs/x. Output directory: ./{level}/."}],
+            },
+        },
         {
             "type": "message",
             "id": "m1",
@@ -91,7 +99,7 @@ def make_effort_run(base, folder_name="2026-09-26-001158-gpt6sol-voxel-horse", l
         (level_dir / "scenes" / "main.tscn").write_text('[gd_scene load_steps=1 format=3]\n')
         (level_dir / "scripts" / "main.gd").write_text("extends Node\nfunc _ready():\n\tpass\n")
         (level_dir / "scripts" / "main.gd.uid").write_text("uid://abc123\n")
-        _write_conversation(level_dir / "conversation.json", home, secret=secret if level == levels[0] else None)
+        _write_conversation(level_dir / "conversation.json", home, level, secret=secret if level == levels[0] else None)
         (level_dir / "session.jsonl").write_text("{}\n")  # identical copy of conversation.json: must be skipped
         _write_events(level_dir / "events.jsonl", home)
         _write_status(level_dir / "status.json", home)

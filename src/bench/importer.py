@@ -67,6 +67,21 @@ def write_cleaned(src, dest, kind, rewrites, redact, batch):
     dest.write_text(text, encoding="utf-8")
 
 
+def task_prompt(run_dir, level):
+    """The task the model was given: the cleaned session's first user message, with the
+    effort-specific output dir (./low/, ./high/, ...) normalized so all levels share one prompt."""
+    convo = run_dir / "session" / "conversation.json"
+    if not convo.is_file():
+        return None
+    for entry in json.loads(convo.read_text()):
+        msg = entry.get("message") or {}
+        if msg.get("role") == "user":
+            content = msg.get("content") or ""
+            text = content if isinstance(content, str) else "".join(b.get("text", "") for b in content if b.get("type") == "text")
+            return text.replace(f"./{level}/", "./<effort>/")
+    return None
+
+
 def stage_session(level_dir, run_dir, rewrites, redact, batch):
     if not level_dir.is_dir():
         return None
@@ -145,6 +160,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
     n_bytes = sum(p.stat().st_size for p in run_dir.rglob("*") if p.is_file())
     return SimpleNamespace(
         run_id=run_id,
+        level=level,
         run_dir=run_dir,
         engine_sha=engine_sha,
         engine_files=engine_files,
@@ -200,6 +216,8 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
         if dry_run:
             return 0
 
+        prompt = next((p for r in results if (p := task_prompt(r.run_dir, r.level))), None)
+
         for r in results:
             if r.engine_sha and r.engine_files is not None:
                 engine_dir = docs_root / "engines" / r.engine_sha
@@ -214,11 +232,10 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
             shutil.move(str(r.run_dir), str(target))
 
         page_path = docs_root / "data" / slug / "page.json"
-        if not page_path.is_file():
-            prompt_path = effort_dir / "prompt.md"
-            prompt = prompt_path.read_text() if prompt_path.is_file() else ""
-            page_path.parent.mkdir(parents=True, exist_ok=True)
-            page_path.write_text(json.dumps({"slug": slug, "prompt": prompt}, indent=2) + "\n")
+        page_json = json.loads(page_path.read_text()) if page_path.is_file() else {"slug": slug}
+        if prompt:
+            page_json["prompt"] = prompt
+        page_path.write_text(json.dumps(page_json, indent=2) + "\n")
 
         site.rebuild(root)
     return 0

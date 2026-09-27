@@ -102,6 +102,14 @@ def test_page_table_and_sorting(site, page):
     assert_no_errors(page)
 
 
+def test_page_shows_labeled_prompt(site, page):
+    page.goto(f"{site}page.html?p=demo")
+    page.wait_for_selector("#prompt-box:not([hidden])")
+    assert page.locator(".prompt-label").inner_text().strip().lower() == "prompt"
+    assert page.locator("#prompt").inner_text().startswith("Task: Build a tiny demo project")
+    assert_no_errors(page)
+
+
 def test_every_column_header_has_hover_help(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")

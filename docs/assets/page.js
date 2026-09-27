@@ -1,4 +1,4 @@
-import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, renderMarkdown, runDir } from "./common.js";
+import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, runDir } from "./common.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
@@ -43,7 +43,10 @@ if (!slug) {
 function render(page, runs) {
   document.title = `${page.title} – llm-bench`;
   document.getElementById("title").textContent = page.title;
-  renderMarkdown(document.getElementById("prompt"), page.prompt || "");
+  if (page.prompt) {
+    document.getElementById("prompt").textContent = page.prompt;
+    document.getElementById("prompt-box").hidden = false;
+  }
 
   const selected = new Set();
   const compareBtn = document.getElementById("compare-btn");

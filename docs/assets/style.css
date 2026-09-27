@@ -92,6 +92,12 @@ h2 { font-size: 1.1rem; margin: 24px 0 10px; }
 .card .card-title { font-weight: 600; margin-bottom: 4px; }
 .card .card-meta { font-size: 13px; color: var(--muted); }
 
+/* ---- prompt ---- */
+.prompt-box { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; background: var(--card-bg); padding: 10px 14px; margin: 8px 0 20px; }
+.prompt-box[hidden] { display: none; }
+.prompt-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px; }
+.prompt-text { white-space: pre-wrap; line-height: 1.5; }
+
 /* ---- table ---- */
 .table-wrap { overflow-x: auto; }
 table.runs { border-collapse: collapse; width: 100%; font-size: 14px; }
