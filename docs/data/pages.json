@@ -1,5 +1,16 @@
 [
   {
+    "slug": "a-chair-with-arms-as-a",
+    "title": "A chair with arms as a",
+    "kind": "media",
+    "n_runs": 6,
+    "models": [
+      "openai-codex/gpt-6-sol"
+    ],
+    "updated": "2026-09-28T05:39:31Z",
+    "thumb": "data/a-chair-with-arms-as-a/runs/gpt-6-sol-max-20260927-223210/media/armchair.svg"
+  },
+  {
     "slug": "crete-a-voxel-character-running-around",
     "title": "Crete a voxel character running around",
     "kind": "godot",

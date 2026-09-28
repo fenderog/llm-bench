@@ -1,0 +1,45 @@
+{
+  "id": "gpt-6-sol-minimal-20260927-223210",
+  "page": "a-chair-with-arms-as-a",
+  "model": "openai-codex/gpt-6-sol",
+  "effort": "minimal",
+  "kind": "media",
+  "started_at": "2026-09-28T05:32:16Z",
+  "source_dir": "2026-09-27-223210-gpt6sol-a-chair-with-arms-as-a",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 72190,
+    "cost_usd": 0.0439664,
+    "tool_calls": 2,
+    "turns": 3,
+    "tokens_total": 9356,
+    "tokens_input": 6228,
+    "tokens_output": 3128,
+    "tokens_reasoning": 55,
+    "tokens_cache_read": 1152
+  },
+  "thumb": "media/armchair.svg",
+  "game": null,
+  "media": [
+    {
+      "type": "image",
+      "width": 900,
+      "height": 900,
+      "bytes": 7266,
+      "path": "media/armchair.svg"
+    }
+  ],
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": null
+}

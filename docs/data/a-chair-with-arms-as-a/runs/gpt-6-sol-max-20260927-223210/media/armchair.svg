@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 1200" width="1200" height="1200" role="img" aria-labelledby="title desc">
+  <title id="title">The reading chair</title>
+  <desc id="desc">A generously rounded, deep green upholstered armchair with a small terracotta cushion and tapered walnut legs, illustrated against a warm ivory background.</desc>
+  <defs>
+    <radialGradient id="paper" cx="49%" cy="41%" r="80%">
+      <stop offset="0" stop-color="#fffaf0"/>
+      <stop offset=".68" stop-color="#f7f0e5"/>
+      <stop offset="1" stop-color="#eee4d5"/>
+    </radialGradient>
+    <linearGradient id="outer" x1=".12" y1=".06" x2=".9" y2=".96" objectBoundingBox="true">
+      <stop stop-color="#568d7e"/>
+      <stop offset=".42" stop-color="#386c61"/>
+      <stop offset="1" stop-color="#244e48"/>
+    </linearGradient>
+    <linearGradient id="back" x1=".11" y1=".04" x2=".83" y2="1" objectBoundingBox="true">
+      <stop stop-color="#8dbba3"/>
+      <stop offset=".35" stop-color="#6da38d"/>
+      <stop offset=".75" stop-color="#4d806e"/>
+      <stop offset="1" stop-color="#3a6a5c"/>
+    </linearGradient>
+    <linearGradient id="seat" x1=".18" y1="0" x2=".84" y2="1" objectBoundingBox="true">
+      <stop stop-color="#9fc3a7"/>
+      <stop offset=".46" stop-color="#79a78f"/>
+      <stop offset="1" stop-color="#538673"/>
+    </linearGradient>
+    <linearGradient id="seatFront" x1="0" y1="0" x2=".14" y2="1" objectBoundingBox="true">
+      <stop stop-color="#5f927c"/>
+      <stop offset=".55" stop-color="#417362"/>
+      <stop offset="1" stop-color="#315f54"/>
+    </linearGradient>
+    <linearGradient id="arm" x1="0" y1="0" x2="1" y2=".84" objectBoundingBox="true">
+      <stop stop-color="#649b83"/>
+      <stop offset=".47" stop-color="#477b69"/>
+      <stop offset="1" stop-color="#2e6056"/>
+    </linearGradient>
+    <linearGradient id="armTop" x1=".13" y1=".07" x2=".91" y2=".95" objectBoundingBox="true">
+      <stop stop-color="#9dc5a8"/>
+      <stop offset=".4" stop-color="#78ab92"/>
+      <stop offset="1" stop-color="#548675"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2=".15" objectBoundingBox="true">
+      <stop stop-color="#75462f"/>
+      <stop offset=".28" stop-color="#bc8150"/>
+      <stop offset=".65" stop-color="#a5683e"/>
+      <stop offset="1" stop-color="#673f2d"/>
+    </linearGradient>
+    <linearGradient id="pillow" x1=".07" y1="0" x2=".91" y2=".99" objectBoundingBox="true">
+      <stop stop-color="#ecb184"/>
+      <stop offset=".38" stop-color="#d88b66"/>
+      <stop offset="1" stop-color="#a95142"/>
+    </linearGradient>
+    <pattern id="linen" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M1 2h1 M7 8h1 M11 3h.5" stroke="#ffedce" stroke-width=".8" opacity=".35"/>
+      <circle cx="4" cy="10" r=".65" fill="#183f39" opacity=".12"/>
+    </pattern>
+    <filter id="softShadow" x="-40%" y="-120%" width="180%" height="340%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="pillowShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <path id="backShape" d="M420 282 C463 252 537 250 601 250 C670 249 737 256 780 281 C821 307 837 381 824 488 L803 622 C787 688 735 725 602 743 C469 728 417 691 395 632 L376 492 C364 390 376 312 420 282 Z"/>
+    <path id="seatShape" d="M421 647 C489 626 706 624 784 647 C810 655 834 719 829 753 C819 779 728 797 600 798 C475 797 387 781 373 755 C369 725 394 657 421 647 Z"/>
+    <g id="leftArm">
+      <!-- A rolled arm: its broad front face sits in front of the loose seat cushion. -->
+      <path d="M343 468 C297 469 263 502 251 558 C236 624 246 736 267 786 C280 818 310 837 358 837 C402 838 432 815 450 782 C459 764 445 725 434 691 L397 534 C388 494 367 467 343 468 Z" fill="url(#arm)" stroke="#244e48" stroke-width="7" stroke-linejoin="round"/>
+      <path d="M338 490 C297 490 268 523 260 570 C253 607 266 647 291 664 C325 687 374 682 416 665 C398 619 393 564 378 525 C370 504 355 491 338 490 Z" fill="url(#armTop)" stroke="#315e54" stroke-width="4"/>
+      <path d="M266 616 C280 659 307 677 349 679 C374 681 393 674 416 665" fill="none" stroke="#244e48" stroke-width="5" stroke-linecap="round"/>
+      <path d="M276 633 C286 658 313 668 341 669" fill="none" stroke="#c3d4ae" stroke-opacity=".62" stroke-width="3" stroke-linecap="round"/>
+      <path d="M276 690 C284 733 295 783 320 798 C339 810 372 810 394 794" fill="none" stroke="#9cc3a4" stroke-opacity=".42" stroke-width="5" stroke-linecap="round"/>
+      <path d="M414 685 C432 730 438 759 429 779" fill="none" stroke="#214d47" stroke-opacity=".58" stroke-width="4" stroke-linecap="round"/>
+      <path d="M279 542 C292 517 311 504 335 503" fill="none" stroke="#f0e4b7" stroke-opacity=".62" stroke-width="3" stroke-linecap="round"/>
+      <path d="M292 808 C316 830 368 834 402 812" fill="none" stroke="#1d4441" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/>
+      <path d="M343 468 C297 469 263 502 251 558 C236 624 246 736 267 786 C280 818 310 837 358 837 C402 838 432 815 450 782 C459 764 445 725 434 691 L397 534 C388 494 367 467 343 468 Z" fill="url(#linen)" opacity=".45"/>
+    </g>
+  </defs>
+
+  <!-- A little breathing room, a quiet arch, and the floor beneath the chair. -->
+  <rect width="1200" height="1200" fill="url(#paper)"/>
+  <path d="M208 854 C211 567 272 334 415 215 C517 130 679 125 784 190 C933 282 994 516 991 856" fill="none" stroke="#d4c9b8" stroke-opacity=".38" stroke-width="2"/>
+  <path d="M174 962 C437 956 752 958 1027 964" fill="none" stroke="#d8c9b5" stroke-opacity=".68" stroke-width="2"/>
+  <ellipse cx="600" cy="973" rx="467" ry="75" fill="#e6d7c2" opacity=".42"/>
+  <ellipse cx="601" cy="971" rx="325" ry="38" fill="#374e46" opacity=".24" filter="url(#softShadow)"/>
+  <ellipse cx="603" cy="970" rx="276" ry="20" fill="#45574b" opacity=".17"/>
+
+  <!-- Tapered walnut feet, with tiny brass ferrules. -->
+  <g stroke="#553e32" stroke-width="5" stroke-linejoin="round">
+    <path d="M322 797 L420 814 L401 969 Q399 981 387 985 L357 986 Q345 984 342 972 Z" fill="url(#wood)"/>
+    <path d="M779 814 L877 797 L858 972 Q855 984 843 986 L813 985 Q801 981 799 969 Z" fill="url(#wood)"/>
+  </g>
+  <path d="M358 823 L364 947 M834 947 L842 823" fill="none" stroke="#e9ab71" stroke-opacity=".55" stroke-width="6" stroke-linecap="round"/>
+  <path d="M344 947 Q372 956 402 947 L400 972 Q394 987 358 986 Q347 985 342 973 Z M798 947 Q827 956 857 947 L858 973 Q853 985 842 986 Q806 987 800 972 Z" fill="#ba9a67" stroke="#614d36" stroke-width="3"/>
+  <path d="M353 961 L389 964 M810 964 L848 961" stroke="#f3d5a0" stroke-opacity=".67" stroke-width="2"/>
+
+  <!-- Solid, deep outer shell and the tailored inset back cushion. -->
+  <path d="M394 247 C438 211 508 204 598 205 C693 203 762 217 806 251 C853 289 871 382 853 497 C841 583 837 686 832 756 C822 817 757 855 604 860 C456 858 383 825 368 760 C357 678 354 585 340 501 C320 391 340 290 394 247 Z" fill="url(#outer)" stroke="#244a46" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M384 301 C397 270 414 253 442 240 C495 217 697 208 760 242 C805 265 826 296 837 349" fill="none" stroke="#aad2ae" stroke-opacity=".47" stroke-width="5" stroke-linecap="round"/>
+  <path d="M364 388 C358 455 374 530 380 584 M837 384 C846 454 828 543 824 584" fill="none" stroke="#142f30" stroke-opacity=".24" stroke-width="10" stroke-linecap="round"/>
+  <use xlink:href="#backShape" fill="#183f3e" opacity=".35" transform="translate(0 12)"/>
+  <use xlink:href="#backShape" fill="url(#back)" stroke="#305d53" stroke-width="5"/>
+  <use xlink:href="#backShape" fill="url(#linen)" opacity=".55"/>
+  <path d="M421 283 C468 253 535 251 601 251 C670 250 737 256 780 282" fill="none" stroke="#c7dabb" stroke-opacity=".85" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M394 346 C386 395 391 458 400 508 M806 328 C820 375 812 456 804 499" fill="none" stroke="#d2e0ba" stroke-opacity=".3" stroke-width="11" stroke-linecap="round"/>
+
+  <!-- Hand-sewn channels, soft dimples, and little covered buttons. -->
+  <path d="M489 265 C464 343 469 415 487 477 C501 527 526 584 541 659 M710 267 C733 344 731 420 714 476 C699 530 672 591 657 659" fill="none" stroke="#315f56" stroke-opacity=".29" stroke-width="16" stroke-linecap="round"/>
+  <path d="M489 267 C468 339 473 417 491 477 C508 533 527 578 543 644 M711 267 C732 343 727 419 710 477 C694 533 672 578 657 644" fill="none" stroke="#c2d6ae" stroke-opacity=".44" stroke-width="3" stroke-linecap="round"/>
+  <path d="M456 421 Q474 434 490 447 L512 425 M686 423 L709 447 Q724 435 744 423 M564 516 Q582 526 599 536 Q618 526 636 516" fill="none" stroke="#356858" stroke-opacity=".48" stroke-width="4" stroke-linecap="round"/>
+  <path d="M449 461 Q470 455 484 455 M498 458 Q518 460 532 475 M669 474 Q684 461 700 456 M717 454 Q733 454 748 464" fill="none" stroke="#c2d6b1" stroke-opacity=".38" stroke-width="2.5" stroke-linecap="round"/>
+  <g fill="#346456" stroke="#a3bd98" stroke-width="2.5">
+    <circle cx="491" cy="452" r="8"/>
+    <circle cx="709" cy="452" r="8"/>
+    <circle cx="600" cy="537" r="7"/>
+  </g>
+  <g fill="#d4d9ad" opacity=".77">
+    <circle cx="488" cy="449" r="2"/>
+    <circle cx="706" cy="449" r="2"/>
+    <circle cx="598" cy="535" r="2"/>
+  </g>
+
+  <!-- Low upholstered apron beneath the removable seat. -->
+  <path d="M332 725 C422 765 777 764 869 725 L858 824 C834 864 761 882 601 883 C444 882 370 860 343 825 Z" fill="url(#outer)" stroke="#244b45" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M353 817 C405 859 501 868 601 869 C706 869 796 855 846 815" fill="none" stroke="#a4c39c" stroke-opacity=".43" stroke-width="4" stroke-linecap="round"/>
+  <path d="M455 849 Q602 871 748 849" fill="none" stroke="#1b423e" stroke-opacity=".4" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Separate seat cushion: a bright curved top and deep rounded front edge. -->
+  <path d="M373 751 C411 782 487 797 600 798 C716 799 799 783 828 750 L839 787 C845 814 824 832 788 840 C700 863 499 861 410 840 C383 834 365 817 366 791 Z" fill="url(#seatFront)" stroke="#2d5a50" stroke-width="5" stroke-linejoin="round"/>
+  <use xlink:href="#seatShape" fill="url(#seat)" stroke="#35665a" stroke-width="5"/>
+  <use xlink:href="#seatShape" fill="url(#linen)" opacity=".5"/>
+  <path d="M418 656 C485 637 702 632 779 654" fill="none" stroke="#d5dfbc" stroke-opacity=".69" stroke-width="4" stroke-linecap="round"/>
+  <path d="M385 748 C404 776 491 789 601 789 C714 789 803 772 820 748" fill="none" stroke="#d2dfb7" stroke-opacity=".62" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M415 816 Q602 856 789 816" fill="none" stroke="#b2cba3" stroke-opacity=".38" stroke-width="3" stroke-linecap="round"/>
+  <path d="M420 663 C405 682 397 707 394 723 M782 661 C798 681 805 710 804 724" fill="none" stroke="#ebebcd" stroke-opacity=".3" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- A small, softly creased, embroidered clay-colored lumbar pillow. -->
+  <path d="M489 591 C541 573 668 568 717 587 L729 733 C677 752 530 759 473 736 Z" fill="#233e39" opacity=".25" filter="url(#pillowShadow)"/>
+  <path d="M494 581 C551 569 659 569 709 585 C722 625 728 690 715 735 C663 752 540 752 486 733 C472 688 478 625 494 581 Z" fill="url(#pillow)" stroke="#915342" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M496 581 C510 605 513 678 489 732 M708 585 C692 612 689 702 715 735" fill="none" stroke="#f4c496" stroke-opacity=".68" stroke-width="4"/>
+  <path d="M504 594 C558 581 650 581 699 596 M503 726 Q601 747 700 728" fill="none" stroke="#f5ca9c" stroke-opacity=".61" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M486 624 C498 642 500 661 488 681 M716 621 C704 646 706 669 716 688" fill="none" stroke="#8f493f" stroke-opacity=".44" stroke-width="3" stroke-linecap="round"/>
+  <!-- An embroidered stem and leaves, rather than a printed motif. -->
+  <g fill="none" stroke="#ffdfac" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M602 700 C600 672 601 640 601 611" stroke-width="3.5"/>
+    <path d="M601 661 C581 651 569 640 563 625 M601 646 C623 639 634 625 640 610 M601 680 C618 673 630 667 638 657 M600 675 C584 670 576 664 568 654" stroke-width="3"/>
+    <path d="M562 625 C579 625 586 634 587 642 C574 642 565 637 562 625 Z M640 610 C641 629 630 635 618 638 C619 625 627 616 640 610 Z M638 657 C633 672 623 677 613 676 C618 666 625 659 638 657 Z M568 654 C583 654 590 663 591 670 C580 670 572 664 568 654 Z" fill="#f6d09d" fill-opacity=".43" stroke-width="1.5"/>
+    <path d="M601 611 C593 600 592 592 600 588 C608 594 609 602 601 611 Z" fill="#f6d09d" fill-opacity=".44" stroke-width="2"/>
+  </g>
+  <path d="M515 609 C508 650 511 694 521 713" fill="none" stroke="#f8d4a9" stroke-opacity=".24" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- The two substantial arms overlap the sides of the seat and complete its silhouette. -->
+  <use xlink:href="#leftArm"/>
+  <use xlink:href="#leftArm" transform="translate(1200 0) scale(-1 1)"/>
+
+  <!-- Finishing strokes along the front skirt and the turned-up arm ends. -->
+  <path d="M452 822 C481 840 541 849 601 850 C660 849 719 840 748 822" fill="none" stroke="#173e3d" stroke-opacity=".32" stroke-width="3" stroke-linecap="round"/>
+  <path d="M444 835 Q451 843 464 847 M756 847 Q749 843 756 835" fill="none" stroke="#b9c9a0" stroke-opacity=".47" stroke-width="3" stroke-linecap="round"/>
+</svg>

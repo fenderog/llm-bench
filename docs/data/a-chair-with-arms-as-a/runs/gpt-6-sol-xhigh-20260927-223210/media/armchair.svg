@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img" aria-labelledby="title desc">
+  <title id="title">The Armchair</title>
+  <desc id="desc">A hand-drawn vector illustration of a terracotta upholstered wooden armchair with two curved arms, on a warm cream design-poster background.</desc>
+  <defs>
+    <linearGradient id="back" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d98660"/><stop offset=".52" stop-color="#ba6549"/><stop offset="1" stop-color="#8d493c"/></linearGradient>
+    <linearGradient id="seat" x1="0" y1="0" x2=".72" y2="1"><stop stop-color="#e6a47a"/><stop offset=".55" stop-color="#cd7856"/><stop offset="1" stop-color="#aa5746"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#76503b"/><stop offset=".48" stop-color="#51372e"/><stop offset="1" stop-color="#342b29"/></linearGradient>
+    <linearGradient id="arm" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#a3764d"/><stop offset=".42" stop-color="#805437"/><stop offset="1" stop-color="#4e332b"/></linearGradient>
+    <linearGradient id="light" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f5c491"/><stop offset="1" stop-color="#c9865d"/></linearGradient>
+    <pattern id="weave" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(34)"><path d="M0 0V12 M6 0V12" fill="none" stroke="#542e29" stroke-opacity=".11" stroke-width=".7"/></pattern>
+    <clipPath id="backClip"><path d="M353 351 Q349 291 425 266 C498 242 673 236 753 257 Q839 280 843 355 L853 627 Q855 690 801 715 Q743 748 609 754 Q457 760 395 727 Q351 705 351 646 Z"/></clipPath>
+    <clipPath id="seatClip"><path d="M359 713 Q388 676 449 668 L779 650 Q831 648 861 687 L915 757 Q939 785 907 795 Q889 803 862 806 L478 841 Q438 845 418 817 L357 747 Q343 729 359 713 Z"/></clipPath>
+    <filter id="shadow" x="-30%" y="-120%" width="160%" height="340%"><feGaussianBlur stdDeviation="20"/></filter>
+  </defs>
+
+  <!-- Paper, rule, and the quiet ochre halo. -->
+  <path fill="#f4efe4" d="M0 0h1200v1200H0z"/>
+  <path fill="none" stroke="#c4b9a6" stroke-width="1.5" d="M48 48h1104v1104H48z"/>
+  <circle cx="612" cy="538" r="399" fill="#e9dfca"/>
+  <path d="M244 412a393 393 0 0 1 316-268 M875 260a393 393 0 0 1 124 251" fill="none" stroke="#d5c6ae" stroke-width="2"/>
+  <path d="M122 978H1079" stroke="#c8baa2" stroke-width="2"/>
+  <ellipse cx="622" cy="1007" rx="358" ry="33" fill="#4a3c32" opacity=".22" filter="url(#shadow)"/>
+  <ellipse cx="632" cy="1003" rx="311" ry="13" fill="#56473b" opacity=".15"/>
+
+  <!-- Small typeset marks are part of the illustrated object card. -->
+  <g fill="#5c4c40">
+    <text x="93" y="103" font-family="Arial,Helvetica,sans-serif" font-size="17" letter-spacing="5">OBJECT STUDY</text>
+    <text x="1106" y="103" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="17" letter-spacing="3">NO. 01</text>
+  </g>
+
+  <!-- Far legs: their taper disappears behind the seat and shell. -->
+  <path d="M353 643 L409 659 L350 944 Q345 964 324 973 L303 981 Q286 985 289 968 Z" fill="#49352d" stroke="#342a27" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M369 686 L328 948" fill="none" stroke="#91694a" stroke-width="5" opacity=".5" stroke-linecap="round"/>
+  <path d="M810 638 L860 646 L864 949 Q863 964 850 971 L829 975 Q815 970 814 954 Z" fill="#49352d" stroke="#342a27" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M826 698 L836 935" fill="none" stroke="#9b7150" stroke-width="5" opacity=".42" stroke-linecap="round"/>
+  <path d="M295 956 L350 938 L344 969 Q326 981 291 981Z M816 946 L864 946 L864 963 Q849 980 824 973Z" fill="#b89b68" opacity=".9"/>
+
+  <!-- The walnut back frame and padded, piped backrest. -->
+  <path d="M311 342 Q309 267 383 235 C456 195 669 192 759 214 Q856 236 878 318 Q889 370 888 467 L895 643 Q896 706 847 741 Q777 792 614 799 Q439 804 361 759 Q311 731 309 664 Z" fill="url(#wood)" stroke="#382a27" stroke-width="9" stroke-linejoin="round"/>
+  <path d="M328 347 Q326 276 396 249 C468 216 664 211 748 230 Q848 254 858 332" fill="none" stroke="#b58a60" stroke-width="8" opacity=".8" stroke-linecap="round"/>
+  <path d="M353 351 Q349 291 425 266 C498 242 673 236 753 257 Q839 280 843 355 L853 627 Q855 690 801 715 Q743 748 609 754 Q457 760 395 727 Q351 705 351 646 Z" fill="url(#back)" stroke="#633a30" stroke-width="7" stroke-linejoin="round"/>
+  <g clip-path="url(#backClip)">
+    <path d="M316 283 Q382 249 431 256 L466 765 L335 752Z" fill="#f6ad78" opacity=".23"/>
+    <path d="M728 239 Q806 242 867 299 L879 726 Q813 775 750 758 Q822 666 810 491 Q807 326 728 239Z" fill="#70392f" opacity=".17"/>
+    <path d="M330 224h565v570H330z" fill="url(#weave)" opacity=".75"/>
+    <path d="M586 263 Q556 465 579 719 M634 262 Q614 484 635 731" fill="none" stroke="#833e34" stroke-width="3" opacity=".13"/>
+    <path d="M384 351 Q377 306 433 282 C514 251 685 248 756 273" fill="none" stroke="#ffe0aa" stroke-width="5" opacity=".28" stroke-linecap="round"/>
+  </g>
+  <path d="M375 360 Q374 308 436 285 Q512 258 745 275 Q816 290 823 358 L832 627 Q833 678 786 699 Q719 734 607 736 Q481 741 413 708 Q373 686 373 642 Z" fill="none" stroke="#f1b68a" stroke-width="2.5" stroke-dasharray="2 9" stroke-linecap="round" opacity=".85"/>
+  <path d="M351 622 Q385 681 443 700 M842 605 Q830 684 776 704" fill="none" stroke="#6c4032" stroke-width="12" opacity=".35" stroke-linecap="round"/>
+
+  <!-- Seat apron and its dark undercut. -->
+  <path d="M354 701 Q380 668 446 653 L780 635 Q849 633 886 685 L939 768 Q951 784 939 807 L918 843 Q907 863 872 867 L475 892 Q436 894 415 868 L346 758 Q334 730 354 701 Z" fill="url(#wood)" stroke="#362a27" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M473 844 Q657 840 900 802 L913 839 Q892 850 870 851 L477 876 Q463 868 473 844Z" fill="#382b29" opacity=".7"/>
+  <path d="M484 875 L868 850" fill="none" stroke="#ab7952" stroke-width="3" opacity=".65" stroke-linecap="round"/>
+
+  <!-- Two foreground legs, with slim brass shoes. -->
+  <path d="M444 825 L500 839 L467 1015 Q464 1031 449 1038 L425 1037 Q413 1033 418 1015 Z" fill="url(#wood)" stroke="#322925" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M459 865 L435 1002" fill="none" stroke="#aa7953" stroke-width="5" opacity=".6" stroke-linecap="round"/>
+  <path d="M422 1000 Q444 1008 470 995 L466 1020 Q456 1039 426 1035 Q413 1028 422 1000Z" fill="#b79966" stroke="#725f46" stroke-width="2"/>
+  <path d="M851 815 L905 805 L949 1014 Q954 1031 941 1038 L918 1041 Q902 1038 897 1021Z" fill="url(#wood)" stroke="#322925" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M881 859 L920 1000" fill="none" stroke="#b28156" stroke-width="5" opacity=".49" stroke-linecap="round"/>
+  <path d="M902 1000 Q924 1008 947 999 L951 1018 Q953 1034 940 1038 L920 1040 Q903 1037 902 1021Z" fill="#b79966" stroke="#725f46" stroke-width="2"/>
+
+  <!-- The plump seat cushion wraps across the front of the wooden rail. -->
+  <path d="M360 712 Q384 673 446 662 L781 645 Q830 645 863 680 L917 751 Q940 780 922 802 Q907 820 866 822 L477 857 Q433 857 409 826 L351 750 Q339 729 360 712Z" fill="#904b3d" stroke="#63382f" stroke-width="5"/>
+  <path d="M359 713 Q388 676 449 668 L779 650 Q831 648 861 687 L915 757 Q939 785 907 795 Q889 803 862 806 L478 841 Q438 845 418 817 L357 747 Q343 729 359 713 Z" fill="url(#seat)" stroke="#8e4939" stroke-width="5"/>
+  <g clip-path="url(#seatClip)">
+    <path d="M337 682 Q581 643 831 634 L930 760 Q721 794 464 809Z" fill="url(#light)" opacity=".24"/>
+    <path d="M313 631h670v240H313z" fill="url(#weave)" opacity=".68"/>
+    <path d="M430 676 Q393 738 464 813 M818 661 Q849 711 902 779" fill="none" stroke="#fff0bf" stroke-width="5" opacity=".18"/>
+  </g>
+  <path d="M478 845 Q665 837 871 809" fill="none" stroke="#f0ac7e" stroke-width="3" opacity=".7"/>
+  <path d="M386 716 Q410 693 452 688 L767 672" fill="none" stroke="#ffcf9b" stroke-width="5" opacity=".53" stroke-linecap="round"/>
+  <path d="M482 852 Q667 846 876 816" fill="none" stroke="#713c33" stroke-width="2.5" stroke-dasharray="2 8" stroke-linecap="round" opacity=".72"/>
+
+  <!-- Arms' supporting posts, followed by the two unmistakable curved armrests. -->
+  <path d="M422 711 Q439 702 471 719 L475 840 Q466 860 435 859 L420 839Z" fill="url(#wood)" stroke="#382b27" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M433 750 L437 832" fill="none" stroke="#ac7954" stroke-width="5" opacity=".6" stroke-linecap="round"/>
+  <path d="M920 677 Q943 671 968 689 L956 819 Q951 843 913 852 L901 827Z" fill="url(#wood)" stroke="#382b27" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M947 719 L935 819" fill="none" stroke="#b18159" stroke-width="5" opacity=".6" stroke-linecap="round"/>
+
+  <path d="M291 580 Q309 556 334 563 Q349 567 365 582 L462 669 Q481 683 481 706 Q481 730 461 744 Q445 756 425 745 L287 627 Q265 606 291 580Z" fill="url(#arm)" stroke="#3b2a26" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M300 582 Q314 568 330 574 Q343 577 354 588 L454 677 Q466 688 464 700 Q461 710 449 718 Q439 724 427 714 L297 608 Q287 600 300 582Z" fill="url(#light)" stroke="#81543b" stroke-width="3"/>
+  <path d="M302 594 Q313 581 324 585 L439 686" fill="none" stroke="#ffe0a7" stroke-width="5" opacity=".73" stroke-linecap="round"/>
+  <path d="M290 616 L429 736 Q451 754 470 722" fill="none" stroke="#301f20" stroke-width="3" opacity=".7"/>
+  <path d="M323 593 Q372 628 424 687" fill="none" stroke="#975c3e" stroke-width="2" opacity=".56"/>
+
+  <path d="M810 558 Q825 544 843 552 Q852 555 865 565 L958 638 Q982 656 979 678 Q976 705 957 715 Q941 724 926 711 L807 612 Q792 589 810 558Z" fill="url(#arm)" stroke="#3b2a26" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M817 561 Q830 551 842 560 L950 647 Q963 659 962 670 Q962 680 950 687 Q939 692 929 683 L815 586 Q808 576 817 561Z" fill="url(#light)" stroke="#81543b" stroke-width="3"/>
+  <path d="M821 573 Q833 563 845 574 L939 651" fill="none" stroke="#ffe0a7" stroke-width="5" opacity=".72" stroke-linecap="round"/>
+  <path d="M808 602 L928 704 Q954 729 971 690" fill="none" stroke="#301f20" stroke-width="3" opacity=".7"/>
+  <path d="M849 576 Q890 606 925 644" fill="none" stroke="#975c3e" stroke-width="2" opacity=".55"/>
+
+  <!-- Joinery details and caption. -->
+  <g fill="#e6bb81" stroke="#654733" stroke-width="2"><circle cx="451" cy="738" r="4.2"/><circle cx="947" cy="705" r="4.2"/><circle cx="459" cy="853" r="3.4"/><circle cx="935" cy="837" r="3.4"/></g>
+  <path d="M91 1080H1109" stroke="#bdac94" stroke-width="1.5"/>
+  <text x="94" y="1121" font-family="Georgia,'Times New Roman',serif" font-size="34" font-style="italic" fill="#493d33">The armchair</text>
+  <text x="1107" y="1117" text-anchor="end" font-family="Arial,Helvetica,sans-serif" font-size="14" letter-spacing="3" fill="#726356">WALNUT  /  TERRACOTTA</text>
+</svg>

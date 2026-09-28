@@ -1,0 +1,45 @@
+{
+  "id": "gpt-6-sol-medium-20260927-223210",
+  "page": "a-chair-with-arms-as-a",
+  "model": "openai-codex/gpt-6-sol",
+  "effort": "medium",
+  "kind": "media",
+  "started_at": "2026-09-28T05:32:16Z",
+  "source_dir": "2026-09-27-223210-gpt6sol-a-chair-with-arms-as-a",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 131278,
+    "cost_usd": 0.0704264,
+    "tool_calls": 5,
+    "turns": 6,
+    "tokens_total": 13382,
+    "tokens_input": 8433,
+    "tokens_output": 4949,
+    "tokens_reasoning": 1146,
+    "tokens_cache_read": 20352
+  },
+  "thumb": "media/sunday-chair.svg",
+  "game": null,
+  "media": [
+    {
+      "type": "image",
+      "width": 1200,
+      "height": 1200,
+      "bytes": 7892,
+      "path": "media/sunday-chair.svg"
+    }
+  ],
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": null
+}
