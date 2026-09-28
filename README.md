@@ -51,6 +51,22 @@ everything is imported into one page. Nothing is pushed until you run `bench pub
 Each agent gets your prompt verbatim plus a fixed brief for the kind of task (`src/bench/briefs/`), and
 works in an empty folder under `[run].dir` (default `~/dev/bench-runs`, set in `bench.toml`).
 
+### Claude Code as the harness
+
+Models run through [pi](https://github.com/earendil-works/pi) by default. Prefix a model with `claude-code:` to run it
+through Claude Code instead; one batch (or model set) can mix both, so the same model can be compared across
+harnesses:
+
+```sh
+uv run bench run "a voxel horse" -m claude-code:claude-opus-5-5:high -m openai-codex/gpt-6-sol:high
+uv run bench models --harness claude-code        # its models and effort levels
+```
+
+Claude Code models: `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5`, `claude-haiku-4-5` (or `fable`,
+`opus`, `sonnet`, `haiku`), at low, medium, high, xhigh or max. Each run is one direct agent with only file and
+shell tools, like pi: no sub-agents, web, skills or scheduling, and none of your CLAUDE.md, memory, plugins, hooks or
+MCP servers (your login is used). Its cost is Claude Code's estimate at API prices, also on a subscription.
+
 ### Adding runs to an existing page
 
 Name the page and leave out the prompt; its prompt and kind are reused:
@@ -148,7 +164,8 @@ gets a permission error; to contribute runs they'd fork the repo and open a pull
 ## Requirements
 
 - [uv](https://docs.astral.sh/uv/) to run the CLI (`uv run bench ...`).
-- [pi](https://github.com/earendil-works/pi) as the agent harness, the only one for now.
+- [pi](https://github.com/earendil-works/pi) as the default agent harness; [Claude Code](https://claude.com/claude-code)
+  (`claude`, logged in) for `claude-code:` models.
 - `godot` on PATH with the matching web export templates (game runs).
 - `ffmpeg` and `ffprobe` on PATH (media runs).
 - Google Chrome and Playwright for checking game builds and for the viewer tests (`pip install

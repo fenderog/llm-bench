@@ -42,6 +42,8 @@ def fake_pi_on_path(monkeypatch):
     monkeypatch.delenv("FAKE_PI_EXIT_CODE", raising=False)
     monkeypatch.delenv("FAKE_PI_HANG", raising=False)
     monkeypatch.delenv("FAKE_PI_ERROR_STOP", raising=False)
+    for var in ("FAKE_CLAUDE_ERROR", "FAKE_CLAUDE_HANG", "FAKE_CLAUDE_ARGV"):
+        monkeypatch.delenv(var, raising=False)
 
 
 @pytest.fixture(autouse=True)
@@ -89,34 +91,34 @@ def test_expand_levels_unsupported_raises_naming_supported():
 
 
 def test_plan_runs_checks_before_anything_starts():
-    plan = plan_runs(harness(), ["openai-codex/gpt-6-sol", "test/limited:low..high"], None)
-    assert ("openai-codex/gpt-6-sol", "low") in plan
-    assert ("test/limited", "high") in plan
-    assert ("test/limited", "off") not in [p for p in plan if p[0] == "test/limited"]
+    plan = plan_runs(["openai-codex/gpt-6-sol", "test/limited:low..high"], None)
+    assert ("pi", "openai-codex/gpt-6-sol", "low") in plan
+    assert ("pi", "test/limited", "high") in plan
+    assert ("pi", "test/limited", "off") not in plan
 
 
 def test_plan_runs_unsupported_level_errors_for_whole_batch():
     with pytest.raises(BenchError):
-        plan_runs(harness(), ["test/limited:xhigh"], None)
+        plan_runs(["test/limited:xhigh"], None)
 
 
 def test_plan_runs_dedupes_same_model_merging_levels():
-    plan = plan_runs(harness(), ["openai-codex/gpt-6-sol:low", "openai-codex/gpt-6-sol:high"], None)
-    assert sorted(l for m, l in plan) == ["high", "low"]
+    plan = plan_runs(["openai-codex/gpt-6-sol:low", "openai-codex/gpt-6-sol:high"], None)
+    assert sorted(l for _, m, l in plan) == ["high", "low"]
     assert len(plan) == 2
 
 
 def test_plan_runs_rejects_unknown_model_with_suggestions():
     with pytest.raises(BenchError, match=r"unknown model 'openai-codex/gpt-6-sool'.*gpt-6-sol"):
-        plan_runs(harness(), ["openai-codex/gpt-6-sool:low"], None)
+        plan_runs(["openai-codex/gpt-6-sool:low"], None)
     with pytest.raises(BenchError, match="unknown model 'nope/nothing'"):
-        plan_runs(harness(), ["nope/nothing"], None)
+        plan_runs(["nope/nothing"], None)
 
 
 def test_plan_runs_handles_colons_inside_model_ids():
     model = "openrouter/openai/gpt-6-sol:batch"
-    assert plan_runs(harness(), [model], None) == [(model, l) for l in ["low", "medium", "high", "xhigh", "max"]]
-    assert plan_runs(harness(), [model + ":high"], None) == [(model, "high")]
+    assert plan_runs([model], None) == [("pi", model, l) for l in ["low", "medium", "high", "xhigh", "max"]]
+    assert plan_runs([model + ":high"], None) == [("pi", model, "high")]
 
 
 def test_plan_runs_rejects_model_tag_collision(monkeypatch):
@@ -126,7 +128,7 @@ def test_plan_runs_rejects_model_tag_collision(monkeypatch):
         lambda model: "limited",
     )
     with pytest.raises(BenchError, match="limited"):
-        plan_runs(harness(), ["test/limited:low", "openai-codex/gpt-6-sol:low"], None)
+        plan_runs(["test/limited:low", "openai-codex/gpt-6-sol:low"], None)
 
 
 def test_parse_duration():
@@ -532,3 +534,85 @@ def test_a_different_prompt_for_an_existing_page_is_refused(run_root, capsys):
 def test_page_without_prompt_must_exist(run_root, capsys):
     assert main(["run", "--yes", "--page", "nope", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 1
     assert "reuse its prompt" in capsys.readouterr().err
+
+
+
+# --- Claude Code harness ---------------------------------------------------------------------------
+
+
+def test_claude_code_prefix_resolves_aliases_and_levels():
+    assert plan_runs(["claude-code:opus:high"], None) == [("claude-code", "claude-opus-5-5", "high")]
+    assert [l for _, _, l in plan_runs(["claude-code:claude-sonnet-5"], None)] == ["low", "medium", "high", "xhigh", "max"]
+    with pytest.raises(BenchError, match="minimal.*not supported"):
+        plan_runs(["claude-code:claude-opus-5-5:minimal"], None)
+    with pytest.raises(BenchError, match="unknown model 'claude-opus-9'.*claude-opus-5-5"):
+        plan_runs(["claude-code:claude-opus-9:high"], None)
+
+
+def test_mixed_harness_batch_records_each_runs_harness_and_session(run_root, monkeypatch, tmp_path):
+    argv_file = tmp_path / "claude-argv.json"
+    monkeypatch.setenv("FAKE_CLAUDE_ARGV", str(argv_file))
+    monkeypatch.setenv("CLAUDECODE", "1")  # as when bench itself runs inside Claude Code
+    rc = main(["run", "--yes", "mixed harness", "-m", "claude-code:claude-opus-5-5:high",
+               "-m", "anthropic/claude-opus-5-5:high", "--root", str(run_root)])
+    assert rc == 0
+    results = {r["harness"]["name"]: r for r in json.loads((run_root / "docs/data/mixed-harness/results.json").read_text())}
+    assert set(results) == {"pi", "claude-code"}
+    cc, pi = results["claude-code"], results["pi"]
+    assert cc["model"] == pi["model"] == "anthropic/claude-opus-5-5"
+    assert cc["id"].startswith("claude-opus-5-5-cc-high-") and pi["id"].startswith("claude-opus-5-5-high-")
+    assert cc["harness"]["version"] == "9.9.9-fake"
+    assert cc["state"] == "complete"
+    m = cc["metrics"]
+    assert (m["turns"], m["tool_calls"], m["cost_usd"]) == (3, 2, 0.0123)
+    # tokens from the final result (the stream's per-message usage undercounts output)
+    assert (m["tokens_input"], m["tokens_output"], m["tokens_total"], m["tokens_cache_read"]) == (16, 180, 196, 3500)
+    assert m["tokens_reasoning"] == 40
+
+    # One direct agent, no personal setup, nothing saved to the user's history, not "nested".
+    sent = json.loads(argv_file.read_text())
+    for flag in ("--safe-mode", "--no-session-persistence", "--tools=Bash,Read,Write,Edit,Glob,Grep",
+                 "--disallowed-tools=Agent,Task", "--disable-slash-commands", "--verbose"):
+        assert flag in sent["argv"]
+    assert sent["argv"][sent["argv"].index("--effort") + 1] == "high"
+    assert sent["argv"][sent["argv"].index("--model") + 1] == "claude-opus-5-5"
+    assert sent["env_has_claudecode"] is False
+
+    run_dir = run_root / "docs/data/mixed-harness/runs" / cc["id"]
+    assert "events" not in cc["session"] and not (run_dir / "session/events.jsonl").exists()
+    convo = json.loads((run_dir / "session/conversation.json").read_text())
+    text = json.dumps(convo)
+    assert "signature" not in text and "sess-fake" not in text
+    msgs = [e["message"] for e in convo if e["type"] == "message"]
+    assert msgs[0]["role"] == "user" and msgs[0]["content"][0]["text"].startswith("mixed harness")
+    calls = [b for mm in msgs if mm["role"] == "assistant" for b in mm["content"] if b["type"] == "toolCall"]
+    assert [(c["name"], c["arguments"].get("path")) for c in calls] == [("write", "project.godot"), ("bash", None)]
+    results_by_call = {mm["toolCallId"]: mm for mm in msgs if mm["role"] == "toolResult"}
+    assert results_by_call[calls[1]["id"]]["isError"] is True
+    assert [mm["content"][0]["type"] for mm in msgs if mm["role"] == "assistant"] == ["thinking", "toolCall", "text"]
+    page = json.loads((run_root / "docs/data/mixed-harness/page.json").read_text())
+    assert page["final_prompt"].startswith("mixed harness\n\nBuild this")
+
+
+def test_claude_code_error_result_is_a_failed_run(run_root, monkeypatch):
+    monkeypatch.setenv("FAKE_CLAUDE_ERROR", "1")
+    assert main(["run", "--yes", "cc error", "-m", "claude-code:haiku:low", "--root", str(run_root)]) == 0
+    [run] = json.loads((run_root / "docs/data/cc-error/results.json").read_text())
+    assert run["state"] == "failed" and "overloaded" in run["error"]
+
+
+def test_claude_code_timeout(run_root, monkeypatch):
+    monkeypatch.setenv("FAKE_CLAUDE_HANG", "1")
+    assert main(["run", "--yes", "--timeout", "1s", "cc hang", "-m", "claude-code:haiku:low", "--root", str(run_root)]) == 0
+    [run] = json.loads((run_root / "docs/data/cc-hang/results.json").read_text())
+    assert run["state"] == "timeout"
+
+
+def test_claude_code_in_a_model_set_and_models_listing(run_root, capsys):
+    write_sets(run_root, 'mix = ["claude-code:sonnet:low", "openai-codex/gpt-6-sol:low"]\n')
+    assert main(["run", "--dry-run", "cube", "--set", "mix", "--root", str(run_root)]) == 0
+    out = capsys.readouterr().out
+    assert "claude-code:claude-sonnet-5:low" in out and "openai-codex/gpt-6-sol:low" in out
+    assert "harness: claude-code 9.9.9-fake, pi 0.1.0-fake" in out
+    assert main(["models", "--harness", "claude-code", "opus"]) == 0
+    assert "claude-opus-5-5: low, medium, high, xhigh, max" in capsys.readouterr().out

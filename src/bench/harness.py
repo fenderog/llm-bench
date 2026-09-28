@@ -1,9 +1,12 @@
-"""The agent-program interface (`bench run` drives one of these), and Pi, the only
-implementation so far. Also the pure session-file parser: metrics + state (see SPEC.md
-"Metrics" and "Harness interface").
+"""The agent-program interface (`bench run` drives one of these): Pi and ClaudeCode. Also the
+pure session parsers: metrics + state (see SPEC.md "Metrics" and "Harness interface").
+
+Every harness hands the runner the same things: a command line, a session in pi's format
+(`session_entries`, published as conversation.json, which the viewer renders) and metrics.
 """
 
 import json
+import os
 import subprocess
 import threading
 from pathlib import Path
@@ -12,9 +15,10 @@ from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError
 
 
 class Harness:
-    """One per agent program."""
+    """One per agent program. `tag` marks its runs' ids and folders ("" for pi, the default)."""
 
     name = "harness"
+    tag = ""
 
     def version(self):
         raise NotImplementedError
@@ -25,11 +29,40 @@ class Harness:
     def levels(self, model):
         raise NotImplementedError
 
+    def resolve(self, model):
+        """An alias -> the model id it stands for (identity by default)."""
+        return model
+
+    def display_model(self, model):
+        """The model name recorded for a run (what the site shows)."""
+        return model
+
     def command(self, model, level, brief, session_dir):
         raise NotImplementedError
 
+    def env(self):
+        """The agent's environment (None = inherit bench's)."""
+        return None
+
     def session_file(self, session_dir):
         raise NotImplementedError
+
+    def session_entries(self, session_dir, brief, level):
+        """The session as pi-format entries (published as conversation.json), or None."""
+        path = self.session_file(session_dir)
+        if not path or not path.is_file():
+            return None
+        return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+    def metrics(self, session_dir, level=None):
+        """parse_session()-shaped metrics, or None when there's no session yet. Tolerates a
+        session that's still being written (live progress)."""
+        path = self.session_file(session_dir)
+        return parse_session(path) if path and path.is_file() else None
+
+    def publishes_events(self):
+        """Whether the raw stdout event stream is published as session/events.jsonl."""
+        return True
 
 
 class Pi(Harness):
@@ -181,3 +214,244 @@ def parse_session(path):
         "ended_in_error": ended_in_error,
         "error_message": error_message,
     }
+
+
+class ClaudeCode(Harness):
+    """The `claude` CLI (Claude Code) harness. See SPEC.md "Harness interface".
+
+    Each run is one direct agent: --safe-mode keeps the user's CLAUDE.md, memory, skills,
+    plugins, hooks and MCP servers out of it (login still works), sub-agents are disallowed,
+    and nothing is saved to the user's session history. The stdout stream-json is the session."""
+
+    name = "claude-code"
+    tag = "cc"
+    # Models and effort levels (Claude Code has no command that lists them). Aliases resolve to these.
+    MODELS = {
+        "claude-fable-5-1": ["low", "medium", "high", "xhigh", "max"],
+        "claude-opus-5-5": ["low", "medium", "high", "xhigh", "max"],
+        "claude-sonnet-5": ["low", "medium", "high", "xhigh", "max"],
+        "claude-haiku-4-5": ["low", "medium", "high", "xhigh", "max"],
+    }
+    ALIASES = {"fable": "claude-fable-5-1", "opus": "claude-opus-5-5", "sonnet": "claude-sonnet-5", "haiku": "claude-haiku-4-5"}
+    # Only the core file and shell tools, like pi: no web, scheduling, messaging or skills, and no
+    # sub-agents (each model x effort is one direct run).
+    TOOLS = "Bash,Read,Write,Edit,Glob,Grep"
+    NO_SUBAGENTS = "Agent,Task"
+
+    def __init__(self, binary="claude"):
+        self.binary = binary
+
+    def version(self):
+        try:
+            r = subprocess.run([self.binary, "--version"], capture_output=True, text=True, timeout=30)
+        except (OSError, subprocess.TimeoutExpired) as e:
+            raise BenchError(f"cannot run {self.binary} --version: {e}")
+        if r.returncode != 0:
+            raise BenchError(f"{self.binary} --version failed: {r.stderr.strip()}")
+        return r.stdout.strip().split()[0]  # "2.1.283 (Claude Code)" -> "2.1.283"
+
+    def models(self):
+        return [*self.MODELS, *self.ALIASES]
+
+    def resolve(self, model):
+        return self.ALIASES.get(model, model)
+
+    def levels(self, model):
+        return self.MODELS[self.resolve(model)]
+
+    def display_model(self, model):
+        return f"anthropic/{self.resolve(model)}"
+
+    def command(self, model, level, brief, session_dir):
+        return [
+            self.binary, "-p",
+            "--model", self.resolve(model),
+            "--effort", level,
+            "--output-format", "stream-json", "--verbose",
+            "--safe-mode",
+            "--permission-mode", "bypassPermissions",
+            "--no-session-persistence",
+            f"--tools={self.TOOLS}",
+            f"--disallowed-tools={self.NO_SUBAGENTS}",
+            "--disable-slash-commands",
+            "--", brief,
+        ]
+
+    def env(self):
+        # bench itself may be running inside Claude Code; don't let the agent think it's nested.
+        return {k: v for k, v in os.environ.items() if k != "CLAUDECODE" and not k.startswith("CLAUDE_CODE_")}
+
+    def session_file(self, session_dir):
+        path = Path(session_dir) / "events.jsonl"
+        return path if path.is_file() else None
+
+    def session_entries(self, session_dir, brief, level):
+        path = self.session_file(session_dir)
+        return convert_claude_stream(read_jsonl(path), brief, level) if path else None
+
+    def metrics(self, session_dir, level=None):
+        path = self.session_file(session_dir)
+        return claude_metrics(read_jsonl(path), level) if path else None
+
+    def publishes_events(self):
+        return False  # the raw stream carries account/session details; conversation.json has the session
+
+
+def read_jsonl(path):
+    """Parsed JSON lines, skipping blank and partial (still being written) ones."""
+    out = []
+    with open(path, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            try:
+                out.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return out
+
+
+def _claude_messages(events):
+    """Assistant API messages from a stream-json event list, merged by message id (the stream
+    can emit one event per content block, each repeating the message's usage)."""
+    order, merged = [], {}
+    for e in events:
+        if e.get("type") != "assistant" or e.get("parent_tool_use_id"):
+            continue
+        msg = e.get("message") or {}
+        mid = msg.get("id") or f"_{len(order)}"
+        if mid not in merged:
+            merged[mid] = {**msg, "content": []}
+            order.append(mid)
+        merged[mid]["content"] += msg.get("content") or []
+        if msg.get("usage"):
+            merged[mid]["usage"] = msg["usage"]
+    return [merged[mid] for mid in order]
+
+
+def _pi_usage(u):
+    usage = {
+        "input": u.get("input_tokens") or 0, "output": u.get("output_tokens") or 0,
+        "cacheRead": u.get("cache_read_input_tokens") or 0, "cacheWrite": u.get("cache_creation_input_tokens") or 0,
+    }
+    usage["totalTokens"] = sum(usage.values())
+    return usage
+
+
+def _tool_text(content):
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(c.get("text", "") if isinstance(c, dict) and c.get("type") == "text" else json.dumps(c) for c in content)
+    return "" if content is None else json.dumps(content)
+
+
+def _tool_call(block, cwd):
+    """A Claude Code tool_use block -> a pi toolCall. The tools the viewer knows (bash, write,
+    edit, read) get pi's names and argument shapes, with paths made relative to the run dir."""
+    name, args = block.get("name", ""), dict(block.get("input") or {})
+
+    def rel(path):
+        return path[len(cwd) + 1:] if cwd and isinstance(path, str) and path.startswith(cwd + "/") else path
+
+    if name == "Bash":
+        name, args = "bash", {"command": args.get("command", "")}
+    elif name == "Write":
+        name, args = "write", {"path": rel(args.get("file_path")), "content": args.get("content", "")}
+    elif name == "Edit":
+        name, args = "edit", {"path": rel(args.get("file_path")), "edits": [{"oldText": args.get("old_string", ""), "newText": args.get("new_string", "")}]}
+    elif name == "MultiEdit":
+        edits = [{"oldText": e.get("old_string", ""), "newText": e.get("new_string", "")} for e in args.get("edits") or []]
+        name, args = "edit", {"path": rel(args.get("file_path")), "edits": edits}
+    elif name == "Read":
+        name, args = "read", {"path": rel(args.get("file_path")), **{k: v for k, v in args.items() if k in ("offset", "limit")}}
+    return {"type": "toolCall", "id": block.get("id"), "name": name, "arguments": args}
+
+
+def convert_claude_stream(events, brief, level):
+    """Claude Code stream-json events -> pi-format session entries (see SPEC.md "Harness
+    interface"): session, model and effort entries, the brief as the user message, assistant
+    messages (text / thinking / toolCall, with usage) and toolResult messages."""
+    init = next((e for e in events if e.get("type") == "system" and e.get("subtype") == "init"), {})
+    cwd = init.get("cwd") or ""
+    entries = [
+        {"type": "session", "cwd": cwd},
+        {"type": "model_change", "provider": "anthropic", "modelId": init.get("model")},
+        {"type": "thinking_level_change", "thinkingLevel": level},
+        {"type": "message", "message": {"role": "user", "content": [{"type": "text", "text": brief}]}},
+    ]
+    pending = list(_claude_messages(events))  # merged, in stream order: emitted at their first event
+    for e in events:
+        if e.get("parent_tool_use_id"):
+            continue
+        if e.get("type") == "assistant":
+            if not pending or (pending[0].get("id") and pending[0]["id"] != (e.get("message") or {}).get("id")):
+                continue  # a later event of a message already emitted
+            msg = pending.pop(0)
+            content = []
+            for b in msg["content"]:
+                if b.get("type") == "text":
+                    content.append({"type": "text", "text": b.get("text", "")})
+                elif b.get("type") == "thinking" and b.get("thinking"):  # print mode often omits the text
+                    content.append({"type": "thinking", "thinking": b["thinking"]})
+                elif b.get("type") == "tool_use":
+                    content.append(_tool_call(b, cwd))
+            entries.append({"type": "message", "message": {
+                "role": "assistant", "content": content, "usage": _pi_usage(msg.get("usage") or {}),
+                "stopReason": msg.get("stop_reason"),
+            }})
+        elif e.get("type") == "user":
+            for b in (e.get("message") or {}).get("content") or []:
+                if isinstance(b, dict) and b.get("type") == "tool_result":
+                    entries.append({"type": "message", "message": {
+                        "role": "toolResult", "toolCallId": b.get("tool_use_id"),
+                        "content": [{"type": "text", "text": _tool_text(b.get("content"))}], "isError": bool(b.get("is_error")),
+                    }})
+    result = next((e for e in reversed(events) if e.get("type") == "result"), None)
+    if result and result.get("is_error"):
+        entries.append({"type": "message", "message": {
+            "role": "assistant", "content": [{"type": "text", "text": _result_error(result)}], "stopReason": "error",
+        }})
+    return entries
+
+
+def _result_error(result):
+    return str(result.get("result") or ", ".join(result.get("errors") or []) or result.get("subtype") or "error")
+
+
+def claude_metrics(events, level=None):
+    """Metrics from a Claude Code stream (parse_session()'s shape). Turns and tool calls are counted
+    over the top-level assistant API messages. Tokens come from the final result's usage (the
+    per-message usage in the stream is a snapshot taken before the output is written, so it
+    undercounts output); until the run ends they're summed from those snapshots. Reasoning =
+    usage.output_tokens_details.thinking_tokens. Cost = total_cost_usd (Claude Code's API-price
+    estimate), 0 until the run ends."""
+    msgs = _claude_messages(events)
+    tool_calls = sum(1 for m in msgs for b in m["content"] if b.get("type") == "tool_use")
+    result = next((e for e in reversed(events) if e.get("type") == "result"), None)
+    if result and result.get("usage"):
+        u = _pi_usage(result["usage"])
+        reasoning = (result["usage"].get("output_tokens_details") or {}).get("thinking_tokens")
+    else:
+        u = {k: sum(_pi_usage(m.get("usage") or {})[k] for m in msgs) for k in ("input", "output", "cacheRead", "cacheWrite")}
+        reasoning = None
+    tokens = {"input": u["input"], "output": u["output"], "reasoning": reasoning, "cacheRead": u["cacheRead"], "cacheWrite": u["cacheWrite"]}
+    tokens["total"] = tokens["input"] + tokens["output"]
+    ended_in_error = bool(result and result.get("is_error"))
+    return {
+        "thinking_level": level,
+        "turns": len(msgs),
+        "tool_calls": tool_calls,
+        "tokens": tokens,
+        "cost_usd": (result or {}).get("total_cost_usd") or 0.0,
+        "ended_in_error": ended_in_error,
+        "error_message": _result_error(result)[:200] if ended_in_error else None,
+    }
+
+
+HARNESSES = {"pi": Pi, "claude-code": ClaudeCode}
+
+
+def split_harness(spec):
+    """'claude-code:claude-opus-5-5:high' -> ('claude-code', 'claude-opus-5-5:high'); no known
+    harness prefix -> ('pi', spec)."""
+    name, sep, rest = spec.partition(":")
+    return (name, rest) if sep and name in HARNESSES else ("pi", spec)

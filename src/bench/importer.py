@@ -9,6 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from . import clean, godot, site
+from .harness import HARNESSES
 from .util import BenchError, iso_from_ms, make_run_id, mask, parse_folder
 
 # level-dir file -> (path under the run dir, how to clean it)
@@ -153,7 +154,8 @@ def stage_media(media_dir, run_dir, rewrites, redact, batch):
 
 
 def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info, kind):
-    run_id = make_run_id(run_data["model"], level, effort_dir.name)
+    harness_cls = HARNESSES.get(harness_info.get("name"))
+    run_id = make_run_id(run_data["model"], level, effort_dir.name, harness_cls.tag if harness_cls else "")
     run_dir = tmp_root / run_id
     run_dir.mkdir(parents=True)
     batch = SimpleNamespace(rewritten=0, redacted=0, hits=[], run_dir=run_dir, run_id=run_id)

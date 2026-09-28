@@ -569,3 +569,12 @@ def test_ranking_can_be_edited_through_bench_serve(bench_served, page):
     efforts = page.locator("table.runs tbody tr td[data-col='effort']").all_inner_texts()
     assert efforts == ["medium", "high", "low"]
     assert_no_errors(page)
+
+
+def test_run_title_has_no_stray_text_for_unranked_runs(site, page):
+    for slug, run_id in (("demo", HIGH_ID), ("art", "model-x-low-20260102-000000")):  # no rank key / rank null
+        page.goto(f"{site}run.html?p={slug}&r={run_id}")
+        page.wait_for_selector("#title .effort")
+        title = page.locator("#title").inner_text()
+        assert "null" not in title and "undefined" not in title, title
+    assert_no_errors(page)

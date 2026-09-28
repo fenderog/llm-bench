@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import build, clean, media
-from .harness import Pi, parse_session
+from .harness import HARNESSES, split_harness
 from .importer import cmd_import
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError, title_from_slug
 
@@ -162,27 +162,53 @@ def expand_levels(spec, supported, model):
     return [level for level in wanted if level != "off" or spec == "off"]
 
 
-def plan_runs(harness, model_specs, effort_default):
-    """Resolve every -m MODEL[:LEVELS] against the harness before anything starts. Returns
-    [(model, level), ...]. The same model given twice has its levels merged; two models that
-    resolve to the same model-dir tag are an error."""
-    known = set(harness.models())
-    levels_by_model = {}
+class Harnesses(dict):
+    """Harness instances by name, created on first use (so pi isn't needed for a Claude-Code-only
+    batch). Tests pass pre-built ones."""
+
+    def __missing__(self, name):
+        if name not in HARNESSES:
+            raise BenchError(f"unknown harness {name!r} (known: {', '.join(HARNESSES)})")
+        self[name] = HARNESSES[name]()
+        return self[name]
+
+
+def plan_runs(model_specs, effort_default, harnesses=None):
+    """Resolve every -m [HARNESS:]MODEL[:LEVELS] against its harness (pi when there's no prefix)
+    before anything starts. Returns [(harness name, model, level), ...] with the harness's own model
+    id. The same model given twice has its levels merged; two models that resolve to the same
+    model-dir tag are an error."""
+    harnesses = harnesses if harnesses is not None else Harnesses()
+    known, levels_by_model = {}, {}
     for spec in model_specs:
-        model, levels_text = parse_model_spec(spec, known)
+        name, rest = split_harness(spec)
+        harness = harnesses[name]
+        if name not in known:
+            known[name] = set(harness.models())
+        model, levels_text = parse_model_spec(rest, known[name])
+        model = harness.resolve(model)
         supported = harness.levels(model)
         levels = expand_levels(levels_text or effort_default or "all", supported, model)
-        levels_by_model.setdefault(model, dict.fromkeys(()))
-        levels_by_model[model].update(dict.fromkeys(levels))
+        levels_by_model.setdefault((name, model), {}).update(dict.fromkeys(levels))
 
     tag_owner = {}
-    for model in levels_by_model:
-        tag = model_tag(model)
+    for name, model in levels_by_model:
+        tag = model_tag(harnesses[name].display_model(model)) + harnesses[name].tag
         if tag in tag_owner:
             raise BenchError(f"{tag_owner[tag]!r} and {model!r} both resolve to the model dir tag {tag!r}; rename one or use --page")
         tag_owner[tag] = model
 
-    return [(model, level) for model, levels in levels_by_model.items() for level in levels]
+    return [(name, model, level) for (name, model), levels in levels_by_model.items() for level in levels]
+
+
+def run_key(run):
+    """Identifies a run within a batch (the same model can run under two harnesses)."""
+    return (run.get("harness", "pi"), run["model"], run["level"])
+
+
+def run_label(run):
+    name = run.get("harness", "pi")
+    return run["model"] if name == "pi" else f"{run['model']} [{name}]"
 
 
 def page_json(root, slug):
@@ -220,13 +246,13 @@ class Progress:
     """tty: a table redrawn every 2s, re-parsing each running row's growing session file for
     live turns/tokens/cost. non-tty: one line per state change."""
 
-    def __init__(self, harness, runs):
-        self.harness = harness
+    def __init__(self, harnesses, runs):
+        self.harnesses = harnesses
         self.rows = {}
         for r in runs:
             state = "done" if r["state"] == "complete" else r["state"]
-            self.rows[(r["model"], r["level"])] = {
-                "model": r["model"], "level": r["level"], "state": state,
+            self.rows[run_key(r)] = {
+                "model": run_label(r), "harness": r.get("harness", "pi"), "level": r["level"], "state": state,
                 "turns": 0, "tokens": 0, "cost": 0.0, "started": None, "elapsed": None, "harness_dir": None,
             }
         self.lock = threading.Lock()
@@ -246,14 +272,14 @@ class Progress:
         if self.tty:
             self._render()
 
-    def track(self, model, level, harness_dir):
+    def track(self, key, harness_dir):
         """Point a row at its harness scratch dir, so the tty loop can find the growing session file."""
         with self.lock:
-            self.rows[(model, level)]["harness_dir"] = harness_dir
+            self.rows[key]["harness_dir"] = harness_dir
 
-    def update(self, model, level, **fields):
+    def update(self, key, **fields):
         with self.lock:
-            row = self.rows[(model, level)]
+            row = self.rows[key]
             if fields.get("state") == "running" and row["started"] is None:
                 row["started"] = time.monotonic()
             row.update(fields)
@@ -261,7 +287,7 @@ class Progress:
                 row["elapsed"] = time.monotonic() - row["started"]
             state = fields.get("state")
         if not self.tty and state:
-            print(f"{model} {level}: {state}")
+            print(f"{row['model']} {row['level']}: {state}")
 
     def _loop(self):
         while not self._stop.wait(2):
@@ -272,12 +298,11 @@ class Progress:
         with self.lock:
             running = [r for r in self.rows.values() if r["state"] == "running" and r["harness_dir"]]
         for row in running:
-            session_path = self.harness.session_file(row["harness_dir"])
-            if not session_path or not session_path.is_file():
-                continue
             try:
-                metrics = parse_session(session_path)
+                metrics = self.harnesses[row["harness"]].metrics(row["harness_dir"], row["level"])
             except OSError:
+                continue
+            if not metrics:
                 continue
             with self.lock:
                 row["turns"] = metrics["turns"]
@@ -287,12 +312,12 @@ class Progress:
     def _render(self):
         with self.lock:
             rows = list(self.rows.values())
-        header = f"{'model':<30} {'effort':<8} {'state':<10} {'elapsed':>7} {'turns':>6} {'tokens':>8} {'cost':>8}"
+        header = f"{'model':<44} {'effort':<8} {'state':<10} {'elapsed':>7} {'turns':>6} {'tokens':>8} {'cost':>8}"
         lines = [header]
         for r in rows:
             elapsed = r["elapsed"] if r["elapsed"] is not None else (time.monotonic() - r["started"] if r["started"] else None)
             lines.append(
-                f"{r['model']:<30} {r['level']:<8} {r['state']:<10} {fmt_elapsed(elapsed):>7} "
+                f"{r['model']:<44} {r['level']:<8} {r['state']:<10} {fmt_elapsed(elapsed):>7} "
                 f"{r['turns']:>6} {r['tokens']:>8} {r['cost']:>8.3f}"
             )
         if self._printed_lines:
@@ -314,7 +339,7 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
     """Run one agent to completion (or until killed by a timeout or Ctrl-C). Returns the run
     entry, or None if it was killed for a Ctrl-C (the caller leaves its batch.json state as
     "queued" so --resume reruns it; nothing is collected for a run that never really finished)."""
-    model, level, model_dir = run["model"], run["level"], run["model_dir"]
+    model, level, model_dir, key = run["model"], run["level"], run["model_dir"], run_key(run)
     level_dir = model_dir / level
     if level_dir.exists():
         shutil.rmtree(level_dir)
@@ -325,18 +350,18 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
     harness_dir.mkdir(parents=True)
     (harness_dir / "brief.md").write_text(brief)  # kept out of level_dir: never seen/edited by the agent
 
-    cmd = harness.command(model, level, brief, harness_dir)
+    cmd = harness.command(run.get("model_arg", model), level, brief, harness_dir)
     stdout_path, stderr_path = harness_dir / "events.jsonl", harness_dir / "stderr.txt"
     started = datetime.now(timezone.utc)
-    progress.track(model, level, harness_dir)
-    progress.update(model, level, state="running")
+    progress.track(key, harness_dir)
+    progress.update(key, state="running")
 
     exit_code, timed_out = None, False
     try:
         with open(stdout_path, "wb") as out, open(stderr_path, "wb") as err:
-            proc = subprocess.Popen(cmd, cwd=level_dir, stdin=subprocess.DEVNULL, stdout=out, stderr=err, start_new_session=True)
+            proc = subprocess.Popen(cmd, cwd=level_dir, stdin=subprocess.DEVNULL, stdout=out, stderr=err, start_new_session=True, env=harness.env())
             with live_lock:
-                live[(model, level)] = proc
+                live[key] = proc
                 if interrupted.is_set():  # Ctrl-C landed between Popen and registering: kill it here
                     _kill_group(proc)
             try:
@@ -347,17 +372,17 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
                 exit_code = proc.wait()
     except OSError as e:
         ended = datetime.now(timezone.utc)
-        return collect(level_dir, harness_dir, None, cmd, harness, version, started, ended, None, "failed", f"cannot run harness: {e}", model, None)
+        return collect(level_dir, harness_dir, None, cmd, harness, version, started, ended, None, "failed", f"cannot run harness: {e}", model, None, brief, level)
     finally:
         with live_lock:
-            live.pop((model, level), None)
+            live.pop(key, None)
 
     if interrupted.is_set():
         return None
 
     ended = datetime.now(timezone.utc)
     session_path = harness.session_file(harness_dir)
-    metrics = parse_session(session_path) if session_path and session_path.is_file() else None
+    metrics = harness.metrics(harness_dir, level) if session_path else None
 
     if timed_out:
         state, error = "timeout", f"timed out after {int(timeout_s)}s"
@@ -370,21 +395,22 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
     else:
         state, error = "complete", None
 
-    entry = collect(level_dir, harness_dir, session_path, cmd, harness, version, started, ended, exit_code, state, error, model, metrics)
-    progress.update(model, level, state=state, turns=entry["turns"], tokens=entry["tokens"]["total"], cost=entry["costUsd"])
+    entry = collect(level_dir, harness_dir, session_path, cmd, harness, version, started, ended, exit_code, state, error, model, metrics, brief, level)
+    progress.update(key, state=state, turns=entry["turns"], tokens=entry["tokens"]["total"], cost=entry["costUsd"])
     return entry
 
 
-def collect(level_dir, harness_dir, session_path, cmd, harness, version, started, ended, exit_code, state, error, model, metrics):
-    """Write <level>/session.jsonl, conversation.json, events.jsonl, status.json, stderr.txt,
-    data.json. Returns the run entry (also used for the model dir's data.json)."""
+def collect(level_dir, harness_dir, session_path, cmd, harness, version, started, ended, exit_code, state, error, model, metrics, brief, level):
+    """Write <level>/session.jsonl (the harness's raw session, never published), conversation.json
+    (the session in pi's format, which the viewer renders), events.jsonl (when the harness publishes
+    its event stream), status.json, stderr.txt, data.json. Returns the run entry (also used for the
+    model dir's data.json)."""
     if session_path and session_path.is_file():
-        text = session_path.read_text(encoding="utf-8")
         shutil.copy(session_path, level_dir / "session.jsonl")
-        entries = [json.loads(line) for line in text.splitlines() if line.strip()]
+        entries = harness.session_entries(harness_dir, brief, level)
         (level_dir / "conversation.json").write_text(json.dumps(entries, indent=2) + "\n")
     events_src = harness_dir / "events.jsonl"
-    if events_src.is_file() and events_src.stat().st_size:
+    if harness.publishes_events() and events_src.is_file() and events_src.stat().st_size:
         # Drop streaming snapshots (each repeats the whole partial message; the session has the final one).
         # The raw file stays in .harness/.
         lines = events_src.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
@@ -439,24 +465,24 @@ def export_and_verify(run, entry, export_lock, godot_bin, do_verify, progress):
     failed/timeout badge."""
     if entry["state"] != "complete":
         return
-    model, level, model_dir = run["model"], run["level"], run["model_dir"]
+    model, level, model_dir, key = run["model"], run["level"], run["model_dir"], run_key(run)
     level_dir = model_dir / level
     wasm_dir = model_dir / "wasm" / level
     if not (wasm_dir / "index.html").is_file():
-        progress.update(model, level, state="exporting")
+        progress.update(key, state="exporting")
         with export_lock:
             ok, _manifest, error = build.export_project(godot_bin, level_dir, wasm_dir)
         if not ok:
             entry["error"] = error
-            progress.update(model, level, state="failed")
+            progress.update(key, state="failed")
             return
     if do_verify and not (wasm_dir / "verification" / "verify-report.json").is_file():
-        progress.update(model, level, state="verifying")
+        progress.update(key, state="verifying")
         try:
             build.verify_build(wasm_dir)
         except Exception as e:  # verification must never fail the run
             print(f"note: verification of {model}/{level} failed to run: {e}", file=sys.stderr)
-    progress.update(model, level, state="done")
+    progress.update(key, state="done")
 
 
 def finalize_media(run, entry, progress):
@@ -464,14 +490,14 @@ def finalize_media(run, entry, progress):
     failed export, bad output keeps state "complete" and only sets entry["error"]."""
     if entry["state"] != "complete":
         return
-    model, level, model_dir = run["model"], run["level"], run["model_dir"]
+    level, model_dir, key = run["level"], run["model_dir"], run_key(run)
     out_dir = model_dir / "media" / level
     if not (out_dir / "manifest.json").is_file():
-        progress.update(model, level, state="processing")
+        progress.update(key, state="processing")
         manifest = media.finalize(model_dir / level, out_dir)
         if manifest["errors"]:
             entry["error"] = "; ".join(manifest["errors"])[:200]
-    progress.update(model, level, state="done")
+    progress.update(key, state="done")
 
 
 def write_batch_json(batch_dir, batch):
@@ -480,10 +506,19 @@ def write_batch_json(batch_dir, batch):
     return serializable
 
 
-def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot_bin, verify, publish):
+def batch_versions(batch):
+    """{harness name: version} from batch.json (older batches have one "harness" for all runs)."""
+    if "harnesses" in batch:
+        return batch["harnesses"]
+    h = batch.get("harness") or {"name": "pi", "version": None}
+    return {h["name"]: h.get("version")}
+
+
+def execute(root, batch_dir, batch, harnesses, parallel, timeout_s, godot_bin, verify, publish):
     """Run every unfinished agent, export+verify everything that needs it, then import.
     Drives both a fresh batch and a `--resume`d one (see module docstring)."""
     runs = batch["runs"]
+    versions = batch_versions(batch)
     kind = batch.get("kind", "godot")
     slug, title = batch["page"], batch["title"]
     title_is_explicit = batch.get("title_is_explicit", False)
@@ -494,7 +529,7 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
         data_path = model_dir / "data.json"
         entries_by_model[model_dir] = json.loads(data_path.read_text())["runs"] if data_path.is_file() else {}
 
-    progress = Progress(harness, runs)
+    progress = Progress(harnesses, runs)
     progress.start()
     export_lock = threading.Lock()
     live, live_lock, interrupted = {}, threading.Lock(), threading.Event()
@@ -506,6 +541,8 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
         if interrupted.is_set():
             return
         model_dir = run["model_dir"]
+        name = run.get("harness", "pi")
+        harness, version = harnesses[name], versions.get(name)
         if run["state"] in UNFINISHED:
             run["state"] = "running"
             save()
@@ -559,11 +596,10 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
 def cmd_run(
     root, prompt=None, prompt_file=None, model_specs=(), model_sets=(), effort=None, page=None, title=None,
     brief_file=None, parallel=None, timeout=None, yes=False, dry_run=False, publish=False,
-    resume=None, godot_bin="godot", verify=True, kind=None, change_prompt=False,
+    resume=None, godot_bin="godot", verify=True, kind=None, change_prompt=False, harnesses=None,
 ):
-    harness = Pi()
+    harnesses = harnesses if harnesses is not None else Harnesses()
     cfg = load_run_config(root)
-    version = harness.version()
 
     if resume:
         batch_dir = Path(resume)
@@ -572,7 +608,7 @@ def cmd_run(
             r["model_dir"] = Path(r["model_dir"])
         parallel = parallel or cfg["parallel"]
         timeout_s = parse_duration(timeout or cfg["timeout"])
-        return execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot_bin, verify, publish)
+        return execute(root, batch_dir, batch, harnesses, parallel, timeout_s, godot_bin, verify, publish)
 
     if prompt_file:
         prompt = Path(prompt_file).read_text().strip()
@@ -605,7 +641,8 @@ def cmd_run(
         if missing:
             raise BenchError(f"--kind media needs {' and '.join(missing)} on PATH")
 
-    plan = plan_runs(harness, model_specs, effort)
+    plan = plan_runs(model_specs, effort, harnesses)
+    versions = {name: harnesses[name].version() for name in dict.fromkeys(name for name, _, _ in plan)}
     title_is_explicit = bool(title)
     if not title:
         title = (existing.get("title") if page_exists else None) or title_from_slug(slug)
@@ -618,12 +655,12 @@ def cmd_run(
         ts = datetime.now().strftime("%Y-%m-%d-%H%M%S")
     batch_dir = cfg["dir"] / f"{ts}-{slug}"
 
-    print(f"harness: {harness.name} {version}")
+    print("harness: " + ", ".join(f"{name} {version}" for name, version in versions.items()))
     print(f"kind: {kind}")
     print(f"page: {slug} ({'existing' if page_exists else 'new'}, title: {title!r})")
     print(f"prompt: {prompt}")
-    for i, (model, level) in enumerate(plan, 1):
-        print(f"  {i}. {model}:{level}")
+    for i, (name, model, level) in enumerate(plan, 1):
+        print(f"  {i}. {'' if name == 'pi' else name + ':'}{model}:{level}")
     print(f"batch dir: {batch_dir}")
 
     if dry_run:
@@ -641,23 +678,26 @@ def cmd_run(
     (batch_dir / "prompt.md").write_text(prompt)
     brief = render_brief(brief_file, prompt, kind, cfg["tools"])
 
-    model_dirs = {}
-    for model, _ in plan:
-        if model not in model_dirs:
-            model_dirs[model] = batch_dir / f"{ts}-{model_tag(model)}-{slug}"
-            model_dirs[model].mkdir(parents=True)
-            (model_dirs[model] / "prompt.md").write_text(prompt)  # import reads the page prompt from here
-
-    runs = [{"model": m, "level": l, "model_dir": model_dirs[m], "state": "queued"} for m, l in plan]
+    runs, model_dirs = [], {}
+    for name, model, level in plan:
+        harness = harnesses[name]
+        display = harness.display_model(model)
+        if (name, model) not in model_dirs:
+            model_dir = batch_dir / f"{ts}-{model_tag(display)}{harness.tag}-{slug}"
+            model_dir.mkdir(parents=True)
+            (model_dir / "prompt.md").write_text(prompt)  # import reads the page prompt from here
+            model_dirs[(name, model)] = model_dir
+        runs.append({"harness": name, "model": display, "model_arg": model, "level": level,
+                     "model_dir": model_dirs[(name, model)], "state": "queued"})
     batch = {
         "prompt": prompt, "kind": kind, "page": slug, "title": title, "title_is_explicit": title_is_explicit,
-        "harness": {"name": harness.name, "version": version}, "brief": brief,
+        "harnesses": versions, "brief": brief,
         "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "runs": runs,
     }
     write_batch_json(batch_dir, batch)
 
-    return execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot_bin, verify, publish)
+    return execute(root, batch_dir, batch, harnesses, parallel, timeout_s, godot_bin, verify, publish)
 
 
 def _import_and_publish(root, model_dirs, slug, title, publish):

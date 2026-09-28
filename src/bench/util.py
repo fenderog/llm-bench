@@ -27,10 +27,12 @@ def iso_from_ms(ms):
     return datetime.fromtimestamp(ms / 1000, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def make_run_id(model, effort, folder_name):
+def make_run_id(model, effort, folder_name, harness_tag=""):
+    """'<model>-<effort>-<YYYYMMDD-HHMMSS>', with '-<harness tag>' after the model for harnesses
+    other than pi (e.g. 'claude-opus-5-5-cc-high-...'), so one model under two harnesses can't collide."""
     ts, _, _ = parse_folder(folder_name)
     y, mo, d, hhmmss = ts.split("-")
-    model_short = model.rsplit("/", 1)[-1].lower()
+    model_short = model.rsplit("/", 1)[-1].lower() + (f"-{harness_tag}" if harness_tag else "")
     return f"{model_short}-{effort}-{y}{mo}{d}-{hhmmss}"
 
 

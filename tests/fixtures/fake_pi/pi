@@ -36,6 +36,7 @@ MODEL_LEVELS = {
     "openai-codex/gpt-6-sol": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
     "openai-codex/gpt-6-luna": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
     "test/limited": ["low", "medium", "high"],
+    "anthropic/claude-opus-5-5": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
     "openrouter/openai/gpt-6-sol:batch": ["off", "low", "medium", "high", "xhigh", "max"],  # ':' in the id
 }
 

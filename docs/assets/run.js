@@ -34,7 +34,8 @@ function render(run, base, siblings) {
   const { provider, name } = modelParts(run.model);
   document.getElementById("run-provider").textContent = provider;
   const myRank = siblings.find((r) => r.id === run.id)?.rank; // run.json has no rank; results.json does
-  document.getElementById("title").replaceChildren(el("span", { text: name, attrs: { title: run.model } }), effortPill(run.effort), rankChip(myRank));
+  // (replaceChildren would print a null/undefined chip as text, so only real nodes go in)
+  document.getElementById("title").replaceChildren(...[el("span", { text: name, attrs: { title: run.model } }), effortPill(run.effort), rankChip(myRank)].filter(Boolean));
 
   renderSwitcher(run, siblings);
 

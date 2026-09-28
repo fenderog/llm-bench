@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .harness import Pi
+from .harness import HARNESSES
 from .importer import cmd_import
 from .runner import cmd_models, cmd_run
 from .serve import serve_forever
@@ -45,7 +45,7 @@ def build_parser():
     run = sub.add_parser("run", parents=[common], help="run agents locally, then import")
     run.add_argument("prompt", nargs="?", help="the task prompt")
     run.add_argument("--prompt-file", type=Path)
-    run.add_argument("-m", "--model", dest="models", action="append", default=[], help="MODEL[:LEVELS], repeatable")
+    run.add_argument("-m", "--model", dest="models", action="append", default=[], help="[claude-code:]MODEL[:LEVELS], repeatable (no prefix = pi)")
     run.add_argument("-s", "--set", dest="sets", action="append", default=[], help="a model set: a NAME from bench.toml [sets], or a FILE with one MODEL[:LEVELS] per line; repeatable, combines with -m")
     run.add_argument("-e", "--effort", help="default LEVELS for every model without a suffix")
     run.add_argument("--kind", choices=["godot", "media"], help="what the agents produce (default: the page's kind, else godot)")
@@ -62,6 +62,7 @@ def build_parser():
 
     models_p = sub.add_parser("models", parents=[common], help="models the harness can run")
     models_p.add_argument("search", nargs="?", help="also show effort levels for matching models")
+    models_p.add_argument("--harness", default="pi", choices=sorted(HARNESSES), help="which agent program's models (default: pi)")
 
     return parser
 
@@ -130,7 +131,7 @@ def main(argv=None):
                 change_prompt=args.change_prompt,
             )
         if args.command == "models":
-            return cmd_models(Pi(), args.search)
+            return cmd_models(HARNESSES[args.harness](), args.search)
     except BenchError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1

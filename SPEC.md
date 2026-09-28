@@ -288,19 +288,52 @@ session file, or the last assistant message has `stopReason: "error"`; `error` =
 non-empty stderr line (the first 200 characters).
 
 ### Harness interface (`src/bench/harness.py`)
+Harnesses: `pi` (the default) and `claude-code`. A `-m` spec picks one with a prefix: `claude-code:MODEL[:LEVELS]`
+(no prefix, or `pi:`, = pi), in `-m`, `--set` entries and set files alike, so one batch can mix harnesses. Each run
+records its harness; batch.json has `harnesses: {name: version}` and each run `{harness, model, model_arg, level,
+model_dir, state}` (`model` = what the site shows, `model_arg` = the harness's id; older batches without these are pi).
+Model dirs of non-pi harnesses end their model tag with the harness tag (`claudeopus55cc`), and their run ids put it
+after the model (`claude-opus-5-5-cc-high-20260928-154152`), so one model under two harnesses never collides.
 ```python
-class Harness:           # one per agent program; Pi is the only one for now
-    name: str
+class Harness:           # one per agent program
+    name: str; tag: str                                 # tag: "" for pi, "cc" for claude-code
     def version(self) -> str | None
-    def models(self) -> list[str]                       # "provider/id"
+    def models(self) -> list[str]
+    def resolve(self, model) -> str                     # alias -> id (identity by default)
     def levels(self, model) -> list[str]                # supported effort levels, in LEVEL_ORDER
+    def display_model(self, model) -> str               # the model name recorded for the run
     def command(self, model, level, brief, session_dir) -> list[str]
-    def session_file(self, session_dir) -> Path | None
+    def env(self) -> dict | None                        # the agent's environment (None = inherit)
+    def session_file(self, session_dir) -> Path | None  # the raw session (copied to <level>/session.jsonl, never published)
+    def session_entries(self, session_dir, brief, level) -> list  # the session in pi's format -> conversation.json
+    def metrics(self, session_dir, level) -> dict | None          # parse_session()'s shape; tolerates a growing file
+    def publishes_events(self) -> bool                  # whether stdout is published as session/events.jsonl
 ```
 Pi: `pi --version`; `pi --list-models` (parse the table); levels via `pi --mode rpc --no-session --model M -ne -ns -np -nc`
 sending `{"type":"get_available_thinking_levels"}` and reading the matching response;
 command = `pi -p --mode json --model M:LEVEL --session-dir DIR -ne -ns -np -nc BRIEF` (no user extensions, skills,
 prompt templates or AGENTS.md, so runs are reproducible); session file = the one `*.jsonl` in DIR.
+
+Claude Code (`claude`): version = first word of `claude --version`. Models come from a table in the harness (there's no
+listing command): `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5`, `claude-haiku-4-5`, each with levels
+low, medium, high, xhigh, max (no minimal/off), plus the aliases fable/opus/sonnet/haiku; runs are recorded as
+`anthropic/<id>`. Command = `claude -p --model ID --effort LEVEL --output-format stream-json --verbose --safe-mode
+--permission-mode bypassPermissions --no-session-persistence --tools=Bash,Read,Write,Edit,Glob,Grep
+--disallowed-tools=Agent,Task --disable-slash-commands -- BRIEF`: one direct agent with only the core file and shell
+tools (like pi: no sub-agents, web, scheduling, messaging or skills), none of the user's CLAUDE.md, memory, plugins,
+hooks or MCP servers (login still works), and nothing saved to the user's session history. `CLAUDECODE` and
+`CLAUDE_CODE_*` are removed from its environment (bench may itself run inside Claude Code). The stdout stream-json is
+the session; its raw events carry account/session details, so they're not published. Conversion to pi's format:
+assistant events are merged by message id (the stream emits one per content block, each repeating the usage) and
+become assistant messages (text; thinking only when non-empty, print mode usually omits it; `tool_use` → `toolCall`
+with Bash/Write/Edit/MultiEdit/Read mapped to pi's bash/write/edit/read names and argument shapes, file paths made
+relative to the run dir; other tools keep their name and input); `tool_result` blocks become `toolResult` messages;
+the brief is the first user message; an error result adds a final assistant message with `stopReason: "error"`.
+Sub-agent events (`parent_tool_use_id` set) are skipped. Metrics: turns = top-level assistant API messages, tool
+calls = their `tool_use` blocks; tokens from the final `result.usage` (the stream's per-message usage is a snapshot
+taken before output is written and undercounts it; it's only summed while the run is still going), reasoning =
+`result.usage.output_tokens_details.thinking_tokens`; cost = `result.total_cost_usd` (Claude Code's estimate at API
+prices, also on a subscription); failed = `result.is_error` (error = `result.result`).
 Future harnesses and a VM runner plug in here and at "start one agent" in `runner.py`.
 
 ### Ctrl-C

@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""A fake `claude` (Claude Code) binary for testing `bench run` without calling a real model.
+
+  claude --version
+  claude -p ... --output-format stream-json ... -- BRIEF   (prints a canned stream-json session and
+                                                            writes a tiny project, or ./output/ for a media brief)
+
+Its stream mimics Claude Code's: one assistant event per content block (repeating the message
+usage), tool results as user events, and a final result event with total_cost_usd.
+
+Knobs (env vars): FAKE_CLAUDE_ERROR=1 (the result is an error), FAKE_CLAUDE_HANG=1 (sleep; the
+caller must kill it), FAKE_CLAUDE_ARGV=<path> (write {"argv", "env_has_claudecode"} there).
+"""
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+
+def emit(obj):
+    print(json.dumps(obj))
+    sys.stdout.flush()
+
+
+def main():
+    if "--version" in sys.argv:
+        print("9.9.9-fake (Claude Code)")
+        return
+    if "-p" not in sys.argv:
+        print(f"fake claude: unrecognized invocation: {sys.argv[1:]}", file=sys.stderr)
+        sys.exit(2)
+    if os.environ.get("FAKE_CLAUDE_ARGV"):
+        Path(os.environ["FAKE_CLAUDE_ARGV"]).write_text(json.dumps({"argv": sys.argv[1:], "env_has_claudecode": "CLAUDECODE" in os.environ}))
+    if os.environ.get("FAKE_CLAUDE_HANG"):
+        time.sleep(3600)
+        return
+    brief = sys.argv[sys.argv.index("--") + 1]
+    model = sys.argv[sys.argv.index("--model") + 1]
+    cwd = os.getcwd()
+
+    if "./output/" in brief:
+        Path("output").mkdir(exist_ok=True)
+        Path("output/circle.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')
+        written = "output/circle.svg"
+    else:
+        Path("project.godot").write_text("config_version=5\n")
+        Path("scripts").mkdir(exist_ok=True)
+        Path("scripts/main.gd").write_text("extends Node\n")
+        written = "project.godot"
+
+    u1 = {"input_tokens": 10, "output_tokens": 3, "cache_read_input_tokens": 1000, "cache_creation_input_tokens": 200}
+    u2 = {"input_tokens": 4, "output_tokens": 20, "cache_read_input_tokens": 1200, "cache_creation_input_tokens": 0}
+    u3 = {"input_tokens": 2, "output_tokens": 30, "cache_read_input_tokens": 1300, "cache_creation_input_tokens": 0}
+    emit({"type": "system", "subtype": "init", "cwd": cwd, "session_id": "sess-fake", "model": model,
+          "tools": ["Bash", "Edit", "Read", "Write"], "apiKeySource": "none"})
+    emit({"type": "assistant", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
+        "id": "msg_1", "role": "assistant", "model": model, "usage": u1, "stop_reason": None,
+        "content": [{"type": "thinking", "thinking": "Plan the files.", "signature": "c2lnbmF0dXJlLW5vdC1yZWFs"}]}})
+    emit({"type": "system", "subtype": "thinking_tokens", "estimated_tokens": 12, "estimated_tokens_delta": 12})
+    emit({"type": "assistant", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
+        "id": "msg_1", "role": "assistant", "model": model, "usage": u1, "stop_reason": "tool_use",
+        "content": [{"type": "tool_use", "id": "toolu_1", "name": "Write", "input": {"file_path": f"{cwd}/{written}", "content": "..."}}]}})
+    emit({"type": "user", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {"role": "user", "content": [
+        {"type": "tool_result", "tool_use_id": "toolu_1", "content": f"File created successfully at: {cwd}/{written}"}]}})
+    emit({"type": "assistant", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
+        "id": "msg_2", "role": "assistant", "model": model, "usage": u2, "stop_reason": "tool_use",
+        "content": [{"type": "tool_use", "id": "toolu_2", "name": "Bash", "input": {"command": "godot --headless --quit", "description": "check"}}]}})
+    emit({"type": "user", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {"role": "user", "content": [
+        {"type": "tool_result", "tool_use_id": "toolu_2", "content": [{"type": "text", "text": "godot: command failed"}], "is_error": True}]}})
+    emit({"type": "assistant", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
+        "id": "msg_3", "role": "assistant", "model": model, "usage": u3, "stop_reason": "end_turn",
+        "content": [{"type": "text", "text": "Done: built it."}]}})
+    error = bool(os.environ.get("FAKE_CLAUDE_ERROR"))
+    emit({"type": "result", "subtype": "error_during_execution" if error else "success", "is_error": error,
+          "duration_ms": 1234, "num_turns": 3, "total_cost_usd": 0.0123, "session_id": "sess-fake",
+          "result": "API Error: overloaded" if error else "Done: built it.",
+          "usage": {"input_tokens": 16, "output_tokens": 180, "cache_read_input_tokens": 3500, "cache_creation_input_tokens": 200,
+                    "output_tokens_details": {"thinking_tokens": 40}}})
+
+
+if __name__ == "__main__":
+    main()
