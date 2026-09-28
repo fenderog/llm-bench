@@ -23,6 +23,14 @@ until you run `bench publish` or pass `--publish`.
 - `-m MODEL[:LEVELS]` can be repeated. LEVELS can be `low,high`, `low..max`, `all`, or `off`. With no
   suffix, it runs every level the model supports except `off`. `-e LEVELS` sets the default for every
   `-m` without a suffix.
+- `--set NAME` (or `-s`) runs a saved **model set** instead of repeating `-m` flags. Sets live in
+  `bench.toml`, and each entry is exactly what `-m` takes:
+  ```toml
+  [sets]
+  cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4.1-flash:low..high"]
+  ```
+  `--set` also takes a file path, with one `MODEL[:LEVELS]` per line (`#` starts a comment). It can be
+  repeated and combined with `-m`, and `-e` applies to set entries without levels.
 - Every level is checked against the harness before anything starts. `bench models [SEARCH]` lists
   models and their levels.
 - Before starting, it shows the planned runs and asks for confirmation. `--dry-run` only shows the plan,

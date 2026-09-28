@@ -449,3 +449,51 @@ def test_kind_must_match_the_existing_page(run_root):
     assert main(["run", "--yes", "mixed page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
     rc = main(["run", "--yes", "--kind", "media", "mixed page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 1
+
+
+# --- model sets ------------------------------------------------------------------------------------
+
+
+def write_sets(run_root, body):
+    cfg = run_root / "bench.toml"
+    cfg.write_text(cfg.read_text() + "\n[sets]\n" + body)
+
+
+def test_set_from_bench_toml_expands_like_m_flags(run_root, capsys):
+    write_sets(run_root, 'duo = ["openai-codex/gpt-6-sol:low,high", "test/limited"]\n')
+    rc = main(["run", "--dry-run", "cube", "--set", "duo", "-e", "medium", "--root", str(run_root)])
+    assert rc == 0
+    out = capsys.readouterr().out
+    for spec in ("openai-codex/gpt-6-sol:low", "openai-codex/gpt-6-sol:high", "test/limited:medium"):
+        assert spec in out
+    assert "test/limited:low" not in out  # -e applies to set entries without levels
+
+
+def test_set_from_a_file_combines_with_m(run_root, tmp_path, capsys):
+    f = tmp_path / "mine.txt"
+    f.write_text("# my models\nopenai-codex/gpt-6-luna:minimal   # cheapest\n\ntest/limited:high\n")
+    rc = main(["run", "--dry-run", "cube", "-s", str(f), "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "1. openai-codex/gpt-6-luna:minimal" in out and "test/limited:high" in out and "openai-codex/gpt-6-sol:low" in out
+
+
+def test_unknown_set_lists_the_defined_ones(run_root, capsys):
+    write_sets(run_root, 'duo = ["test/limited"]\n')
+    rc = main(["run", "--dry-run", "cube", "--set", "nope", "--root", str(run_root)])
+    assert rc == 1
+    err = capsys.readouterr().err
+    assert "unknown model set 'nope'" in err and "(duo)" in err
+
+
+def test_set_entries_are_checked_like_m_flags(run_root, capsys):
+    write_sets(run_root, 'bad = ["test/limited:xhigh"]\n')
+    assert main(["run", "--dry-run", "cube", "--set", "bad", "--root", str(run_root)]) == 1
+    err = capsys.readouterr().err
+    assert "xhigh" in err and "not supported" in err
+
+
+def test_malformed_set_is_an_error(run_root, capsys):
+    write_sets(run_root, 'notalist = "test/limited"\n')
+    assert main(["run", "--dry-run", "cube", "--set", "notalist", "--root", str(run_root)]) == 1
+    assert "[sets].notalist must be a list" in capsys.readouterr().err

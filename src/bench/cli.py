@@ -46,7 +46,8 @@ def build_parser():
     run.add_argument("prompt", nargs="?", help="the task prompt")
     run.add_argument("--prompt-file", type=Path)
     run.add_argument("-m", "--model", dest="models", action="append", default=[], help="MODEL[:LEVELS], repeatable")
-    run.add_argument("-e", "--effort", help="default LEVELS for every -m without a suffix")
+    run.add_argument("-s", "--set", dest="sets", action="append", default=[], help="a model set: a NAME from bench.toml [sets], or a FILE with one MODEL[:LEVELS] per line; repeatable, combines with -m")
+    run.add_argument("-e", "--effort", help="default LEVELS for every model without a suffix")
     run.add_argument("--kind", choices=["godot", "media"], default="godot", help="what the agents produce (default: godot)")
     run.add_argument("--page", help="page slug (default: from the prompt)")
     run.add_argument("--title", help="page title (default: from slug)")
@@ -113,6 +114,7 @@ def main(argv=None):
                 prompt=args.prompt,
                 prompt_file=args.prompt_file,
                 model_specs=args.models,
+                model_sets=args.sets,
                 effort=args.effort,
                 page=args.page,
                 title=args.title,

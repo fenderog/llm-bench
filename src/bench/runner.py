@@ -84,6 +84,33 @@ def parse_duration(text):
     return n * {"s": 1, "m": 60, "h": 3600}[unit]
 
 
+def load_sets(root):
+    """[sets] in bench.toml: {name: ["model[:levels]", ...]}."""
+    cfg_path = root / "bench.toml"
+    sets = tomllib.loads(cfg_path.read_text()).get("sets", {}) if cfg_path.is_file() else {}
+    for name, specs in sets.items():
+        if not isinstance(specs, list) or not all(isinstance(s, str) for s in specs):
+            raise BenchError(f"bench.toml [sets].{name} must be a list of \"model[:levels]\" strings")
+    return sets
+
+
+def expand_sets(root, set_args):
+    """--set NAME (from bench.toml [sets]) or --set FILE (one model[:levels] per line, # comments)
+    -> the model specs, in order, exactly as if each had been given with -m."""
+    sets = load_sets(root) if set_args else {}
+    specs = []
+    for arg in set_args:
+        if arg in sets:
+            specs += sets[arg]
+        elif Path(arg).is_file():
+            lines = (line.split("#", 1)[0].strip() for line in Path(arg).read_text().splitlines())
+            specs += [line for line in lines if line]
+        else:
+            known = ", ".join(sorted(sets)) or "none defined"
+            raise BenchError(f"unknown model set {arg!r}: not in bench.toml [sets] ({known}) and not a file")
+    return specs
+
+
 def model_tag(model):
     return re.sub(r"[^a-z0-9]", "", model.rsplit("/", 1)[-1].lower())
 
@@ -518,7 +545,7 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
 
 
 def cmd_run(
-    root, prompt=None, prompt_file=None, model_specs=(), effort=None, page=None, title=None,
+    root, prompt=None, prompt_file=None, model_specs=(), model_sets=(), effort=None, page=None, title=None,
     brief_file=None, parallel=None, timeout=None, yes=False, dry_run=False, publish=False,
     resume=None, godot_bin="godot", verify=True, kind="godot",
 ):
@@ -539,8 +566,9 @@ def cmd_run(
         prompt = Path(prompt_file).read_text().strip()
     if not prompt:
         raise BenchError("PROMPT or --prompt-file is required")
+    model_specs = [*expand_sets(root, model_sets), *model_specs]
     if not model_specs:
-        raise BenchError("at least one -m MODEL is required")
+        raise BenchError("at least one -m MODEL or --set is required")
     if kind not in KINDS:
         raise BenchError(f"unknown kind {kind!r} (expected one of: {', '.join(KINDS)})")
     if kind == "media":

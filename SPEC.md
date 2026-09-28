@@ -194,7 +194,11 @@ bench run PROMPT | --prompt-file FILE
     --kind godot|media  what the agents produce (default godot); must match an existing page's kind
     -m MODEL[:LEVELS]   repeatable. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
                         | "all" (every supported level except off) | explicit "off". No suffix = "all".
-    -e LEVELS           default LEVELS for every -m without a suffix
+    -s, --set SET       repeatable: a model set, either a NAME from bench.toml [sets] or a FILE with one
+                        MODEL[:LEVELS] per line (# comments, blank lines ignored). Its entries are added before
+                        the -m specs, exactly as if given with -m. An unknown name that isn't a file is an error
+                        listing the defined sets.
+    -e LEVELS           default LEVELS for every model without a suffix (-m or set entry)
     --page SLUG         add to this page (default: slug of the prompt's first 6 words, max 40 chars)
     --title TEXT        page title (default: from slug, as for import)
     --brief FILE        use this brief template instead of the built-in one ({prompt} is substituted)
@@ -215,6 +219,9 @@ dir = "~/dev/bench-runs"   # where batch folders go (never inside ~/dev/effort-r
 parallel = 8
 timeout = "30m"
 tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", "ffprobe"]   # listed in the brief
+
+[sets]   # each a list of "MODEL[:LEVELS]" strings (anything else is an error)
+cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4.1-flash:low..high"]
 ```
 
 ### Flow
