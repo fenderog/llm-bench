@@ -2,7 +2,7 @@
 // pairing toolCall blocks with their toolResult by toolCallId, and (when
 // available) tool durations from `events.jsonl`.
 
-import { el, fmtElapsed, fmtNum, renderMarkdown, badge } from "./common.js";
+import { el, fmtElapsed, fmtNum, fmtDuration, renderMarkdown, badge } from "./common.js";
 
 export function parseEvents(text) {
   const starts = new Map();
@@ -76,7 +76,7 @@ function resultText(resultMsg) {
 function renderToolBlock(block, resultMsg, span) {
   const isError = !!(resultMsg && resultMsg.isError);
   const head = el("div", { class: "tool-head" }, [el("span", { class: "tool-name", text: block.name })]);
-  if (span) head.append(el("span", { class: "tool-duration", text: `${Math.max(0, span.endMs - span.startMs)}ms` }));
+  if (span) head.append(el("span", { class: "tool-duration", text: fmtDuration(Math.max(0, span.endMs - span.startMs)) }));
   if (isError) head.append(badge("✗ error", "error"));
   const wrap = el("div", { class: "tool-block" }, [head]);
   const args = block.arguments || {};
@@ -128,8 +128,8 @@ export async function renderTranscript(root, conversation, eventsText) {
       thinkToggle.classList.toggle("chip-active", !shown);
     } },
   });
-  toolbar.append(...filterBtns, thinkToggle);
-  root.append(toolbar, list);
+  toolbar.append(...filterBtns, el("span", { class: "sep", attrs: { "aria-hidden": "true" } }), thinkToggle);
+  root.append(toolbar);
 
   const messages = conversation.filter((e) => e.type === "message");
   const toolResults = new Map();
@@ -176,5 +176,6 @@ export async function renderTranscript(root, conversation, eventsText) {
     }
     list.append(turn);
   }
+  root.append(list); // all at once, after every message has rendered (markdown loads async)
   return list;
 }

@@ -1,11 +1,12 @@
-import { el, getJSON, fmtDate, showMessage } from "./common.js";
+import { el, getJSON, showMessage, modelParts } from "./common.js";
 
 const cards = document.getElementById("cards");
+const KIND_LABEL = { godot: "Game", media: "Media" };
 
 try {
   const pages = await getJSON("data/pages.json");
   if (!pages.length) {
-    showMessage(cards.parentElement, "No pages imported yet.");
+    showMessage(cards, "No pages imported yet.");
   } else {
     for (const p of pages) cards.append(renderCard(p));
   }
@@ -15,14 +16,22 @@ try {
 
 function renderCard(p) {
   const thumb = p.thumb
-    ? el("img", { class: "thumb", attrs: { src: p.thumb, alt: "" } })
+    ? el("img", { class: p.kind === "media" ? "thumb thumb-contain" : "thumb", attrs: { src: p.thumb, alt: "", loading: "lazy" } })
     : el("div", { class: "thumb-ph", text: "no preview" });
+  const models = p.models || [];
+  const updated = p.updated ? new Date(p.updated) : null;
+  const date = updated && !Number.isNaN(updated.getTime())
+    ? el("span", { text: updated.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }), attrs: { title: `updated ${updated.toLocaleString()}` } })
+    : null;
   return el("a", { class: "card", attrs: { href: `page.html?p=${encodeURIComponent(p.slug)}` } }, [
-    thumb,
+    el("div", { class: "card-media" }, [thumb, KIND_LABEL[p.kind] ? el("span", { class: "kind-chip", text: KIND_LABEL[p.kind] }) : null]),
     el("div", { class: "card-body" }, [
       el("div", { class: "card-title", text: p.title }),
-      el("div", { class: "card-meta", text: `${p.n_runs} run${p.n_runs === 1 ? "" : "s"} · ${(p.models || []).join(", ")}` }),
-      el("div", { class: "card-meta", text: `updated ${fmtDate(p.updated)}` }),
+      el("div", { class: "model-chips" }, models.map((m) => el("span", { class: "model-chip", text: modelParts(m).name, attrs: { title: m } }))),
+      el("div", { class: "card-foot card-meta" }, [
+        el("span", { text: `${p.n_runs} run${p.n_runs === 1 ? "" : "s"}` }),
+        date,
+      ]),
     ]),
   ]);
 }

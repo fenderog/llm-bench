@@ -308,16 +308,31 @@ dir first); a finished agent is never rerun. Then export where `wasm/<level>` is
 
 ## Viewer (docs/)
 
-- **index.html**: cards per page (thumb, title, n_runs, models, updated) → page.html.
-- **page.html**: title, the Prompt (prompt.md) and a collapsed Final prompt, then a "Compare all" link → compare.html and
-  a runs table (thumb, model, effort, harness, verified ✓/✗, duration, tokens total/output/reasoning, cost, tool calls, turns).
-  Harness shows "pi 0.87.1" (name only when version is null, "–" when missing).
-  A `media` page also has a **Gallery** above the table: one card per run (its thumb, model · effort, cost,
-  duration, "N files" when more than one), linking to the run. Expanding a media row shows its outputs. A run whose `state` isn't `complete`
-  shows a red `failed`/`timeout` badge in the Verified cell, and its expanded row shows `error`.
-  The table is sortable, numeric columns show an inline CSS bar scaled to the column max, and every header has a help
+Shared conventions: runs are ordered by model, then effort from minimal to max (`EFFORTS` in common.js), not
+alphabetically. Effort is shown as a pill whose text is just the level, with a 6-step meter. Model ids show the model
+name in bold and the provider prefix quietly (`modelLabel()`). "Best" means the lowest cost, duration or total tokens
+among **completed** runs (a failed run never wins), only when at least two runs compete (`rankBy()`); it's marked in green
+with ★. Styling is one token set on `:root` (light) redefined under `prefers-color-scheme: dark`, system fonts only.
+
+- **index.html**: cards per page (thumb, a Game/Media chip, title, model names, n_runs, updated date) → page.html.
+- **page.html**: title, a meta line (kind, n runs, n models, last run), the Prompt (prompt.md) and a collapsed Final prompt,
+  then **highlights**: the cheapest, fastest and fewest-tokens completed run (each links to it) plus verified count, failed
+  count and total spend. Then a "Compare all" link → compare.html and a runs table (thumb, model, effort, harness,
+  verified ✓/✗, duration, tokens total/output/reasoning, cost, tool calls, turns). Harness shows "pi 0.87.1" (name only
+  when version is null, "–" when missing).
+  A `media` page also has a **Gallery** above the table: one card per run (its thumb, effort, model, cost, duration,
+  "N files" when more than one), linking to the run. Expanding a media row shows its outputs. A run whose `state` isn't `complete`
+  shows a red `failed`/`timeout` badge in the Verified cell (and a red edge on its row), and its expanded row shows `error`.
+  The table is sortable (default: model, then effort), numeric columns are right-aligned with a thin bar under the value
+  scaled to the column max, the best completed value in duration / tokens / cost is starred, and every header has a help
   tooltip (shown after 0.5s). Clicking a row expands it and boots that run's game inline; clicking again removes it.
-- **run.html**: a header with model, effort, harness, and key metrics (plus the failed/timeout badge and `error`), then tabs:
+  At ≤720px the table turns into a list of cards (headers become sort chips; harness and reasoning tokens are hidden).
+  It fits without horizontal scrolling at ≥1240px.
+- **run.html**: a header with model (provider above) and effort, a switcher with every run of the same page (grouped by
+  model, current one marked), stat tiles (cost, duration, tokens, output tokens, tool calls, turns) each with the run's
+  rank among the page's completed runs ("cheapest of 6", "3rd of 6"), a line with verified, harness, started (plus the
+  failed/timeout badge), and `error`. Then tabs (the open tab is kept in the URL hash, e.g. `#transcript`; Transcript and
+  Source show a count):
   - *Game*: click-to-play overlay (shows thumb). On click it inserts
     `<iframe sandbox="allow-scripts allow-pointer-lock" allow="fullscreen; autoplay; gamepad">` pointing at `game.entry`.
     There's also an "Open full screen ↗" link (plain link to the entry; it runs unsandboxed, so label it).
@@ -331,11 +346,13 @@ dir first); a finished agent is never rerun. Then export where `wasm/<level>` is
     bytes, a `download` link). Images, **SVGs included**, are only ever shown with `<img>` (which never runs an
     SVG's scripts), never inlined or put in an object/embed/iframe, and never linked for viewing on this origin.
     Videos use `<video controls preload="none">` with the poster, and never autoplay.
-  - *Source*: a file list, and clicking a file shows it in a `<pre>`.
-  - *Metrics*: all metrics as a table (including Harness, State and Error), plus links to download the raw session files.
+  - *Source*: a file list, and clicking a file shows it in a `<pre>`. The first code file opens right away.
+  - *Metrics*: all metrics as a table of raw values (with a readable form beside durations, costs and big counts,
+    including Harness, State and Error), plus links to download the raw session files.
 - **compare.html**: one card per run (all runs of the page by default), laid out as a grid of ~380px columns that wraps
-  into rows (3 across at desktop width, 1 on phones, never sideways scrolling). Each card has the run title, one line with
-  harness, duration, tokens and cost (plus the failed/timeout badge), and its game with click-to-play (each column boots independently, never automatically),
+  into rows (3 across at desktop width, 1 on phones, never sideways scrolling), ordered by model then effort. Each card has
+  the model, its effort pill (plus the failed/timeout badge), one line with harness, duration, tokens and cost (the best
+  among the shown runs starred), and its game with click-to-play (each column boots independently, never automatically),
   or for a `media` run its outputs stacked (the Play all button is hidden when there are no games).
 - Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/llm-bench/`),
   so use only relative URLs. It supports dark mode via `prefers-color-scheme`, has readable defaults, and has no frameworks.
@@ -350,6 +367,8 @@ dir first); a finished agent is never rerun. Then export where `wasm/<level>` is
   a sandboxed iframe, the transcript's tool calls and error badges, and compare with 3 runs. A `media` fixture page
   (`art`: an SVG with an embedded script, a PNG and a 1 s mp4) covers the gallery, the Output tab (the SVG's script
   never runs, videos don't autoplay), expanded rows and compare.
+  Also covered: effort-order sorting, the highlights (a failed run never wins "cheapest"), best-value stars, the run
+  page switcher and ranks, the linkable tab hash and the Source tab opening its first file.
 - `bench run`: a fake `pi` (a Python script put first on PATH by the test) that answers `--version`, `--list-models`,
   the RPC levels request, and `-p` runs by writing a canned session file and a tiny project; env vars make it fail,
   hang, or exit non-zero. Covers level parsing (`all`, ranges, explicit lists, off excluded by default, unsupported

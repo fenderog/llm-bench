@@ -105,6 +105,11 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   throw null errors. Hard refresh first. An asset cache-busting fix exists in `git stash` (stash@{0}) but
   hasn't been applied.
 - **Page width:** the runs table fits at ≥1240px wide. Adding a column needs a check that it still fits.
+- **Runs table markup is load-bearing for the phone layout:** at ≤720px CSS turns rows into cards using each cell's
+  `data-col`/`data-label`. A new column needs those attributes and a placement in the `@media (max-width: 720px)` block.
+  The effort cell's text must stay exactly the level name (the meter is a CSS `::before`); tests read it.
+- **Screenshots of every page type** (desktop/phone, light/dark) are a quick visual check after UI changes: Python
+  Playwright with `channel="chrome"` and `color_scheme="dark"` on the context, against `bench serve`.
 - **ffmpeg here has no WebP encoder** (it can decode WebP), so oversized images are re-encoded as JPEG.
 - **`uv run` puts `.venv/bin` first on PATH**, so agents (and the brief's tool list) see the venv's python3,
   not Homebrew's.

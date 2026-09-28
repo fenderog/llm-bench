@@ -10,29 +10,37 @@
 <body>
 <header class="site-header">
   <a class="brand" href="index.html">llm-bench</a>
-  <span class="crumb">/ <a href="index.html">pages</a></span>
+  <span class="crumb">/ <a href="index.html">prompts</a></span>
 </header>
 <main class="container" id="main">
-  <h1 id="title">Loading&hellip;</h1>
-  <section class="prompt-box" id="prompt-box" hidden>
-    <div class="prompt-label">Prompt</div>
-    <div class="prompt-text" id="prompt"></div>
-  </section>
-  <details class="final-prompt" id="final-prompt-box" hidden>
-    <summary>Final prompt <span class="muted">&mdash; the full brief each run received</span></summary>
-    <div class="prompt-text" id="final-prompt"></div>
-  </details>
+  <div class="page-head">
+    <h1 id="title">Loading&hellip;</h1>
+    <div class="page-meta" id="page-meta"></div>
+    <section class="prompt-box" id="prompt-box" hidden>
+      <div class="prompt-label">Prompt</div>
+      <div class="prompt-text" id="prompt"></div>
+    </section>
+    <details class="final-prompt" id="final-prompt-box" hidden>
+      <summary>Final prompt <span class="muted">&mdash; the full brief each run received</span></summary>
+      <div class="prompt-text" id="final-prompt"></div>
+    </details>
+    <div class="highlights" id="highlights" hidden></div>
+  </div>
 
-  <h2>Runs</h2>
-  <div class="toolbar-row">
-    <a id="compare-all" class="btn" href="#">Compare all</a>
-  </div>
-  <div class="table-wrap">
-    <table class="runs" id="runs-table">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <section class="section" id="runs-section">
+    <div class="section-head">
+      <h2>Runs</h2>
+      <span class="count" id="runs-count"></span>
+      <span class="spacer"></span>
+      <a id="compare-all" class="btn" href="#">Compare all</a>
+    </div>
+    <div class="table-wrap">
+      <table class="runs" id="runs-table">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 </main>
 <script type="module" src="assets/page.js"></script>
 </body>

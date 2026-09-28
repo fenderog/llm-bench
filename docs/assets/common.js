@@ -124,6 +124,74 @@ export async function renderMarkdown(container, text) {
   }
 }
 
+// Effort levels in increasing order, so tables sort low → max instead of alphabetically.
+export const EFFORTS = ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
+
+export function effortIndex(effort) {
+  const i = EFFORTS.indexOf(effort);
+  return i === -1 ? EFFORTS.length : i;
+}
+
+// The effort level as a pill with a 6-step meter (minimal = 1 .. max = 6). Its text is just the level.
+export function effortPill(effort) {
+  const i = EFFORTS.indexOf(effort);
+  const node = el("span", { class: "effort", text: effort ?? "–", attrs: { "data-level": i === -1 ? "unknown" : effort } });
+  if (i !== -1) node.style.setProperty("--lvl", String(i));
+  return node;
+}
+
+// "openrouter/deepseek/deepseek-v4.1-flash" → { provider: "openrouter/deepseek", name: "deepseek-v4.1-flash" }
+export function modelParts(model) {
+  const s = String(model ?? "–");
+  const i = s.lastIndexOf("/");
+  return i === -1 ? { provider: "", name: s } : { provider: s.slice(0, i), name: s.slice(i + 1) };
+}
+
+// Model name in bold with its provider prefix quiet below it.
+export function modelLabel(model) {
+  const { provider, name } = modelParts(model);
+  return el("span", { class: "model", attrs: { title: model } }, [
+    el("span", { class: "model-name", text: name }),
+    provider ? el("span", { class: "model-provider", text: provider }) : null,
+  ]);
+}
+
+export function runUrl(slug, id) {
+  return `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(id)}`;
+}
+
+// Default run order everywhere: by model, then effort from low to high.
+export function byModelThenEffort(a, b) {
+  return String(a.model).localeCompare(String(b.model)) || effortIndex(a.effort) - effortIndex(b.effort) || String(a.id).localeCompare(String(b.id));
+}
+
+// Metrics where lower is better, used for "best" highlights. Only completed runs compete.
+export const LOWER_IS_BETTER = { duration_ms: "fastest", cost_usd: "cheapest", tokens_total: "fewest tokens" };
+
+export function isComplete(run) {
+  return !run.state || run.state === "complete";
+}
+
+// Ranks runs by a metric (ascending) among completed runs that have it: Map(run id → 1-based rank),
+// with ties sharing a rank. Empty when fewer than two runs compete (nothing to compare).
+export function rankBy(runs, key) {
+  const vals = runs.filter((r) => isComplete(r) && r.metrics && typeof r.metrics[key] === "number");
+  const ranks = new Map();
+  if (vals.length < 2) return ranks;
+  const sorted = [...vals].sort((a, b) => a.metrics[key] - b.metrics[key]);
+  sorted.forEach((r, i) => {
+    const prev = sorted[i - 1];
+    ranks.set(r.id, prev && prev.metrics[key] === r.metrics[key] ? ranks.get(prev.id) : i + 1);
+  });
+  return ranks;
+}
+
+export function ordinal(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 export function badge(text, kind) {
   return el("span", { class: `badge badge-${kind}`, text });
 }
@@ -196,7 +264,6 @@ export function mediaGallery(run, base) {
     const dur = item.duration_s != null ? `${Number(item.duration_s).toFixed(1)}s` : null;
     const caption = el("figcaption", {}, [
       el("span", { text: [name, dims, dur, fmtBytes(item.bytes)].filter(Boolean).join(" · ") }),
-      " ",
       el("a", { text: "download", attrs: { href: base + item.path, download: name } }),
     ]);
     grid.append(el("figure", { class: "media-item" }, [el("div", { class: "media-box" }, [mediaElement(item, base)]), caption]));

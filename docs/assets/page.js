@@ -1,4 +1,7 @@
-import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge, mediaGallery } from "./common.js";
+import {
+  qs, el, getJSON, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
+  mediaGallery, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
+} from "./common.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
@@ -6,22 +9,22 @@ const main = document.getElementById("main");
 const COLUMNS = [
   { key: "model", label: "Model", get: (r) => r.model, num: false,
     help: "The model that ran the task (provider/model)." },
-  { key: "effort", label: "Effort", get: (r) => r.effort, num: false,
-    help: "Reasoning effort the model was run at (low / medium / high). Higher effort lets it think longer before acting. Level names are the harness's; the same name can mean different budgets at different providers." },
+  { key: "effort", label: "Effort", get: (r) => r.effort, sortVal: (r) => effortIndex(r.effort), num: false,
+    help: "Reasoning effort the model was run at (minimal / low / medium / high / xhigh / max; the bars show the level). Higher effort lets it think longer before acting. Level names are the harness's; the same name can mean different budgets at different providers." },
   { key: "harness", label: "Harness", get: (r) => harnessLabel(r), num: false,
     help: "The agent program that ran the model and executed its tool calls (e.g. pi), with its version." },
   { key: "verified", label: "Verified", get: (r) => r.verified, num: false,
     help: "Game pages: whether the exported web build booted in headless Chrome (a WebGL canvas rendered, two screenshots differed, no page errors). Media pages: whether every output file was a readable image or video within the limits. – means no check was recorded." },
   { key: "duration_ms", label: "Duration", get: (r) => r.metrics.duration_ms, num: true, fmt: fmtDuration,
-    help: "Wall-clock time of the agent session, from start to finish." },
+    help: "Wall-clock time of the agent session, from start to finish. ★ marks the fastest completed run." },
   { key: "tokens_total", label: "Tokens", get: (r) => r.metrics.tokens_total, num: true, fmt: fmtNum,
-    help: "Input + output tokens reported by the provider. Excludes input served from the prompt cache." },
+    help: "Input + output tokens reported by the provider. Excludes input served from the prompt cache. ★ marks the completed run that used the fewest." },
   { key: "tokens_output", label: "Output tok", get: (r) => r.metrics.tokens_output, num: true, fmt: fmtNum,
     help: "Tokens the model generated: messages, tool-call arguments and file contents it wrote. Includes reasoning tokens when the provider counts them as output (OpenAI does)." },
   { key: "tokens_reasoning", label: "Reasoning tok", get: (r) => r.metrics.tokens_reasoning, num: true, fmt: fmtNum,
     help: "Tokens spent on hidden internal reasoning (thinking) before answering. Not shown in the transcript beyond short summaries, but billed as output." },
   { key: "cost_usd", label: "Cost", get: (r) => r.metrics.cost_usd, num: true, fmt: fmtCost,
-    help: "Cost in USD for the whole session as reported by the provider, including cached input at its discounted rate." },
+    help: "Cost in USD for the whole session as reported by the provider, including cached input at its discounted rate. ★ marks the cheapest completed run." },
   { key: "tool_calls", label: "Tool calls", get: (r) => r.metrics.tool_calls, num: true, fmt: fmtNum,
     help: "Number of tools the agent invoked (bash, read, write, edit, ls, …)." },
   { key: "turns", label: "Turns", get: (r) => r.metrics.turns, num: true, fmt: fmtNum,
@@ -53,22 +56,34 @@ function render(page, runs) {
     document.getElementById("final-prompt").textContent = page.final_prompt;
     document.getElementById("final-prompt-box").hidden = false;
   }
+  const isMedia = page.kind === "media";
+  renderMeta(page, runs);
+  renderHighlights(runs);
 
   document.getElementById("compare-all").href = `compare.html?p=${encodeURIComponent(slug)}`;
-  const isMedia = page.kind === "media";
-  if (isMedia) renderGallery(runs);
+  document.getElementById("runs-count").textContent = `${runs.length} run${runs.length === 1 ? "" : "s"}`;
+  if (isMedia) {
+    main.classList.add("media-page");
+    renderGallery(runs);
+  }
 
-  let sortKey = "duration_ms";
+  // Default order: by model, then effort low → high, so effort levels of one model read as a sequence.
+  let sortKey = "model";
   let sortDir = 1;
   const table = document.getElementById("runs-table");
   const thead = table.querySelector("thead");
   const tbody = table.querySelector("tbody");
+  const best = {};
+  for (const key of Object.keys(LOWER_IS_BETTER)) {
+    const ranks = rankBy(runs, key);
+    best[key] = new Set([...ranks].filter(([, rank]) => rank === 1).map(([id]) => id));
+  }
 
   const headRow = el("tr", {}, [
     el("th", { attrs: { "data-help": isMedia ? "Click a row to expand it and see that run's output files." : "Click a row to expand it and play that run's game inline." } }),
     el("th", { attrs: { "data-help": isMedia ? "The run's first output (a video shows its poster frame). Click to open the run." : "Screenshot of the running game taken during verification. Click to open the run." } }),
     ...COLUMNS.map((c) =>
-      el("th", { text: c.label, class: "has-help", attrs: { "data-key": c.key, "data-help": `${c.help}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
+      el("th", { text: c.label, class: c.num ? "has-help is-num" : "has-help", attrs: { "data-key": c.key, "data-help": `${c.help}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
     ),
   ]);
   thead.append(headRow);
@@ -86,15 +101,16 @@ function render(page, runs) {
       if (th.dataset.key === sortKey) th.setAttribute("aria-sort", sortDir === 1 ? "ascending" : "descending");
     }
     const col = COLUMNS.find((c) => c.key === sortKey);
+    const val = col.sortVal || col.get;
     const rows = [...runs].sort((a, b) => {
-      const va = col.get(a);
-      const vb = col.get(b);
-      if (va == null && vb == null) return 0;
+      const va = val(a);
+      const vb = val(b);
+      if (va == null && vb == null) return byModelThenEffort(a, b);
       if (va == null) return 1;
       if (vb == null) return -1;
       if (va < vb) return -1 * sortDir;
       if (va > vb) return 1 * sortDir;
-      return 0;
+      return byModelThenEffort(a, b);
     });
 
     const maxes = {};
@@ -102,38 +118,45 @@ function render(page, runs) {
 
     tbody.replaceChildren();
     for (const r of rows) {
-      const runUrl = `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}`;
+      const url = runUrl(slug, r.id);
       const thumb = r.thumb
-        ? el("a", { attrs: { href: runUrl } }, [el("img", { class: "row-thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })])
-        : el("span", { class: "muted", text: "–" });
-      const tds = [el("td", {}, [el("span", { class: "caret", text: "▸" })]), el("td", { class: "thumb-cell" }, [thumb])];
+        ? el("a", { attrs: { href: url, "aria-label": "Open run" } }, [el("img", { class: "row-thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })])
+        : el("span", { class: "thumb-none", text: "–" });
+      const tds = [el("td", {}, [el("span", { class: "caret", text: "▶" })]), el("td", { class: "thumb-cell" }, [thumb])];
       for (const c of COLUMNS) {
         const v = c.get(r);
+        const attrs = { "data-col": c.key, "data-label": c.label };
         if (c.key === "model") {
-          tds.push(el("td", {}, [el("a", { text: v, attrs: { href: runUrl } })]));
+          tds.push(el("td", { attrs }, [el("a", { attrs: { href: url } }, [modelLabel(v)])]));
+        } else if (c.key === "effort") {
+          tds.push(el("td", { attrs }, [effortPill(v)]));
+        } else if (c.key === "harness") {
+          tds.push(el("td", { class: "harness-cell", text: v ?? "–", attrs }));
         } else if (c.key === "verified") {
           const sb = stateBadge(r);
-          tds.push(el("td", {}, [sb || (v === true ? badge("✓", "good") : v === false ? badge("✗", "bad") : el("span", { class: "muted", text: "–" }))]));
+          tds.push(el("td", { attrs }, [sb || (v === true ? badge("✓", "good") : v === false ? badge("✗", "bad") : el("span", { class: "muted", text: "–" }))]));
         } else if (c.num) {
           const pct = Math.max(0, Math.min(100, ((v || 0) / maxes[c.key]) * 100));
+          const isBest = best[c.key] && best[c.key].has(r.id);
+          if (isBest) attrs.title = LOWER_IS_BETTER[c.key];
           tds.push(
-            el("td", {}, [
+            el("td", { class: isBest ? "is-num is-best" : "is-num", attrs }, [
               el("div", { class: "bar-cell" }, [
-                el("span", { class: "bar", attrs: { style: `width:${pct}%` } }),
                 el("span", { class: "val", text: c.fmt ? c.fmt(v) : v ?? "–" }),
+                el("span", { class: "track" }, [el("span", { class: "bar", attrs: { style: `width:${pct}%` } })]),
               ]),
             ])
           );
         } else {
-          tds.push(el("td", { text: v ?? "–" }));
+          tds.push(el("td", { text: v ?? "–", attrs }));
         }
       }
-      const tr = el("tr", { class: "run-row", attrs: { tabindex: "0", "aria-expanded": "false" } }, tds);
+      const tr = el("tr", { class: isComplete(r) ? "run-row" : "run-row is-failed", attrs: { tabindex: "0", "aria-expanded": "false" } }, tds);
       const toggle = () => {
         const open = tr.getAttribute("aria-expanded") === "true";
         tr.setAttribute("aria-expanded", String(!open));
         if (open) tr.nextElementSibling.remove(); // removing the iframe stops the game
-        else tr.after(detailRow(r, runUrl));
+        else tr.after(detailRow(r, url));
       };
       tr.addEventListener("click", (e) => {
         if (!e.target.closest("a, button")) toggle();
@@ -149,9 +172,9 @@ function render(page, runs) {
   }
 
   // Expanded row: the game boots right away (the row click is the explicit play action).
-  function detailRow(r, runUrl) {
+  function detailRow(r, url) {
     const links = el("div", { class: "game-links" }, [
-      el("a", { text: "Open run page →", attrs: { href: runUrl } }),
+      el("a", { text: "Open run page →", attrs: { href: url } }),
     ]);
     const errorLine = r.error ? [el("p", { class: "run-error", text: r.error })] : [];
     let body;
@@ -159,40 +182,92 @@ function render(page, runs) {
       body = [...errorLine, mediaGallery(r, runDir(slug, r.id)), links];
     } else if (r.game) {
       const entry = runDir(slug, r.id) + r.game.entry;
-      links.append(" · ", el("a", { text: "Open full screen ↗ (unsandboxed)", attrs: { href: entry, target: "_blank", rel: "noopener noreferrer" } }));
+      links.append(el("a", { text: "Open full screen ↗ (unsandboxed)", attrs: { href: entry, target: "_blank", rel: "noopener noreferrer" } }));
       body = [...errorLine, el("div", { class: "game-frame" }, [sandboxedGame(entry)]), links];
     } else {
       const none = isMedia ? "No output files recorded for this run." : "No playable build recorded for this run.";
-      body = [...errorLine, el("p", { class: "muted", text: none }), links];
+      body = [...errorLine, el("p", { class: "msg", text: none }), links];
     }
-    return el("tr", { class: "run-detail" }, [el("td", { attrs: { colspan: String(COLUMNS.length + 2) } }, body)]);
+    return el("tr", { class: "run-detail" }, [el("td", { attrs: { colspan: String(COLUMNS.length + 2) } }, [el("div", { class: "detail-inner" }, body)])]);
   }
   drawTable();
+}
+
+// "Game · 11 runs · 3 models · updated Sep 27, 2026"
+function renderMeta(page, runs) {
+  const models = new Set(runs.map((r) => r.model));
+  const latest = runs.map((r) => r.started_at).filter(Boolean).sort().pop();
+  const meta = document.getElementById("page-meta");
+  meta.append(
+    el("span", { class: "kind-chip", text: page.kind === "media" ? "Media" : "Game" }),
+    el("span", { text: `${runs.length} run${runs.length === 1 ? "" : "s"}` }),
+    el("span", { text: `${models.size} model${models.size === 1 ? "" : "s"}` }),
+  );
+  if (latest) meta.append(el("span", { class: "last-run", text: `last run ${fmtDate(latest)}` }));
+}
+
+// At-a-glance summary: the cheapest, fastest and leanest completed run, and how many runs were verified.
+function renderHighlights(runs) {
+  const box = document.getElementById("highlights");
+  const tiles = [];
+  const specs = [
+    ["cost_usd", "Cheapest", fmtCost],
+    ["duration_ms", "Fastest", fmtDuration],
+    ["tokens_total", "Fewest tokens", fmtNum],
+  ];
+  for (const [key, label, fmt] of specs) {
+    const ranks = rankBy(runs, key);
+    const winner = runs.find((r) => ranks.get(r.id) === 1);
+    if (!winner) continue;
+    tiles.push(
+      el("a", { class: "hl hl-good", attrs: { href: runUrl(slug, winner.id) } }, [
+        el("span", { class: "hl-label", text: label }),
+        el("span", { class: "hl-value", text: fmt(winner.metrics[key]) }),
+        el("span", { class: "hl-sub" }, [effortPill(winner.effort), el("span", { class: "name", text: modelParts(winner.model).name, attrs: { title: winner.model } })]),
+      ])
+    );
+  }
+  if (!tiles.length) return;
+  const checked = runs.filter((r) => r.verified != null);
+  const verified = runs.filter((r) => r.verified === true).length;
+  const failed = runs.filter((r) => !isComplete(r)).length;
+  const total = runs.reduce((s, r) => s + (r.metrics.cost_usd || 0), 0);
+  tiles.push(
+    el("div", { class: "hl" }, [
+      el("span", { class: "hl-label", text: "Verified" }),
+      el("span", { class: "hl-value", text: checked.length ? `${verified} / ${runs.length}` : "–" }),
+      el("span", { class: "hl-sub", text: `${failed ? `${failed} failed · ` : ""}${fmtCost(total)} total spend` }),
+    ])
+  );
+  box.append(...tiles);
+  box.hidden = false;
 }
 
 // Media pages: one card per run (its first output, or poster frame), linking to the run page.
 function renderGallery(runs) {
   const grid = el("div", { class: "card-grid gallery", attrs: { id: "gallery" } });
-  for (const r of runs) {
-    const runUrl = `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}`;
+  for (const r of [...runs].sort(byModelThenEffort)) {
     const n = (r.media || []).length;
     const sb = stateBadge(r);
     const thumb = r.thumb
       ? el("img", { class: "thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })
       : el("div", { class: "thumb-ph", text: "no output" });
     grid.append(
-      el("a", { class: "card", attrs: { href: runUrl } }, [
+      el("a", { class: "card", attrs: { href: runUrl(slug, r.id) } }, [
         thumb,
         el("div", { class: "card-body" }, [
-          el("div", { class: "card-title" }, [`${r.model} · ${r.effort}`, ...(sb ? [" ", sb] : [])]),
+          el("div", { class: "card-head" }, [effortPill(r.effort), sb || (n > 1 ? el("span", { class: "card-more", text: `${n} files` }) : null)]),
+          el("div", { class: "card-meta", text: modelParts(r.model).name, attrs: { title: r.model } }),
           el("div", { class: "card-meta", text: `${fmtCost(r.metrics.cost_usd)} · ${fmtDuration(r.metrics.duration_ms)}` }),
-          n > 1 ? el("div", { class: "card-more", text: `${n} files` }) : null,
         ]),
       ])
     );
   }
-  const runsHeading = [...document.querySelectorAll("h2")].find((h) => h.textContent === "Runs");
-  runsHeading.before(el("h2", { text: "Gallery" }), grid);
+  const section = el("section", { class: "section" }, [
+    el("div", { class: "section-head" }, [el("h2", { text: "Gallery" }), el("span", { class: "count", text: "click an image to open its run" })]),
+    grid,
+  ]);
+  document.getElementById("runs-section").before(section);
 }
 
 // Column help as a custom tooltip: native title tooltips can't be shown sooner than ~1-2s.

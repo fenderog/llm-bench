@@ -207,6 +207,43 @@ def test_runs_table_shows_each_runs_image(site, page):
     assert_no_errors(page)
 
 
+def test_page_orders_by_effort_and_highlights_best_completed_run(site, page):
+    page.goto(f"{site}page.html?p=demo")
+    page.wait_for_selector("table.runs tbody tr")
+    efforts = lambda: page.locator("table.runs tbody tr td:nth-child(4)").all_inner_texts()
+    assert efforts() == ["low", "medium", "high"]  # default: model, then effort low -> max (not alphabetical)
+    page.locator('th[data-key="effort"]').click()
+    assert efforts() == ["low", "medium", "high"]
+    page.locator('th[data-key="effort"]').click()
+    assert efforts() == ["high", "medium", "low"]
+
+    # the failed low run is cheaper but doesn't compete: medium is the cheapest/fastest completed run
+    hl = page.locator("#highlights")
+    assert hl.is_visible()
+    cheapest = hl.locator(".hl", has_text="Cheapest")
+    assert "$0.019" in cheapest.inner_text() and "medium" in cheapest.inner_text()
+    assert cheapest.get_attribute("href") == f"run.html?p=demo&r={MEDIUM_ID}"
+    assert "1 / 3" in hl.locator(".hl", has_text="Verified").inner_text()  # only high is verified
+    best = page.locator("td.is-best")
+    assert best.count() == 3 and all(
+        best.nth(i).locator("xpath=..").locator("td:nth-child(4)").inner_text() == "medium" for i in range(3)
+    )
+    assert_no_errors(page)
+
+
+def test_run_switcher_and_ranks(site, page):
+    page.goto(f"{site}run.html?p=demo&r={MEDIUM_ID}")
+    page.wait_for_selector("#run-switcher a")
+    links = page.locator("#run-switcher a")
+    assert links.count() == 3
+    assert page.locator('#run-switcher a[aria-current="page"]').inner_text().strip() == "medium"
+    assert "cheapest of 2" in page.locator("#metric-strip").inner_text()  # the failed run isn't ranked
+    page.goto(f"{site}run.html?p=demo&r={HIGH_ID}#source")  # the tab is linkable
+    page.wait_for_selector("#panel-source:not([hidden]) .source-view pre")
+    assert page.locator(".source-files button.active").count() == 1  # first file opens right away
+    assert_no_errors(page)
+
+
 def test_compare_all_opens_every_run(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")

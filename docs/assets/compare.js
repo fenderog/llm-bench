@@ -1,4 +1,7 @@
-import { qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery } from "./common.js";
+import {
+  qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
+  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
+} from "./common.js";
 
 // compare.html?p=<slug> shows every run of the page; &r=<id>,<id> limits it to those runs.
 const slug = qs("p");
@@ -18,11 +21,23 @@ if (!slug) {
       const link = document.getElementById("page-link");
       link.textContent = page.title;
       link.href = `page.html?p=${encodeURIComponent(slug)}`;
-      document.getElementById("title").textContent = `Compare – ${page.title}`;
+      document.title = `Compare – ${page.title} – llm-bench`;
+      document.getElementById("title").textContent = page.title;
+      if (page.prompt) {
+        const p = document.getElementById("compare-prompt");
+        p.textContent = page.prompt;
+        p.hidden = false;
+      }
     }
-    const shown = ids.length ? runs.filter((r) => ids.includes(r.id)) : runs;
-    if (!shown.length) showMessage(main, "No matching runs to compare.", "error");
-    for (const r of shown) columnsEl.append(column(r));
+    const shown = (ids.length ? runs.filter((r) => ids.includes(r.id)) : runs).sort(byModelThenEffort);
+    document.getElementById("compare-count").textContent = `${shown.length} run${shown.length === 1 ? "" : "s"} side by side · ★ best among them`;
+    if (!shown.length) showMessage(columnsEl, "No matching runs to compare.", "error");
+    const best = {};
+    for (const key of Object.keys(LOWER_IS_BETTER)) {
+      const ranks = rankBy(shown, key);
+      best[key] = new Set([...ranks].filter(([, rank]) => rank === 1).map(([id]) => id));
+    }
+    for (const r of shown) columnsEl.append(column(r, best));
     setupPlayAll();
   } catch (err) {
     showMessage(main, `Could not load comparison: ${err.message}`, "error");
@@ -43,19 +58,31 @@ function setupPlayAll() {
   update();
 }
 
-function column(r) {
-  const base = runDir(slug, r.id);
+// "pi 0.87.1 · 1m 5s · 29,343 tokens · $0.0037", with the best values among the shown runs starred.
+function metricsLine(r, best) {
   const m = r.metrics || {};
+  const line = el("div", { class: "compare-metrics" }, [el("span", { text: harnessLabel(r) })]);
+  const part = (key, value, suffix) => {
+    const isBest = best[key] && best[key].has(r.id);
+    line.append(
+      el("span", { class: "sep", text: "·" }),
+      el("span", { class: isBest ? "is-best" : null, attrs: isBest ? { title: LOWER_IS_BETTER[key] } : {} }, [el("b", { text: `${isBest ? "★ " : ""}${value}` }), suffix]),
+    );
+  };
+  part("duration_ms", fmtDuration(m.duration_ms), "");
+  part("tokens_total", fmtNum(m.tokens_total), " tokens");
+  part("cost_usd", fmtCost(m.cost_usd), "");
+  return line;
+}
+
+function column(r, best) {
+  const base = runDir(slug, r.id);
   const sb = stateBadge(r);
-  const heading = [el("a", { text: `${r.model} · ${r.effort}`, attrs: { href: `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}` } })];
-  if (sb) heading.push(" ", sb);
-  const parts = [
-    el("h3", {}, heading),
-    el("div", { class: "muted compare-metrics", text: `${harnessLabel(r)} · ${fmtDuration(m.duration_ms)} · ${fmtNum(m.tokens_total)} tokens · ${fmtCost(m.cost_usd)}` }),
-  ];
+  const heading = [el("a", { attrs: { href: runUrl(slug, r.id) } }, [modelLabel(r.model)]), el("span", {}, [effortPill(r.effort), sb ? " " : null, sb])];
+  const parts = [el("h3", {}, heading), metricsLine(r, best)];
   if (r.error) parts.push(el("p", { class: "run-error", text: r.error }));
   if (r.media) parts.push(mediaGallery(r, base));
   else if (r.game) parts.push(buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null));
-  else parts.push(el("p", { class: "muted", text: r.kind === "media" ? "No output files recorded." : "No game recorded." }));
-  return el("div", { class: "compare-col" }, parts);
+  else parts.push(el("p", { class: "msg", text: r.kind === "media" ? "No output files recorded." : "No game recorded." }));
+  return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed" }, parts);
 }

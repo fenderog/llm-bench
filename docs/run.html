@@ -14,15 +14,17 @@
 </header>
 <main class="container" id="main">
   <div class="run-header">
+    <div class="eyebrow" id="run-provider"></div>
     <h1 id="title">Loading&hellip;</h1>
   </div>
+  <nav class="run-switcher" id="run-switcher" aria-label="Other runs of this prompt" hidden></nav>
   <div class="metric-strip" id="metric-strip"></div>
 
-  <div class="tabs" id="tabs">
-    <button data-tab="game" class="active" type="button">Game</button>
-    <button data-tab="transcript" type="button">Transcript</button>
-    <button data-tab="source" type="button">Source</button>
-    <button data-tab="metrics" type="button">Metrics</button>
+  <div class="tabs" id="tabs" role="tablist">
+    <button data-tab="game" class="active" type="button" role="tab">Game</button>
+    <button data-tab="transcript" type="button" role="tab">Transcript</button>
+    <button data-tab="source" type="button" role="tab">Source</button>
+    <button data-tab="metrics" type="button" role="tab">Metrics</button>
   </div>
 
   <section class="tab-panel" id="panel-game"></section>
