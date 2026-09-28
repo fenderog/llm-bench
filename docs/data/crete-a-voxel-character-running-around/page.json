@@ -1,0 +1,8 @@
+{
+  "slug": "crete-a-voxel-character-running-around",
+  "title": "Crete a voxel character running around",
+  "prompt": "Crete a voxel character running around in a small sandbox environment",
+  "final_prompt": "Crete a voxel character running around in a small sandbox environment\n\nBuild this as a complete, playable Godot 4.7.2 project in the current directory.\n- Use the gl_compatibility renderer, and don't enable thread support (it must run as a web export).\n- Set a main scene in project.godot. Add a short README.md with run instructions.\n- Keep it self-contained: no downloads, external assets or plugins.\n- Only create or edit files inside the current directory. Don't export the project; that happens afterwards.\n- Check it loads: run `godot --headless --path . --editor --quit` and fix any errors.\n- Finish with a short summary of what you built.\n",
+  "created": "2026-09-28T04:49:08Z",
+  "updated": "2026-09-28T05:13:37Z"
+}

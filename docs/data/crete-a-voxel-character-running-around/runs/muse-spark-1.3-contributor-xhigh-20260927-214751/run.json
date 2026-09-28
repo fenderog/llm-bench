@@ -1,0 +1,61 @@
+{
+  "id": "muse-spark-1.3-contributor-xhigh-20260927-214751",
+  "page": "crete-a-voxel-character-running-around",
+  "model": "meta/muse-spark-1.3-contributor",
+  "effort": "xhigh",
+  "started_at": "2026-09-28T04:47:51Z",
+  "source_dir": "2026-09-27-214751-musespark13contributor-crete-a-voxel-character-running-around",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 494060,
+    "cost_usd": 0.023493588,
+    "tool_calls": 20,
+    "turns": 16,
+    "tokens_total": 167970,
+    "tokens_input": 113398,
+    "tokens_output": 54572,
+    "tokens_reasoning": 37140,
+    "tokens_cache_read": 619694
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "godot",
+    "entry": "game/index.html",
+    "engine": "dd54ab29f8a9",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "threads": false
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "export_presets.cfg",
+      "icon.svg",
+      "icon.svg.import",
+      "project.godot",
+      "scenes/main.tscn",
+      "scripts/hud.gd",
+      "scripts/hud.gd.uid",
+      "scripts/main.gd",
+      "scripts/main.gd.uid",
+      "scripts/pickup.gd",
+      "scripts/pickup.gd.uid",
+      "scripts/player.gd",
+      "scripts/player.gd.uid",
+      "scripts/sfx.gd",
+      "scripts/sfx.gd.uid"
+    ]
+  }
+}

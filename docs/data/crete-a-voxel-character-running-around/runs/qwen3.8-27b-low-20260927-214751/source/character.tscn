@@ -1,0 +1,95 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="mat_torso"]
+albedo_color = Color(0.22, 0.62, 0.58, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_head"]
+albedo_color = Color(0.96, 0.89, 0.72, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_eye"]
+albedo_color = Color(0.1, 0.1, 0.14, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_arm"]
+albedo_color = Color(0.17, 0.52, 0.5, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_leg"]
+albedo_color = Color(0.22, 0.28, 0.5, 1)
+
+[sub_resource type="BoxMesh" id="box_torso"]
+material = SubResource("mat_torso")
+size = Vector3(0.55, 0.6, 0.35)
+
+[sub_resource type="BoxMesh" id="box_head"]
+material = SubResource("mat_head")
+size = Vector3(0.5, 0.45, 0.45)
+
+[sub_resource type="BoxMesh" id="box_eye"]
+material = SubResource("mat_eye")
+size = Vector3(0.09, 0.12, 0.06)
+
+[sub_resource type="BoxMesh" id="box_arm"]
+material = SubResource("mat_arm")
+size = Vector3(0.2, 0.5, 0.2)
+
+[sub_resource type="BoxMesh" id="box_leg"]
+material = SubResource("mat_leg")
+size = Vector3(0.26, 0.5, 0.26)
+
+[sub_resource type="CapsuleShape3D" id="capsule"]
+radius = 0.35
+height = 1.3
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.65, 0)
+shape = SubResource("capsule")
+
+[node name="Body" type="Node3D" parent="."]
+
+[node name="Torso" type="MeshInstance3D" parent="Body"]
+position = Vector3(0, 0.85, 0)
+mesh = SubResource("box_torso")
+
+[node name="Head" type="MeshInstance3D" parent="Body"]
+position = Vector3(0, 1.375, 0)
+mesh = SubResource("box_head")
+
+[node name="EyeL" type="MeshInstance3D" parent="Body"]
+position = Vector3(-0.12, 1.42, 0.21)
+mesh = SubResource("box_eye")
+
+[node name="EyeR" type="MeshInstance3D" parent="Body"]
+position = Vector3(0.12, 1.42, 0.21)
+mesh = SubResource("box_eye")
+
+[node name="ArmL" type="Node3D" parent="Body"]
+position = Vector3(-0.38, 1.08, 0)
+
+[node name="ArmMesh" type="MeshInstance3D" parent="Body/ArmL"]
+position = Vector3(0, -0.22, 0)
+mesh = SubResource("box_arm")
+
+[node name="ArmR" type="Node3D" parent="Body"]
+position = Vector3(0.38, 1.08, 0)
+
+[node name="ArmMesh" type="MeshInstance3D" parent="Body/ArmR"]
+position = Vector3(0, -0.22, 0)
+mesh = SubResource("box_arm")
+
+[node name="LegL" type="Node3D" parent="Body"]
+position = Vector3(-0.15, 0.55, 0)
+
+[node name="LegMesh" type="MeshInstance3D" parent="Body/LegL"]
+position = Vector3(0, -0.25, 0)
+mesh = SubResource("box_leg")
+
+[node name="LegR" type="Node3D" parent="Body"]
+position = Vector3(0.15, 0.55, 0)
+
+[node name="LegMesh" type="MeshInstance3D" parent="Body/LegR"]
+position = Vector3(0, -0.25, 0)
+mesh = SubResource("box_leg")

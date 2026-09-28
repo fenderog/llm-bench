@@ -1,0 +1,51 @@
+{
+  "id": "qwen3.8-27b-medium-20260927-214751",
+  "page": "crete-a-voxel-character-running-around",
+  "model": "openrouter/qwen/qwen3.8-27b",
+  "effort": "medium",
+  "started_at": "2026-09-28T04:47:51Z",
+  "source_dir": "2026-09-27-214751-qwen3827b-crete-a-voxel-character-running-around",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 251163,
+    "cost_usd": 0.08306813999999998,
+    "tool_calls": 21,
+    "turns": 20,
+    "tokens_total": 36531,
+    "tokens_input": 16227,
+    "tokens_output": 20304,
+    "tokens_reasoning": 12247,
+    "tokens_cache_read": 180480
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "godot",
+    "entry": "game/index.html",
+    "engine": "dd54ab29f8a9",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "threads": false
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "export_presets.cfg",
+      "project.godot",
+      "scenes/main.tscn",
+      "scripts/main.gd",
+      "scripts/main.gd.uid"
+    ]
+  }
+}

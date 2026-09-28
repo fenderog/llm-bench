@@ -1,5 +1,17 @@
 [
   {
+    "slug": "crete-a-voxel-character-running-around",
+    "title": "Crete a voxel character running around",
+    "n_runs": 11,
+    "models": [
+      "meta/muse-spark-1.3-contributor",
+      "openrouter/deepseek/deepseek-v4.1-flash",
+      "openrouter/qwen/qwen3.8-27b"
+    ],
+    "updated": "2026-09-28T05:13:37Z",
+    "thumb": "data/crete-a-voxel-character-running-around/runs/deepseek-v4.1-flash-max-20260927-214751/thumb.png"
+  },
+  {
     "slug": "voxel-horse",
     "title": "Voxel horse",
     "n_runs": 3,

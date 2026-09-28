@@ -1,0 +1,57 @@
+{
+  "id": "qwen3.8-27b-low-20260927-214751",
+  "page": "crete-a-voxel-character-running-around",
+  "model": "openrouter/qwen/qwen3.8-27b",
+  "effort": "low",
+  "started_at": "2026-09-28T04:47:51Z",
+  "source_dir": "2026-09-27-214751-qwen3827b-crete-a-voxel-character-running-around",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 762141,
+    "cost_usd": 0.19218497999999998,
+    "tool_calls": 27,
+    "turns": 22,
+    "tokens_total": 74330,
+    "tokens_input": 21947,
+    "tokens_output": 52383,
+    "tokens_reasoning": 37357,
+    "tokens_cache_read": 303744
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "godot",
+    "entry": "game/index.html",
+    "engine": "dd54ab29f8a9",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "threads": false
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "character.tscn",
+      "export_presets.cfg",
+      "main.tscn",
+      "project.godot",
+      "resources/environment.tres",
+      "scripts/camera_rig.gd",
+      "scripts/camera_rig.gd.uid",
+      "scripts/player.gd",
+      "scripts/player.gd.uid",
+      "scripts/world.gd",
+      "scripts/world.gd.uid"
+    ]
+  }
+}

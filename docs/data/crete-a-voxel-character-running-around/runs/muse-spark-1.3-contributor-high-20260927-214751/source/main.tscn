@@ -1,0 +1,127 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/world_builder.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/player.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/voxel_character.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/camera_rig.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="6"]
+
+[sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
+sky_top_color = Color(0.28, 0.52, 0.92, 1)
+sky_horizon_color = Color(0.72, 0.86, 1, 1)
+ground_bottom_color = Color(0.18, 0.24, 0.18, 1)
+ground_horizon_color = Color(0.62, 0.74, 0.68, 1)
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_mat")
+
+[sub_resource type="Environment" id="env"]
+background_mode = 2
+sky = SubResource("sky")
+ambient_light_source = 2
+ambient_light_energy = 0.65
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.72, 0.84, 0.97, 1)
+fog_density = 0.008
+
+[sub_resource type="CapsuleShape3D" id="cap"]
+radius = 0.32
+height = 1.2
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.959931, -0.523599, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="World" type="Node3D" parent="."]
+script = ExtResource("2")
+
+[node name="Player" type="CharacterBody3D" parent="."]
+position = Vector3(0, 0.4, 6)
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 0.35
+script = ExtResource("3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+position = Vector3(0, 0.66, 0)
+shape = SubResource("cap")
+
+[node name="Rig" type="Node3D" parent="Player"]
+script = ExtResource("4")
+
+[node name="Dust" type="CPUParticles3D" parent="Player"]
+position = Vector3(0, 0.12, 0)
+
+[node name="CameraRig" type="Node3D" parent="."]
+script = ExtResource("5")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraRig"]
+margin = 0.3
+spring_length = 6.0
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig/SpringArm3D"]
+current = true
+fov = 60.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("6")
+
+[node name="CoinsLabel" type="Label" parent="HUD"]
+offset_left = 18.0
+offset_top = 14.0
+offset_right = 450.0
+offset_bottom = 64.0
+theme_override_colors/font_color = Color(1, 0.95, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 34
+text = "Coins: 0 / 12"
+
+[node name="TitleLabel" type="Label" parent="HUD"]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -340.0
+offset_top = 16.0
+offset_right = -18.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.15, 0.3, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 28
+text = "VOXEL RUNNER"
+horizontal_alignment = 2
+
+[node name="MessageLabel" type="Label" parent="HUD"]
+anchor_right = 1.0
+offset_top = 110.0
+offset_right = 0.0
+offset_bottom = 170.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.1, 0.05, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "Collect all the coins!"
+horizontal_alignment = 1
+
+[node name="ControlsLabel" type="Label" parent="HUD"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = -88.0
+offset_right = 760.0
+offset_bottom = -12.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.95)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "WASD / Arrows: run   SHIFT: sprint   SPACE: jump
+Mouse-drag (or Q/E): orbit camera   Wheel: zoom   R: reset"

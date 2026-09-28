@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="18" fill="#6fc0ef"/>
+  <rect x="22" y="86" width="84" height="26" fill="#4fae3a"/>
+  <rect x="22" y="98" width="84" height="14" fill="#8a5f3c"/>
+  <!-- head -->
+  <rect x="44" y="18" width="40" height="36" fill="#f4c9a0"/>
+  <rect x="44" y="14" width="40" height="10" fill="#3a2618"/>
+  <rect x="51" y="30" width="8" height="8" fill="#22222b"/>
+  <rect x="69" y="30" width="8" height="8" fill="#22222b"/>
+  <!-- body -->
+  <rect x="46" y="54" width="36" height="26" fill="#2f7fd0"/>
+  <!-- arms -->
+  <rect x="32" y="54" width="12" height="26" fill="#2f7fd0"/>
+  <rect x="84" y="54" width="12" height="26" fill="#2f7fd0"/>
+  <rect x="32" y="78" width="12" height="8" fill="#f4c9a0"/>
+  <rect x="84" y="78" width="12" height="8" fill="#f4c9a0"/>
+  <!-- legs -->
+  <rect x="50" y="80" width="12" height="20" fill="#3d456b"/>
+  <rect x="66" y="80" width="12" height="20" fill="#3d456b"/>
+  <rect x="48" y="100" width="16" height="8" fill="#23232b"/>
+  <rect x="64" y="100" width="16" height="8" fill="#23232b"/>
+</svg>
