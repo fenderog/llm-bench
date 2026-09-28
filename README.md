@@ -1,7 +1,8 @@
 # llm-bench
 
-LLM benchmark runs published as a static GitHub Pages site: playable Godot web builds, full agent
-transcripts, the source each model wrote, and cost/token metrics, side by side per effort level.
+LLM benchmark runs published as a static GitHub Pages site: playable Godot web builds or generated
+images and videos, full agent transcripts, the source each model wrote, and cost/token metrics, side by
+side per effort level.
 
 **Site:** https://fenderog.github.io/llm-bench/
 
@@ -34,9 +35,26 @@ until you run `bench publish` or pass `--publish`.
 Each agent gets your prompt verbatim plus a fixed set of Godot rules (`src/bench/briefs/godot.md`), and
 runs in an empty folder under `[run].dir` (default `~/dev/bench-runs`, set in `bench.toml`).
 
+### Images and videos (`--kind media`)
+
+```sh
+uv run bench run --kind media "a pelican riding a bicycle, as a hand-written SVG" -m openai-codex/gpt-6-sol
+```
+
+The agent saves its result in `./output/`: one or more images (`.png .jpg .webp .gif .svg`) and/or videos
+(`.mp4 .webm`), at most 8 files of up to 2 MB each, and videos of at most 10 seconds. How it makes them is
+up to your prompt ("hand-written SVG", "use Python", ...). The brief (`src/bench/briefs/media.md`) lists
+the tools installed on this machine, from `[run].tools` in `bench.toml`, with their versions.
+
+Afterwards bench checks every file with ffprobe. Videos are trimmed to 10 s and re-encoded to H.264 mp4
+when a browser couldn't play them or they're too big, and get a poster frame; oversized images become
+JPEG. Problems are shown on the run, not fatal. The page gets a gallery, and each run an Output tab
+instead of a game. A page holds one kind: a media prompt can't be added to a Godot page.
+
 Requirements:
 - [pi](https://github.com/earendil-works/pi) is the harness, and the only one for now.
-- `godot` must be on PATH, with the matching web export templates installed.
+- `godot` must be on PATH, with the matching web export templates installed (Godot runs only).
+- `ffmpeg` and `ffprobe` must be on PATH (media runs only).
 - Google Chrome and Playwright are only needed for the check step (`pip install bench[verify]`; they're
   already in the dev dependencies).
 

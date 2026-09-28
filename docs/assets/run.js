@@ -1,4 +1,4 @@
-import { qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge } from "./common.js";
+import { qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery } from "./common.js";
 import { renderTranscript } from "./transcript.js";
 
 const slug = qs("p");
@@ -69,6 +69,12 @@ function setupTabs() {
 
 function renderGame(run, base) {
   const panel = document.getElementById("panel-game");
+  if (run.kind === "media") {
+    document.querySelector('#tabs button[data-tab="game"]').textContent = "Output";
+    if (run.media) panel.append(mediaGallery(run, base));
+    else showMessage(panel, "No output files recorded for this run.");
+    return;
+  }
   if (!run.game) {
     showMessage(panel, "No game recorded for this run.");
     return;
@@ -136,6 +142,7 @@ function renderMetrics(run, base) {
     ["id", run.id],
     ["model", run.model],
     ["effort", run.effort],
+    ["kind", run.kind ?? "godot"],
     ["harness", harnessLabel(run)],
     ["started_at", run.started_at],
     ["verified", run.verified == null ? "–" : String(run.verified)],

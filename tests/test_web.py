@@ -70,6 +70,7 @@ def assert_no_errors(pg):
 LOW_ID = "model-x-low-20260101-000000"
 MEDIUM_ID = "model-x-medium-20260101-000500"
 HIGH_ID = "model-x-high-20260101-001000"
+ART_HIGH_ID = "model-x-high-20260102-000000"
 
 
 # ---------------------------------------------------------------- home page
@@ -77,9 +78,9 @@ def test_home_lists_page(site, page):
     page.goto(site)
     page.wait_for_selector(".card")
     cards = page.locator(".card")
-    assert cards.count() == 1
-    assert "Demo" in cards.first.inner_text()
-    assert page.locator(".card .thumb").count() == 1  # high run's thumb, no games loaded
+    assert cards.count() == 2
+    assert "Demo" in cards.filter(has_text="Demo").inner_text()
+    assert page.locator(".card .thumb").count() == 2  # demo: high run's thumb; art: its SVG, no games loaded
     assert page.locator("iframe").count() == 0
     assert_no_errors(page)
 
@@ -394,4 +395,60 @@ def test_compare_can_be_limited_to_listed_runs(site, page):
     page.goto(f"{site}compare.html?p=demo&r={MEDIUM_ID},{HIGH_ID}")
     page.wait_for_selector(".compare-col")
     assert page.locator(".compare-col").count() == 2
+    assert_no_errors(page)
+
+
+# ---------------------------------------------------------------- media pages (kind "media")
+def test_media_page_shows_gallery_and_expands_outputs(site, page):
+    page.goto(f"{site}page.html?p=art")
+    page.wait_for_selector("#gallery .card")
+    cards = page.locator("#gallery .card")
+    assert cards.count() == 2
+    high = cards.filter(has_text="high")
+    assert "3 files" in high.inner_text()
+    assert high.locator("img.thumb").get_attribute("src").endswith("/media/circle.svg")
+    assert "no output" in cards.filter(has_text="low").inner_text()
+
+    rows = page.locator("tr.run-row")
+    rows.filter(has=page.locator("td", has_text="high")).first.locator("td").nth(3).click()
+    detail = page.locator("tr.run-detail")
+    assert detail.locator(".media-item").count() == 3
+    assert detail.locator("video").count() == 1 and detail.locator("iframe").count() == 0
+    assert_no_errors(page)
+
+
+def test_media_run_output_tab_shows_images_and_video(site, page):
+    page.goto(f"{site}run.html?p=art&r={ART_HIGH_ID}")
+    page.wait_for_selector(".media-grid")
+    assert page.locator('#tabs button[data-tab="game"]').inner_text() == "Output"
+    imgs = page.locator(".media-grid img")
+    assert imgs.count() == 2
+    page.wait_for_function("[...document.querySelectorAll('.media-grid img')].every(i => i.complete && i.naturalWidth > 0)")
+    video = page.locator(".media-grid video")
+    assert video.get_attribute("poster").endswith("/media/clip.poster.jpg")
+    assert video.get_attribute("autoplay") is None and video.evaluate("v => v.paused")
+    # the SVG is only ever an <img>: its embedded <script> must not have run, and there's no
+    # inline <svg> or <object>/<embed>/<iframe> carrying model output
+    assert page.evaluate("window.svgRan") is None
+    assert page.locator("#panel-game svg, #panel-game object, #panel-game embed, #panel-game iframe").count() == 0
+    svg_link = page.locator(".media-grid a", has_text="download").first
+    assert svg_link.get_attribute("download") == "circle.svg"
+    assert "1.0s" in page.locator(".media-grid").inner_text()
+    assert_no_errors(page)
+
+
+def test_media_run_without_output_says_so(site, page):
+    page.goto(f"{site}run.html?p=art&r=model-x-low-20260102-000000")
+    page.wait_for_selector("#panel-game .msg")
+    assert "No output files" in page.locator("#panel-game").inner_text()
+    assert "no files in ./output/" in page.locator(".run-error").inner_text()
+
+
+def test_media_compare_shows_outputs_and_no_play_all(site, page):
+    page.goto(f"{site}compare.html?p=art")
+    page.wait_for_selector(".compare-col")
+    assert page.locator(".compare-col").count() == 2
+    assert page.locator(".compare-col .media-item").count() == 3
+    assert page.locator(".compare-col", has_text="No output files recorded").count() == 1
+    assert not page.locator("#play-all").is_visible()
     assert_no_errors(page)

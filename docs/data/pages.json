@@ -2,6 +2,7 @@
   {
     "slug": "crete-a-voxel-character-running-around",
     "title": "Crete a voxel character running around",
+    "kind": "godot",
     "n_runs": 11,
     "models": [
       "meta/muse-spark-1.3-contributor",
@@ -14,6 +15,7 @@
   {
     "slug": "voxel-horse",
     "title": "Voxel horse",
+    "kind": "godot",
     "n_runs": 3,
     "models": [
       "openai-codex/gpt-6-sol"

@@ -1,5 +1,16 @@
 [
   {
+    "slug": "art",
+    "title": "Art",
+    "kind": "media",
+    "n_runs": 2,
+    "models": [
+      "test-org/model-x"
+    ],
+    "updated": "2026-01-02T00:01:01Z",
+    "thumb": "data/art/runs/model-x-high-20260102-000000/media/circle.svg"
+  },
+  {
     "slug": "demo",
     "title": "Demo",
     "n_runs": 3,
@@ -7,6 +18,7 @@
       "test-org/model-x"
     ],
     "updated": "2026-01-01T00:10:00Z",
-    "thumb": "data/demo/runs/model-x-high-20260101-001000/thumb.png"
+    "thumb": "data/demo/runs/model-x-high-20260101-001000/thumb.png",
+    "kind": "godot"
   }
 ]

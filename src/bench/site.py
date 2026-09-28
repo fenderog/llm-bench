@@ -54,6 +54,7 @@ def rebuild(root):
         page = {
             "slug": slug,
             "title": existing.get("title") or title_from_slug(slug),
+            "kind": existing.get("kind", "godot"),
             "prompt": existing.get("prompt", ""),
             "final_prompt": existing.get("final_prompt"),
             "created": existing.get("created") or min(r["started_at"] for r in runs),
@@ -66,10 +67,11 @@ def rebuild(root):
             {
                 "slug": slug,
                 "title": page["title"],
+                "kind": page["kind"],
                 "n_runs": len(runs),
                 "models": sorted({r["model"] for r in runs}),
                 "updated": page["updated"],
-                "thumb": f"data/{slug}/runs/{thumb_run['id']}/thumb.png" if thumb_run else None,
+                "thumb": f"data/{slug}/runs/{thumb_run['id']}/{thumb_run['thumb']}" if thumb_run else None,
             }
         )
 

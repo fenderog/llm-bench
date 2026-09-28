@@ -1,4 +1,4 @@
-import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge } from "./common.js";
+import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge, mediaGallery } from "./common.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
@@ -11,7 +11,7 @@ const COLUMNS = [
   { key: "harness", label: "Harness", get: (r) => harnessLabel(r), num: false,
     help: "The agent program that ran the model and executed its tool calls (e.g. pi), with its version." },
   { key: "verified", label: "Verified", get: (r) => r.verified, num: false,
-    help: "Whether the exported web build booted in headless Chrome: a WebGL canvas rendered, two screenshots differed (it animates), and no console or page errors. – means no check was recorded." },
+    help: "Game pages: whether the exported web build booted in headless Chrome (a WebGL canvas rendered, two screenshots differed, no page errors). Media pages: whether every output file was a readable image or video within the limits. – means no check was recorded." },
   { key: "duration_ms", label: "Duration", get: (r) => r.metrics.duration_ms, num: true, fmt: fmtDuration,
     help: "Wall-clock time of the agent session, from start to finish." },
   { key: "tokens_total", label: "Tokens", get: (r) => r.metrics.tokens_total, num: true, fmt: fmtNum,
@@ -55,6 +55,8 @@ function render(page, runs) {
   }
 
   document.getElementById("compare-all").href = `compare.html?p=${encodeURIComponent(slug)}`;
+  const isMedia = page.kind === "media";
+  if (isMedia) renderGallery(runs);
 
   let sortKey = "duration_ms";
   let sortDir = 1;
@@ -63,8 +65,8 @@ function render(page, runs) {
   const tbody = table.querySelector("tbody");
 
   const headRow = el("tr", {}, [
-    el("th", { attrs: { "data-help": "Click a row to expand it and play that run's game inline." } }),
-    el("th", { attrs: { "data-help": "Screenshot of the running game taken during verification. Click to open the run." } }),
+    el("th", { attrs: { "data-help": isMedia ? "Click a row to expand it and see that run's output files." : "Click a row to expand it and play that run's game inline." } }),
+    el("th", { attrs: { "data-help": isMedia ? "The run's first output (a video shows its poster frame). Click to open the run." : "Screenshot of the running game taken during verification. Click to open the run." } }),
     ...COLUMNS.map((c) =>
       el("th", { text: c.label, class: "has-help", attrs: { "data-key": c.key, "data-help": `${c.help}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
     ),
@@ -153,16 +155,44 @@ function render(page, runs) {
     ]);
     const errorLine = r.error ? [el("p", { class: "run-error", text: r.error })] : [];
     let body;
-    if (r.game) {
+    if (r.media) {
+      body = [...errorLine, mediaGallery(r, runDir(slug, r.id)), links];
+    } else if (r.game) {
       const entry = runDir(slug, r.id) + r.game.entry;
       links.append(" · ", el("a", { text: "Open full screen ↗ (unsandboxed)", attrs: { href: entry, target: "_blank", rel: "noopener noreferrer" } }));
       body = [...errorLine, el("div", { class: "game-frame" }, [sandboxedGame(entry)]), links];
     } else {
-      body = [...errorLine, el("p", { class: "muted", text: "No playable build recorded for this run." }), links];
+      const none = isMedia ? "No output files recorded for this run." : "No playable build recorded for this run.";
+      body = [...errorLine, el("p", { class: "muted", text: none }), links];
     }
     return el("tr", { class: "run-detail" }, [el("td", { attrs: { colspan: String(COLUMNS.length + 2) } }, body)]);
   }
   drawTable();
+}
+
+// Media pages: one card per run (its first output, or poster frame), linking to the run page.
+function renderGallery(runs) {
+  const grid = el("div", { class: "card-grid gallery", attrs: { id: "gallery" } });
+  for (const r of runs) {
+    const runUrl = `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}`;
+    const n = (r.media || []).length;
+    const sb = stateBadge(r);
+    const thumb = r.thumb
+      ? el("img", { class: "thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })
+      : el("div", { class: "thumb-ph", text: "no output" });
+    grid.append(
+      el("a", { class: "card", attrs: { href: runUrl } }, [
+        thumb,
+        el("div", { class: "card-body" }, [
+          el("div", { class: "card-title" }, [`${r.model} · ${r.effort}`, ...(sb ? [" ", sb] : [])]),
+          el("div", { class: "card-meta", text: `${fmtCost(r.metrics.cost_usd)} · ${fmtDuration(r.metrics.duration_ms)}` }),
+          n > 1 ? el("div", { class: "card-more", text: `${n} files` }) : null,
+        ]),
+      ])
+    );
+  }
+  const runsHeading = [...document.querySelectorAll("h2")].find((h) => h.textContent === "Runs");
+  runsHeading.before(el("h2", { text: "Gallery" }), grid);
 }
 
 // Column help as a custom tooltip: native title tooltips can't be shown sooner than ~1-2s.

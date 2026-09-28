@@ -36,6 +36,9 @@ SOURCE_SKIP = {
 }
 
 FALLBACK_HARNESS = {"name": "pi", "version": None}
+# A media run's source is the code that made the files: text only (rendered frames and the like are
+# skipped), each file at most this big. ./output/ itself is published as `media`, not as source.
+MEDIA_SOURCE_MAX_BYTES = 512 * 1024
 
 
 def load_rewrites(root):
@@ -103,7 +106,15 @@ def stage_session(level_dir, run_dir, rewrites, redact, batch):
     return session or None
 
 
-def stage_source(level_dir, run_dir, rewrites, redact, batch):
+def _is_text(path):
+    try:
+        path.read_text(encoding="utf-8")
+        return True
+    except UnicodeDecodeError:
+        return False
+
+
+def stage_source(level_dir, run_dir, rewrites, redact, batch, kind="godot"):
     if not level_dir.is_dir():
         return None
     files = []
@@ -113,12 +124,35 @@ def stage_source(level_dir, run_dir, rewrites, redact, batch):
         rel = src.relative_to(level_dir)
         if rel.parts[0] in SOURCE_SKIP or src.name in SOURCE_SKIP:
             continue
+        if kind == "media" and (rel.parts[0] == "output" or src.stat().st_size > MEDIA_SOURCE_MAX_BYTES or not _is_text(src)):
+            continue
         write_cleaned(src, run_dir / "source" / rel, "text", rewrites, redact, batch)
         files.append(rel.as_posix())
     return {"root": "source/", "files": sorted(files)} if files else None
 
 
-def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info):
+def stage_media(media_dir, run_dir, rewrites, redact, batch):
+    """media/<level>/ (written by media.finalize) -> runs/<id>/media/. SVGs are text written by the
+    model, so they're cleaned and secret-scanned like source. Returns (items, thumb, verified)."""
+    manifest = json.loads((media_dir / "manifest.json").read_text())
+    items = []
+    for item in manifest["items"]:
+        out = {k: v for k, v in item.items() if k not in ("file", "poster")}
+        out["path"] = f"media/{item['file']}"
+        if item["file"].lower().endswith(".svg"):
+            write_cleaned(media_dir / item["file"], run_dir / out["path"], "text", rewrites, redact, batch)
+        else:
+            (run_dir / "media").mkdir(parents=True, exist_ok=True)
+            shutil.copy(media_dir / item["file"], run_dir / out["path"])
+        if item.get("poster"):
+            out["poster"] = f"media/{item['poster']}"
+            shutil.copy(media_dir / item["poster"], run_dir / out["poster"])
+        items.append(out)
+    thumb = next((i.get("poster") or i["path"] for i in items if i["type"] == "image" or i.get("poster")), None)
+    return items or None, thumb, manifest["ok"]
+
+
+def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info, kind):
     run_id = make_run_id(run_data["model"], level, effort_dir.name)
     run_dir = tmp_root / run_id
     run_dir.mkdir(parents=True)
@@ -126,9 +160,12 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
 
     level_dir = effort_dir / level
     wasm_dir = effort_dir / "wasm" / level
+    media_dir = effort_dir / "media" / level
 
-    game = engine_sha = engine_files = thumb = verified = None
-    if wasm_dir.is_dir():
+    game = engine_sha = engine_files = thumb = verified = media_items = None
+    if (media_dir / "manifest.json").is_file():
+        media_items, thumb, verified = stage_media(media_dir, run_dir, rewrites, redact, batch)
+    elif wasm_dir.is_dir():
         game, engine_sha, engine_files = godot.stage_game(
             wasm_dir, run_dir / "game", docs_root, slug, run_id, allow_threads, known_engines
         )
@@ -136,7 +173,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
         verified = godot.read_verified(wasm_dir)
 
     session = stage_session(level_dir, run_dir, rewrites, redact, batch)
-    source = stage_source(level_dir, run_dir, rewrites, redact, batch)
+    source = stage_source(level_dir, run_dir, rewrites, redact, batch, kind)
 
     tokens = run_data.get("tokens", {})
     run_json = {
@@ -144,6 +181,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
         "page": slug,
         "model": run_data["model"],
         "effort": level,
+        "kind": kind,
         "started_at": iso_from_ms(run_data["startedAt"]),
         "source_dir": effort_dir.name,
         "verified": verified,
@@ -163,6 +201,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
         },
         "thumb": thumb,
         "game": game,
+        "media": media_items,
         "session": session,
         "source": source,
     }
@@ -190,10 +229,15 @@ def cmd_import(root, effort_dir, page=None, title=None, redact=False, allow_thre
         raise BenchError(f"missing data.json: {effort_dir}")
     data = json.loads(data_path.read_text())
     harness_info = data.get("harness") or FALLBACK_HARNESS
+    kind = data.get("kind", "godot")
 
     _, _, folder_slug = parse_folder(effort_dir.name)
     slug = page or folder_slug
     docs_root = root / "docs"
+    page_path = docs_root / "data" / slug / "page.json"
+    page_kind = json.loads(page_path.read_text()).get("kind", "godot") if page_path.is_file() else kind
+    if page_kind != kind:
+        raise BenchError(f"page {slug!r} holds {page_kind} runs, this folder has {kind} runs; use another --page")
     (docs_root / "data").mkdir(parents=True, exist_ok=True)
     (docs_root / "engines").mkdir(parents=True, exist_ok=True)
     rewrites = load_rewrites(root)
@@ -208,7 +252,7 @@ def cmd_import(root, effort_dir, page=None, title=None, redact=False, allow_thre
         results = []
         known_engines = set()
         for level, run_data in data.get("runs", {}).items():
-            r = stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info)
+            r = stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info, kind)
             if r.engine_files is not None:
                 known_engines.add(r.engine_sha)
             results.append(r)
@@ -249,8 +293,8 @@ def cmd_import(root, effort_dir, page=None, title=None, redact=False, allow_thre
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(r.run_dir), str(target))
 
-        page_path = docs_root / "data" / slug / "page.json"
         page_json = json.loads(page_path.read_text()) if page_path.is_file() else {"slug": slug}
+        page_json["kind"] = kind
         if title:
             page_json["title"] = title
         if prompt:

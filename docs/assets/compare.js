@@ -1,4 +1,4 @@
-import { qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge } from "./common.js";
+import { qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery } from "./common.js";
 
 // compare.html?p=<slug> shows every run of the page; &r=<id>,<id> limits it to those runs.
 const slug = qs("p");
@@ -33,6 +33,7 @@ if (!slug) {
 // has its own opaque origin, so each downloads and runs its own copy of the engine.
 function setupPlayAll() {
   const btn = document.getElementById("play-all");
+  btn.hidden = !columnsEl.querySelector(".game-frame"); // media pages have nothing to play
   const update = () => (btn.disabled = !columnsEl.querySelector("[data-play]"));
   btn.addEventListener("click", () => {
     for (const overlay of columnsEl.querySelectorAll("[data-play]")) overlay.click();
@@ -53,6 +54,8 @@ function column(r) {
     el("div", { class: "muted compare-metrics", text: `${harnessLabel(r)} · ${fmtDuration(m.duration_ms)} · ${fmtNum(m.tokens_total)} tokens · ${fmtCost(m.cost_usd)}` }),
   ];
   if (r.error) parts.push(el("p", { class: "run-error", text: r.error }));
-  parts.push(r.game ? buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null) : el("p", { class: "muted", text: "No game recorded." }));
+  if (r.media) parts.push(mediaGallery(r, base));
+  else if (r.game) parts.push(buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null));
+  else parts.push(el("p", { class: "muted", text: r.kind === "media" ? "No output files recorded." : "No game recorded." }));
   return el("div", { class: "compare-col" }, parts);
 }

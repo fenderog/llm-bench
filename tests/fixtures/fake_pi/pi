@@ -11,8 +11,14 @@ Behavior knobs (env vars), read at `-p` run time:
   FAKE_PI_EXIT_CODE=N   exit N immediately, writing nothing (simulates a crashed harness)
   FAKE_PI_HANG=1        sleep "forever" (simulates a hung agent; the caller must kill it)
   FAKE_PI_ERROR_STOP=1  write a session whose last assistant message has stopReason "error"
+  FAKE_PI_BAD_OUTPUT=1  (media briefs) also put an unsupported file in ./output/
+
+A media brief (one mentioning ./output/) gets ./output/ with an SVG, a PNG and a 2s mp4 (made with
+ffmpeg), plus a make.py and a leftover binary frame instead of a Godot project.
 """
+import base64
 import json
+import subprocess
 import os
 import sys
 import time
@@ -20,6 +26,10 @@ import uuid
 from pathlib import Path
 
 VERSION = "0.1.0-fake"
+# A valid 1x1 PNG.
+PNG_1X1 = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+)
 
 # model -> supported thinking levels, in LEVEL_ORDER. Anything else defaults to the full set.
 MODEL_LEVELS = {
@@ -89,13 +99,16 @@ def cmd_run():
         print("fake pi: forced failure", file=sys.stderr)
         sys.exit(int(exit_code))
 
-    # A tiny fake Godot project, just enough for the import step to find "source" files.
-    Path("project.godot").write_text("config_version=5\n")
-    Path("README.md").write_text(f"# fake project\nBuilt for: {brief[:40]}\n")
-    Path("scenes").mkdir(exist_ok=True)
-    Path("scripts").mkdir(exist_ok=True)
-    (Path("scenes") / "main.tscn").write_text("[gd_scene load_steps=1 format=3]\n")
-    (Path("scripts") / "main.gd").write_text("extends Node\nfunc _ready():\n\tpass\n")
+    if "./output/" in brief:
+        write_media()
+    else:
+        # A tiny fake Godot project, just enough for the import step to find "source" files.
+        Path("project.godot").write_text("config_version=5\n")
+        Path("README.md").write_text(f"# fake project\nBuilt for: {brief[:40]}\n")
+        Path("scenes").mkdir(exist_ok=True)
+        Path("scripts").mkdir(exist_ok=True)
+        (Path("scenes") / "main.tscn").write_text("[gd_scene load_steps=1 format=3]\n")
+        (Path("scripts") / "main.gd").write_text("extends Node\nfunc _ready():\n\tpass\n")
 
     session_dir.mkdir(parents=True, exist_ok=True)
     session_id = str(uuid.uuid4())
@@ -137,6 +150,23 @@ def cmd_run():
         emit({"type": "message_end"})
     emit({"type": "agent_end"})
     emit({"type": "agent_settled"})
+
+
+def write_media():
+    out = Path("output")
+    out.mkdir(exist_ok=True)
+    (out / "drawing.svg").write_text(
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80"><!-- drawn in {os.getcwd()} -->'
+        '<circle cx="60" cy="40" r="30" fill="tomato"/></svg>'
+    )
+    (out / "dot.png").write_bytes(PNG_1X1)
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=160x120:rate=10", "-t", "2",
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", str(out / "clip.mp4")], check=True)
+    if os.environ.get("FAKE_PI_BAD_OUTPUT"):
+        (out / "notes.txt").write_text("not media")
+    Path("make.py").write_text("print('made the files')\n")
+    Path("frames").mkdir(exist_ok=True)
+    (Path("frames") / "f001.png").write_bytes(PNG_1X1)  # a leftover binary: never published as source
 
 
 def main():

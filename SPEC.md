@@ -13,6 +13,8 @@ tomllib, http.server, subprocess). The site is vanilla JS ES modules, with one o
 - **Page**: one prompt or task, such as `voxel-horse`.
 - **Run**: one model × effort level attempt at a page's task. One `bench import` of an effort-run folder
   adds one run per effort level (usually low, medium, high).
+- **Kind**: what a page's runs produce. `godot` = a Godot project, published as a playable web build;
+  `media` = image and/or video files. Every run of a page has the page's kind.
 
 ## Site layout (the data contract between the CLI and the viewer)
 
@@ -34,8 +36,9 @@ docs/
     <slug>/results.json           # [Run], every run.json of the page concatenated, sorted by started_at then effort order
     <slug>/runs/<run_id>/
       run.json                    # Run
-      thumb.png                   # optional
-      game/index.html, index.pck, index.png, index.icon.png, index.apple-touch-icon.png
+      thumb.png                   # optional (godot)
+      game/index.html, index.pck, index.png, index.icon.png, index.apple-touch-icon.png   # godot
+      media/<file>, media/<name>.poster.jpg                                              # media
       session/conversation.json   # cleaned (see Cleaning)
       session/events.jsonl        # cleaned
       session/status.json         # cleaned
@@ -47,15 +50,15 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 
 ### PageSummary (element of `data/pages.json`)
 ```json
-{ "slug": "voxel-horse", "title": "Voxel horse", "n_runs": 3,
+{ "slug": "voxel-horse", "title": "Voxel horse", "kind": "godot", "n_runs": 3,
   "models": ["openai-codex/gpt-6-sol"], "updated": "2026-09-26T07:15:57Z",
   "thumb": "data/voxel-horse/runs/gpt-6-sol-high-20260926-001158/thumb.png" }
 ```
-`thumb` is taken from the most recent run that has one, or `null`.
+`thumb` is taken from the most recent run that has one (its run's `thumb` path), or `null`.
 
 ### Page (`data/<slug>/page.json`)
 ```json
-{ "slug": "voxel-horse", "title": "Voxel horse",
+{ "slug": "voxel-horse", "title": "Voxel horse", "kind": "godot",
   "prompt": "<contents of prompt.md, the originating prompt; refreshed on every import>",
   "final_prompt": "<the full brief each run received: first user message of the cleaned session, ./<level>/ -> ./<effort>/; null if none>",
   "created": "2026-09-26T07:12:42Z", "updated": "2026-09-26T07:15:57Z" }
@@ -68,6 +71,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   "page": "voxel-horse",
   "model": "openai-codex/gpt-6-sol",
   "effort": "high",
+  "kind": "godot",
   "started_at": "2026-09-26T07:12:42Z",
   "source_dir": "2026-09-26-001158-gpt6sol-voxel-horse",
   "verified": true,
@@ -82,12 +86,22 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   "thumb": "thumb.png",
   "game": { "kind": "godot", "entry": "game/index.html", "engine": "41560f8755ed",
             "godot": "4.7.2.stable.official.ed1daf0bf", "threads": false },
+  "media": null,
   "session": { "conversation": "session/conversation.json", "events": "session/events.jsonl",
                "status": "session/status.json", "output": "session/output.md" },
   "source": { "root": "source/", "files": ["README.md", "project.godot", "scenes/main.tscn", "scripts/main.gd"] }
 }
 ```
-- `game`, `session`, `source`, and `thumb` can each be `null` when the input doesn't have them.
+- `game`, `media`, `session`, `source`, and `thumb` can each be `null` when the input doesn't have them.
+- `kind` = the model dir's `data.json` → `kind`, default `godot` (runs imported before kinds existed have no
+  `kind`; the viewer treats that as `godot`). Importing into a page of another kind is an error.
+- `media` (kind `media`) = the items of `media/<level>/manifest.json` (see "bench run" step 6), each
+  `{type: "image"|"video", path: "media/<file>", width, height, bytes}` plus, for a video,
+  `duration_s, poster: "media/<name>.poster.jpg", transcoded` and `trimmed: true` when it was cut to 10 s.
+  Width/height can be `null` for an SVG without a size. `thumb` = the first image's path or the first
+  video's poster. `verified` = the manifest's `ok`. SVGs are model-written text, so they are cleaned and
+  secret-scanned like source files. The run's `source` holds only text files of at most 512 KB, and never
+  `output/`.
 - `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS from the folder name>`.
 - `verified` = `wasm/<level>/verification/verify-report.json` → `.ok`, or `null` if that file is missing.
 - `harness` = `data.json` → `harness`; for an old `fe-model-effort-fanout/1` folder without it, `{"name": "pi", "version": null}`.
@@ -177,6 +191,7 @@ only `pi` for now), exports + verifies each Godot project, then imports everythi
 
 ```
 bench run PROMPT | --prompt-file FILE
+    --kind godot|media  what the agents produce (default godot); must match an existing page's kind
     -m MODEL[:LEVELS]   repeatable. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
                         | "all" (every supported level except off) | explicit "off". No suffix = "all".
     -e LEVELS           default LEVELS for every -m without a suffix
@@ -199,6 +214,7 @@ supported levels (pi silently clamps unsupported levels, so this check is what k
 dir = "~/dev/bench-runs"   # where batch folders go (never inside ~/dev/effort-runs)
 parallel = 8
 timeout = "30m"
+tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", "ffprobe"]   # listed in the brief
 ```
 
 ### Flow
@@ -208,7 +224,9 @@ timeout = "30m"
    **model dir** per model named `<YYYY-MM-DD-HHMMSS>-<modeltag>-<page slug>` (modeltag = model id after the last "/",
    lowercased, non-alphanumerics removed: `gpt6sol`). Each model dir has exactly the effort-run-folder layout that
    `bench import` reads (its own copy of `prompt.md`, `data.json`, `<level>/`, `wasm/<level>/`), so import needs no special case.
-3. **Brief**: `src/bench/briefs/godot.md` with `{prompt}` replaced by the prompt verbatim. The same text for every run.
+3. **Brief**: `src/bench/briefs/<kind>.md` with `{prompt}` replaced by the prompt verbatim and `{tools}` by the
+   installed tools from `[run].tools` (each `"name note"`, e.g. `"python3 (standard library only)"`, listed as
+   `name version note`; tools not on PATH are left out with a note). The same text for every run.
    Saved as `.harness/<level>/brief.md`, never in the agent's working dir.
 4. **Agents** (threads + subprocess, at most `-j` at once). Working dir = `<model dir>/<level>/` (empty at start).
    Harness scratch = `<model dir>/.harness/<level>/` (session dir, `events.jsonl`, `stderr.txt`), kept outside the
@@ -220,7 +238,18 @@ timeout = "30m"
    below). The model dir's `data.json` = `{"schema": "bench-run/1", "harness": {...}, "runs": {"<level>": entry}}`,
    rewritten after every run finishes. Entry: `model, thinkingLevel, startedAt, endedAt, durationMs, costUsd,
    toolCalls, turns, tokens: {input, output, total, reasoning, cacheRead, cacheWrite}, state, error`.
-6. **Export** (only when state is `complete`; one export at a time, other agents keep running): write
+6. **Media** (kind `media`, only when state is `complete`, when `media/<level>/manifest.json` is missing):
+   check every file in `<level>/output/` (sorted, flattened as `a-b.png` for `a/b.png`, at most 8) into
+   `media/<level>/`. Images (`.png .jpg .jpeg .webp .gif`) must be readable by ffprobe; one over 2 MB is
+   re-encoded as JPEG (a GIF isn't). SVGs must parse as XML with an `<svg>` root (size from width/height or
+   viewBox) and be ≤ 2 MB. Videos (`.mp4 .webm .mov`) must have a duration; one that isn't H.264/yuv420p mp4,
+   is over 10 s or over 2 MB is re-encoded (`libx264`, `-t 10`, max 1280 wide, CRF 26 → 32 → 38 until it fits).
+   Each video gets a `.poster.jpg` at 30% of its length. Unsupported types, unreadable files and name clashes
+   are errors. `manifest.json` = `{ok, items, errors}` with `ok` = at least one item and no errors. Errors
+   keep the state and set `error` (joined with `; `, the first 200 characters). ffmpeg and ffprobe must be
+   on PATH before a media batch starts.
+
+   **Export** (kind `godot`, only when state is `complete`; one export at a time, other agents keep running): write
    `export_presets.cfg` (preset "Web", nothreads, `exclude_filter` listing the session files), run
    `godot --headless --path <level> --export-release Web <abs wasm/<level>>/index.html`, then check `index.html`,
    `index.js`, `index.wasm`, `index.pck` exist and are non-empty (Godot can exit 0 after failing). Write
@@ -235,7 +264,7 @@ timeout = "30m"
 
 Progress: on a tty a table (model, effort, state, elapsed, turns, tokens, cost) redrawn every 2s, read from each
 session file as it grows; otherwise one line per state change. States: queued, running, exporting, verifying,
-done, failed, timeout.
+processing (media), done, failed, timeout.
 
 ### Metrics (from the session log, the same numbers pi-subagents reported)
 Over assistant messages: `turns` = count; `toolCalls` = number of `toolCall` content blocks; `tokens.input/output/
@@ -265,17 +294,19 @@ Future harnesses and a VM runner plug in here and at "start one agent" in `runne
 Kills every running agent's process group, marks those runs `queued` in batch.json, prints the `--resume` command, exits 130.
 
 ### Resume
-`batch.json` = `{prompt, page, title, harness, brief, created, runs: [{model, level, model_dir, state}]}`, updated on
+`batch.json` = `{prompt, kind, page, title, harness, brief, created, runs: [{model, level, model_dir, state}]}`, updated on
 every state change. `--resume DIR` reads it and, per run: `queued`/`running` → start the agent again (clear its level
 dir first); a finished agent is never rerun. Then export where `wasm/<level>` is missing, verify where
-`verify-report.json` is missing, and import. Failed and timed-out runs stay as they are.
+`verify-report.json` is missing (media: process where `media/<level>/manifest.json` is missing), and import. Failed and timed-out runs stay as they are.
 
 ## Viewer (docs/)
 
 - **index.html**: cards per page (thumb, title, n_runs, models, updated) → page.html.
 - **page.html**: title, the Prompt (prompt.md) and a collapsed Final prompt, then a "Compare all" link → compare.html and
   a runs table (thumb, model, effort, harness, verified ✓/✗, duration, tokens total/output/reasoning, cost, tool calls, turns).
-  Harness shows "pi 0.87.1" (name only when version is null, "–" when missing). A run whose `state` isn't `complete`
+  Harness shows "pi 0.87.1" (name only when version is null, "–" when missing).
+  A `media` page also has a **Gallery** above the table: one card per run (its thumb, model · effort, cost,
+  duration, "N files" when more than one), linking to the run. Expanding a media row shows its outputs. A run whose `state` isn't `complete`
   shows a red `failed`/`timeout` badge in the Verified cell, and its expanded row shows `error`.
   The table is sortable, numeric columns show an inline CSS bar scaled to the column max, and every header has a help
   tooltip (shown after 0.5s). Clicking a row expands it and boots that run's game inline; clicking again removes it.
@@ -289,10 +320,15 @@ dir first); a finished agent is never rerun. Then export where `wasm/<level>` is
     `read`/`ls` → args + output. Output is collapsed past 20 lines, and `isError` gets a ✗ badge. Show `+m:ss` since
     session start and per-message token usage. Durations come from `events.jsonl` `tool_execution_start`/`_end`
     (matched by `toolCallId`) when present. Filter buttons: all / tool calls / errors.
+  - *Output* (instead of Game, for a `media` run): every item as a captioned figure (file name, size, duration,
+    bytes, a `download` link). Images, **SVGs included**, are only ever shown with `<img>` (which never runs an
+    SVG's scripts), never inlined or put in an object/embed/iframe, and never linked for viewing on this origin.
+    Videos use `<video controls preload="none">` with the poster, and never autoplay.
   - *Source*: a file list, and clicking a file shows it in a `<pre>`.
   - *Metrics*: all metrics as a table (including Harness, State and Error), plus links to download the raw session files.
 - **compare.html**: one column per run (all runs of the page by default). Each column has the run title, one line with
-  harness, duration, tokens and cost (plus the failed/timeout badge), and its game with click-to-play (each column boots independently, never automatically).
+  harness, duration, tokens and cost (plus the failed/timeout badge), and its game with click-to-play (each column boots independently, never automatically),
+  or for a `media` run its outputs stacked (the Play all button is hidden when there are no games).
 - Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/llm-bench/`),
   so use only relative URLs. It supports dark mode via `prefers-color-scheme`, has readable defaults, and has no frameworks.
 
@@ -303,13 +339,18 @@ dir first); a finished agent is never rerun. Then export where `wasm/<level>` is
   redaction, idempotency, rm, and rebuild.
 - Viewer: Playwright (Python, `channel="chrome"`, which uses the installed Google Chrome, so no browser download)
   against `bench serve` on a fixture site. It covers each page rendering without console errors, click-to-play inserting
-  a sandboxed iframe, the transcript's tool calls and error badges, and compare with 3 runs.
+  a sandboxed iframe, the transcript's tool calls and error badges, and compare with 3 runs. A `media` fixture page
+  (`art`: an SVG with an embedded script, a PNG and a 1 s mp4) covers the gallery, the Output tab (the SVG's script
+  never runs, videos don't autoplay), expanded rows and compare.
 - `bench run`: a fake `pi` (a Python script put first on PATH by the test) that answers `--version`, `--list-models`,
   the RPC levels request, and `-p` runs by writing a canned session file and a tiny project; env vars make it fail,
   hang, or exit non-zero. Covers level parsing (`all`, ranges, explicit lists, off excluded by default, unsupported
   level → error before anything starts), the plan/confirmation, `-j`, timeout, failed runs being imported, metrics
   against the real voxel-horse `high/session.jsonl` numbers (when present), and `--resume` not rerunning finished
-  agents. A slow test (skipped without `godot`) exports a tiny real project. No test calls a real model.
+  agents. For a media brief the fake pi writes `./output/` (SVG, PNG and an ffmpeg-made mp4) plus a script and a
+  leftover binary frame. `tests/test_media.py` checks the media step on ffmpeg-generated inputs (trim + re-encode,
+  oversized image → JPEG, bad files, empty output, too many files, name clashes); media tests are skipped without
+  ffmpeg. A slow test (skipped without `godot`) exports a tiny real project. No test calls a real model.
 - Integration (skipped when `~/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse` is missing): import the real run
   into a temp site, serve it, and check that all 3 Godot games boot inside the sandboxed iframe in compare. Headless Chrome
   needs `--enable-unsafe-swiftshader --use-angle=swiftshader` for WebGL. Godot removes `#status` from its document

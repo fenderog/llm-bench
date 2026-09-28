@@ -5,6 +5,7 @@ real model, Godot or Playwright is needed; Godot export/verify are monkeypatched
 
 import json
 import os
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -340,7 +341,14 @@ def test_ctrl_c_kills_the_agent_and_marks_it_queued_for_resume(run_root, monkeyp
     import threading
 
     monkeypatch.setenv("FAKE_PI_HANG", "1")
-    threading.Timer(0.3, lambda: os.kill(os.getpid(), signal.SIGINT)).start()
+
+    def interrupt_once_agent_started():  # Ctrl-C only after the fake pi is really running
+        deadline = time.time() + 10
+        while time.time() < deadline and not list(run_root.parent.glob("bench-runs/*-interrupt-me/*/low/fake_pi.pid")):
+            time.sleep(0.05)
+        os.kill(os.getpid(), signal.SIGINT)
+
+    threading.Thread(target=interrupt_once_agent_started, daemon=True).start()
 
     with pytest.raises(SystemExit) as exc_info:
         main(["run", "--yes", "interrupt me", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
@@ -393,3 +401,51 @@ def test_metrics_match_real_session_numbers():
         assert round(m["cost_usd"], 4) == round(cost, 4)
         assert m["tool_calls"] == tool_calls
         assert m["turns"] == turns
+
+
+# --- media kind ----------------------------------------------------------------------------------
+
+needs_ffmpeg = pytest.mark.skipif(not shutil.which("ffmpeg") or not shutil.which("ffprobe"), reason="needs ffmpeg")
+
+
+@needs_ffmpeg
+def test_media_run_publishes_output_files(run_root):
+    rc = main(["run", "--yes", "--kind", "media", "a red circle", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
+    assert rc == 0
+    page = json.loads((run_root / "docs/data/a-red-circle/page.json").read_text())
+    assert page["kind"] == "media"
+    assert "./output/" in page["final_prompt"] and "Tools available on this machine: " in page["final_prompt"]
+    [run] = json.loads((run_root / "docs/data/a-red-circle/results.json").read_text())
+    assert run["kind"] == "media" and run["game"] is None
+    assert run["verified"] is True and run["error"] is None
+    by_path = {m["path"]: m for m in run["media"]}
+    assert set(by_path) == {"media/clip.mp4", "media/dot.png", "media/drawing.svg"}
+    assert by_path["media/drawing.svg"]["width"] == 120
+    assert by_path["media/clip.mp4"]["poster"] == "media/clip.poster.jpg"
+    assert run["thumb"] == "media/clip.poster.jpg"  # first item, sorted by name
+    run_dir = run_root / "docs/data/a-red-circle/runs" / run["id"]
+    for rel in [*by_path, "media/clip.poster.jpg"]:
+        assert (run_dir / rel).is_file()
+    assert str(Path.home()) not in (run_dir / "media/drawing.svg").read_text()  # SVGs are cleaned
+    # Source is the text code only: no ./output/, no leftover binary frames.
+    assert run["source"]["files"] == ["make.py"]
+    pages = json.loads((run_root / "docs/data/pages.json").read_text())
+    assert pages[0]["kind"] == "media"
+    assert pages[0]["thumb"] == f"data/a-red-circle/runs/{run['id']}/media/clip.poster.jpg"
+
+
+@needs_ffmpeg
+def test_media_run_with_bad_output_keeps_state_and_sets_error(run_root, monkeypatch):
+    monkeypatch.setenv("FAKE_PI_BAD_OUTPUT", "1")
+    rc = main(["run", "--yes", "--kind", "media", "bad media", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
+    assert rc == 0
+    [run] = json.loads((run_root / "docs/data/bad-media/results.json").read_text())
+    assert run["state"] == "complete" and run["verified"] is False
+    assert "notes.txt: unsupported file type" in run["error"]
+    assert len(run["media"]) == 3  # the good files are still published
+
+
+def test_kind_must_match_the_existing_page(run_root):
+    assert main(["run", "--yes", "mixed page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
+    rc = main(["run", "--yes", "--kind", "media", "mixed page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
+    assert rc == 1

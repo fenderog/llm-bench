@@ -19,29 +19,60 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import build
+from . import build, media
 from .harness import Pi, parse_session
 from .importer import cmd_import
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError, title_from_slug
 
 # batch.json run states that mean "this agent hasn't produced a finished result yet".
 UNFINISHED = ("queued", "running")
+# What a run produces. godot: a project, exported + verified; media: image/video files in ./output/.
+KINDS = ("godot", "media")
+DEFAULT_TOOLS = ["python3", "node", "ffmpeg", "ffprobe"]
 
 
-def default_brief_text():
-    return importlib.resources.files("bench").joinpath("briefs/godot.md").read_text()
+def default_brief_text(kind="godot"):
+    return importlib.resources.files("bench").joinpath(f"briefs/{kind}.md").read_text()
 
 
 def load_run_config(root):
-    cfg = {"dir": Path.home() / "dev" / "bench-runs", "parallel": 8, "timeout": "30m"}
+    cfg = {"dir": Path.home() / "dev" / "bench-runs", "parallel": 8, "timeout": "30m", "tools": DEFAULT_TOOLS}
     cfg_path = root / "bench.toml"
     if cfg_path.is_file():
         run_cfg = tomllib.loads(cfg_path.read_text()).get("run", {})
         if "dir" in run_cfg:
             cfg["dir"] = Path(run_cfg["dir"]).expanduser()
-        cfg["parallel"] = run_cfg.get("parallel", cfg["parallel"])
-        cfg["timeout"] = run_cfg.get("timeout", cfg["timeout"])
+        for key in ("parallel", "timeout", "tools"):
+            cfg[key] = run_cfg.get(key, cfg[key])
     return cfg
+
+
+def tool_version(name):
+    """First version-looking token of `name --version` (or `-version`, for ffmpeg), or None."""
+    for flag in ("--version", "-version"):
+        try:
+            r = subprocess.run([name, flag], capture_output=True, text=True, timeout=10)
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        m = re.search(r"v?(\d+(?:\.\d+)+)", r.stdout + r.stderr) if r.returncode == 0 else None
+        if m:
+            return m.group(1)
+    return None
+
+
+def describe_tools(entries):
+    """bench.toml [run].tools entries ("python3 (standard library only)") -> the text listed in the
+    brief, e.g. "python3 3.14.7 (standard library only), ffmpeg 9.0.2". Tools not on PATH are left
+    out (with a note), so the brief never promises something the agent can't run."""
+    listed = []
+    for entry in entries:
+        name, _, note = entry.partition(" ")
+        if not shutil.which(name):
+            print(f"note: tool {name!r} from [run].tools is not on PATH; leaving it out of the brief")
+            continue
+        version = tool_version(name)
+        listed.append(" ".join(part for part in (name, version, note.strip()) if part))
+    return ", ".join(listed) or "none beyond the shell"
 
 
 def parse_duration(text):
@@ -127,9 +158,10 @@ def plan_runs(harness, model_specs, effort_default):
     return [(model, level) for model, levels in levels_by_model.items() for level in levels]
 
 
-def render_brief(brief_file, prompt):
-    template = Path(brief_file).read_text() if brief_file else default_brief_text()
-    return template.format(prompt=prompt)
+def render_brief(brief_file, prompt, kind="godot", tool_entries=()):
+    template = Path(brief_file).read_text() if brief_file else default_brief_text(kind)
+    tools = describe_tools(tool_entries) if "{tools}" in template else ""
+    return template.format(prompt=prompt, tools=tools)
 
 
 def last_line(path):
@@ -356,8 +388,8 @@ def _is_stream_update(line):
         return False
 
 
-def write_model_data_json(model_dir, harness, version, entries):
-    data = {"schema": "bench-run/1", "harness": {"name": harness.name, "version": version}, "runs": entries}
+def write_model_data_json(model_dir, harness, version, entries, kind):
+    data = {"schema": "bench-run/1", "kind": kind, "harness": {"name": harness.name, "version": version}, "runs": entries}
     (model_dir / "data.json").write_text(json.dumps(data, indent=2) + "\n")
 
 
@@ -388,6 +420,21 @@ def export_and_verify(run, entry, export_lock, godot_bin, do_verify, progress):
     progress.update(model, level, state="done")
 
 
+def finalize_media(run, entry, progress):
+    """Check and normalize <level>/output/ into media/<level>/ (if its manifest is missing). Like a
+    failed export, bad output keeps state "complete" and only sets entry["error"]."""
+    if entry["state"] != "complete":
+        return
+    model, level, model_dir = run["model"], run["level"], run["model_dir"]
+    out_dir = model_dir / "media" / level
+    if not (out_dir / "manifest.json").is_file():
+        progress.update(model, level, state="processing")
+        manifest = media.finalize(model_dir / level, out_dir)
+        if manifest["errors"]:
+            entry["error"] = "; ".join(manifest["errors"])[:200]
+    progress.update(model, level, state="done")
+
+
 def write_batch_json(batch_dir, batch):
     serializable = {**batch, "runs": [{**r, "model_dir": str(r["model_dir"])} for r in batch["runs"]]}
     (batch_dir / "batch.json").write_text(json.dumps(serializable, indent=2) + "\n")
@@ -398,6 +445,7 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
     """Run every unfinished agent, export+verify everything that needs it, then import.
     Drives both a fresh batch and a `--resume`d one (see module docstring)."""
     runs = batch["runs"]
+    kind = batch.get("kind", "godot")
     slug, title = batch["page"], batch["title"]
     title_is_explicit = batch.get("title_is_explicit", False)
     brief = batch["brief"]
@@ -426,7 +474,7 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
             if entry is None:
                 return  # Ctrl-C: left "running" here; the handler below resets it to "queued"
             entries_by_model[model_dir][run["level"]] = entry
-            write_model_data_json(model_dir, harness, version, entries_by_model[model_dir])
+            write_model_data_json(model_dir, harness, version, entries_by_model[model_dir], kind)
             run["state"] = entry["state"]
             save()
         else:
@@ -435,8 +483,11 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
                 return
         if interrupted.is_set():
             return
-        export_and_verify(run, entry, export_lock, godot_bin, verify, progress)
-        write_model_data_json(model_dir, harness, version, entries_by_model[model_dir])
+        if kind == "media":
+            finalize_media(run, entry, progress)
+        else:
+            export_and_verify(run, entry, export_lock, godot_bin, verify, progress)
+        write_model_data_json(model_dir, harness, version, entries_by_model[model_dir], kind)
         save()
 
     pool = ThreadPoolExecutor(max_workers=parallel)
@@ -469,7 +520,7 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
 def cmd_run(
     root, prompt=None, prompt_file=None, model_specs=(), effort=None, page=None, title=None,
     brief_file=None, parallel=None, timeout=None, yes=False, dry_run=False, publish=False,
-    resume=None, godot_bin="godot", verify=True,
+    resume=None, godot_bin="godot", verify=True, kind="godot",
 ):
     harness = Pi()
     cfg = load_run_config(root)
@@ -490,11 +541,20 @@ def cmd_run(
         raise BenchError("PROMPT or --prompt-file is required")
     if not model_specs:
         raise BenchError("at least one -m MODEL is required")
+    if kind not in KINDS:
+        raise BenchError(f"unknown kind {kind!r} (expected one of: {', '.join(KINDS)})")
+    if kind == "media":
+        missing = [t for t in ("ffmpeg", "ffprobe") if not shutil.which(t)]
+        if missing:
+            raise BenchError(f"--kind media needs {' and '.join(missing)} on PATH")
 
     plan = plan_runs(harness, model_specs, effort)
     slug = page or slug_from_prompt(prompt)
     page_json_path = root / "docs" / "data" / slug / "page.json"
     page_exists = page_json_path.is_file()
+    page_kind = json.loads(page_json_path.read_text()).get("kind", "godot") if page_exists else kind
+    if page_kind != kind:
+        raise BenchError(f"page {slug!r} holds {page_kind} runs; use --kind {page_kind} or another --page")
     title_is_explicit = bool(title)
     if not title:
         title = json.loads(page_json_path.read_text()).get("title") or title_from_slug(slug) if page_exists else title_from_slug(slug)
@@ -505,6 +565,7 @@ def cmd_run(
     batch_dir = cfg["dir"] / f"{ts}-{slug}"
 
     print(f"harness: {harness.name} {version}")
+    print(f"kind: {kind}")
     print(f"page: {slug} ({'existing' if page_exists else 'new'}, title: {title!r})")
     print(f"prompt: {prompt}")
     for i, (model, level) in enumerate(plan, 1):
@@ -524,7 +585,7 @@ def cmd_run(
 
     batch_dir.mkdir(parents=True)
     (batch_dir / "prompt.md").write_text(prompt)
-    brief = render_brief(brief_file, prompt)
+    brief = render_brief(brief_file, prompt, kind, cfg["tools"])
 
     model_dirs = {}
     for model, _ in plan:
@@ -535,7 +596,7 @@ def cmd_run(
 
     runs = [{"model": m, "level": l, "model_dir": model_dirs[m], "state": "queued"} for m, l in plan]
     batch = {
-        "prompt": prompt, "page": slug, "title": title, "title_is_explicit": title_is_explicit,
+        "prompt": prompt, "kind": kind, "page": slug, "title": title, "title_is_explicit": title_is_explicit,
         "harness": {"name": harness.name, "version": version}, "brief": brief,
         "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "runs": runs,

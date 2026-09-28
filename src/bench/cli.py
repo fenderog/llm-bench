@@ -47,6 +47,7 @@ def build_parser():
     run.add_argument("--prompt-file", type=Path)
     run.add_argument("-m", "--model", dest="models", action="append", default=[], help="MODEL[:LEVELS], repeatable")
     run.add_argument("-e", "--effort", help="default LEVELS for every -m without a suffix")
+    run.add_argument("--kind", choices=["godot", "media"], default="godot", help="what the agents produce (default: godot)")
     run.add_argument("--page", help="page slug (default: from the prompt)")
     run.add_argument("--title", help="page title (default: from slug)")
     run.add_argument("--brief", type=Path, help="brief template file ({prompt} is substituted)")
@@ -122,6 +123,7 @@ def main(argv=None):
                 dry_run=args.dry_run,
                 publish=args.publish,
                 resume=args.resume,
+                kind=args.kind,
             )
         if args.command == "models":
             return cmd_models(Pi(), args.search)

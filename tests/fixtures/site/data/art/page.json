@@ -1,0 +1,9 @@
+{
+  "slug": "art",
+  "title": "Art",
+  "kind": "media",
+  "prompt": "draw a red circle",
+  "final_prompt": null,
+  "created": "2026-01-02T00:00:00Z",
+  "updated": "2026-01-02T00:01:01Z"
+}

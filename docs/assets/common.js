@@ -168,3 +168,38 @@ export function buildGameFrame(entryUrl, thumbUrl) {
   frame.append(overlay);
   return frame;
 }
+
+function fmtBytes(n) {
+  if (n == null) return null;
+  return n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+// One media output (run.media item). Model-made SVGs may contain scripts, so every image,
+// SVG included, is shown through <img> (which never runs them) and never inlined or framed.
+// Videos never autoplay: like games, they start on an explicit click.
+export function mediaElement(item, base) {
+  if (item.type === "video") {
+    return el("video", {
+      attrs: { src: base + item.path, poster: item.poster ? base + item.poster : null, controls: "", preload: "none", playsinline: "", loop: "" },
+    });
+  }
+  return el("img", { attrs: { src: base + item.path, alt: "", loading: "lazy" } });
+}
+
+// A run's outputs as captioned figures (file name, size, duration) with download links.
+// Downloads use the `download` attribute so an SVG is saved, never opened as a page here.
+export function mediaGallery(run, base) {
+  const grid = el("div", { class: "media-grid" });
+  for (const item of run.media || []) {
+    const name = item.path.split("/").pop();
+    const dims = item.width && item.height ? `${item.width}×${item.height}` : null;
+    const dur = item.duration_s != null ? `${Number(item.duration_s).toFixed(1)}s` : null;
+    const caption = el("figcaption", {}, [
+      el("span", { text: [name, dims, dur, fmtBytes(item.bytes)].filter(Boolean).join(" · ") }),
+      " ",
+      el("a", { text: "download", attrs: { href: base + item.path, download: name } }),
+    ]);
+    grid.append(el("figure", { class: "media-item" }, [el("div", { class: "media-box" }, [mediaElement(item, base)]), caption]));
+  }
+  return grid;
+}
