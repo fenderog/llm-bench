@@ -326,7 +326,8 @@ dir first); a finished agent is never rerun. Then export where `wasm/<level>` is
     Videos use `<video controls preload="none">` with the poster, and never autoplay.
   - *Source*: a file list, and clicking a file shows it in a `<pre>`.
   - *Metrics*: all metrics as a table (including Harness, State and Error), plus links to download the raw session files.
-- **compare.html**: one column per run (all runs of the page by default). Each column has the run title, one line with
+- **compare.html**: one card per run (all runs of the page by default), laid out as a grid of ~380px columns that wraps
+  into rows (3 across at desktop width, 1 on phones, never sideways scrolling). Each card has the run title, one line with
   harness, duration, tokens and cost (plus the failed/timeout badge), and its game with click-to-play (each column boots independently, never automatically),
   or for a `media` run its outputs stacked (the Play all button is hidden when there are no games).
 - Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/llm-bench/`),

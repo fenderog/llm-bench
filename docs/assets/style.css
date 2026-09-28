@@ -247,8 +247,9 @@ table.metrics td:first-child { color: var(--muted); }
 .downloads { margin-top: 16px; display: flex; gap: 14px; flex-wrap: wrap; }
 
 /* ---- compare ---- */
-.compare-columns { display: flex; gap: 16px; overflow-x: auto; align-items: flex-start; }
-.compare-col { flex: 1 1 320px; min-width: 300px; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--card-bg); }
+/* A grid: as many ~380px columns as fit, wrapping into more rows (one column on phones). */
+.compare-columns { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 16px; align-items: start; }
+.compare-col { min-width: 0; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--card-bg); }
 .compare-col h3 { margin: 0 0 6px; font-size: 1rem; }
 .compare-metrics { font-size: 13px; margin-bottom: 10px; }
 
@@ -256,7 +257,6 @@ table.metrics td:first-child { color: var(--muted); }
   .container { padding: 0 12px 32px; }
   .run-header { flex-direction: column; gap: 4px; }
   .source-layout { flex-direction: column; }
-  .compare-col { min-width: 85vw; }
   table.runs th, table.runs td { padding: 6px; }
 }
 

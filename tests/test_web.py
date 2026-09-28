@@ -452,3 +452,20 @@ def test_media_compare_shows_outputs_and_no_play_all(site, page):
     assert page.locator(".compare-col", has_text="No output files recorded").count() == 1
     assert not page.locator("#play-all").is_visible()
     assert_no_errors(page)
+
+
+def test_compare_lays_runs_out_in_a_wrapping_grid(site, page):
+    page.set_viewport_size({"width": 1280, "height": 900})
+    page.goto(f"{site}compare.html?p=demo")
+    page.wait_for_selector(".compare-col")
+    boxes = [page.locator(".compare-col").nth(i).bounding_box() for i in range(3)]
+    assert len({round(b["y"]) for b in boxes}) == 1  # wide: 3 side by side, equal widths
+    assert len({round(b["width"]) for b in boxes}) == 1
+    page.set_viewport_size({"width": 900, "height": 900})
+    boxes = [page.locator(".compare-col").nth(i).bounding_box() for i in range(3)]
+    assert boxes[0]["y"] == boxes[1]["y"] < boxes[2]["y"]  # narrower: wraps into a second row
+    assert boxes[2]["x"] == boxes[0]["x"]
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")  # no sideways scrolling
+    page.set_viewport_size({"width": 390, "height": 900})
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    assert_no_errors(page)
