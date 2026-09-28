@@ -1,4 +1,4 @@
-import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, runDir, sandboxedGame } from "./common.js";
+import { qs, el, getJSON, fmtNum, fmtDuration, fmtCost, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge } from "./common.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
@@ -7,7 +7,9 @@ const COLUMNS = [
   { key: "model", label: "Model", get: (r) => r.model, num: false,
     help: "The model that ran the task (provider/model)." },
   { key: "effort", label: "Effort", get: (r) => r.effort, num: false,
-    help: "Reasoning effort the model was run at (low / medium / high). Higher effort lets it think longer before acting." },
+    help: "Reasoning effort the model was run at (low / medium / high). Higher effort lets it think longer before acting. Level names are the harness's; the same name can mean different budgets at different providers." },
+  { key: "harness", label: "Harness", get: (r) => harnessLabel(r), num: false,
+    help: "The agent program that ran the model and executed its tool calls (e.g. pi), with its version." },
   { key: "verified", label: "Verified", get: (r) => r.verified, num: false,
     help: "Whether the exported web build booted in headless Chrome: a WebGL canvas rendered, two screenshots differed (it animates), and no console or page errors. – means no check was recorded." },
   { key: "duration_ms", label: "Duration", get: (r) => r.metrics.duration_ms, num: true, fmt: fmtDuration,
@@ -108,7 +110,8 @@ function render(page, runs) {
         if (c.key === "model") {
           tds.push(el("td", {}, [el("a", { text: v, attrs: { href: runUrl } })]));
         } else if (c.key === "verified") {
-          tds.push(el("td", {}, [v === true ? badge("✓", "good") : v === false ? badge("✗", "bad") : el("span", { class: "muted", text: "–" })]));
+          const sb = stateBadge(r);
+          tds.push(el("td", {}, [sb || (v === true ? badge("✓", "good") : v === false ? badge("✗", "bad") : el("span", { class: "muted", text: "–" }))]));
         } else if (c.num) {
           const pct = Math.max(0, Math.min(100, ((v || 0) / maxes[c.key]) * 100));
           tds.push(
@@ -148,13 +151,14 @@ function render(page, runs) {
     const links = el("div", { class: "game-links" }, [
       el("a", { text: "Open run page →", attrs: { href: runUrl } }),
     ]);
+    const errorLine = r.error ? [el("p", { class: "run-error", text: r.error })] : [];
     let body;
     if (r.game) {
       const entry = runDir(slug, r.id) + r.game.entry;
       links.append(" · ", el("a", { text: "Open full screen ↗ (unsandboxed)", attrs: { href: entry, target: "_blank", rel: "noopener noreferrer" } }));
-      body = [el("div", { class: "game-frame" }, [sandboxedGame(entry)]), links];
+      body = [...errorLine, el("div", { class: "game-frame" }, [sandboxedGame(entry)]), links];
     } else {
-      body = [el("p", { class: "muted", text: "No playable build recorded for this run." }), links];
+      body = [...errorLine, el("p", { class: "muted", text: "No playable build recorded for this run." }), links];
     }
     return el("tr", { class: "run-detail" }, [el("td", { attrs: { colspan: String(COLUMNS.length + 2) } }, body)]);
   }
@@ -168,9 +172,10 @@ function addHelpTooltips(cells) {
   const tip = el("div", { class: "col-tip", attrs: { role: "tooltip", id: "col-tip" } });
   document.body.append(tip);
   let timer;
+  const hideVisible = () => tip.classList.remove("show"); // hide without cancelling a pending show
   const hide = () => {
     clearTimeout(timer);
-    tip.classList.remove("show");
+    hideVisible();
   };
   const show = (cell) => {
     tip.textContent = cell.dataset.help;
@@ -187,5 +192,8 @@ function addHelpTooltips(cells) {
     });
     cell.addEventListener("mouseleave", hide);
   }
-  addEventListener("scroll", hide, true);
+  // A page scroll (including the incidental one browsers fire while scrolling a
+  // hovered cell into view) should only dismiss an already-visible tip, not cancel
+  // a still-pending one — otherwise that show never happens while the mouse stays put.
+  addEventListener("scroll", hideVisible, true);
 }

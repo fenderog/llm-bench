@@ -129,6 +129,26 @@ def test_clicking_a_row_expands_the_game_inline(site, page):
     assert_no_errors(page)
 
 
+def test_page_harness_column_and_failed_badge(site, page):
+    page.goto(f"{site}page.html?p=demo")
+    page.wait_for_selector("table.runs tbody tr")
+    rows = page.locator("tr.run-row")
+    row = lambda effort: rows.filter(has=page.locator("td", has_text=effort)).first
+
+    high_text = row("high").inner_text()
+    assert "pi 0.87.1" in high_text
+
+    low = row("low")
+    assert "failed" in low.locator(".badge-bad").inner_text()
+
+    # expanding the failed row shows its error above the "No playable build" line
+    low.locator("td").nth(3).click()  # plain cell (effort), not a link/button
+    detail = page.locator("tr.run-detail")
+    assert "pi exited 1: rate limited" in detail.locator(".run-error").inner_text()
+    assert "No playable build" in detail.inner_text()
+    assert_no_errors(page)
+
+
 def test_page_shows_labeled_prompt(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("#prompt-box:not([hidden])")
@@ -147,8 +167,8 @@ def test_every_column_header_has_hover_help(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")
     headers = page.locator("table.runs thead th")
-    assert headers.count() == 12  # caret, thumb, 10 data columns
-    helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(12)}
+    assert headers.count() == 13  # caret, thumb, 11 data columns
+    helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(13)}
     assert all(t and len(t) > 20 for t in helps.values()), helps
     assert "reasoning" in helps["Reasoning tok"].lower()
     assert headers.nth(0).get_attribute("title") is None  # no slow native tooltip competing
@@ -295,6 +315,22 @@ def test_run_source_tab_shows_file_content(site, page):
     assert_no_errors(page)
 
 
+def test_run_shows_harness_and_failed_state(site, page):
+    page.goto(f"{site}run.html?p=demo&r={LOW_ID}")
+    page.wait_for_selector("#metric-strip")
+    strip_text = page.locator("#metric-strip").inner_text()
+    assert "pi 0.87.1" in strip_text
+    assert "failed" in page.locator("#metric-strip .badge-bad").inner_text()
+    assert "pi exited 1: rate limited" in page.locator(".run-error").inner_text()
+
+    page.locator('#tabs button[data-tab="metrics"]').click()
+    metrics_text = page.locator("#panel-metrics").inner_text()
+    assert "harness" in metrics_text.lower() and "pi 0.87.1" in metrics_text
+    assert "failed" in metrics_text
+    assert "pi exited 1: rate limited" in metrics_text
+    assert_no_errors(page)
+
+
 def test_run_invalid_run_id_shows_message(site, page):
     page.goto(f"{site}run.html?p=demo&r=does-not-exist")
     page.wait_for_selector(".msg-error")
@@ -321,6 +357,20 @@ def test_compare_shows_metrics_and_games_only(site, page):
     assert page.locator("iframe").count() == 1
     assert "allow-same-origin" not in page.locator("iframe").get_attribute("sandbox")
     assert page.locator(".compare-col", has_text="No game recorded").count() == 2
+    assert_no_errors(page)
+
+
+def test_compare_shows_harness_in_metrics_line(site, page):
+    page.goto(f"{site}compare.html?p=demo")
+    page.wait_for_selector(".compare-col")
+    cols = page.locator(".compare-col")
+    for i in range(3):
+        metrics = cols.nth(i).locator(".compare-metrics").inner_text()
+        assert metrics.startswith("pi")
+    # the failed run's column shows its badge next to the title and its error
+    low_col = cols.filter(has_text="low").first
+    assert "failed" in low_col.locator("h3 .badge-bad").inner_text()
+    assert "pi exited 1: rate limited" in low_col.locator(".run-error").inner_text()
     assert_no_errors(page)
 
 

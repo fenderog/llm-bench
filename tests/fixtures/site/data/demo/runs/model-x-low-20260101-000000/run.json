@@ -5,7 +5,10 @@
   "effort": "low",
   "started_at": "2026-01-01T00:00:00Z",
   "source_dir": "2026-01-01-low-modelx-demo",
-  "verified": false,
+  "verified": null,
+  "harness": { "name": "pi", "version": "0.87.1" },
+  "state": "failed",
+  "error": "pi exited 1: rate limited",
   "metrics": {
     "duration_ms": 4200,
     "cost_usd": 0.0021,

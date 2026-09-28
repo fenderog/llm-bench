@@ -1,4 +1,4 @@
-import { qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame } from "./common.js";
+import { qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge } from "./common.js";
 import { renderTranscript } from "./transcript.js";
 
 const slug = qs("p");
@@ -33,7 +33,9 @@ function render(run, base) {
   const m = run.metrics || {};
   const verifiedBadge =
     run.verified === true ? badge("✓ verified", "good") : run.verified === false ? badge("✗ not verified", "bad") : el("span", { class: "muted", text: "verified: –" });
+  const sb = stateBadge(run);
   strip.append(
+    metric("harness", harnessLabel(run)),
     verifiedBadge,
     metric("duration", fmtDuration(m.duration_ms)),
     metric("cost", fmtCost(m.cost_usd)),
@@ -41,6 +43,8 @@ function render(run, base) {
     metric("tool calls", fmtNum(m.tool_calls)),
     metric("started", fmtDate(run.started_at))
   );
+  if (sb) strip.append(sb);
+  if (run.error) document.getElementById("main").insertBefore(el("p", { class: "run-error", text: run.error }), strip.nextSibling);
 
   setupTabs();
   renderGame(run, base);
@@ -132,8 +136,11 @@ function renderMetrics(run, base) {
     ["id", run.id],
     ["model", run.model],
     ["effort", run.effort],
+    ["harness", harnessLabel(run)],
     ["started_at", run.started_at],
     ["verified", run.verified == null ? "–" : String(run.verified)],
+    ["state", run.state ?? "–"],
+    ["error", run.error ?? "–"],
     ...Object.entries(run.metrics || {}),
   ];
   const table = el("table", { class: "metrics" });

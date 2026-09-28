@@ -1,4 +1,4 @@
-import { qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame } from "./common.js";
+import { qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge } from "./common.js";
 
 // compare.html?p=<slug> shows every run of the page; &r=<id>,<id> limits it to those runs.
 const slug = qs("p");
@@ -45,9 +45,14 @@ function setupPlayAll() {
 function column(r) {
   const base = runDir(slug, r.id);
   const m = r.metrics || {};
-  return el("div", { class: "compare-col" }, [
-    el("h3", {}, [el("a", { text: `${r.model} · ${r.effort}`, attrs: { href: `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}` } })]),
-    el("div", { class: "muted compare-metrics", text: `${fmtDuration(m.duration_ms)} · ${fmtNum(m.tokens_total)} tokens · ${fmtCost(m.cost_usd)}` }),
-    r.game ? buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null) : el("p", { class: "muted", text: "No game recorded." }),
-  ]);
+  const sb = stateBadge(r);
+  const heading = [el("a", { text: `${r.model} · ${r.effort}`, attrs: { href: `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(r.id)}` } })];
+  if (sb) heading.push(" ", sb);
+  const parts = [
+    el("h3", {}, heading),
+    el("div", { class: "muted compare-metrics", text: `${harnessLabel(r)} · ${fmtDuration(m.duration_ms)} · ${fmtNum(m.tokens_total)} tokens · ${fmtCost(m.cost_usd)}` }),
+  ];
+  if (r.error) parts.push(el("p", { class: "run-error", text: r.error }));
+  parts.push(r.game ? buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null) : el("p", { class: "muted", text: "No game recorded." }));
+  return el("div", { class: "compare-col" }, parts);
 }

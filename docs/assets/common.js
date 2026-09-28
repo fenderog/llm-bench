@@ -128,6 +128,20 @@ export function badge(text, kind) {
   return el("span", { class: `badge badge-${kind}`, text });
 }
 
+// "pi 0.87.1" (name only when version is null), "–" when harness is missing entirely.
+export function harnessLabel(run) {
+  const h = run && run.harness;
+  if (!h || !h.name) return "–";
+  return h.version ? `${h.name} ${h.version}` : h.name;
+}
+
+// A red badge for a run whose state isn't "complete" (e.g. "failed", "timeout"),
+// or null when the run completed normally / has no state recorded.
+export function stateBadge(run) {
+  if (!run || !run.state || run.state === "complete") return null;
+  return badge(run.state, "bad");
+}
+
 // The one place games are embedded: sandboxed without allow-same-origin, so game
 // code gets an opaque origin and can't touch this site's storage or cookies.
 export function sandboxedGame(entryUrl) {

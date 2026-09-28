@@ -6,6 +6,9 @@
   "started_at": "2026-01-01T00:10:00Z",
   "source_dir": "2026-01-01-high-modelx-demo",
   "verified": null,
+  "harness": { "name": "pi", "version": "0.87.1" },
+  "state": "complete",
+  "error": null,
   "metrics": {
     "duration_ms": 196192,
     "cost_usd": 0.146,

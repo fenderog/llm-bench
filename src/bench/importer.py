@@ -17,18 +17,25 @@ SESSION_FILES = {
     "events.jsonl": ("session/events.jsonl", "jsonl"),
     "status.json": ("session/status.json", "json"),
     "output.md": ("session/output.md", "text"),
+    "stderr.txt": ("session/stderr.txt", "text"),
 }
-# Files under <level>/ that are never part of the copied source (session files, plus editor cache).
+# Files under <level>/ that are never part of the copied source (session files, plus editor
+# cache). export_presets.cfg is deliberately NOT here: it's one of the project's own files and
+# stays in source. brief.md lives under the model dir's .harness/<level>/ (never inside <level>/
+# itself), so it never needs skipping here.
 SOURCE_SKIP = {
     "session.jsonl",
     "conversation.json",
     "events.jsonl",
     "status.json",
     "output.md",
+    "stderr.txt",
     "data.json",
     ".DS_Store",
     ".godot",
 }
+
+FALLBACK_HARNESS = {"name": "pi", "version": None}
 
 
 def load_rewrites(root):
@@ -111,7 +118,7 @@ def stage_source(level_dir, run_dir, rewrites, redact, batch):
     return {"root": "source/", "files": sorted(files)} if files else None
 
 
-def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines):
+def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info):
     run_id = make_run_id(run_data["model"], level, effort_dir.name)
     run_dir = tmp_root / run_id
     run_dir.mkdir(parents=True)
@@ -140,6 +147,9 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
         "started_at": iso_from_ms(run_data["startedAt"]),
         "source_dir": effort_dir.name,
         "verified": verified,
+        "harness": harness_info,
+        "state": run_data.get("state", "complete"),
+        "error": run_data.get("error"),
         "metrics": {
             "duration_ms": run_data.get("durationMs"),
             "cost_usd": run_data.get("costUsd"),
@@ -171,7 +181,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
     )
 
 
-def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, dry_run=False):
+def cmd_import(root, effort_dir, page=None, title=None, redact=False, allow_threads=False, dry_run=False):
     effort_dir = Path(effort_dir).resolve()
     if not effort_dir.is_dir():
         raise BenchError(f"not a directory: {effort_dir}")
@@ -179,6 +189,7 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
     if not data_path.is_file():
         raise BenchError(f"missing data.json: {effort_dir}")
     data = json.loads(data_path.read_text())
+    harness_info = data.get("harness") or FALLBACK_HARNESS
 
     _, _, folder_slug = parse_folder(effort_dir.name)
     slug = page or folder_slug
@@ -197,7 +208,7 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
         results = []
         known_engines = set()
         for level, run_data in data.get("runs", {}).items():
-            r = stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines)
+            r = stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info)
             if r.engine_files is not None:
                 known_engines.add(r.engine_sha)
             results.append(r)
@@ -240,6 +251,8 @@ def cmd_import(root, effort_dir, page=None, redact=False, allow_threads=False, d
 
         page_path = docs_root / "data" / slug / "page.json"
         page_json = json.loads(page_path.read_text()) if page_path.is_file() else {"slug": slug}
+        if title:
+            page_json["title"] = title
         if prompt:
             page_json["prompt"] = prompt
         if final:

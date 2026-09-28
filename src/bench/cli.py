@@ -5,7 +5,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from .harness import Pi
 from .importer import cmd_import
+from .runner import cmd_models, cmd_run
 from .serve import serve_forever
 from .site import cmd_list, cmd_rm, rebuild
 from .util import BenchError
@@ -21,6 +23,7 @@ def build_parser():
     imp = sub.add_parser("import", parents=[common], help="import an effort-run folder")
     imp.add_argument("effort_dir")
     imp.add_argument("--page", help="override the page slug")
+    imp.add_argument("--title", help="override the page title")
     imp.add_argument("--redact", action="store_true", help="redact secret hits instead of aborting")
     imp.add_argument("--allow-threads", action="store_true", help="allow a threaded Godot export")
     imp.add_argument("--dry-run", action="store_true", help="do the work but write nothing to docs/")
@@ -38,6 +41,24 @@ def build_parser():
 
     pub = sub.add_parser("publish", parents=[common], help="git add docs && commit && push")
     pub.add_argument("-m", "--message")
+
+    run = sub.add_parser("run", parents=[common], help="run agents locally, then import")
+    run.add_argument("prompt", nargs="?", help="the task prompt")
+    run.add_argument("--prompt-file", type=Path)
+    run.add_argument("-m", "--model", dest="models", action="append", default=[], help="MODEL[:LEVELS], repeatable")
+    run.add_argument("-e", "--effort", help="default LEVELS for every -m without a suffix")
+    run.add_argument("--page", help="page slug (default: from the prompt)")
+    run.add_argument("--title", help="page title (default: from slug)")
+    run.add_argument("--brief", type=Path, help="brief template file ({prompt} is substituted)")
+    run.add_argument("-j", type=int, dest="parallel", help="max agents at once")
+    run.add_argument("--timeout", help='per agent, e.g. "30m" (default [run].timeout or 30m)')
+    run.add_argument("--yes", action="store_true", help="don't ask for confirmation")
+    run.add_argument("--dry-run", action="store_true", help="print the plan and exit")
+    run.add_argument("--publish", action="store_true", help="run `bench publish` after importing")
+    run.add_argument("--resume", type=Path, help="finish an interrupted batch dir")
+
+    models_p = sub.add_parser("models", parents=[common], help="models the harness can run")
+    models_p.add_argument("search", nargs="?", help="also show effort levels for matching models")
 
     return parser
 
@@ -68,6 +89,7 @@ def main(argv=None):
                 root,
                 args.effort_dir,
                 page=args.page,
+                title=args.title,
                 redact=args.redact,
                 allow_threads=args.allow_threads,
                 dry_run=args.dry_run,
@@ -84,6 +106,25 @@ def main(argv=None):
             return 0
         if args.command == "publish":
             return cmd_publish(root, args.message)
+        if args.command == "run":
+            return cmd_run(
+                root,
+                prompt=args.prompt,
+                prompt_file=args.prompt_file,
+                model_specs=args.models,
+                effort=args.effort,
+                page=args.page,
+                title=args.title,
+                brief_file=args.brief,
+                parallel=args.parallel,
+                timeout=args.timeout,
+                yes=args.yes,
+                dry_run=args.dry_run,
+                publish=args.publish,
+                resume=args.resume,
+            )
+        if args.command == "models":
+            return cmd_models(Pi(), args.search)
     except BenchError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1

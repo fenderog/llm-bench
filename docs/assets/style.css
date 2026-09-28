@@ -39,7 +39,7 @@ body {
 
 a { color: var(--accent); }
 
-.container { max-width: 1100px; margin: 0 auto; padding: 0 16px 48px; }
+.container { max-width: 1240px; margin: 0 auto; padding: 0 16px 48px; }
 
 .site-header {
   border-bottom: 1px solid var(--border);
@@ -61,6 +61,8 @@ h2 { font-size: 1.1rem; margin: 24px 0 10px; }
 
 .msg { padding: 12px 14px; border-radius: 6px; background: var(--card-bg); border: 1px solid var(--border); }
 .msg-error { border-color: var(--bad); color: var(--bad); }
+
+.run-error { color: var(--bad); font-size: 13px; margin: 0 0 8px; }
 
 /* ---- cards / gallery ---- */
 .card-grid {

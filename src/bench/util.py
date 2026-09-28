@@ -11,7 +11,9 @@ class BenchError(Exception):
 # "2026-09-26-001158-gpt6sol-voxel-horse" -> ("2026-09-26-001158", "gpt6sol", "voxel-horse")
 FOLDER_RE = re.compile(r"^(\d{4}-\d{2}-\d{2}-\d{6})-([^-]+)-(.+)$")
 
-EFFORT_ORDER = {"low": 0, "medium": 1, "high": 2}
+# The full effort-level order a harness may report; used to sort/validate/expand -m LEVELS specs.
+LEVEL_ORDER = ["off", "minimal", "low", "medium", "high", "xhigh", "max"]
+LEVEL_INDEX = {level: i for i, level in enumerate(LEVEL_ORDER)}
 
 
 def parse_folder(name):
@@ -37,8 +39,8 @@ def title_from_slug(slug):
 
 
 def effort_sort_key(run):
-    """Sort key for results.json: started_at, then effort order (low, medium, high, then alpha)."""
-    return (run["started_at"], EFFORT_ORDER.get(run["effort"], 99), run["effort"])
+    """Sort key for results.json: started_at, then effort order (LEVEL_ORDER, then alpha)."""
+    return (run["started_at"], LEVEL_INDEX.get(run["effort"], 99), run["effort"])
 
 
 def mask(secret):

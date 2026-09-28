@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""A fake `pi` binary for testing `bench run` without calling a real model.
+
+Supports:
+  pi --version
+  pi --list-models
+  pi --mode rpc --no-session --model M ...          (answers get_available_thinking_levels)
+  pi -p --mode json --model M:LEVEL --session-dir D ... BRIEF   (writes a canned session + project)
+
+Behavior knobs (env vars), read at `-p` run time:
+  FAKE_PI_EXIT_CODE=N   exit N immediately, writing nothing (simulates a crashed harness)
+  FAKE_PI_HANG=1        sleep "forever" (simulates a hung agent; the caller must kill it)
+  FAKE_PI_ERROR_STOP=1  write a session whose last assistant message has stopReason "error"
+"""
+import json
+import os
+import sys
+import time
+import uuid
+from pathlib import Path
+
+VERSION = "0.1.0-fake"
+
+# model -> supported thinking levels, in LEVEL_ORDER. Anything else defaults to the full set.
+MODEL_LEVELS = {
+    "openai-codex/gpt-6-sol": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
+    "openai-codex/gpt-6-luna": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
+    "test/limited": ["low", "medium", "high"],
+}
+
+
+def arg(flag):
+    if flag in sys.argv:
+        i = sys.argv.index(flag)
+        if i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+    return None
+
+
+def cmd_version():
+    print(VERSION)
+
+
+def cmd_list_models():
+    print("provider        model                                               context  max-out  thinking  images")
+    seen = set()
+    for full in MODEL_LEVELS:
+        provider, model = full.split("/", 1)
+        if full in seen:
+            continue
+        seen.add(full)
+        print(f"{provider:<15} {model:<50} 128K     64K      yes       no")
+
+
+def cmd_rpc():
+    model = arg("--model")
+    line = sys.stdin.readline()
+    try:
+        request = json.loads(line)
+    except (json.JSONDecodeError, TypeError):
+        request = {}
+    if request.get("type") == "get_available_thinking_levels":
+        levels = MODEL_LEVELS.get(model, ["off", "minimal", "low", "medium", "high", "xhigh", "max"])
+        resp = {"type": "response", "command": "get_available_thinking_levels", "success": True, "data": {"levels": levels}}
+        print(json.dumps(resp))
+        sys.stdout.flush()
+
+
+def emit(obj):
+    print(json.dumps(obj))
+    sys.stdout.flush()
+
+
+def cmd_run():
+    model_level = arg("--model")
+    session_dir = Path(arg("--session-dir"))
+    brief = sys.argv[-1]
+    provider, rest = model_level.split("/", 1)
+    model_id, level = rest.split(":", 1)
+
+    if os.environ.get("FAKE_PI_HANG"):
+        time.sleep(3600)
+        return
+
+    exit_code = os.environ.get("FAKE_PI_EXIT_CODE")
+    if exit_code and int(exit_code) != 0:
+        print("fake pi: forced failure", file=sys.stderr)
+        sys.exit(int(exit_code))
+
+    # A tiny fake Godot project, just enough for the import step to find "source" files.
+    Path("project.godot").write_text("config_version=5\n")
+    Path("README.md").write_text(f"# fake project\nBuilt for: {brief[:40]}\n")
+    Path("scenes").mkdir(exist_ok=True)
+    Path("scripts").mkdir(exist_ok=True)
+    (Path("scenes") / "main.tscn").write_text("[gd_scene load_steps=1 format=3]\n")
+    (Path("scripts") / "main.gd").write_text("extends Node\nfunc _ready():\n\tpass\n")
+
+    session_dir.mkdir(parents=True, exist_ok=True)
+    session_id = str(uuid.uuid4())
+    session_path = session_dir / f"2026-09-27T00-00-00-000Z_{session_id}.jsonl"
+
+    error_stop = bool(os.environ.get("FAKE_PI_ERROR_STOP"))
+    usage1 = {"input": 500, "output": 100, "cacheRead": 200, "cacheWrite": 0, "reasoning": 10,
+              "totalTokens": 600, "cost": {"input": 0.001, "output": 0.0005, "cacheRead": 0, "cacheWrite": 0, "total": 0.0015}}
+    usage2 = {"input": 300, "output": 80, "cacheRead": 150, "cacheWrite": 0, "reasoning": 5,
+              "totalTokens": 380, "cost": {"input": 0.0006, "output": 0.0004, "cacheRead": 0, "cacheWrite": 0, "total": 0.001}}
+
+    lines = [
+        {"type": "session", "id": session_id, "timestamp": "2026-09-27T00:00:00.000Z", "cwd": os.getcwd()},
+        {"type": "model_change", "provider": provider, "modelId": model_id},
+        {"type": "thinking_level_change", "thinkingLevel": level},
+        {"type": "message", "message": {"role": "system", "content": ""}},
+        {"type": "message", "message": {"role": "user", "content": [{"type": "text", "text": brief}]}},
+        {"type": "message", "message": {
+            "role": "assistant", "usage": usage1, "stopReason": "toolUse",
+            "content": [{"type": "text", "text": "Writing the project."}, {"type": "toolCall", "toolCallId": "t1", "name": "write"}],
+        }},
+        {"type": "message", "message": {"role": "toolResult", "toolCallId": "t1", "content": "wrote project.godot"}},
+        {"type": "message", "message": {
+            "role": "assistant", "usage": usage2,
+            "stopReason": "error" if error_stop else "stop",
+            **({"errorMessage": "fake induced error"} if error_stop else {}),
+            "content": [{"type": "text", "text": "Done. Summary: built a fake project."}],
+        }},
+    ]
+
+    emit({"type": "session"})
+    emit({"type": "agent_start"})
+    for line in lines:
+        emit({"type": "message_start"})
+        emit({"type": "message_update"})
+        session_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(session_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(line) + "\n")
+        emit({"type": "message_end"})
+    emit({"type": "agent_end"})
+    emit({"type": "agent_settled"})
+
+
+def main():
+    if "--version" in sys.argv:
+        return cmd_version()
+    if "--list-models" in sys.argv:
+        return cmd_list_models()
+    if "--mode" in sys.argv and arg("--mode") == "rpc":
+        return cmd_rpc()
+    if "-p" in sys.argv:
+        return cmd_run()
+    print(f"fake pi: unrecognized invocation: {sys.argv[1:]}", file=sys.stderr)
+    sys.exit(2)
+
+
+if __name__ == "__main__":
+    main()

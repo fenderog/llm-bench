@@ -57,7 +57,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 ```json
 { "slug": "voxel-horse", "title": "Voxel horse",
   "prompt": "<contents of prompt.md, the originating prompt; refreshed on every import>",
-  "final_prompt": "<brief the main agent sent each run: first user message of the cleaned session, ./<level>/ -> ./<effort>/; null if none>",
+  "final_prompt": "<the full brief each run received: first user message of the cleaned session, ./<level>/ -> ./<effort>/; null if none>",
   "created": "2026-09-26T07:12:42Z", "updated": "2026-09-26T07:15:57Z" }
 ```
 
@@ -71,6 +71,9 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   "started_at": "2026-09-26T07:12:42Z",
   "source_dir": "2026-09-26-001158-gpt6sol-voxel-horse",
   "verified": true,
+  "harness": { "name": "pi", "version": "0.87.1" },
+  "state": "complete",
+  "error": null,
   "metrics": {
     "duration_ms": 196192, "cost_usd": 0.146, "tool_calls": 16, "turns": 17,
     "tokens_total": 32732, "tokens_input": 25280, "tokens_output": 7452,
@@ -87,6 +90,10 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 - `game`, `session`, `source`, and `thumb` can each be `null` when the input doesn't have them.
 - `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS from the folder name>`.
 - `verified` = `wasm/<level>/verification/verify-report.json` → `.ok`, or `null` if that file is missing.
+- `harness` = `data.json` → `harness`; for an old `fe-model-effort-fanout/1` folder without it, `{"name": "pi", "version": null}`.
+- `state` = `runs.<level>.state` (`complete` | `failed` | `timeout`), default `complete`.
+- `error` = `runs.<level>.error` (a one-line reason: harness exit, timeout, or "Godot export failed: …"), default `null`.
+  A run with `state` ≠ `complete` is still imported (it usually has no game).
 
 ## Input: an effort-run folder (`fe-model-effort-fanout/1`)
 
@@ -155,20 +162,124 @@ bench rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuild
 bench rebuild                   # regenerate results.json + pages.json from runs/*/run.json; delete engines no run references
 bench serve [--port 8000]       # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
 bench publish [-m MSG]          # git add docs && git commit && git push
+bench run ...                   # run agents locally, then import (see "Running benchmarks")
+bench models [SEARCH]           # models the harness can run; with SEARCH also their effort levels
 ```
 - `import` is idempotent. Re-importing the same folder replaces runs with the same id.
 - `import` prints a short summary per run: id, engine stored or reused, bytes written, paths rewritten, secret hits.
 - `--dry-run` does all the work, including the secret scan, in a temp dir and writes nothing to docs/.
 - Errors go to stderr with a non-zero exit code, and there are no tracebacks for expected errors.
 
+## Running benchmarks (`bench run`)
+
+Runs one prompt through one or more models × effort levels on this machine with a **harness** (the agent program;
+only `pi` for now), exports + verifies each Godot project, then imports everything into one page.
+
+```
+bench run PROMPT | --prompt-file FILE
+    -m MODEL[:LEVELS]   repeatable. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
+                        | "all" (every supported level except off) | explicit "off". No suffix = "all".
+    -e LEVELS           default LEVELS for every -m without a suffix
+    --page SLUG         add to this page (default: slug of the prompt's first 6 words, max 40 chars)
+    --title TEXT        page title (default: from slug, as for import)
+    --brief FILE        use this brief template instead of the built-in one ({prompt} is substituted)
+    -j N                max agents at once (default [run].parallel or 8)
+    --timeout DUR       per agent, "30m" / "90s" / "1h" (default [run].timeout or 30m)
+    --yes               don't ask for confirmation     --dry-run   print the plan and exit
+    --publish           run `bench publish` after importing
+bench run --resume DIR  finish an interrupted batch (see Resume)
+```
+`LEVEL_ORDER = off, minimal, low, medium, high, xhigh, max`. Every requested level is checked against the harness's
+list for that model **before anything starts**; an unknown model or unsupported level is an error that names the
+supported levels (pi silently clamps unsupported levels, so this check is what keeps labels honest).
+
+`bench.toml`:
+```toml
+[run]
+dir = "~/dev/bench-runs"   # where batch folders go (never inside ~/dev/effort-runs)
+parallel = 8
+timeout = "30m"
+```
+
+### Flow
+1. **Plan**: resolve models + levels, print the harness (name + version), page (new/existing), prompt, the numbered
+   model × effort list and the batch dir. Ask `Start? [y/N]` (stdin not a tty and no `--yes` → error). `--dry-run` stops after printing.
+2. **Batch dir**: `<run.dir>/<YYYY-MM-DD-HHMMSS>-<page slug>/` containing `batch.json`, `prompt.md`, and one
+   **model dir** per model named `<YYYY-MM-DD-HHMMSS>-<modeltag>-<page slug>` (modeltag = model id after the last "/",
+   lowercased, non-alphanumerics removed: `gpt6sol`). Each model dir has exactly the effort-run-folder layout that
+   `bench import` reads (its own copy of `prompt.md`, `data.json`, `<level>/`, `wasm/<level>/`), so import needs no special case.
+3. **Brief**: `src/bench/briefs/godot.md` with `{prompt}` replaced by the prompt verbatim. The same text for every run.
+   Saved as `.harness/<level>/brief.md`, never in the agent's working dir.
+4. **Agents** (threads + subprocess, at most `-j` at once). Working dir = `<model dir>/<level>/` (empty at start).
+   Harness scratch = `<model dir>/.harness/<level>/` (session dir, `events.jsonl`, `stderr.txt`), kept outside the
+   level dir so the agent's project stays clean. Timeout → kill the process group, state `timeout`.
+5. **Collect** (per run, when its agent exits): copy the session file to `<level>/session.jsonl`, write
+   `<level>/conversation.json` (the session as a JSON array), `<level>/events.jsonl` (without the `message_update`
+   streaming snapshots, which only repeat the partial message; the raw file stays in `.harness/`), `<level>/status.json`
+   (`{state, error, exit_code, argv, harness, startedAt, endedAt, durationMs}`), `<level>/data.json` (the run entry
+   below). The model dir's `data.json` = `{"schema": "bench-run/1", "harness": {...}, "runs": {"<level>": entry}}`,
+   rewritten after every run finishes. Entry: `model, thinkingLevel, startedAt, endedAt, durationMs, costUsd,
+   toolCalls, turns, tokens: {input, output, total, reasoning, cacheRead, cacheWrite}, state, error`.
+6. **Export** (only when state is `complete`; one export at a time, other agents keep running): write
+   `export_presets.cfg` (preset "Web", nothreads, `exclude_filter` listing the session files), run
+   `godot --headless --path <level> --export-release Web <abs wasm/<level>>/index.html`, then check `index.html`,
+   `index.js`, `index.wasm`, `index.pck` exist and are non-empty (Godot can exit 0 after failing). Write
+   `export-manifest.json` (`godot`, `threads: false`, `template`, `exportedAt`). Failure → keep state, set
+   `error = "Godot export failed: <last log line>"`, no wasm dir.
+7. **Verify** (optional dependency: Playwright, `pip install bench[verify]`; skipped with a note when missing):
+   serve the export dir, open it in Chrome with the swiftshader flags, wait for Godot to remove `#status` (≤ 30s), take
+   `verification/frame-1.png`, wait 1.2s, take `frame-2.png`; `verify-report.json` =
+   `{ok, booted, framesDiffer, consoleErrors, pageErrors}` with `ok = booted and framesDiffer and no pageErrors`.
+8. **Import**: `bench import` each model dir with `--page` (and `--title` for a new page), then print where to preview
+   (`bench serve`) and publish, or run `bench publish` with `--publish`.
+
+Progress: on a tty a table (model, effort, state, elapsed, turns, tokens, cost) redrawn every 2s, read from each
+session file as it grows; otherwise one line per state change. States: queued, running, exporting, verifying,
+done, failed, timeout.
+
+### Metrics (from the session log, the same numbers pi-subagents reported)
+Over assistant messages: `turns` = count; `toolCalls` = number of `toolCall` content blocks; `tokens.input/output/
+reasoning/cacheRead/cacheWrite` = sums of `usage.<field>`; `tokens.total = input + output`; `costUsd` = sum of
+`usage.cost.total`. `durationMs` = wall clock of the harness process. `thinkingLevel` = the session's
+`thinking_level_change` entry (what actually ran). `state = failed` when the process exits non-zero, there is no
+session file, or the last assistant message has `stopReason: "error"`; `error` = its `errorMessage` or the last
+non-empty stderr line (the first 200 characters).
+
+### Harness interface (`src/bench/harness.py`)
+```python
+class Harness:           # one per agent program; Pi is the only one for now
+    name: str
+    def version(self) -> str | None
+    def models(self) -> list[str]                       # "provider/id"
+    def levels(self, model) -> list[str]                # supported effort levels, in LEVEL_ORDER
+    def command(self, model, level, brief, session_dir) -> list[str]
+    def session_file(self, session_dir) -> Path | None
+```
+Pi: `pi --version`; `pi --list-models` (parse the table); levels via `pi --mode rpc --no-session --model M -ne -ns -np -nc`
+sending `{"type":"get_available_thinking_levels"}` and reading the matching response;
+command = `pi -p --mode json --model M:LEVEL --session-dir DIR -ne -ns -np -nc BRIEF` (no user extensions, skills,
+prompt templates or AGENTS.md, so runs are reproducible); session file = the one `*.jsonl` in DIR.
+Future harnesses and a VM runner plug in here and at "start one agent" in `runner.py`.
+
+### Ctrl-C
+Kills every running agent's process group, marks those runs `queued` in batch.json, prints the `--resume` command, exits 130.
+
+### Resume
+`batch.json` = `{prompt, page, title, harness, brief, created, runs: [{model, level, model_dir, state}]}`, updated on
+every state change. `--resume DIR` reads it and, per run: `queued`/`running` → start the agent again (clear its level
+dir first); a finished agent is never rerun. Then export where `wasm/<level>` is missing, verify where
+`verify-report.json` is missing, and import. Failed and timed-out runs stay as they are.
+
 ## Viewer (docs/)
 
 - **index.html**: cards per page (thumb, title, n_runs, models, updated) → page.html.
 - **page.html**: title, the Prompt (prompt.md) and a collapsed Final prompt, then a "Compare all" link → compare.html and
-  a runs table (thumb, model, effort, verified ✓/✗, duration, tokens total/output/reasoning, cost, tool calls, turns).
+  a runs table (thumb, model, effort, harness, verified ✓/✗, duration, tokens total/output/reasoning, cost, tool calls, turns).
+  Harness shows "pi 0.87.1" (name only when version is null, "–" when missing). A run whose `state` isn't `complete`
+  shows a red `failed`/`timeout` badge in the Verified cell, and its expanded row shows `error`.
   The table is sortable, numeric columns show an inline CSS bar scaled to the column max, and every header has a help
   tooltip (shown after 0.5s). Clicking a row expands it and boots that run's game inline; clicking again removes it.
-- **run.html**: a header with model, effort, and key metrics, then tabs:
+- **run.html**: a header with model, effort, harness, and key metrics (plus the failed/timeout badge and `error`), then tabs:
   - *Game*: click-to-play overlay (shows thumb). On click it inserts
     `<iframe sandbox="allow-scripts allow-pointer-lock" allow="fullscreen; autoplay; gamepad">` pointing at `game.entry`.
     There's also an "Open full screen ↗" link (plain link to the entry; it runs unsandboxed, so label it).
@@ -179,9 +290,9 @@ bench publish [-m MSG]          # git add docs && git commit && git push
     session start and per-message token usage. Durations come from `events.jsonl` `tool_execution_start`/`_end`
     (matched by `toolCallId`) when present. Filter buttons: all / tool calls / errors.
   - *Source*: a file list, and clicking a file shows it in a `<pre>`.
-  - *Metrics*: all metrics as a table, plus links to download the raw session files.
+  - *Metrics*: all metrics as a table (including Harness, State and Error), plus links to download the raw session files.
 - **compare.html**: one column per run (all runs of the page by default). Each column has the run title, one line with
-  duration, tokens and cost, and its game with click-to-play (each column boots independently, never automatically).
+  harness, duration, tokens and cost (plus the failed/timeout badge), and its game with click-to-play (each column boots independently, never automatically).
 - Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/llm-bench/`),
   so use only relative URLs. It supports dark mode via `prefers-color-scheme`, has readable defaults, and has no frameworks.
 
@@ -193,6 +304,12 @@ bench publish [-m MSG]          # git add docs && git commit && git push
 - Viewer: Playwright (Python, `channel="chrome"`, which uses the installed Google Chrome, so no browser download)
   against `bench serve` on a fixture site. It covers each page rendering without console errors, click-to-play inserting
   a sandboxed iframe, the transcript's tool calls and error badges, and compare with 3 runs.
+- `bench run`: a fake `pi` (a Python script put first on PATH by the test) that answers `--version`, `--list-models`,
+  the RPC levels request, and `-p` runs by writing a canned session file and a tiny project; env vars make it fail,
+  hang, or exit non-zero. Covers level parsing (`all`, ranges, explicit lists, off excluded by default, unsupported
+  level → error before anything starts), the plan/confirmation, `-j`, timeout, failed runs being imported, metrics
+  against the real voxel-horse `high/session.jsonl` numbers (when present), and `--resume` not rerunning finished
+  agents. A slow test (skipped without `godot`) exports a tiny real project. No test calls a real model.
 - Integration (skipped when `~/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse` is missing): import the real run
   into a temp site, serve it, and check that all 3 Godot games boot inside the sandboxed iframe in compare. Headless Chrome
   needs `--enable-unsafe-swiftshader --use-angle=swiftshader` for WebGL. Godot removes `#status` from its document

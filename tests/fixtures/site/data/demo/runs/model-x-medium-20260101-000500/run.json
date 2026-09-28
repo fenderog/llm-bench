@@ -6,6 +6,9 @@
   "started_at": "2026-01-01T00:05:00Z",
   "source_dir": "2026-01-01-medium-modelx-demo",
   "verified": true,
+  "harness": { "name": "pi", "version": null },
+  "state": "complete",
+  "error": null,
   "metrics": {
     "duration_ms": 38250,
     "cost_usd": 0.0187,
