@@ -22,6 +22,19 @@ def _pick_thumb(runs):
     return None
 
 
+def apply_ranking(page_dir, runs):
+    """Set each run's `rank` from data/<slug>/ranking.json (null when unranked), dropping entries
+    for runs that no longer exist (e.g. after `bench rm`)."""
+    path = page_dir / "ranking.json"
+    ranking = json.loads(path.read_text()) if path.is_file() else {"ranks": {}}
+    ids = {r["id"] for r in runs}
+    kept = {k: v for k, v in ranking.get("ranks", {}).items() if k in ids}
+    if path.is_file() and kept != ranking.get("ranks"):
+        path.write_text(json.dumps({**ranking, "ranks": kept}, indent=2) + "\n")
+    for run in runs:
+        run["rank"] = kept.get(run["id"])
+
+
 def rebuild(root):
     docs = root / "docs"
     data_dir = docs / "data"
@@ -42,6 +55,7 @@ def rebuild(root):
             continue
 
         runs.sort(key=effort_sort_key)
+        apply_ranking(page_dir, runs)
         (page_dir / "results.json").write_text(json.dumps(runs, indent=2) + "\n")
         for run in runs:
             game = run.get("game")
