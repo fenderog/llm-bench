@@ -42,7 +42,8 @@
       "status": "session/status.json",
       "stderr": "session/stderr.txt"
     },
-    "source": null
+    "source": null,
+    "rank": null
   },
   {
     "id": "gpt-6-sol-low-20260927-224135",
@@ -87,7 +88,8 @@
       "status": "session/status.json",
       "stderr": "session/stderr.txt"
     },
-    "source": null
+    "source": null,
+    "rank": null
   },
   {
     "id": "gpt-6-sol-medium-20260927-224135",
@@ -132,7 +134,8 @@
       "status": "session/status.json",
       "stderr": "session/stderr.txt"
     },
-    "source": null
+    "source": null,
+    "rank": null
   },
   {
     "id": "gpt-6-sol-high-20260927-224135",
@@ -177,7 +180,8 @@
       "status": "session/status.json",
       "stderr": "session/stderr.txt"
     },
-    "source": null
+    "source": null,
+    "rank": null
   },
   {
     "id": "gpt-6-sol-xhigh-20260927-224135",
@@ -222,7 +226,8 @@
       "status": "session/status.json",
       "stderr": "session/stderr.txt"
     },
-    "source": null
+    "source": null,
+    "rank": null
   },
   {
     "id": "gpt-6-sol-max-20260927-224135",
@@ -267,6 +272,7 @@
       "status": "session/status.json",
       "stderr": "session/stderr.txt"
     },
-    "source": null
+    "source": null,
+    "rank": null
   }
 ]

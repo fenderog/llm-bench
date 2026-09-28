@@ -48,8 +48,9 @@ def build_parser():
     run.add_argument("-m", "--model", dest="models", action="append", default=[], help="MODEL[:LEVELS], repeatable")
     run.add_argument("-s", "--set", dest="sets", action="append", default=[], help="a model set: a NAME from bench.toml [sets], or a FILE with one MODEL[:LEVELS] per line; repeatable, combines with -m")
     run.add_argument("-e", "--effort", help="default LEVELS for every model without a suffix")
-    run.add_argument("--kind", choices=["godot", "media"], default="godot", help="what the agents produce (default: godot)")
-    run.add_argument("--page", help="page slug (default: from the prompt)")
+    run.add_argument("--kind", choices=["godot", "media"], help="what the agents produce (default: the page's kind, else godot)")
+    run.add_argument("--page", help="page slug (default: from the prompt); an existing page with no PROMPT reuses its prompt")
+    run.add_argument("--change-prompt", action="store_true", help="allow a different prompt for an existing page (replaces it for the whole page)")
     run.add_argument("--title", help="page title (default: from slug)")
     run.add_argument("--brief", type=Path, help="brief template file ({prompt} is substituted)")
     run.add_argument("-j", type=int, dest="parallel", help="max agents at once")
@@ -126,6 +127,7 @@ def main(argv=None):
                 publish=args.publish,
                 resume=args.resume,
                 kind=args.kind,
+                change_prompt=args.change_prompt,
             )
         if args.command == "models":
             return cmd_models(Pi(), args.search)

@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import build, media
+from . import build, clean, media
 from .harness import Pi, parse_session
 from .importer import cmd_import
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError, title_from_slug
@@ -183,6 +183,18 @@ def plan_runs(harness, model_specs, effort_default):
         tag_owner[tag] = model
 
     return [(model, level) for model, levels in levels_by_model.items() for level in levels]
+
+
+def page_json(root, slug):
+    path = root / "docs" / "data" / slug / "page.json"
+    return json.loads(path.read_text()) if path.is_file() else None
+
+
+def clean_prompt(root, prompt):
+    """The prompt as import stores it on the page (path rewrites applied), for comparing."""
+    from .importer import load_rewrites
+
+    return clean.rewrite_text(prompt.strip(), load_rewrites(root))[0]
 
 
 def render_brief(brief_file, prompt, kind="godot", tool_entries=()):
@@ -547,7 +559,7 @@ def execute(root, batch_dir, batch, harness, version, parallel, timeout_s, godot
 def cmd_run(
     root, prompt=None, prompt_file=None, model_specs=(), model_sets=(), effort=None, page=None, title=None,
     brief_file=None, parallel=None, timeout=None, yes=False, dry_run=False, publish=False,
-    resume=None, godot_bin="godot", verify=True, kind="godot",
+    resume=None, godot_bin="godot", verify=True, kind=None, change_prompt=False,
 ):
     harness = Pi()
     cfg = load_run_config(root)
@@ -564,11 +576,28 @@ def cmd_run(
 
     if prompt_file:
         prompt = Path(prompt_file).read_text().strip()
+    # Adding runs to an existing page: --page alone reuses its prompt and kind.
+    existing = page_json(root, page) if page else None
+    if not prompt and existing:
+        prompt = existing.get("prompt") or ""
     if not prompt:
-        raise BenchError("PROMPT or --prompt-file is required")
+        raise BenchError("PROMPT or --prompt-file is required (or --page with an existing page, to reuse its prompt)")
     model_specs = [*expand_sets(root, model_sets), *model_specs]
     if not model_specs:
         raise BenchError("at least one -m MODEL or --set is required")
+    slug = page or slug_from_prompt(prompt)
+    existing = page_json(root, slug)
+    page_exists = existing is not None
+    page_kind = existing.get("kind", "godot") if page_exists else None
+    kind = kind or page_kind or "godot"
+    if page_exists and page_kind != kind:
+        raise BenchError(f"page {slug!r} holds {page_kind} runs; use --kind {page_kind} or another --page")
+    # Every import replaces the page's prompt, so a different one would silently relabel the existing runs.
+    if page_exists and not change_prompt and existing.get("prompt") and clean_prompt(root, prompt) != existing["prompt"]:
+        raise BenchError(
+            f"page {slug!r} was run with a different prompt:\n  {existing['prompt']}\n"
+            "Leave the prompt out to reuse it, use another --page, or pass --change-prompt to replace it for the whole page."
+        )
     if kind not in KINDS:
         raise BenchError(f"unknown kind {kind!r} (expected one of: {', '.join(KINDS)})")
     if kind == "media":
@@ -577,19 +606,16 @@ def cmd_run(
             raise BenchError(f"--kind media needs {' and '.join(missing)} on PATH")
 
     plan = plan_runs(harness, model_specs, effort)
-    slug = page or slug_from_prompt(prompt)
-    page_json_path = root / "docs" / "data" / slug / "page.json"
-    page_exists = page_json_path.is_file()
-    page_kind = json.loads(page_json_path.read_text()).get("kind", "godot") if page_exists else kind
-    if page_kind != kind:
-        raise BenchError(f"page {slug!r} holds {page_kind} runs; use --kind {page_kind} or another --page")
     title_is_explicit = bool(title)
     if not title:
-        title = json.loads(page_json_path.read_text()).get("title") or title_from_slug(slug) if page_exists else title_from_slug(slug)
+        title = (existing.get("title") if page_exists else None) or title_from_slug(slug)
     parallel = parallel or cfg["parallel"]
     timeout_s = parse_duration(timeout or cfg["timeout"])
 
     ts = datetime.now().strftime("%Y-%m-%d-%H%M%S")
+    while (cfg["dir"] / f"{ts}-{slug}").exists():  # two batches for one page in the same second
+        time.sleep(0.2)
+        ts = datetime.now().strftime("%Y-%m-%d-%H%M%S")
     batch_dir = cfg["dir"] / f"{ts}-{slug}"
 
     print(f"harness: {harness.name} {version}")

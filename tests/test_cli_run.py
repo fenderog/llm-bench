@@ -497,3 +497,38 @@ def test_malformed_set_is_an_error(run_root, capsys):
     write_sets(run_root, 'notalist = "test/limited"\n')
     assert main(["run", "--dry-run", "cube", "--set", "notalist", "--root", str(run_root)]) == 1
     assert "[sets].notalist must be a list" in capsys.readouterr().err
+
+
+# --- adding runs to an existing page --------------------------------------------------------------
+
+
+@needs_ffmpeg
+def test_page_alone_reuses_the_pages_prompt_and_kind(run_root):
+    assert main(["run", "--yes", "--kind", "media", "a red circle", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
+    rc = main(["run", "--yes", "--page", "a-red-circle", "-m", "openai-codex/gpt-6-luna:minimal", "--root", str(run_root)])
+    assert rc == 0
+    results = json.loads((run_root / "docs/data/a-red-circle/results.json").read_text())
+    assert {(r["model"], r["effort"], r["kind"]) for r in results} == {
+        ("openai-codex/gpt-6-sol", "low", "media"), ("openai-codex/gpt-6-luna", "minimal", "media")}
+    assert json.loads((run_root / "docs/data/a-red-circle/page.json").read_text())["prompt"] == "a red circle"
+
+
+def test_a_different_prompt_for_an_existing_page_is_refused(run_root, capsys):
+    assert main(["run", "--yes", "a spinning cube", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
+    rc = main(["run", "--yes", "--page", "a-spinning-cube", "a spinning red cube", "-m", "openai-codex/gpt-6-sol:high", "--root", str(run_root)])
+    assert rc == 1
+    err = capsys.readouterr().err
+    assert "different prompt" in err and "a spinning cube" in err and "--change-prompt" in err
+    assert len(json.loads((run_root / "docs/data/a-spinning-cube/results.json").read_text())) == 1
+
+    # the same prompt is fine, and --change-prompt replaces it on purpose
+    assert main(["run", "--yes", "--page", "a-spinning-cube", "a spinning cube", "-m", "openai-codex/gpt-6-sol:medium", "--root", str(run_root)]) == 0
+    rc = main(["run", "--yes", "--change-prompt", "--page", "a-spinning-cube", "a spinning red cube", "-m", "openai-codex/gpt-6-sol:high", "--root", str(run_root)])
+    assert rc == 0
+    assert json.loads((run_root / "docs/data/a-spinning-cube/page.json").read_text())["prompt"] == "a spinning red cube"
+    assert len(json.loads((run_root / "docs/data/a-spinning-cube/results.json").read_text())) == 3
+
+
+def test_page_without_prompt_must_exist(run_root, capsys):
+    assert main(["run", "--yes", "--page", "nope", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 1
+    assert "reuse its prompt" in capsys.readouterr().err

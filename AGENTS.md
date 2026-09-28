@@ -54,6 +54,7 @@ uv run bench serve --port 8000        # preview docs/ exactly like GitHub Pages
 uv run bench run --dry-run "prompt" -m openai-codex/gpt-6-sol:low   # plan only, no model calls
 uv run bench run --dry-run --kind media "an SVG pelican" -m openai-codex/gpt-6-sol:low
 uv run bench run --dry-run "prompt" --set cheap   # a model set from bench.toml [sets] (or a file path)
+uv run bench run --dry-run --page <slug> -m MODEL:LEVEL   # add runs to an existing page (reuses its prompt + kind)
 uv run bench models gpt-6             # models + effort levels from pi
 uv run bench import <effort-run-dir> --page <slug>
 uv run bench publish -m "msg"         # git add docs && commit && push (Pages deploys in ~1 min)

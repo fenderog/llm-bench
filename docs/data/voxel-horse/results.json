@@ -48,7 +48,8 @@
         "scripts/main.gd",
         "scripts/main.gd.uid"
       ]
-    }
+    },
+    "rank": 1
   },
   {
     "id": "gpt-6-sol-medium-20260926-001158",
@@ -99,7 +100,8 @@
         "scripts/horse_run.gd",
         "scripts/horse_run.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "gpt-6-sol-high-20260926-001158",
@@ -150,6 +152,7 @@
         "scripts/main.gd",
         "scripts/main.gd.uid"
       ]
-    }
+    },
+    "rank": null
   }
 ]

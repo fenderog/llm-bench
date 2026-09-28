@@ -51,6 +51,18 @@ everything is imported into one page. Nothing is pushed until you run `bench pub
 Each agent gets your prompt verbatim plus a fixed brief for the kind of task (`src/bench/briefs/`), and
 works in an empty folder under `[run].dir` (default `~/dev/bench-runs`, set in `bench.toml`).
 
+### Adding runs to an existing page
+
+Name the page and leave out the prompt; its prompt and kind are reused:
+
+```sh
+uv run bench run --page an-svg-of-a-chair-holding -m openrouter/deepseek/deepseek-v4.1-flash:low,high
+```
+
+Existing runs, the title and your ranking stay as they are; the new runs are added (unranked). Because a
+page shows one prompt for all its runs, giving a *different* prompt for an existing page is refused;
+pass `--change-prompt` if you really mean to replace it for the whole page.
+
 ### Model sets
 
 Save a list of models and levels once and run it with `--set NAME` (or `-s`) instead of repeating `-m`:

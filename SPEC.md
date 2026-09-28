@@ -194,7 +194,7 @@ only `pi` for now), exports + verifies each Godot project, then imports everythi
 
 ```
 bench run PROMPT | --prompt-file FILE
-    --kind godot|media  what the agents produce (default godot); must match an existing page's kind
+    --kind godot|media  what the agents produce (default: the existing page's kind, else godot); must match it
     -m MODEL[:LEVELS]   repeatable. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
                         | "all" (every supported level except off) | explicit "off". No suffix = "all".
     -s, --set SET       repeatable: a model set, either a NAME from bench.toml [sets] or a FILE with one
@@ -202,7 +202,10 @@ bench run PROMPT | --prompt-file FILE
                         the -m specs, exactly as if given with -m. An unknown name that isn't a file is an error
                         listing the defined sets.
     -e LEVELS           default LEVELS for every model without a suffix (-m or set entry)
-    --page SLUG         add to this page (default: slug of the prompt's first 6 words, max 40 chars)
+    --page SLUG         add to this page (default: slug of the prompt's first 6 words, max 40 chars). For an existing
+                        page, PROMPT can be left out: its prompt (page.json) and kind are reused.
+    --change-prompt     allow a PROMPT that differs from the existing page's (after path cleaning); without it that's
+                        an error, since every import replaces the page's prompt for all its runs
     --title TEXT        page title (default: from slug, as for import)
     --brief FILE        use this brief template instead of the built-in one ({prompt} is substituted)
     -j N                max agents at once (default [run].parallel or 8)

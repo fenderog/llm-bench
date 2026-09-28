@@ -51,7 +51,8 @@
         "player.tscn",
         "project.godot"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "muse-spark-1.3-contributor-low-20260927-214751",
@@ -110,7 +111,8 @@
         "scripts/player.gd",
         "scripts/player.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "qwen3.8-27b-low-20260927-214751",
@@ -167,7 +169,8 @@
         "scripts/world.gd",
         "scripts/world.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "muse-spark-1.3-contributor-medium-20260927-214751",
@@ -230,7 +233,8 @@
         "scripts/sandbox.gd",
         "scripts/sandbox.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "qwen3.8-27b-medium-20260927-214751",
@@ -281,7 +285,8 @@
         "scripts/main.gd",
         "scripts/main.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "muse-spark-1.3-contributor-high-20260927-214751",
@@ -346,7 +351,8 @@
         "scripts/world_builder.gd",
         "scripts/world_builder.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "muse-spark-1.3-contributor-xhigh-20260927-214751",
@@ -407,7 +413,8 @@
         "scripts/sfx.gd",
         "scripts/sfx.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "qwen3.8-27b-xhigh-20260927-214751",
@@ -462,7 +469,8 @@
         "scripts/main.gd",
         "scripts/main.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "deepseek-v4.1-flash-low-20260927-214751",
@@ -515,7 +523,8 @@
         "scripts/voxel_character.gd",
         "scripts/voxel_character.gd.uid"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "deepseek-v4.1-flash-high-20260927-214751",
@@ -570,7 +579,8 @@
         "player.gd.uid",
         "project.godot"
       ]
-    }
+    },
+    "rank": null
   },
   {
     "id": "deepseek-v4.1-flash-max-20260927-214751",
@@ -628,6 +638,7 @@
         "scripts/player.gd",
         "scripts/player.gd.uid"
       ]
-    }
+    },
+    "rank": null
   }
 ]
