@@ -26,6 +26,7 @@ MODEL_LEVELS = {
     "openai-codex/gpt-6-sol": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
     "openai-codex/gpt-6-luna": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
     "test/limited": ["low", "medium", "high"],
+    "openrouter/openai/gpt-6-sol:batch": ["off", "low", "medium", "high", "xhigh", "max"],  # ':' in the id
 }
 
 
@@ -79,6 +80,7 @@ def cmd_run():
     model_id, level = rest.split(":", 1)
 
     if os.environ.get("FAKE_PI_HANG"):
+        Path("fake_pi.pid").write_text(str(os.getpid()))  # lets a test check this exact process died
         time.sleep(3600)
         return
 

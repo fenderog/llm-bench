@@ -105,6 +105,19 @@ def test_plan_runs_dedupes_same_model_merging_levels():
     assert len(plan) == 2
 
 
+def test_plan_runs_rejects_unknown_model_with_suggestions():
+    with pytest.raises(BenchError, match=r"unknown model 'openai-codex/gpt-6-sool'.*gpt-6-sol"):
+        plan_runs(harness(), ["openai-codex/gpt-6-sool:low"], None)
+    with pytest.raises(BenchError, match="unknown model 'nope/nothing'"):
+        plan_runs(harness(), ["nope/nothing"], None)
+
+
+def test_plan_runs_handles_colons_inside_model_ids():
+    model = "openrouter/openai/gpt-6-sol:batch"
+    assert plan_runs(harness(), [model], None) == [(model, l) for l in ["low", "medium", "high", "xhigh", "max"]]
+    assert plan_runs(harness(), [model + ":high"], None) == [(model, "high")]
+
+
 def test_plan_runs_rejects_model_tag_collision(monkeypatch):
     # Two distinct model ids that both reduce to the tag "limited".
     monkeypatch.setattr(
@@ -344,17 +357,16 @@ def test_ctrl_c_kills_the_agent_and_marks_it_queued_for_resume(run_root, monkeyp
     assert batch["runs"][0]["state"] == "queued"
 
     # The fake pi's process (and its process group) must actually be gone, not just abandoned.
+    pid = int(next(batches[0].glob("*/low/fake_pi.pid")).read_text())
     deadline = time.time() + 5
-    hung_pids = []
     while time.time() < deadline:
-        hung_pids = [
-            line for line in subprocess.run(["ps", "-eo", "pid,command"], capture_output=True, text=True).stdout.splitlines()
-            if "fake_pi" in line
-        ]
-        if not hung_pids:
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
             break
-        time.sleep(0.2)
-    assert not hung_pids, f"fake pi process(es) still alive after Ctrl-C: {hung_pids}"
+        time.sleep(0.1)
+    else:
+        pytest.fail(f"fake pi (pid {pid}) still alive after Ctrl-C")
 
 
 # --- metrics against the real voxel-horse session (when present) --------------------------------

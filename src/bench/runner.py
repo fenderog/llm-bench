@@ -3,6 +3,7 @@ See SPEC.md "Running benchmarks (bench run)". A fresh batch and a `--resume`d on
 `execute()`: for each run, either run its agent (if unfinished) or reuse its entry, then
 export+verify if needed, then import."""
 
+import difflib
 import importlib.resources
 import json
 import os
@@ -62,12 +63,19 @@ def slug_from_prompt(prompt):
     return slug[:40].rstrip("-") or "run"
 
 
-def parse_model_spec(spec):
-    """'model[:levels]' -> (model, levels_text_or_None)."""
-    if ":" in spec:
-        model, levels = spec.split(":", 1)
+def parse_model_spec(spec, known):
+    """'model[:levels]' -> (model, levels_text_or_None), resolved against the harness's model list.
+    Model ids can contain ':' themselves (e.g. 'openrouter/x/y:batch'), so a full-spec match wins;
+    otherwise the levels are what follows the last ':'. Unknown models are an error with suggestions."""
+    if spec in known:
+        return spec, None
+    model, sep, levels = spec.rpartition(":")
+    if sep and model in known:
         return model, levels
-    return spec, None
+    name = spec if spec in known or not sep else model
+    close = difflib.get_close_matches(name, known, n=3, cutoff=0.6)
+    hint = f" (did you mean: {', '.join(close)}?)" if close else ""
+    raise BenchError(f"unknown model {name!r}{hint}; see `bench models`")
 
 
 def expand_levels(spec, supported, model):
@@ -100,9 +108,10 @@ def plan_runs(harness, model_specs, effort_default):
     """Resolve every -m MODEL[:LEVELS] against the harness before anything starts. Returns
     [(model, level), ...]. The same model given twice has its levels merged; two models that
     resolve to the same model-dir tag are an error."""
+    known = set(harness.models())
     levels_by_model = {}
     for spec in model_specs:
-        model, levels_text = parse_model_spec(spec)
+        model, levels_text = parse_model_spec(spec, known)
         supported = harness.levels(model)
         levels = expand_levels(levels_text or effort_default or "all", supported, model)
         levels_by_model.setdefault(model, dict.fromkeys(()))
