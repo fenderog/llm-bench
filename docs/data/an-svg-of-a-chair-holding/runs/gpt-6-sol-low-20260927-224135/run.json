@@ -1,0 +1,45 @@
+{
+  "id": "gpt-6-sol-low-20260927-224135",
+  "page": "an-svg-of-a-chair-holding",
+  "model": "openai-codex/gpt-6-sol",
+  "effort": "low",
+  "kind": "media",
+  "started_at": "2026-09-28T05:41:39Z",
+  "source_dir": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 78429,
+    "cost_usd": 0.04388840000000001,
+    "tool_calls": 2,
+    "turns": 3,
+    "tokens_total": 9317,
+    "tokens_input": 6189,
+    "tokens_output": 3128,
+    "tokens_reasoning": 64,
+    "tokens_cache_read": 1152
+  },
+  "thumb": "media/chair-with-a-gun.svg",
+  "game": null,
+  "media": [
+    {
+      "type": "image",
+      "width": 1200,
+      "height": 900,
+      "bytes": 7326,
+      "path": "media/chair-with-a-gun.svg"
+    }
+  ],
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": null
+}

@@ -1,0 +1,27 @@
+{
+  "state": "complete",
+  "error": null,
+  "exit_code": 0,
+  "argv": [
+    "pi",
+    "-p",
+    "--mode",
+    "json",
+    "--model",
+    "openai-codex/gpt-6-sol:minimal",
+    "--session-dir",
+    "~/dev/bench-runs/2026-09-27-224135-an-svg-of-a-chair-holding/2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding/.harness/minimal",
+    "-ne",
+    "-ns",
+    "-np",
+    "-nc",
+    "an SVG of a chair holding a gun\n\nDeliver the result as image and/or video files, working in the current directory.\n- Save the finished files in ./output/. Only what is in ./output/ is published as the result.\n- Formats: images as .png, .jpg, .webp, .gif or .svg; videos as .mp4 or .webm. At most 8 files,\n  each under 2 MB; videos at most 10 seconds.\n- Tools available on this machine: python3 3.12.11 (standard library only), node 26.10.0 (no npm packages), ffmpeg 9.0.2, ffprobe 9.0.2. Don't install packages or download anything.\n- Keep any code you write to make the files (it's published as the source), but delete\n  intermediate files such as rendered frames when you're done.\n- Only create or edit files inside the current directory.\n- Finish with a short summary of what you made.\n"
+  ],
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "startedAt": "2026-09-28T05:41:39Z",
+  "endedAt": "2026-09-28T05:42:49Z",
+  "durationMs": 70757
+}

@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+<title id="title">Sit Tight — the armed chair</title>
+<desc id="desc">A red velvet wooden chair with a sly face raises one carved arm, its white-gloved hand gripping a steel revolver, against a golden spotlight on a midnight-blue vintage poster.</desc>
+<defs>
+  <radialGradient id="night" cx="50%" cy="44%" r="72%"><stop stop-color="#29404a"/><stop offset=".67" stop-color="#192c37"/><stop offset="1" stop-color="#0c1b25"/></radialGradient>
+  <radialGradient id="sun" cx="47%" cy="44%" r="67%"><stop stop-color="#f6d29a"/><stop offset=".6" stop-color="#e6af70"/><stop offset="1" stop-color="#be784d"/></radialGradient>
+  <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0b875"/><stop offset=".28" stop-color="#c77a48"/><stop offset=".65" stop-color="#9b4a35"/><stop offset="1" stop-color="#633b35"/></linearGradient>
+  <linearGradient id="woodLeg" x1="0" y1="0" x2="1" y2=".3"><stop stop-color="#e9aa68"/><stop offset=".42" stop-color="#ac633d"/><stop offset="1" stop-color="#663a32"/></linearGradient>
+  <linearGradient id="velvet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c66a53"/><stop offset=".48" stop-color="#a84644"/><stop offset="1" stop-color="#682e3b"/></linearGradient>
+  <linearGradient id="seat" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#d77a5b"/><stop offset=".53" stop-color="#a74843"/><stop offset="1" stop-color="#762d38"/></linearGradient>
+  <linearGradient id="steel" x1="0" y1="0" x2=".14" y2="1"><stop stop-color="#849394"/><stop offset=".32" stop-color="#53666c"/><stop offset=".72" stop-color="#31454d"/><stop offset="1" stop-color="#1c333e"/></linearGradient>
+  <pattern id="speck" patternUnits="userSpaceOnUse" width="24" height="24"><circle cx="4" cy="5" r="1.1" fill="#fff0ca" opacity=".26"/><circle cx="17" cy="16" r=".8" fill="#fff0ca" opacity=".18"/></pattern>
+  <pattern id="grain" patternUnits="userSpaceOnUse" width="16" height="19"><path d="M1 4h2M11 15h2" stroke="#ffd89b" stroke-width=".8" opacity=".3"/></pattern>
+  <clipPath id="disc"><circle cx="598" cy="631" r="437"/></clipPath>
+  <clipPath id="backClipping"><path d="M426 284 Q532 274 669 278 Q697 279 704 311 L730 610 Q732 628 709 633 L401 633 Q377 633 378 609 L395 315 Q398 289 426 284Z"/></clipPath>
+</defs>
+
+<!-- A slightly worn, screen-printed night sky -->
+<path fill="url(#night)" d="M0 0h1200v1200H0z"/>
+<path fill="url(#speck)" d="M0 0h1200v1200H0z" opacity=".7"/>
+<rect x="25" y="25" width="1150" height="1150" rx="5" fill="none" stroke="#c9a67a" stroke-width="2" opacity=".58"/>
+<rect x="39" y="39" width="1122" height="1122" rx="3" fill="none" stroke="#c9a67a" stroke-width="1" opacity=".27"/>
+<path d="M73 210v-41h42M1127 210v-41h-42M73 982v40h42M1127 982v40h-42" fill="none" stroke="#d9b482" stroke-width="2" opacity=".58"/>
+
+<!-- Lettering and illuminated circular backdrop -->
+<text x="600" y="91" text-anchor="middle" fill="#edc99b" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="7">A PORTRAIT OF UNLIKELY COURAGE</text>
+<text x="600" y="159" text-anchor="middle" fill="#f9dfad" font-family="Georgia, 'Times New Roman', serif" font-size="73" font-weight="bold" letter-spacing="3">SIT TIGHT.</text>
+<path d="M193 175h814" stroke="#d1a879" stroke-width="2" opacity=".8"/>
+<path d="M490 175h220" stroke="#ffe2ad" stroke-width="4"/>
+<circle cx="598" cy="631" r="445" fill="#d88e55" opacity=".25"/>
+<circle cx="598" cy="631" r="437" fill="url(#sun)"/>
+<g clip-path="url(#disc)">
+  <path d="M-13 836 1230 111 M-10 905 1228 181 M-7 974 1230 251 M-5 1043 1230 321 M-5 1112 1230 391 M-5 1181 1230 461" fill="none" stroke="#fbdcaa" stroke-width="3" opacity=".1"/>
+  <path d="M-50 787 1230 18 M-34 1150 1268 393" fill="none" stroke="#713f36" stroke-width="2" opacity=".09"/>
+  <path fill="url(#grain)" d="M140 147h930v890H140z" opacity=".6"/>
+  <circle cx="598" cy="631" r="381" fill="none" stroke="#fff1d0" stroke-width="2" opacity=".26"/>
+  <circle cx="598" cy="631" r="359" fill="none" stroke="#9f654d" stroke-width="2" opacity=".19"/>
+</g>
+<path d="M92 938 Q593 914 1108 939" fill="none" stroke="#ffe1a7" stroke-width="2" opacity=".38"/>
+<path d="M91 974 Q593 952 1109 975" fill="none" stroke="#142430" stroke-width="5" opacity=".47"/>
+<ellipse cx="565" cy="1041" rx="445" ry="51" fill="#10232c" opacity=".3"/>
+<ellipse cx="567" cy="1040" rx="346" ry="27" fill="#0c1c26" opacity=".36"/>
+
+<!-- The chair: the rear legs and low rung -->
+<g stroke="#202b31" stroke-width="8" stroke-linejoin="round">
+  <path d="M354 718 409 727 382 997 Q373 1023 354 1015 L333 1005Z" fill="url(#woodLeg)"/>
+  <path d="M733 727 782 720 825 1000 Q825 1024 804 1015 L781 1007Z" fill="url(#woodLeg)"/>
+  <path d="M414 910 Q581 926 753 906 L759 931 Q584 953 410 936Z" fill="url(#woodLeg)"/>
+  <path d="M390 749 451 756 436 965 427 1034 Q423 1055 403 1054 L381 1046 Q371 1041 375 1020Z" fill="url(#woodLeg)"/>
+  <path d="M706 752 762 745 797 1026 Q801 1048 780 1052 L759 1054 Q748 1054 744 1034Z" fill="url(#woodLeg)"/>
+</g>
+<g fill="none" stroke="#f5bf7b" stroke-width="5" stroke-linecap="round" opacity=".56">
+  <path d="M404 793 396 1018M727 787 769 1013M355 826 348 977M767 812 806 986"/>
+</g>
+<g fill="#daac72" stroke="#202b31" stroke-width="5">
+  <path d="M376 1015q22 9 50 4l-2 27q-17 16-43-2Z"/>
+  <path d="M743 1017q26 8 51-2l4 27q-21 19-49 4Z"/>
+</g>
+
+<!-- Carved high back and inset velvet -->
+<path d="M412 246 Q535 230 677 241 Q729 242 740 295 L771 610 Q779 652 746 674 Q730 684 708 685 L395 685 Q347 684 337 646 Q334 631 338 605 L367 299 Q374 253 412 246Z" fill="url(#wood)" stroke="#202a32" stroke-width="10" stroke-linejoin="round"/>
+<path d="M425 280 Q536 271 671 275 Q703 276 710 309 L737 611 Q741 638 713 642 L397 642 Q372 640 373 613 L391 315 Q394 289 425 280Z" fill="url(#velvet)" stroke="#482b35" stroke-width="8"/>
+<g clip-path="url(#backClipping)">
+  <path d="M403 294 Q467 317 466 390 Q469 464 406 638 M683 283 Q641 328 650 411 Q652 510 718 635" fill="none" stroke="#f29e73" stroke-width="15" opacity=".12"/>
+  <path d="M397 396 Q551 360 717 394 M379 563 Q552 528 733 561 M548 279 Q525 446 552 642" fill="none" stroke="#532b35" stroke-width="3" opacity=".42"/>
+  <path d="M421 305 Q398 439 395 590 M685 298 Q721 451 717 596" fill="none" stroke="#f5b787" stroke-width="3" opacity=".42"/>
+  <path fill="url(#speck)" d="M370 268h380v380H370z" opacity=".43"/>
+</g>
+<path d="M410 265 Q543 249 686 263" fill="none" stroke="#f4c082" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+<path d="M351 604 380 302 M747 312 764 603" fill="none" stroke="#edab68" stroke-width="5" opacity=".56"/>
+<path d="M399 651 Q557 660 724 647" fill="none" stroke="#f4bc77" stroke-width="5" opacity=".55"/>
+<g fill="#eab276" stroke="#70483d" stroke-width="2">
+  <circle cx="404" cy="347" r="5"/><circle cx="389" cy="469" r="5"/><circle cx="382" cy="583" r="5"/>
+  <circle cx="697" cy="344" r="5"/><circle cx="710" cy="468" r="5"/><circle cx="722" cy="583" r="5"/>
+</g>
+
+<!-- A face suggested by stitched seams, brass eyes and a crooked smile -->
+<path d="M444 431 Q479 409 518 428 M585 425 Q624 400 665 417" fill="none" stroke="#542e35" stroke-width="11" stroke-linecap="round"/>
+<path d="M444 452 Q478 431 517 448 Q481 471 444 452Z M586 448 Q626 423 665 441 Q628 463 586 448Z" fill="#f7d99e" stroke="#572f36" stroke-width="5" stroke-linejoin="round"/>
+<path d="M473 440q-9 10 0 19 11 2 14-12-5-10-14-7ZM615 433q-10 8-2 20 11 3 15-12-4-10-13-8Z" fill="#23323a"/>
+<circle cx="478" cy="444" r="3.5" fill="#fff2ca"/><circle cx="619" cy="438" r="3.5" fill="#fff2ca"/>
+<path d="M551 473 Q542 492 551 497 L567 494" fill="none" stroke="#73313b" stroke-width="5" stroke-linecap="round"/>
+<path d="M502 521 Q548 551 611 514" fill="none" stroke="#512c35" stroke-width="7" stroke-linecap="round"/>
+<path d="M521 539 Q565 555 598 530" fill="none" stroke="#f3b18a" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+<circle cx="455" cy="501" r="3" fill="#f4b47b" opacity=".65"/><circle cx="672" cy="492" r="3" fill="#f4b47b" opacity=".65"/>
+
+<!-- Shaped seat, with its rolled cushion and wooden apron -->
+<path d="M334 654 Q434 635 605 644 Q732 647 793 657 Q822 661 824 686 L799 760 Q787 799 749 808 L356 804 Q318 803 303 777 L278 712 Q270 685 297 670Z" fill="url(#wood)" stroke="#202b31" stroke-width="10" stroke-linejoin="round"/>
+<path d="M304 726 Q534 753 811 724 L795 761 Q782 791 750 793 L357 789 Q324 788 308 765Z" fill="#794638" stroke="#202b31" stroke-width="6"/>
+<path d="M316 683 Q466 655 772 678 Q794 681 790 701 L777 733 Q771 754 739 756 Q536 768 360 751 Q332 748 323 731 L304 707 Q297 691 316 683Z" fill="url(#seat)" stroke="#5c3035" stroke-width="7"/>
+<path d="M319 690 Q473 667 755 682 M328 724 Q514 745 751 725" fill="none" stroke="#f7b283" stroke-width="4" opacity=".59" stroke-linecap="round"/>
+<path d="M356 773 Q537 788 746 772" fill="none" stroke="#d6925b" stroke-width="5" opacity=".76" stroke-linecap="round"/>
+<path d="M553 663 Q546 706 556 746" fill="none" stroke="#78363b" stroke-width="2" opacity=".38"/>
+<g fill="#e2ae70" stroke="#472d31" stroke-width="2"><circle cx="345" cy="777" r="5"/><circle cx="748" cy="781" r="5"/></g>
+
+<!-- One ordinary chair arm -->
+<path d="M358 608 Q325 591 296 607 Q271 620 269 654 L259 696 Q258 727 285 738 Q305 746 333 730 L377 714 Q390 702 379 688 Q368 674 351 685 L310 699 Q299 702 300 685 L306 651 Q308 638 326 638 L363 645Z" fill="url(#wood)" stroke="#202b31" stroke-width="9" stroke-linejoin="round"/>
+<path d="M284 694 290 647 Q293 617 326 618" fill="none" stroke="#f2bb7b" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+<path d="M313 715 364 698" fill="none" stroke="#f7bc78" stroke-width="4" stroke-linecap="round" opacity=".6"/>
+<ellipse cx="363" cy="623" rx="19" ry="28" fill="#9d573b" stroke="#202b31" stroke-width="6" transform="rotate(-19 363 623)"/>
+<ellipse cx="364" cy="619" rx="8" ry="16" fill="#e2a465" transform="rotate(-19 364 619)"/>
+
+<!-- The other arm rises out of the chair and bends toward the pistol -->
+<path d="M756 657 Q794 646 823 673 L851 702 Q859 709 865 691 L900 562 Q904 546 919 545 L936 552 Q949 562 944 579 L912 711 Q901 756 876 767 Q852 779 829 754 L796 721 Q782 712 752 715Z" fill="url(#wood)" stroke="#202b31" stroke-width="10" stroke-linejoin="round"/>
+<path d="M781 669 Q806 665 831 694 L849 718 Q864 736 881 713 L920 570" fill="none" stroke="#f7bf7b" stroke-width="7" stroke-linecap="round" opacity=".75"/>
+<path d="M793 706 Q817 712 840 740 M863 747 Q888 741 900 704" fill="none" stroke="#753f37" stroke-width="4" opacity=".66"/>
+<circle cx="850" cy="720" r="9" fill="#efb275" stroke="#593b37" stroke-width="4"/>
+<path d="M892 563 902 540 Q920 532 943 551 L944 574 918 590Z" fill="#bd815a" stroke="#202b31" stroke-width="7"/>
+<path d="M902 566q20 8 34 9" fill="none" stroke="#fbd19b" stroke-width="4"/>
+
+<!-- Steel revolver: grip, trigger bow, cylinder, barrel and sights -->
+<g stroke="#1c303a" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M941 514 Q961 513 982 538 Q982 576 946 615 Q938 624 925 614 L911 602 Q929 573 933 543Z" fill="#8b513e" stroke-width="8"/>
+  <path d="M942 544 Q958 541 965 553 Q959 582 940 601" fill="none" stroke="#d29766" stroke-width="4"/>
+  <circle cx="938" cy="595" r="4" fill="#e0ad77" stroke="none"/>
+  <path d="M970 530 Q981 554 1007 549 Q1025 543 1027 515 L1014 513 Q1014 532 1001 536 Q991 538 979 523Z" fill="#788486" stroke-width="6"/>
+  <path d="M986 523 Q989 537 997 538" fill="none" stroke-width="4"/>
+  <path d="M1001 470 1084 452 1102 453 1108 483 1095 492 1003 511Z" fill="url(#steel)" stroke-width="8"/>
+  <path d="m1076 451 1-12 12-2 7 16Z" fill="#465a60" stroke-width="6"/>
+  <path d="M1095 451 Q1112 447 1115 461 L1117 478 Q1117 488 1102 491 L1096 491Z" fill="#263d48" stroke-width="7"/>
+  <path d="M1107 459v22" stroke="#99a5a2" stroke-width="3"/>
+  <path d="M1016 478 1081 465 M1016 492 1083 478" fill="none" stroke="#bac1b2" stroke-width="3" opacity=".7"/>
+  <path d="m916 477-13-26 13-6 28 17 24-9 30 9 24 24-7 28-18 11-16 23-27-14-22 6-21-17 6-28-9-10Z" fill="url(#steel)" stroke-width="8"/>
+  <path d="m917 471-13-20 12-4 22 19" fill="#566870" stroke-width="5"/>
+  <path d="M938 476 Q961 468 984 469 M924 509l13 16 17-2" fill="none" stroke="#c5c7b3" stroke-width="3" opacity=".72"/>
+  <circle cx="975" cy="496" r="30" fill="#455a61" stroke-width="7"/>
+  <circle cx="975" cy="496" r="22" fill="none" stroke="#8d9a96" stroke-width="3"/>
+  <circle cx="975" cy="496" r="8" fill="#263b45" stroke="#afbab1" stroke-width="3"/>
+  <g fill="#a3aaa0" stroke="none"><circle cx="974" cy="480" r="2.7"/><circle cx="989" cy="490" r="2.7"/><circle cx="984" cy="509" r="2.7"/><circle cx="965" cy="510" r="2.7"/><circle cx="959" cy="490" r="2.7"/></g>
+  <path d="M1015 504 1030 500" stroke="#c0c5b7" stroke-width="4"/>
+</g>
+
+<!-- A soft leather-white glove closes around the gun's handle -->
+<path d="M901 563 Q894 552 898 539 L921 509 Q927 500 938 501 Q951 503 950 512 L934 534 950 525 Q961 518 968 527 Q974 535 964 542 L947 554 Q949 565 938 573 Q922 585 906 574Z" fill="#f3ddb5" stroke="#263139" stroke-width="7" stroke-linejoin="round"/>
+<path d="M930 534 Q939 543 946 554 M917 550 Q922 560 938 563" fill="none" stroke="#b99479" stroke-width="3" stroke-linecap="round"/>
+<path d="M889 557 Q909 554 924 578 L912 594 Q895 587 883 577Z" fill="#f2ce9e" stroke="#263139" stroke-width="6" stroke-linejoin="round"/>
+<path d="M894 568q10 2 17 12" fill="none" stroke="#af7c64" stroke-width="3"/>
+
+<!-- The quiet curl at the muzzle and a few poster ornaments -->
+<path d="M1130 464 Q1146 450 1137 435 Q1128 418 1142 408 M1145 475 Q1161 460 1152 449" fill="none" stroke="#f3dbad" stroke-width="3" stroke-linecap="round" opacity=".65"/>
+<g fill="#ffe2a5" opacity=".76"><path d="m199 494 5 15 15 5-15 5-5 15-5-15-15-5 15-5Z"/><circle cx="242" cy="557" r="3"/><circle cx="174" cy="617" r="3"/><path d="m1067 748 4 11 11 4-11 4-4 11-4-11-11-4 11-4Z"/></g>
+<text x="112" y="768" transform="rotate(-90 112 768)" fill="#f4d7a6" opacity=".75" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" letter-spacing="5">FIG. 01 / THE LAST SEAT</text>
+<text x="600" y="1124" text-anchor="middle" fill="#f4d7a6" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="5">NOT ALL FURNITURE IS DEFENSELESS</text>
+<path d="M259 1119h90m502 0h90" stroke="#d2a679" stroke-width="2" opacity=".7"/>
+</svg>

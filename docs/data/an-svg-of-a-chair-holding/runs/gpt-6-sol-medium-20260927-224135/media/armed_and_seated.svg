@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+<title id="title">Armed &amp; Seated</title>
+<desc id="desc">A sly, orange upholstered armchair with wooden legs extends one of its arms to hold a dark pistol, in a retro illustrated poster.</desc>
+<defs>
+  <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2" fill="#17343c" opacity=".17"/></pattern>
+  <pattern id="weave" width="13" height="13" patternUnits="userSpaceOnUse"><path d="M1 3l3-2M9 12l3-2" fill="none" stroke="#ffe0a7" stroke-width="1.3" opacity=".38"/></pattern>
+  <clipPath id="sunClip"><circle cx="600" cy="612" r="448"/></clipPath>
+  <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="3" seed="5" stitchTiles="stitch" result="n"/><feColorMatrix in="n" type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".11"/></feComponentTransfer><feBlend in="SourceGraphic" mode="multiply"/></filter>
+</defs>
+<!-- printed stock and frame -->
+<rect width="1200" height="1200" fill="#f2e6ce"/>
+<rect x="30" y="30" width="1140" height="1140" rx="12" fill="none" stroke="#17343c" stroke-width="5"/>
+<rect x="43" y="43" width="1114" height="1114" rx="5" fill="none" stroke="#17343c" stroke-width="1.5" opacity=".65"/>
+<circle cx="600" cy="612" r="448" fill="#e6aa67"/>
+<g clip-path="url(#sunClip)"><path d="M100 740 Q600 460 1100 740 V1150 H100Z" fill="#db9062" opacity=".42"/><rect x="115" y="168" width="990" height="900" fill="url(#dots)" opacity=".52"/></g>
+<circle cx="600" cy="612" r="448" fill="none" stroke="#17343c" stroke-width="5"/>
+<!-- typographic heading -->
+<text x="600" y="129" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="71" letter-spacing="5" fill="#17343c">ARMED &amp; SEATED</text>
+<path d="M112 156H425 M775 156h313" stroke="#17343c" stroke-width="3" stroke-linecap="round"/>
+<path d="M600 138l7 17 18 1-14 11 4 18-15-10-15 10 4-18-14-11 18-1Z" fill="#17343c"/>
+<!-- little graphic accents -->
+<g fill="none" stroke="#17343c" stroke-width="5" stroke-linecap="round"><path d="M173 438l-25-14m40-19-7-28m48 15 14-24"/><path d="M1030 720l31 6m-23 25 25 18m-61 4 8 27"/></g>
+<g fill="#17343c"><path d="M203 310l5 13 14 5-14 5-5 14-5-14-13-5 13-5Z"/><path d="M1018 354l6 16 16 6-16 6-6 16-6-16-16-6 16-6Z"/><circle cx="139" cy="667" r="5"/><circle cx="1062" cy="873" r="5"/></g>
+<!-- floor and shadow -->
+<path d="M227 982H976" stroke="#17343c" stroke-width="6" stroke-linecap="round"/>
+<ellipse cx="584" cy="974" rx="307" ry="33" fill="#17343c" opacity=".18"/>
+<!-- back chair legs -->
+<path d="M358 741l-22 184q-3 17 14 19l27 3q13 1 17-15l57-173Z" fill="#a4573c" stroke="#17343c" stroke-width="10" stroke-linejoin="round"/>
+<path d="M681 754l79 176q6 14 19 10l23-7q15-5 8-20l-49-175Z" fill="#a4573c" stroke="#17343c" stroke-width="10" stroke-linejoin="round"/>
+<!-- backrest outer carved rim -->
+<path d="M397 307Q411 253 468 248Q592 231 701 257Q757 267 772 321L782 672Q776 732 720 750L430 756Q375 739 370 681Z" fill="#a9543e" stroke="#17343c" stroke-width="13" stroke-linejoin="round"/>
+<path d="M417 327Q426 283 470 278Q584 258 691 284Q732 294 743 335L749 660Q743 697 700 708L446 714Q411 704 403 664Z" fill="#ee9b61" stroke="#17343c" stroke-width="9" stroke-linejoin="round"/>
+<path d="M432 333Q439 301 477 297Q581 279 679 303Q711 309 720 342L724 641Q710 662 694 667L449 676Q430 663 425 636Z" fill="url(#weave)"/>
+<!-- upholstered back piping and tuft marks -->
+<path d="M463 326Q579 301 688 329M450 368Q438 495 451 615M699 369Q708 483 699 611" fill="none" stroke="#ffca8b" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+<g fill="#b95f42" stroke="#17343c" stroke-width="4"><circle cx="473" cy="397" r="7"/><circle cx="682" cy="399" r="7"/><circle cx="463" cy="619" r="7"/><circle cx="692" cy="617" r="7"/></g>
+<g fill="none" stroke="#b65e43" stroke-width="3" opacity=".6"><path d="M472 404q32 12 53 38m150-36q-25 9-41 35M466 610q25-20 49-27m174 28q-22-22-43-30"/></g>
+<!-- expression on the chair back -->
+<path d="M484 467q35-27 75-6M604 461q40-21 74 7" fill="none" stroke="#17343c" stroke-width="12" stroke-linecap="round"/>
+<path d="M489 497q32-12 64 5M612 503q30-17 61-5" fill="none" stroke="#17343c" stroke-width="9" stroke-linecap="round"/>
+<circle cx="529" cy="499" r="7" fill="#17343c"/><circle cx="640" cy="499" r="7" fill="#17343c"/>
+<path d="M548 557q30 22 69 2" fill="none" stroke="#17343c" stroke-width="8" stroke-linecap="round"/>
+<path d="M578 572q16 4 27-2" fill="none" stroke="#a9543e" stroke-width="4" stroke-linecap="round"/>
+<!-- left arm of chair -->
+<path d="M358 570Q311 564 292 605Q281 630 294 711Q299 746 339 758L428 757L446 651Q415 640 411 612Q401 574 358 570Z" fill="#b76046" stroke="#17343c" stroke-width="12" stroke-linejoin="round"/>
+<path d="M339 589q-32 8-30 49l7 54q4 22 32 26l62 5 12-59q-37-11-39-49-1-27-44-26Z" fill="#f2ad6e" stroke="#17343c" stroke-width="8"/>
+<path d="M326 615q-2 43 7 70" fill="none" stroke="#ffd397" stroke-width="6" stroke-linecap="round"/>
+<!-- chair seat cushion -->
+<path d="M410 638Q566 617 724 635Q766 638 787 685L796 743Q790 778 750 796Q573 831 393 793Q348 783 339 749L355 685Q366 652 410 638Z" fill="#b85c40" stroke="#17343c" stroke-width="12" stroke-linejoin="round"/>
+<path d="M401 650Q558 629 721 649Q758 651 772 687L774 719Q756 751 718 756Q558 781 401 755Q366 749 359 720L369 690Q376 660 401 650Z" fill="#f7ad70" stroke="#17343c" stroke-width="8"/>
+<path d="M397 667q161-24 317-3m-304 82q148 24 297 0" fill="none" stroke="#ffdc9f" stroke-width="6" stroke-linecap="round" opacity=".78"/>
+<!-- front feet -->
+<path d="M391 786l-20 155q-3 20 15 22l38 1q16 1 20-17l33-152Z" fill="#bd7449" stroke="#17343c" stroke-width="11" stroke-linejoin="round"/>
+<path d="M679 796l39 156q4 16 20 14l40-5q18-3 13-22l-30-154Z" fill="#bd7449" stroke="#17343c" stroke-width="11" stroke-linejoin="round"/>
+<path d="M388 922l-3 22q-1 8 8 8h33l6-29m298 1 8 29 38-4-5-29" fill="#17343c"/>
+<!-- right armrest of chair -->
+<path d="M711 593Q737 558 775 576Q806 588 813 632L820 721Q820 752 788 768L734 780L707 719Q744 695 727 662Q696 622 711 593Z" fill="#af5840" stroke="#17343c" stroke-width="12" stroke-linejoin="round"/>
+<path d="M741 593q33-14 46 27l14 69q4 24-19 35l-42 17-22-41q25-25 8-60-16-31 15-47Z" fill="#e8905d" stroke="#17343c" stroke-width="8"/>
+<path d="M752 608q15 14 19 51" fill="none" stroke="#ffc686" stroke-width="6" stroke-linecap="round"/>
+<!-- extended upholstered chair-arm: source at the armrest, reaching towards the pistol -->
+<path d="M772 636Q789 617 811 593Q834 569 865 566L905 563L919 606Q886 607 868 622L824 670Q805 690 784 677Q766 663 772 636Z" fill="#bd6648" stroke="#17343c" stroke-width="11" stroke-linejoin="round"/>
+<path d="M788 639Q827 591 864 586" fill="none" stroke="#f8b679" stroke-width="9" stroke-linecap="round" opacity=".8"/>
+<path d="M858 572l18 50 26-8-17-51Z" fill="#f6c285" stroke="#17343c" stroke-width="7" stroke-linejoin="round"/>
+<path d="M865 580l14 34m-5-40 14 37" stroke="#b46e4a" stroke-width="3"/>
+<!-- pistol: rear sight, slide, muzzle, trigger guard and grip -->
+<g stroke="#17343c" stroke-linejoin="round" stroke-linecap="round">
+<path d="M914 499L978 509L941 646Q937 662 925 664L891 659Q877 656 882 639Z" fill="#283d42" stroke-width="9"/>
+<path d="M918 548l35 11-29 89-30-4Z" fill="#a9704b" stroke-width="5"/>
+<path d="M922 565l21 6m-28 10 22 6m-28 11 22 6m-28 11 22 6" fill="none" stroke="#e7ad6b" stroke-width="3" opacity=".7"/>
+<path d="M943 508q46 0 49 44 3 41-40 47h-26l-1-20h24q23-3 21-27-2-22-28-22Z" fill="#e3a368" stroke-width="8"/>
+<path d="M952 540q10 20 2 33" fill="none" stroke-width="7"/>
+<path d="M901 454v-20h23v20m115 0v-11h22v13" fill="#263c41" stroke-width="8"/>
+<path d="M894 456h164q12 0 12 12v43q0 11-12 11H963l-25 21-42-14-12-20v-40q0-13 10-13Z" fill="#263c41" stroke-width="10"/>
+<path d="M1068 466h24q8 0 8 8v27q0 8-8 8h-24Z" fill="#50696b" stroke-width="8"/>
+<path d="M1100 475h11v25h-11Z" fill="#17343c" stroke-width="4"/>
+<path d="M907 475h133m-115 15h113" fill="none" stroke="#819193" stroke-width="5" opacity=".72"/>
+<path d="M934 462v49m12-49v49m12-49v49" stroke="#879899" stroke-width="3"/>
+<path d="M890 518h54" stroke="#9ea7a1" stroke-width="5"/>
+<circle cx="1021" cy="503" r="4" fill="#e7ad6b" stroke="none"/>
+</g>
+<!-- white-gloved hand gripping handle and reaching trigger -->
+<path d="M880 550Q885 536 901 538L930 547Q941 550 941 559Q939 568 930 567L907 560Q901 562 906 568L922 585Q928 592 924 599Q918 607 909 601L886 583Q876 576 880 550Z" fill="#fff0d1" stroke="#17343c" stroke-width="8" stroke-linejoin="round"/>
+<path d="M918 555q18-6 30-2 12 4 17 18 2 9-7 12-8 3-12-5l-5-7-18 2" fill="#fff0d1" stroke="#17343c" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M882 569q-8 4-4 13l24 23q9 8 16 2 6-6-1-13l-17-18" fill="#fff0d1" stroke="#17343c" stroke-width="7" stroke-linecap="round"/>
+<path d="M894 585q-8 3-4 12l17 18q8 7 15 1 6-6 0-13" fill="#fff0d1" stroke="#17343c" stroke-width="6" stroke-linecap="round"/>
+<path d="M884 547q-3 15 8 23" fill="none" stroke="#d8ae85" stroke-width="4" stroke-linecap="round"/>
+<!-- quiet wisps from muzzle, ornamental not a blast -->
+<path d="M1115 473q21-17 10-36-7-13 7-25m-19 96q23 12 27-5" fill="none" stroke="#17343c" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+<!-- edition line -->
+<path d="M106 1046h988" stroke="#17343c" stroke-width="3"/>
+<text x="600" y="1091" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="27" letter-spacing="10" fill="#17343c">PLEASE REMAIN SEATED</text>
+<text x="600" y="1123" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="18" letter-spacing="3" fill="#3b5353">an illustrated furniture noir</text>
+</svg>

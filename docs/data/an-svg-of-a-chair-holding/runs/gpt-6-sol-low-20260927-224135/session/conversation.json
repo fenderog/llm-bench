@@ -1,0 +1,343 @@
+[
+  {
+    "type": "session",
+    "version": 3,
+    "id": "01a0e688-7c1b-74fa-b161-2dbd476edfc1",
+    "timestamp": "2026-09-28T05:41:39.484Z",
+    "cwd": "<vol>/dev/bench-runs/2026-09-27-224135-an-svg-of-a-chair-holding/2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding/low"
+  },
+  {
+    "type": "model_change",
+    "id": "40aa5860",
+    "parentId": null,
+    "timestamp": "2026-09-28T05:41:39.530Z",
+    "provider": "openai-codex",
+    "modelId": "gpt-6-sol"
+  },
+  {
+    "type": "thinking_level_change",
+    "id": "4bdcdfb1",
+    "parentId": "40aa5860",
+    "timestamp": "2026-09-28T05:41:39.530Z",
+    "thinkingLevel": "low"
+  },
+  {
+    "type": "message",
+    "id": "3f1db08b",
+    "parentId": "4bdcdfb1",
+    "timestamp": "2026-09-28T05:41:39.534Z",
+    "message": {
+      "role": "system",
+      "content": "",
+      "sections": {
+        "preamble": "You are an expert coding assistant operating inside pi, a coding agent harness. You help users by reading files, executing commands, editing code, and writing new files.",
+        "tools": "<tools>\n- read: Read file contents\n- bash: Execute bash commands (ls, grep, find, etc.)\n- edit: Make precise file edits with exact text replacement, including multiple disjoint edits in one call\n- write: Create or overwrite files\n\nIn addition to the tools above, you may have access to other custom tools depending on the project.\n</tools>",
+        "rules": "<rules>\n- Use bash for file operations like ls, rg, find\n- Use read to examine files instead of cat or sed.\n- You can inspect PI_* environment variables for current model and session details.\n- Use edit for precise changes (edits[].oldText must match exactly)\n- When changing multiple separate locations in one file, use one edit call with multiple entries in edits[] instead of multiple edit calls\n- Each edits[].oldText is matched against the original file, not after earlier edits are applied. Do not emit overlapping or nested edits. Merge nearby changes into one edit.\n- Keep edits[].oldText as small as possible while still being unique in the file. Do not pad with large unchanged regions.\n- Use write only for new files or complete rewrites.\n- Be concise in your responses\n- Show file paths clearly when working with files\n</rules>",
+        "docs": "<docs>\nPi documentation (read only when the user asks about pi itself, its SDK, extensions, themes, skills, or TUI):\n- Main documentation: /opt/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/README.md\n- Additional docs: /opt/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/docs\n- Examples: /opt/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/examples (extensions, custom tools, SDK)\n- When reading pi docs or examples, resolve docs/... under Additional docs and examples/... under Examples, not the current working directory\n- When asked about: extensions (docs/extensions.md, examples/extensions/), themes (docs/themes.md), skills (docs/skills.md), prompt templates (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers (docs/custom-provider.md), adding models (docs/models.md), pi packages (docs/packages.md), environment variables (docs/environment-variables.md)\n- When working on pi topics, read the docs and examples, and follow .md cross-references before implementing\n- Always read pi .md files completely and follow links to related docs (e.g., tui.md for TUI API details)\n</docs>",
+        "cwd": "<cwd>\n<vol>/dev/bench-runs/2026-09-27-224135-an-svg-of-a-chair-holding/2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding/low\n</cwd>"
+      },
+      "timestamp": 1790574099533,
+      "toolsAdded": [
+        {
+          "name": "read",
+          "description": "Read the contents of a file. Supports text files and images (jpg, png, gif, webp, bmp). Images are sent as attachments. For text files, output is truncated to 2000 lines or 50KB (whichever is hit first). Use offset/limit for large files. When you need the full file, continue with offset until complete.",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "path"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to the file to read (relative or absolute)"
+              },
+              "offset": {
+                "type": "number",
+                "description": "Line number to start reading from (1-indexed)"
+              },
+              "limit": {
+                "type": "number",
+                "description": "Maximum number of lines to read"
+              }
+            }
+          },
+          "constrainedSampling": {
+            "type": "json_schema",
+            "strict": "prefer"
+          }
+        },
+        {
+          "name": "bash",
+          "description": "Execute a bash command in the current working directory. Returns stdout and stderr. Output is truncated to last 2000 lines or 50KB (whichever is hit first). If truncated, full output is saved to a temp file. Optionally provide a timeout in seconds.",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "command"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "description": "Shell command to execute"
+              },
+              "timeout": {
+                "type": "number",
+                "description": "Timeout in seconds (optional, no default timeout)"
+              }
+            }
+          },
+          "constrainedSampling": {
+            "type": "json_schema",
+            "strict": "prefer"
+          }
+        },
+        {
+          "name": "edit",
+          "description": "Edit a single file using exact text replacement. Every edits[].oldText must match a unique, non-overlapping region of the original file. If two changes affect the same block or nearby lines, merge them into one edit instead of emitting overlapping edits. Do not include large unchanged regions just to connect distant changes.",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "path",
+              "edits"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to the file to edit (relative or absolute)"
+              },
+              "edits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "oldText",
+                    "newText"
+                  ],
+                  "properties": {
+                    "oldText": {
+                      "type": "string",
+                      "description": "Exact text for one targeted replacement. It must be unique in the original file and must not overlap with any other edits[].oldText in the same call."
+                    },
+                    "newText": {
+                      "type": "string",
+                      "description": "Replacement text for this targeted edit."
+                    }
+                  }
+                },
+                "description": "One or more targeted replacements. Each edit is matched against the original file, not incrementally. Do not include overlapping or nested edits. If two changes touch the same block or nearby lines, merge them into one edit instead."
+              }
+            }
+          },
+          "constrainedSampling": {
+            "type": "json_schema",
+            "strict": "prefer"
+          }
+        },
+        {
+          "name": "write",
+          "description": "Write content to a file. Creates the file if it doesn't exist, overwrites if it does. Automatically creates parent directories.",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "path",
+              "content"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to the file to write (relative or absolute)"
+              },
+              "content": {
+                "type": "string",
+                "description": "Content to write to the file"
+              }
+            }
+          },
+          "constrainedSampling": {
+            "type": "json_schema",
+            "strict": "prefer"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "message",
+    "id": "97d292c9",
+    "parentId": "3f1db08b",
+    "timestamp": "2026-09-28T05:41:39.534Z",
+    "message": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "an SVG of a chair holding a gun\n\nDeliver the result as image and/or video files, working in the current directory.\n- Save the finished files in ./output/. Only what is in ./output/ is published as the result.\n- Formats: images as .png, .jpg, .webp, .gif or .svg; videos as .mp4 or .webm. At most 8 files,\n  each under 2 MB; videos at most 10 seconds.\n- Tools available on this machine: python3 3.12.11 (standard library only), node 26.10.0 (no npm packages), ffmpeg 9.0.2, ffprobe 9.0.2. Don't install packages or download anything.\n- Keep any code you write to make the files (it's published as the source), but delete\n  intermediate files such as rendered frames when you're done.\n- Only create or edit files inside the current directory.\n- Finish with a short summary of what you made.\n"
+        }
+      ],
+      "timestamp": 1790574099533
+    }
+  },
+  {
+    "type": "message",
+    "id": "bf342612",
+    "parentId": "97d292c9",
+    "timestamp": "2026-09-28T05:41:47.615Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "**Drafting chair-and-pistol SVG**"
+        },
+        {
+          "type": "toolCall",
+          "id": "call_sf6m7v8PiLEqGAYqAwqXTxNO|fc_070a04595daf4674016ab9fe1b856487d08cc5748d52873df6",
+          "name": "bash",
+          "arguments": {
+            "command": "mkdir -p output && pwd",
+            "timeout": 10
+          }
+        }
+      ],
+      "api": "openai-codex-responses",
+      "provider": "openai-codex",
+      "model": "gpt-6-sol",
+      "usage": {
+        "input": 1333,
+        "output": 93,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "reasoning": 64,
+        "totalTokens": 1426,
+        "cost": {
+          "input": 0.002666,
+          "output": 0.00093,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "total": 0.0035960000000000002
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1790574099537,
+      "responseId": "resp_070a04595daf4674016ab9fe142f8487d0b7bb84d55587122a",
+      "rawStopReason": "completed"
+    }
+  },
+  {
+    "type": "message",
+    "id": "1f25ab08",
+    "parentId": "bf342612",
+    "timestamp": "2026-09-28T05:41:47.672Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_sf6m7v8PiLEqGAYqAwqXTxNO|fc_070a04595daf4674016ab9fe1b856487d08cc5748d52873df6",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "<vol>/dev/bench-runs/2026-09-27-224135-an-svg-of-a-chair-holding/2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding/low\n"
+        }
+      ],
+      "isError": false,
+      "timestamp": 1790574107672
+    }
+  },
+  {
+    "type": "message",
+    "id": "4da9ec49",
+    "parentId": "1f25ab08",
+    "timestamp": "2026-09-28T05:42:52.833Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_BmBTSR9qMXwwSiZEwjtMx2J4|fc_070a04595daf4674016ab9fe1d3aec87d09595b6b901f57aeb",
+          "name": "write",
+          "arguments": {
+            "path": "output/chair-with-a-gun.svg",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 1200 900\" width=\"1200\" height=\"900\" role=\"img\" aria-label=\"An anthropomorphic golden upholstered chair holding a small revolver in its outstretched wooden arm\">\n<defs>\n  <radialGradient id=\"bg\"><stop stop-color=\"#28434b\"/><stop offset=\"1\" stop-color=\"#101e2b\"/></radialGradient>\n  <linearGradient id=\"gold\" x2=\".9\" y2=\"1\"><stop stop-color=\"#ffe6a3\"/><stop offset=\".46\" stop-color=\"#dfaa57\"/><stop offset=\"1\" stop-color=\"#985a32\"/></linearGradient>\n  <linearGradient id=\"wood\" x2=\"1\" y2=\".8\"><stop stop-color=\"#c47a3f\"/><stop offset=\".5\" stop-color=\"#834426\"/><stop offset=\"1\" stop-color=\"#4c2d27\"/></linearGradient>\n  <linearGradient id=\"steel\" x2=\"0\" y2=\"1\"><stop stop-color=\"#aabcc0\"/><stop offset=\".42\" stop-color=\"#4d6971\"/><stop offset=\"1\" stop-color=\"#263842\"/></linearGradient>\n  <pattern id=\"dots\" width=\"14\" height=\"14\" patternUnits=\"userSpaceOnUse\"><circle cx=\"3\" cy=\"3\" r=\"1\" fill=\"#ffe8b5\" opacity=\".2\"/></pattern>\n  <filter id=\"shadow\" x=\"-40%\" y=\"-40%\" width=\"180%\" height=\"180%\"><feGaussianBlur stdDeviation=\"20\"/></filter>\n</defs>\n<!-- atmosphere -->\n<rect width=\"1200\" height=\"900\" fill=\"url(#bg)\"/>\n<circle cx=\"582\" cy=\"396\" r=\"310\" fill=\"#e6b875\" opacity=\".055\"/>\n<circle cx=\"582\" cy=\"396\" r=\"270\" fill=\"none\" stroke=\"#e7c18b\" stroke-opacity=\".15\" stroke-width=\"2\"/>\n<path d=\"M0 719 Q600 687 1200 719\" fill=\"none\" stroke=\"#9b8877\" stroke-opacity=\".22\" stroke-width=\"2\"/>\n<ellipse cx=\"560\" cy=\"785\" rx=\"350\" ry=\"37\" fill=\"#030c14\" opacity=\".48\" filter=\"url(#shadow)\"/>\n<!-- rear chair legs -->\n<path d=\"M355 591 L406 588 L392 754 Q385 783 362 784 L344 782 L342 759 Z\" fill=\"url(#wood)\" stroke=\"#332720\" stroke-width=\"7\"/>\n<path d=\"M643 592 L692 580 L731 751 Q737 779 721 783 L700 783 Q689 780 683 755 Z\" fill=\"url(#wood)\" stroke=\"#332720\" stroke-width=\"7\"/>\n<path d=\"M350 756 Q367 764 391 752 M688 751 Q707 762 729 752\" fill=\"none\" stroke=\"#e9ab66\" stroke-width=\"5\" opacity=\".6\"/>\n<!-- upholstered back, tall and slightly tilted -->\n<path d=\"M314 143 Q315 107 356 99 Q498 66 651 98 Q700 107 707 150 L718 472 Q710 530 663 553 L362 559 Q312 545 310 489 Z\" fill=\"url(#wood)\" stroke=\"#2a2525\" stroke-width=\"10\"/>\n<path d=\"M334 152 Q337 129 367 123 Q501 92 639 123 Q679 131 682 162 L690 468 Q682 513 651 523 L371 531 Q340 520 337 486 Z\" fill=\"url(#gold)\" stroke=\"#f9ce85\" stroke-width=\"5\"/>\n<path d=\"M334 152 Q337 129 367 123 Q501 92 639 123 Q679 131 682 162 L690 468 Q682 513 651 523 L371 531 Q340 520 337 486 Z\" fill=\"url(#dots)\"/>\n<path d=\"M362 148 Q502 119 653 148 M359 476 Q502 510 666 472\" fill=\"none\" stroke=\"#fff0ba\" stroke-opacity=\".42\" stroke-width=\"3\"/>\n<!-- diamond tufting -->\n<g fill=\"none\" stroke=\"#935b38\" stroke-opacity=\".34\" stroke-width=\"2.5\">\n<path d=\"M339 175 Q447 253 688 379 M337 315 Q450 390 685 505 M412 115 Q545 248 691 301 M573 113 Q651 201 689 232\"/>\n<path d=\"M680 170 Q541 256 338 395 M684 310 Q528 400 343 506 M601 115 Q451 239 339 310 M454 113 Q376 185 337 228\"/>\n</g>\n<g fill=\"#78492e\" stroke=\"#ffe8ad\" stroke-width=\"3\"><circle cx=\"431\" cy=\"236\" r=\"7\"/><circle cx=\"556\" cy=\"234\" r=\"7\"/><circle cx=\"431\" cy=\"368\" r=\"7\"/><circle cx=\"558\" cy=\"369\" r=\"7\"/><circle cx=\"622\" cy=\"302\" r=\"7\"/><circle cx=\"495\" cy=\"301\" r=\"7\"/></g>\n<!-- expression on chair back -->\n<path d=\"M411 312 Q444 293 469 313 M543 314 Q566 294 596 309\" fill=\"none\" stroke=\"#3d302c\" stroke-width=\"9\" stroke-linecap=\"round\"/>\n<path d=\"M469 416 Q514 434 553 403\" fill=\"none\" stroke=\"#60382b\" stroke-width=\"7\" stroke-linecap=\"round\"/>\n<!-- left wooden armrest -->\n<path d=\"M310 436 Q271 426 255 452 L219 558 Q214 585 241 598 L289 615 L313 585 L266 570 L300 497 L337 504 Z\" fill=\"url(#wood)\" stroke=\"#302624\" stroke-width=\"9\" stroke-linejoin=\"round\"/>\n<path d=\"M255 453 Q260 445 272 446 L322 455 Q339 459 338 478 L332 493 Q327 509 309 506 L259 489 Q243 484 247 468 Z\" fill=\"url(#gold)\" stroke=\"#402e27\" stroke-width=\"7\"/>\n<!-- seat cushion -->\n<path d=\"M297 506 Q318 487 366 492 L659 488 Q691 489 710 517 L736 608 Q742 637 710 649 Q527 687 320 645 Q290 641 280 612 Z\" fill=\"url(#wood)\" stroke=\"#2b2425\" stroke-width=\"10\"/>\n<path d=\"M304 516 Q322 501 369 503 L654 500 Q681 502 697 526 L718 595 Q722 613 701 619 Q527 655 325 617 Q304 614 298 595 Z\" fill=\"url(#gold)\" stroke=\"#ffe0a0\" stroke-width=\"4\"/>\n<path d=\"M304 516 Q322 501 369 503 L654 500 Q681 502 697 526 L718 595 Q722 613 701 619 Q527 655 325 617 Q304 614 298 595 Z\" fill=\"url(#dots)\"/>\n<path d=\"M319 633 Q525 677 709 631\" fill=\"none\" stroke=\"#563322\" stroke-width=\"7\"/>\n<!-- right chair arm extending toward gun -->\n<path d=\"M684 479 Q709 456 734 477 L784 515 L851 451 Q865 437 884 448 L901 462 Q918 476 899 497 L807 586 Q789 607 765 590 L695 539 Z\" fill=\"url(#wood)\" stroke=\"#292529\" stroke-width=\"10\" stroke-linejoin=\"round\"/>\n<path d=\"M710 475 Q722 463 738 476 L774 501 Q785 511 776 526 L762 539 Q749 550 736 540 L699 514 Q686 504 697 489 Z\" fill=\"url(#gold)\" stroke=\"#3b2b26\" stroke-width=\"7\"/>\n<path d=\"M787 522 L857 458\" stroke=\"#e2a264\" stroke-width=\"6\" stroke-linecap=\"round\" opacity=\".65\"/>\n<!-- gun: barrel aimed to right -->\n<g transform=\"translate(860 377) rotate(-10)\">\n  <!-- grip behind hand -->\n  <path d=\"M63 70 L106 76 L95 171 Q92 186 78 190 L49 181 Q42 176 48 162 Z\" fill=\"#744832\" stroke=\"#17252c\" stroke-width=\"7\" stroke-linejoin=\"round\"/>\n  <path d=\"M71 101 L93 106 L85 168 L61 162 Z\" fill=\"#9b633f\"/>\n  <path d=\"M37 47 L196 47 L206 54 L206 79 L172 85 L107 85 Q111 104 96 116 L64 112 L52 84 L36 83 Z\" fill=\"url(#steel)\" stroke=\"#15232b\" stroke-width=\"7\" stroke-linejoin=\"round\"/>\n  <path d=\"M173 49 L277 51 L287 59 L287 76 L273 81 L171 81 Z\" fill=\"url(#steel)\" stroke=\"#14232a\" stroke-width=\"7\"/>\n  <path d=\"M193 56 L273 56\" stroke=\"#c6d1cb\" stroke-width=\"3\" opacity=\".8\"/>\n  <path d=\"M258 48 L258 36 L273 36 L273 49 M48 45 L49 34 L68 34 L70 46\" fill=\"#a3b3b0\" stroke=\"#172a30\" stroke-width=\"5\"/>\n  <circle cx=\"109\" cy=\"67\" r=\"28\" fill=\"#526c71\" stroke=\"#172830\" stroke-width=\"7\"/>\n  <circle cx=\"109\" cy=\"67\" r=\"15\" fill=\"#9bacaa\" stroke=\"#243941\" stroke-width=\"4\"/>\n  <circle cx=\"109\" cy=\"67\" r=\"5\" fill=\"#253c44\"/>\n  <path d=\"M105 94 Q118 128 79 133 L76 111 Q92 109 87 93\" fill=\"none\" stroke=\"#182b32\" stroke-width=\"8\"/>\n  <path d=\"M53 57 L29 56 L24 76 L50 83\" fill=\"#354b52\" stroke=\"#172830\" stroke-width=\"5\"/>\n</g>\n<!-- carved wooden hand wrapped around grip -->\n<path d=\"M855 455 Q847 445 855 432 Q864 420 879 428 L909 448 Q926 440 938 451 Q947 459 940 471 L923 493 Q913 505 901 503 L870 485 Q849 474 855 455 Z\" fill=\"url(#wood)\" stroke=\"#282529\" stroke-width=\"8\" stroke-linejoin=\"round\"/>\n<path d=\"M874 429 L903 451 M864 445 L896 470 M859 461 L887 484\" stroke=\"#dc9c60\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n<path d=\"M922 491 Q939 481 951 489 L969 501 Q975 508 967 518 Q959 525 951 519 L927 506\" fill=\"url(#wood)\" stroke=\"#302728\" stroke-width=\"6\"/>\n<!-- foreground glints, decorative marks -->\n<path d=\"M1074 375 L1097 367 M1068 405 L1092 407 M1057 345 L1072 326\" stroke=\"#e8c18a\" stroke-width=\"3\" stroke-linecap=\"round\" opacity=\".7\"/>\n<path d=\"M193 364 L174 353 M203 334 L198 312 M184 391 L161 394\" stroke=\"#e8c18a\" stroke-width=\"3\" stroke-linecap=\"round\" opacity=\".45\"/>\n<text x=\"600\" y=\"839\" text-anchor=\"middle\" fill=\"#d1b18a\" font-family=\"Georgia,serif\" font-size=\"19\" letter-spacing=\"8\" opacity=\".8\">HAVE A SEAT</text>\n</svg>\n"
+          }
+        }
+      ],
+      "api": "openai-codex-responses",
+      "provider": "openai-codex",
+      "model": "gpt-6-sol",
+      "usage": {
+        "input": 1488,
+        "output": 3011,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 4499,
+        "cost": {
+          "input": 0.002976,
+          "output": 0.03011,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "total": 0.033086000000000004
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1790574107674,
+      "responseId": "resp_070a04595daf4674016ab9fe1bef4487d0aba93dd540238aa5",
+      "rawStopReason": "completed"
+    }
+  },
+  {
+    "type": "message",
+    "id": "1e43fd70",
+    "parentId": "4da9ec49",
+    "timestamp": "2026-09-28T05:42:52.839Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_BmBTSR9qMXwwSiZEwjtMx2J4|fc_070a04595daf4674016ab9fe1d3aec87d09595b6b901f57aeb",
+      "toolName": "write",
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully wrote to output/chair-with-a-gun.svg"
+        }
+      ],
+      "isError": false,
+      "timestamp": 1790574172839
+    }
+  },
+  {
+    "type": "message",
+    "id": "52cef49b",
+    "parentId": "1e43fd70",
+    "timestamp": "2026-09-28T05:42:54.566Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "Created `output/chair-with-a-gun.svg`\u2014an illustrated chair holding a revolver.",
+          "textSignature": "{\"v\":1,\"id\":\"msg_070a04595daf4674016ab9fe5e0d2087d09e6696fb03b77ecc\",\"phase\":\"final_answer\"}"
+        }
+      ],
+      "api": "openai-codex-responses",
+      "provider": "openai-codex",
+      "model": "gpt-6-sol",
+      "usage": {
+        "input": 3368,
+        "output": 24,
+        "cacheRead": 1152,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 4544,
+        "cost": {
+          "input": 0.006736,
+          "output": 0.00024000000000000003,
+          "cacheRead": 0.00023040000000000002,
+          "cacheWrite": 0,
+          "total": 0.0072064
+        }
+      },
+      "stopReason": "stop",
+      "timestamp": 1790574172878,
+      "responseId": "resp_070a04595daf4674016ab9fe5d25b087d0974464798ded3da1",
+      "rawStopReason": "completed"
+    }
+  }
+]

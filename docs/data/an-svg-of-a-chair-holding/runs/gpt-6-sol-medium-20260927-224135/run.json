@@ -1,0 +1,45 @@
+{
+  "id": "gpt-6-sol-medium-20260927-224135",
+  "page": "an-svg-of-a-chair-holding",
+  "model": "openai-codex/gpt-6-sol",
+  "effort": "medium",
+  "kind": "media",
+  "started_at": "2026-09-28T05:41:39Z",
+  "source_dir": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 156361,
+    "cost_usd": 0.08664200000000001,
+    "tool_calls": 4,
+    "turns": 5,
+    "tokens_total": 17981,
+    "tokens_input": 11998,
+    "tokens_output": 5983,
+    "tokens_reasoning": 1473,
+    "tokens_cache_read": 14080
+  },
+  "thumb": "media/armed_and_seated.svg",
+  "game": null,
+  "media": [
+    {
+      "type": "image",
+      "width": 1200,
+      "height": 1200,
+      "bytes": 9874,
+      "path": "media/armed_and_seated.svg"
+    }
+  ],
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": null
+}
