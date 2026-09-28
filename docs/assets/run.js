@@ -1,6 +1,6 @@
 import {
   qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge,
-  mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete,
+  mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip,
 } from "./common.js";
 import { renderTranscript } from "./transcript.js";
 
@@ -33,7 +33,8 @@ function render(run, base, siblings) {
   document.title = `${run.model} · ${run.effort} – llm-bench`;
   const { provider, name } = modelParts(run.model);
   document.getElementById("run-provider").textContent = provider;
-  document.getElementById("title").replaceChildren(el("span", { text: name, attrs: { title: run.model } }), effortPill(run.effort));
+  const myRank = siblings.find((r) => r.id === run.id)?.rank; // run.json has no rank; results.json does
+  document.getElementById("title").replaceChildren(el("span", { text: name, attrs: { title: run.model } }), effortPill(run.effort), rankChip(myRank));
 
   renderSwitcher(run, siblings);
 
@@ -107,6 +108,7 @@ function renderSwitcher(run, siblings) {
     }
     const a = el("a", { attrs: { href: runUrl(slug, r.id), title: `${r.model} · ${r.effort}${isComplete(r) ? "" : ` (${r.state})`}` } }, [
       effortPill(r.effort),
+      rankChip(r.rank),
       isComplete(r) ? null : el("span", { class: "sw-failed", text: "✗" }),
     ]);
     if (r.id === run.id) a.setAttribute("aria-current", "page");

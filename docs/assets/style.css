@@ -510,6 +510,17 @@ table.metrics .hint { color: var(--ink-3); margin-left: 8px; }
 .gallery.card-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 14px; }
 
 /* ---- phones ---- */
+/* ---- your ranking ---- */
+td.rank-cell { width: 1%; text-align: center; }
+td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; font-weight: 600; }
+.rank-select {
+  font: inherit; font-size: 13px; padding: 3px 4px; border: 1px solid var(--line-strong); border-radius: 6px;
+  background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.rank-status { font-size: 12.5px; color: var(--ink-3); }
+.rank-status.is-error { color: var(--bad); }
+.rank-chip { font-size: 1rem; line-height: 1; }
+
 @media (max-width: 720px) {
   :root { --gutter: 16px; }
   body { font-size: 14.5px; }
@@ -555,7 +566,9 @@ table.metrics .hint { color: var(--ink-3); margin-left: 8px; }
   img.row-thumb, .thumb-none { width: 100%; height: auto; aspect-ratio: 16 / 10; }
   table.runs td[data-col="model"] { grid-column: 2 / -1; }
   table.runs td[data-col="effort"] { grid-column: 2; display: flex; align-items: center; }
-  table.runs td[data-col="verified"] { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; }
+  table.runs td[data-col="verified"] { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  table.runs td[data-col="rank"] { grid-column: 1; grid-row: 3; order: 0; text-align: left !important; width: auto; }
+  table.runs td[data-col="rank"]:has(> .muted) { display: none; }
   table.runs td[data-col="harness"], table.runs td[data-col="tokens_reasoning"] { display: none; }
   table.runs td.is-num::before { content: attr(data-label); display: block; font-size: 11px; color: var(--ink-3); font-weight: 600; margin-bottom: 1px; }
   table.runs td[data-col="cost_usd"] { order: 1; }

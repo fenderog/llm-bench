@@ -1,6 +1,6 @@
 import {
   qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
-  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
+  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip,
 } from "./common.js";
 
 // compare.html?p=<slug> shows every run of the page; &r=<id>,<id> limits it to those runs.
@@ -29,7 +29,7 @@ if (!slug) {
         p.hidden = false;
       }
     }
-    const shown = (ids.length ? runs.filter((r) => ids.includes(r.id)) : runs).sort(byModelThenEffort);
+    const shown = (ids.length ? runs.filter((r) => ids.includes(r.id)) : runs).sort(byRankThenModel); // your ranking first, when there is one
     document.getElementById("compare-count").textContent = `${shown.length} run${shown.length === 1 ? "" : "s"} side by side · ★ best among them`;
     if (!shown.length) showMessage(columnsEl, "No matching runs to compare.", "error");
     const best = {};
@@ -78,7 +78,7 @@ function metricsLine(r, best) {
 function column(r, best) {
   const base = runDir(slug, r.id);
   const sb = stateBadge(r);
-  const heading = [el("a", { attrs: { href: runUrl(slug, r.id) } }, [modelLabel(r.model)]), el("span", {}, [effortPill(r.effort), sb ? " " : null, sb])];
+  const heading = [el("a", { attrs: { href: runUrl(slug, r.id) } }, [modelLabel(r.model)]), el("span", {}, [rankChip(r.rank), r.rank != null ? " " : null, effortPill(r.effort), sb ? " " : null, sb])];
   const parts = [el("h3", {}, heading), metricsLine(r, best)];
   if (r.error) parts.push(el("p", { class: "run-error", text: r.error }));
   if (r.media) parts.push(mediaGallery(r, base));

@@ -29,7 +29,8 @@
     "game": null,
     "media": null,
     "session": null,
-    "source": null
+    "source": null,
+    "rank": null
   },
   {
     "id": "model-x-high-20260102-000000",
@@ -86,6 +87,7 @@
       }
     ],
     "session": null,
-    "source": null
+    "source": null,
+    "rank": 1
   }
 ]

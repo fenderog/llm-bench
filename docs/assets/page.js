@@ -1,12 +1,15 @@
 import {
   qs, el, getJSON, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
   mediaGallery, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
+  rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip,
 } from "./common.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
 
 const COLUMNS = [
+  { key: "rank", label: "Rank", get: (r) => r.rank ?? null, num: false,
+    help: "The page owner's own ranking of the runs (🥇🥈🥉, then #4, #5…; ties allowed). – means not ranked." },
   { key: "model", label: "Model", get: (r) => r.model, num: false,
     help: "The model that ran the task (provider/model)." },
   { key: "effort", label: "Effort", get: (r) => r.effort, sortVal: (r) => effortIndex(r.effort), num: false,
@@ -39,13 +42,13 @@ if (!slug) {
       getJSON(`data/${slug}/page.json`),
       getJSON(`data/${slug}/results.json`),
     ]);
-    render(page, runs);
+    render(page, runs, await canEditRanks());
   } catch (err) {
     showMessage(main, `Could not load page "${slug}": ${err.message}`, "error");
   }
 }
 
-function render(page, runs) {
+function render(page, runs, editable) {
   document.title = `${page.title} – llm-bench`;
   document.getElementById("title").textContent = page.title;
   if (page.prompt) {
@@ -67,8 +70,13 @@ function render(page, runs) {
     renderGallery(runs);
   }
 
-  // Default order: by model, then effort low → high, so effort levels of one model read as a sequence.
-  let sortKey = "model";
+  // Default order: your ranking when there is one; otherwise by model, then effort low → high,
+  // so effort levels of one model read as a sequence.
+  let sortKey = runs.some((r) => r.rank != null) ? "rank" : "model";
+  if (editable) {
+    main.classList.add("can-rank");
+    document.getElementById("runs-count").after(el("span", { class: "rank-status", attrs: { id: "rank-status", role: "status" }, text: "ranking: saved locally, publish to share" }));
+  }
   let sortDir = 1;
   const table = document.getElementById("runs-table");
   const thead = table.querySelector("thead");
@@ -126,7 +134,9 @@ function render(page, runs) {
       for (const c of COLUMNS) {
         const v = c.get(r);
         const attrs = { "data-col": c.key, "data-label": c.label };
-        if (c.key === "model") {
+        if (c.key === "rank") {
+          tds.push(el("td", { class: "rank-cell", attrs }, [editable ? rankPicker(r) : el("span", { class: v == null ? "muted" : "rank", text: rankLabel(v) ?? "–" })]));
+        } else if (c.key === "model") {
           tds.push(el("td", { attrs }, [el("a", { attrs: { href: url } }, [modelLabel(v)])]));
         } else if (c.key === "effort") {
           tds.push(el("td", { attrs }, [effortPill(v)]));
@@ -169,6 +179,34 @@ function render(page, runs) {
       });
       tbody.append(tr);
     }
+  }
+
+  // Local ranking: one select per run (– or 1…N, ties allowed). Every change saves the whole page's
+  // ranking through `bench serve`, which rewrites ranking.json and results.json.
+  function rankPicker(r) {
+    const select = el("select", { class: "rank-select", attrs: { "aria-label": `Rank for ${r.model} ${r.effort}` } }, [
+      el("option", { text: "–", attrs: { value: "" } }),
+      ...runs.map((_, i) => el("option", { text: rankLabel(i + 1), attrs: { value: String(i + 1) } })),
+    ]);
+    select.value = r.rank == null ? "" : String(r.rank);
+    select.addEventListener("click", (e) => e.stopPropagation()); // don't expand the row
+    select.addEventListener("change", async () => {
+      const previous = r.rank ?? null;
+      r.rank = select.value ? Number(select.value) : null;
+      const status = document.getElementById("rank-status");
+      status.textContent = "saving…";
+      try {
+        await saveRanks(slug, Object.fromEntries(runs.map((x) => [x.id, x.rank ?? null])));
+        status.textContent = "saved · publish to share";
+        status.classList.remove("is-error");
+      } catch (err) {
+        r.rank = previous;
+        select.value = previous == null ? "" : String(previous);
+        status.textContent = `not saved: ${err.message}`;
+        status.classList.add("is-error");
+      }
+    });
+    return select;
   }
 
   // Expanded row: the game boots right away (the row click is the explicit play action).
@@ -246,7 +284,7 @@ function renderHighlights(runs) {
 // Media pages: one card per run (its first output, or poster frame), linking to the run page.
 function renderGallery(runs) {
   const grid = el("div", { class: "card-grid gallery", attrs: { id: "gallery" } });
-  for (const r of [...runs].sort(byModelThenEffort)) {
+  for (const r of [...runs].sort(byRankThenModel)) {
     const n = (r.media || []).length;
     const sb = stateBadge(r);
     const thumb = r.thumb
@@ -256,7 +294,7 @@ function renderGallery(runs) {
       el("a", { class: "card", attrs: { href: runUrl(slug, r.id) } }, [
         thumb,
         el("div", { class: "card-body" }, [
-          el("div", { class: "card-head" }, [effortPill(r.effort), sb || (n > 1 ? el("span", { class: "card-more", text: `${n} files` }) : null)]),
+          el("div", { class: "card-head" }, [rankChip(r.rank), effortPill(r.effort), sb || (n > 1 ? el("span", { class: "card-more", text: `${n} files` }) : null)]),
           el("div", { class: "card-meta", text: modelParts(r.model).name, attrs: { title: r.model } }),
           el("div", { class: "card-meta", text: `${fmtCost(r.metrics.cost_usd)} · ${fmtDuration(r.metrics.duration_ms)}` }),
         ]),

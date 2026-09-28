@@ -30,7 +30,8 @@ src/bench/          CLI, standard library only (argparse, json, subprocess, toml
   importer.py       effort-run folder -> docs/data/<page>/runs/<id>/ (clean, secret scan, then move)
   godot.py          engine dedupe + index.html rewrite for Godot web exports
   clean.py          session cleaning, path rewrites, secret scan/redact
-  site.py           rebuild results.json / pages.json, rm, list, engine GC
+  site.py           rebuild results.json / pages.json (+ each run's rank from ranking.json), rm, list, engine GC
+  serve.py          `bench serve` (GitHub-Pages-like) + the local-only ranking API (PUT api/rank)
   harness.py        Harness interface + Pi (the only harness so far) + parse_session (metrics)
   runner.py         `bench run`: plan -> run agents in parallel -> collect -> export -> verify -> import
   build.py          headless Godot export + Playwright boot check (Playwright is optional, imported lazily)
@@ -76,6 +77,8 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   fixtures.
 - **Keep it lean.** Stdlib-only CLI, no JS frameworks or bundler; the user checks for this. Prefer small
   functions and small diffs, and don't add dependencies without asking.
+- **Rankings are only written by `bench serve` on the user's machine** (`PUT api/rank`, which refuses cross-site
+  writes). Never add a way for the published site to write data.
 - **Untrusted text** (model output, transcripts) goes through `textContent` or `renderMarkdown()`, which
   escapes raw HTML and strips unsafe URLs. Never use innerHTML with run data.
 - Commit or push only when the user asks, or as part of a task they asked you to ship.
@@ -110,6 +113,9 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   The effort cell's text must stay exactly the level name (the meter is a CSS `::before`); tests read it.
 - **Screenshots of every page type** (desktop/phone, light/dark) are a quick visual check after UI changes: Python
   Playwright with `channel="chrome"` and `color_scheme="dark"` on the context, against `bench serve`.
+- **Viewer data JSON is fetched with `cache: "no-cache"`** (`getJSON()`); without it the browser's heuristic cache
+  showed stale results after saving a ranking (and after a publish).
+- **Tests address table cells by `data-col`**, not position: adding a column (like Rank) shifted `nth()` indexes.
 - **ffmpeg here has no WebP encoder** (it can decode WebP), so oversized images are re-encoded as JPEG.
 - **`uv run` puts `.venv/bin` first on PATH**, so agents (and the brief's tool list) see the venv's python3,
   not Homebrew's.
@@ -127,6 +133,11 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   different kind of harness (one API call per run, e.g. via OpenRouter) that writes straight into
   `./output/`; the media step, import and viewer would then work unchanged.
 - Asset cache-busting (see the stash).
+- `bench publish` opening a pull request instead of pushing (for people without write access, or `--pr` for
+  the owner), with a GitHub Action checking PRs only touch `docs/data/` + `docs/engines/`. Discussed and
+  deliberately not built for now.
+- Public voting (arena-style A/B votes): would need a small write API outside GitHub Pages (e.g. a
+  Cloudflare Worker); rankings today are the owner's only.
 
 ## Working with this user
 

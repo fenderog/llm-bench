@@ -108,7 +108,7 @@ def test_game_boots_when_a_row_is_expanded(site):
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.goto(f"{base}page.html?p=voxel-horse")
         row = page.locator("tr.run-row").filter(has=page.locator("td", has_text="high")).first
-        row.locator("td").nth(3).click()
+        row.locator('td[data-col="effort"]').click()
         deadline = time.time() + 60
         booted = False
         while time.time() < deadline and not booted:

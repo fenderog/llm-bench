@@ -74,8 +74,10 @@ export function runDir(slug, runId) {
   return `data/${slug}/runs/${runId}/`;
 }
 
+// Data JSON is always revalidated (a cheap 304 when unchanged): otherwise the browser's heuristic
+// cache can show stale results after a publish, or after saving a ranking locally.
 export async function getJSON(url) {
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: "no-cache" });
   if (!res.ok) throw new Error(`${url} → HTTP ${res.status}`);
   return res.json();
 }
@@ -184,6 +186,42 @@ export function rankBy(runs, key) {
     ranks.set(r.id, prev && prev.metrics[key] === r.metrics[key] ? ranks.get(prev.id) : i + 1);
   });
   return ranks;
+}
+
+// Ranked runs first (by rank), then everything else by model and effort.
+export function byRankThenModel(a, b) {
+  const ra = a.rank ?? Infinity, rb = b.rank ?? Infinity;
+  return ra !== rb ? ra - rb : byModelThenEffort(a, b);
+}
+
+export function rankChip(rank) {
+  const text = rankLabel(rank);
+  return text ? el("span", { class: "rank-chip", text, attrs: { title: `Ranked ${ordinal(rank)} by the page owner` } }) : null;
+}
+
+// Your ranking (run.rank, from data/<slug>/ranking.json): 🥇🥈🥉 for the top three, "#4" after that.
+export function rankLabel(rank) {
+  if (rank == null) return null;
+  return ["🥇", "🥈", "🥉"][rank - 1] || `#${rank}`;
+}
+
+// Ranking is edited only through `bench serve` on this machine, which answers api/local;
+// GitHub Pages has no such endpoint, so the published site is always read-only.
+export async function canEditRanks() {
+  if (!["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) return false;
+  try {
+    const res = await fetch("api/local", { cache: "no-store" });
+    return res.ok && (await res.json()).rank === true;
+  } catch {
+    return false;
+  }
+}
+
+export async function saveRanks(slug, ranks) {
+  const res = await fetch(`api/rank?p=${encodeURIComponent(slug)}`, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ranks }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `HTTP ${res.status}`);
 }
 
 export function ordinal(n) {

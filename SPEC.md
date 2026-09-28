@@ -33,7 +33,8 @@ docs/
   data/
     pages.json                    # [PageSummary]
     <slug>/page.json              # Page
-    <slug>/results.json           # [Run], every run.json of the page concatenated, sorted by started_at then effort order
+    <slug>/results.json           # [Run], every run.json of the page concatenated, sorted by started_at then effort order, plus each run's `rank`
+    <slug>/ranking.json           # optional: {"ranks": {"<run id>": 1, ...}, "updated": "<iso>"}, the owner's ranking (see Ranking)
     <slug>/runs/<run_id>/
       run.json                    # Run
       thumb.png                   # optional (godot)
@@ -93,6 +94,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 }
 ```
 - `game`, `media`, `session`, `source`, and `thumb` can each be `null` when the input doesn't have them.
+- `rank` exists only in `results.json` (never in `run.json`): the run's rank from `ranking.json`, or `null`.
 - `kind` = the model dir's `data.json` → `kind`, default `godot` (runs imported before kinds existed have no
   `kind`; the viewer treats that as `godot`). Importing into a page of another kind is an error.
 - `media` (kind `media`) = the items of `media/<level>/manifest.json` (see "bench run" step 6), each
@@ -175,6 +177,7 @@ bench list                      # pages and their runs
 bench rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuild
 bench rebuild                   # regenerate results.json + pages.json from runs/*/run.json; delete engines no run references
 bench serve [--port 8000]       # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
+                                #   plus the local-only ranking API (see Ranking)
 bench publish [-m MSG]          # git add docs && git commit && git push
 bench run ...                   # run agents locally, then import (see "Running benchmarks")
 bench models [SEARCH]           # models the harness can run; with SEARCH also their effort levels
@@ -306,6 +309,22 @@ every state change. `--resume DIR` reads it and, per run: `queued`/`running` →
 dir first); a finished agent is never rerun. Then export where `wasm/<level>` is missing, verify where
 `verify-report.json` is missing (media: process where `media/<level>/manifest.json` is missing), and import. Failed and timed-out runs stay as they are.
 
+## Ranking
+
+The page owner ranks runs in the browser; there is no CLI command for it. Only `bench serve` can save a ranking
+(GitHub Pages is static), so the published site shows rankings read-only.
+
+- `bench serve` answers `GET api/local` → `{"rank": true}` and `PUT api/rank?p=<slug>` with body
+  `{"ranks": {"<run id>": <int>|null, ...}}`. It validates the slug (`[a-z0-9][a-z0-9-]*`, page must exist), that every
+  id is a run of the page, and that each rank is a whole number from 1 to the number of runs (ties allowed; `null`
+  = unranked), writes `data/<slug>/ranking.json`, then rebuilds. Errors are `400 {"error": ...}`.
+- Cross-site writes are refused: the request must be `Content-Type: application/json` (so another site can't send it
+  without a CORS preflight, which the server doesn't answer) → else 415, and an `Origin` header, when present, must
+  match the `Host` → else 403.
+- `rebuild` copies each run's rank into `results.json` (`rank`, `null` when unranked) and drops `ranking.json` entries
+  for runs that no longer exist (e.g. after `bench rm`).
+- The viewer only asks `api/local` when served from localhost; when it answers, the page shows a rank picker per row.
+
 ## Viewer (docs/)
 
 Shared conventions: runs are ordered by model, then effort from minimal to max (`EFFORTS` in common.js), not
@@ -314,10 +333,17 @@ name in bold and the provider prefix quietly (`modelLabel()`). "Best" means the 
 among **completed** runs (a failed run never wins), only when at least two runs compete (`rankBy()`); it's marked in green
 with ★. Styling is one token set on `:root` (light) redefined under `prefers-color-scheme: dark`, system fonts only.
 
+Your ranking (`run.rank`) is shown as 🥇🥈🥉 then `#4`, `#5`… (`rankLabel()`/`rankChip()`): in the runs table's Rank
+column, on gallery cards, compare cards, the run title and the run switcher. When any run of a page is ranked, the table
+sorts by rank by default, and the gallery and compare order ranked runs first (`byRankThenModel()`). Under `bench serve`
+(`canEditRanks()`), the Rank column holds a `<select>` (– or 1…N) per row, and each change saves the whole page's ranking
+(`saveRanks()`), with a status line next to the run count; a failed save reverts the select and shows the error. Data
+JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is never hidden by the browser cache.
+
 - **index.html**: cards per page (thumb, a Game/Media chip, title, model names, n_runs, updated date) → page.html.
 - **page.html**: title, a meta line (kind, n runs, n models, last run), the Prompt (prompt.md) and a collapsed Final prompt,
   then **highlights**: the cheapest, fastest and fewest-tokens completed run (each links to it) plus verified count, failed
-  count and total spend. Then a "Compare all" link → compare.html and a runs table (thumb, model, effort, harness,
+  count and total spend. Then a "Compare all" link → compare.html and a runs table (thumb, rank, model, effort, harness,
   verified ✓/✗, duration, tokens total/output/reasoning, cost, tool calls, turns). Harness shows "pi 0.87.1" (name only
   when version is null, "–" when missing).
   A `media` page also has a **Gallery** above the table: one card per run (its thumb, effort, model, cost, duration,

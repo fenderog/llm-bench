@@ -111,14 +111,14 @@ def test_clicking_a_row_expands_the_game_inline(site, page):
     rows = page.locator("tr.run-row")
     row = lambda effort: rows.filter(has=page.locator("td", has_text=effort)).first
     high = row("high")
-    high.locator("td").nth(3).click()  # click a plain cell
+    high.locator('td[data-col="effort"]').click()  # click a plain cell
     assert high.get_attribute("aria-expanded") == "true"
     frame = page.locator("tr.run-detail iframe")
     assert frame.count() == 1
     assert "allow-same-origin" not in frame.get_attribute("sandbox")
     assert frame.get_attribute("src").endswith(f"/{HIGH_ID}/game/index.html")
 
-    high.locator("td").nth(3).click()  # collapse removes the game
+    high.locator('td[data-col="effort"]').click()  # collapse removes the game
     assert page.locator("tr.run-detail").count() == 0 and page.locator("iframe").count() == 0
 
     # keyboard works too; a run without a game says so
@@ -143,7 +143,7 @@ def test_page_harness_column_and_failed_badge(site, page):
     assert "failed" in low.locator(".badge-bad").inner_text()
 
     # expanding the failed row shows its error above the "No playable build" line
-    low.locator("td").nth(3).click()  # plain cell (effort), not a link/button
+    low.locator('td[data-col="effort"]').click()  # plain cell (effort), not a link/button
     detail = page.locator("tr.run-detail")
     assert "pi exited 1: rate limited" in detail.locator(".run-error").inner_text()
     assert "No playable build" in detail.inner_text()
@@ -168,8 +168,8 @@ def test_every_column_header_has_hover_help(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")
     headers = page.locator("table.runs thead th")
-    assert headers.count() == 13  # caret, thumb, 11 data columns
-    helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(13)}
+    assert headers.count() == 14  # caret, thumb, 12 data columns
+    helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(14)}
     assert all(t and len(t) > 20 for t in helps.values()), helps
     assert "reasoning" in helps["Reasoning tok"].lower()
     assert headers.nth(0).get_attribute("title") is None  # no slow native tooltip competing
@@ -200,7 +200,7 @@ def test_runs_table_shows_each_runs_image(site, page):
         assert href.startswith("run.html?p=demo&r=model-x-")
     # thumbs stay with their row when sorting
     page.locator('th[data-key="effort"]').click()
-    efforts = page.locator("table.runs tbody tr td:nth-child(4)").all_inner_texts()
+    efforts = page.locator("table.runs tbody tr td[data-col='effort']").all_inner_texts()
     has_img = [page.locator("table.runs tbody tr").nth(i).locator("img.row-thumb").count() for i in range(3)]
     assert dict(zip(efforts, has_img)) == {"low": 0, "medium": 1, "high": 1}
     assert page.locator("iframe").count() == 0
@@ -210,7 +210,7 @@ def test_runs_table_shows_each_runs_image(site, page):
 def test_page_orders_by_effort_and_highlights_best_completed_run(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")
-    efforts = lambda: page.locator("table.runs tbody tr td:nth-child(4)").all_inner_texts()
+    efforts = lambda: page.locator("table.runs tbody tr td[data-col='effort']").all_inner_texts()
     assert efforts() == ["low", "medium", "high"]  # default: model, then effort low -> max (not alphabetical)
     page.locator('th[data-key="effort"]').click()
     assert efforts() == ["low", "medium", "high"]
@@ -226,7 +226,7 @@ def test_page_orders_by_effort_and_highlights_best_completed_run(site, page):
     assert "1 / 3" in hl.locator(".hl", has_text="Verified").inner_text()  # only high is verified
     best = page.locator("td.is-best")
     assert best.count() == 3 and all(
-        best.nth(i).locator("xpath=..").locator("td:nth-child(4)").inner_text() == "medium" for i in range(3)
+        best.nth(i).locator("xpath=..").locator("td[data-col='effort']").inner_text() == "medium" for i in range(3)
     )
     assert_no_errors(page)
 
@@ -447,7 +447,7 @@ def test_media_page_shows_gallery_and_expands_outputs(site, page):
     assert "no output" in cards.filter(has_text="low").inner_text()
 
     rows = page.locator("tr.run-row")
-    rows.filter(has=page.locator("td", has_text="high")).first.locator("td").nth(3).click()
+    rows.filter(has=page.locator("td", has_text="high")).first.locator('td[data-col="effort"]').click()
     detail = page.locator("tr.run-detail")
     assert detail.locator(".media-item").count() == 3
     assert detail.locator("video").count() == 1 and detail.locator("iframe").count() == 0
@@ -505,4 +505,67 @@ def test_compare_lays_runs_out_in_a_wrapping_grid(site, page):
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")  # no sideways scrolling
     page.set_viewport_size({"width": 390, "height": 900})
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    assert_no_errors(page)
+
+
+# ---------------------------------------------------------------- your ranking
+def test_ranking_is_shown_read_only_on_the_published_site(site, page):
+    page.goto(f"{site}page.html?p=art")
+    page.wait_for_selector("tr.run-row")
+    assert page.locator('th[data-key="rank"]').get_attribute("aria-sort") == "ascending"  # ranked: default sort
+    first = page.locator("tr.run-row").first
+    assert first.locator('td[data-col="rank"]').inner_text() == "🥇" and "high" in first.inner_text()
+    assert page.locator(".rank-select").count() == 0 and page.locator("#rank-status").count() == 0
+    assert page.locator("#gallery .card").first.locator(".rank-chip").inner_text() == "🥇"
+    page.goto(f"{site}compare.html?p=art")
+    page.wait_for_selector(".compare-col")
+    assert page.locator(".compare-col").first.locator(".rank-chip").inner_text() == "🥇"
+    page.goto(f"{site}run.html?p=art&r={ART_HIGH_ID}")
+    page.wait_for_selector("#title .rank-chip")
+    assert_no_errors(page)
+
+
+@pytest.fixture
+def bench_served(tmp_path):
+    """The viewer served by `bench serve` itself (which has the local ranking API) on a copy of the fixture site."""
+    from bench.serve import serve_in_thread
+
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    for f in REPO.glob("docs/*.html"):
+        shutil.copy(f, docs / f.name)
+    shutil.copytree(REPO / "docs/assets", docs / "assets")
+    shutil.copytree(FIXTURE_DATA, docs / "data")
+    server = serve_in_thread(docs)
+    yield docs, f"http://127.0.0.1:{server.server_address[1]}/"
+    server.shutdown()
+    server.server_close()
+
+
+def test_ranking_can_be_edited_through_bench_serve(bench_served, page):
+    import json
+    import re
+
+    docs, base = bench_served
+    page.goto(f"{base}page.html?p=demo")
+    page.wait_for_selector(".rank-select")
+    assert page.locator(".rank-select").count() == 3
+    assert "publish" in page.locator("#rank-status").inner_text()
+
+    row = lambda effort: page.locator("tr.run-row").filter(has=page.locator('td[data-col="effort"]', has_text=re.compile(f"^{effort}$"))).first
+    row("medium").locator(".rank-select").select_option("1")
+    page.wait_for_function("document.getElementById('rank-status').textContent.startsWith('saved')")
+    assert page.locator("tr.run-detail").count() == 0  # picking a rank doesn't expand the row
+    row("high").locator(".rank-select").select_option("2")
+    page.wait_for_function("document.getElementById('rank-status').textContent.startsWith('saved')")
+
+    ranking = json.loads((docs / "data/demo/ranking.json").read_text())["ranks"]
+    assert ranking == {MEDIUM_ID: 1, HIGH_ID: 2}
+    results = {r["id"]: r["rank"] for r in json.loads((docs / "data/demo/results.json").read_text())}
+    assert results == {MEDIUM_ID: 1, HIGH_ID: 2, LOW_ID: None}
+
+    page.reload()  # sorted by the saved ranking now
+    page.wait_for_selector(".rank-select")
+    efforts = page.locator("table.runs tbody tr td[data-col='effort']").all_inner_texts()
+    assert efforts == ["medium", "high", "low"]
     assert_no_errors(page)
