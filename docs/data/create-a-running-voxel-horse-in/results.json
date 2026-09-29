@@ -227,5 +227,240 @@
       ]
     },
     "rank": null
+  },
+  {
+    "id": "claude-opus-5-5-cc-low-20260929-141252",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-opus-5-5",
+    "effort": "low",
+    "kind": "godot",
+    "started_at": "2026-09-29T21:12:55Z",
+    "source_dir": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
+    "verified": true,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 42200,
+      "cost_usd": 0.14323299999999997,
+      "tool_calls": 1,
+      "turns": 2,
+      "tokens_total": 4620,
+      "tokens_input": 4,
+      "tokens_output": 4616,
+      "tokens_reasoning": 281,
+      "tokens_cache_read": 11085
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "godot",
+      "entry": "game/index.html",
+      "engine": "dd54ab29f8a9",
+      "godot": "4.7.2.stable.official.ed1daf0bf",
+      "threads": false
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "export_presets.cfg",
+        "main.tscn",
+        "project.godot",
+        "scripts/main.gd",
+        "scripts/main.gd.uid"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "claude-opus-5-5-cc-medium-20260929-141252",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-opus-5-5",
+    "effort": "medium",
+    "kind": "godot",
+    "started_at": "2026-09-29T21:12:55Z",
+    "source_dir": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
+    "verified": true,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 324110,
+      "cost_usd": 1.1058806,
+      "tool_calls": 19,
+      "turns": 19,
+      "tokens_total": 32767,
+      "tokens_input": 38,
+      "tokens_output": 32729,
+      "tokens_reasoning": 15127,
+      "tokens_cache_read": 607583
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "godot",
+      "entry": "game/index.html",
+      "engine": "dd54ab29f8a9",
+      "godot": "4.7.2.stable.official.ed1daf0bf",
+      "threads": false
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "export_presets.cfg",
+        "main.gd",
+        "main.gd.uid",
+        "main.tscn",
+        "project.godot",
+        "voxel.gd",
+        "voxel.gd.uid"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "claude-opus-5-5-cc-high-20260929-141252",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-opus-5-5",
+    "effort": "high",
+    "kind": "godot",
+    "started_at": "2026-09-29T21:12:55Z",
+    "source_dir": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
+    "verified": true,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 969190,
+      "cost_usd": 3.8306005999999995,
+      "tool_calls": 48,
+      "turns": 40,
+      "tokens_total": 101042,
+      "tokens_input": 80,
+      "tokens_output": 100962,
+      "tokens_reasoning": 63681,
+      "tokens_cache_read": 3814003
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "godot",
+      "entry": "game/index.html",
+      "engine": "dd54ab29f8a9",
+      "godot": "4.7.2.stable.official.ed1daf0bf",
+      "threads": false
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "export_presets.cfg",
+        "main.tscn",
+        "project.godot",
+        "scripts/horse.gd",
+        "scripts/horse.gd.uid",
+        "scripts/main.gd",
+        "scripts/main.gd.uid",
+        "scripts/voxel.gd",
+        "scripts/voxel.gd.uid",
+        "scripts/world.gd",
+        "scripts/world.gd.uid"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "claude-opus-5-5-cc-xhigh-20260929-141252",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-opus-5-5",
+    "effort": "xhigh",
+    "kind": "godot",
+    "started_at": "2026-09-29T21:12:55Z",
+    "source_dir": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
+    "verified": true,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 2490774,
+      "cost_usd": 7.509477599999999,
+      "tool_calls": 54,
+      "turns": 46,
+      "tokens_total": 258939,
+      "tokens_input": 92,
+      "tokens_output": 258847,
+      "tokens_reasoning": 208239,
+      "tokens_cache_read": 5376048
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "godot",
+      "entry": "game/index.html",
+      "engine": "dd54ab29f8a9",
+      "godot": "4.7.2.stable.official.ed1daf0bf",
+      "threads": false
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        ".gitignore",
+        "README.md",
+        "export_presets.cfg",
+        "icon.svg",
+        "icon.svg.import",
+        "main.tscn",
+        "project.godot",
+        "scripts/follow_camera.gd",
+        "scripts/follow_camera.gd.uid",
+        "scripts/horse.gd",
+        "scripts/horse.gd.uid",
+        "scripts/horse_model.gd",
+        "scripts/horse_model.gd.uid",
+        "scripts/hud.gd",
+        "scripts/hud.gd.uid",
+        "scripts/main.gd",
+        "scripts/main.gd.uid",
+        "scripts/mesh_data.gd",
+        "scripts/mesh_data.gd.uid",
+        "scripts/sfx.gd",
+        "scripts/sfx.gd.uid",
+        "scripts/terrain.gd",
+        "scripts/terrain.gd.uid",
+        "scripts/voxel_model.gd",
+        "scripts/voxel_model.gd.uid"
+      ]
+    },
+    "rank": null
   }
 ]

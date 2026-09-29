@@ -1,0 +1,32 @@
+{
+  "state": "complete",
+  "error": null,
+  "exit_code": 0,
+  "argv": [
+    "claude",
+    "-p",
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "high",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--safe-mode",
+    "--permission-mode",
+    "bypassPermissions",
+    "--no-session-persistence",
+    "--tools=Bash,Read,Write,Edit,Glob,Grep",
+    "--disallowed-tools=Agent,Task",
+    "--disable-slash-commands",
+    "--",
+    "Create a running voxel horse in godot\n\nBuild this as a complete, playable Godot 4.7.2 project in the current directory.\n- Use the gl_compatibility renderer, and don't enable thread support (it must run as a web export).\n- Set a main scene in project.godot. Add a short README.md with run instructions.\n- Keep it self-contained: no downloads, external assets or plugins.\n- Only create or edit files inside the current directory. Don't export the project; that happens afterwards.\n- Check it loads: run `godot --headless --path . --editor --quit` and fix any errors.\n- Finish with a short summary of what you built.\n"
+  ],
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.284"
+  },
+  "startedAt": "2026-09-29T21:12:55Z",
+  "endedAt": "2026-09-29T21:29:04Z",
+  "durationMs": 969190
+}
