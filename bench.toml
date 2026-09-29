@@ -13,3 +13,4 @@ tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", 
 # Model sets for `bench run --set NAME`: entries are exactly what -m takes (MODEL[:LEVELS]);
 # an entry without levels uses -e, or every supported level except off.
 # cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4.1-flash:low"]
+frontier = ["claude-code:opus", "claude-code:sonnet", "openai-codex/gpt-6.1-sol"]   # Opus 5.5, Sonnet 5.5, GPT-6.1 Sol
