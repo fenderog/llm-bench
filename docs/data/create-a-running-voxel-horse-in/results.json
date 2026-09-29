@@ -166,66 +166,6 @@
     "rank": null
   },
   {
-    "id": "claude-sonnet-5-5-cc-xhigh-20260928-191759",
-    "page": "create-a-running-voxel-horse-in",
-    "model": "anthropic/claude-sonnet-5-5",
-    "effort": "xhigh",
-    "kind": "godot",
-    "started_at": "2026-09-29T02:18:01Z",
-    "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
-    "verified": null,
-    "harness": {
-      "name": "claude-code",
-      "version": "2.1.284"
-    },
-    "state": "timeout",
-    "error": "timed out after 1800s",
-    "metrics": {
-      "duration_ms": 1800032,
-      "cost_usd": 0.0,
-      "tool_calls": 60,
-      "turns": 33,
-      "tokens_total": 392,
-      "tokens_input": 66,
-      "tokens_output": 326,
-      "tokens_reasoning": null,
-      "tokens_cache_read": 2679527
-    },
-    "thumb": null,
-    "game": null,
-    "media": null,
-    "session": {
-      "conversation": "session/conversation.json",
-      "status": "session/status.json"
-    },
-    "source": {
-      "root": "source/",
-      "files": [
-        "icon.svg",
-        "icon.svg.import",
-        "main.tscn",
-        "project.godot",
-        "scripts/dust.gd",
-        "scripts/dust.gd.uid",
-        "scripts/hurdles.gd",
-        "scripts/hurdles.gd.uid",
-        "scripts/main.gd",
-        "scripts/main.gd.uid",
-        "scripts/scenery.gd",
-        "scripts/scenery.gd.uid",
-        "scripts/voxel_horse.gd",
-        "scripts/voxel_horse.gd.uid",
-        "scripts/voxel_mesh.gd",
-        "scripts/voxel_mesh.gd.uid",
-        "scripts/world.gd",
-        "scripts/world.gd.uid",
-        "tmp_cap.gd",
-        "tmp_cap.tscn"
-      ]
-    },
-    "rank": null
-  },
-  {
     "id": "claude-sonnet-5-5-cc-xhigh-20260928-232039",
     "page": "create-a-running-voxel-horse-in",
     "model": "anthropic/claude-sonnet-5-5",

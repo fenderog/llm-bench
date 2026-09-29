@@ -3,7 +3,7 @@
     "slug": "create-a-running-voxel-horse-in",
     "title": "Create a running voxel horse in",
     "kind": "godot",
-    "n_runs": 5,
+    "n_runs": 4,
     "models": [
       "anthropic/claude-sonnet-5-5"
     ],
