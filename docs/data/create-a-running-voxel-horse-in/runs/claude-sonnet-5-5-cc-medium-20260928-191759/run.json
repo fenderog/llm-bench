@@ -1,0 +1,51 @@
+{
+  "id": "claude-sonnet-5-5-cc-medium-20260928-191759",
+  "page": "create-a-running-voxel-horse-in",
+  "model": "anthropic/claude-sonnet-5-5",
+  "effort": "medium",
+  "kind": "godot",
+  "started_at": "2026-09-29T02:18:01Z",
+  "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
+  "verified": true,
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.284"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 60503,
+    "cost_usd": 0.130385,
+    "tool_calls": 3,
+    "turns": 4,
+    "tokens_total": 8505,
+    "tokens_input": 8,
+    "tokens_output": 8497,
+    "tokens_reasoning": 1830,
+    "tokens_cache_read": 32815
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "godot",
+    "entry": "game/index.html",
+    "engine": "dd54ab29f8a9",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "threads": false
+  },
+  "media": null,
+  "session": {
+    "conversation": "session/conversation.json",
+    "status": "session/status.json"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "export_presets.cfg",
+      "main.gd",
+      "main.gd.uid",
+      "main.tscn",
+      "project.godot"
+    ]
+  }
+}

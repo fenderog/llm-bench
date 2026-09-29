@@ -1,5 +1,16 @@
 [
   {
+    "slug": "create-a-running-voxel-horse-in",
+    "title": "Create a running voxel horse in",
+    "kind": "godot",
+    "n_runs": 5,
+    "models": [
+      "anthropic/claude-sonnet-5-5"
+    ],
+    "updated": "2026-09-29T02:48:01Z",
+    "thumb": "data/create-a-running-voxel-horse-in/runs/claude-sonnet-5-5-cc-high-20260928-191759/thumb.png"
+  },
+  {
     "slug": "an-svg-of-a-chair-holding",
     "title": "An svg of a chair holding",
     "kind": "media",

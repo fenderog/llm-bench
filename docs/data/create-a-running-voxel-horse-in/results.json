@@ -1,0 +1,310 @@
+[
+  {
+    "id": "claude-sonnet-5-5-cc-low-20260928-191759",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-sonnet-5-5",
+    "effort": "low",
+    "kind": "godot",
+    "started_at": "2026-09-29T02:18:01Z",
+    "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
+    "verified": true,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 27314,
+      "cost_usd": 0.062021200000000005,
+      "tool_calls": 2,
+      "turns": 3,
+      "tokens_total": 3853,
+      "tokens_input": 6,
+      "tokens_output": 3847,
+      "tokens_reasoning": 231,
+      "tokens_cache_read": 18436
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "godot",
+      "entry": "game/index.html",
+      "engine": "dd54ab29f8a9",
+      "godot": "4.7.2.stable.official.ed1daf0bf",
+      "threads": false
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "export_presets.cfg",
+        "main.gd",
+        "main.gd.uid",
+        "main.tscn",
+        "project.godot"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "claude-sonnet-5-5-cc-medium-20260928-191759",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-sonnet-5-5",
+    "effort": "medium",
+    "kind": "godot",
+    "started_at": "2026-09-29T02:18:01Z",
+    "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
+    "verified": true,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 60503,
+      "cost_usd": 0.130385,
+      "tool_calls": 3,
+      "turns": 4,
+      "tokens_total": 8505,
+      "tokens_input": 8,
+      "tokens_output": 8497,
+      "tokens_reasoning": 1830,
+      "tokens_cache_read": 32815
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "godot",
+      "entry": "game/index.html",
+      "engine": "dd54ab29f8a9",
+      "godot": "4.7.2.stable.official.ed1daf0bf",
+      "threads": false
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "export_presets.cfg",
+        "main.gd",
+        "main.gd.uid",
+        "main.tscn",
+        "project.godot"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "claude-sonnet-5-5-cc-high-20260928-191759",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-sonnet-5-5",
+    "effort": "high",
+    "kind": "godot",
+    "started_at": "2026-09-29T02:18:01Z",
+    "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
+    "verified": true,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 580555,
+      "cost_usd": 1.2396045999999998,
+      "tool_calls": 22,
+      "turns": 19,
+      "tokens_total": 68840,
+      "tokens_input": 38,
+      "tokens_output": 68802,
+      "tokens_reasoning": 44426,
+      "tokens_cache_read": 1171203
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "godot",
+      "entry": "game/index.html",
+      "engine": "dd54ab29f8a9",
+      "godot": "4.7.2.stable.official.ed1daf0bf",
+      "threads": false
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "export_presets.cfg",
+        "ground.gdshader",
+        "ground.gdshader.uid",
+        "horse.gd",
+        "horse.gd.uid",
+        "icon.svg",
+        "icon.svg.import",
+        "main.gd",
+        "main.gd.uid",
+        "main.tscn",
+        "project.godot",
+        "voxel_builder.gd",
+        "voxel_builder.gd.uid",
+        "world.gd",
+        "world.gd.uid"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "claude-sonnet-5-5-cc-xhigh-20260928-191759",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-sonnet-5-5",
+    "effort": "xhigh",
+    "kind": "godot",
+    "started_at": "2026-09-29T02:18:01Z",
+    "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
+    "verified": null,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "timeout",
+    "error": "timed out after 1800s",
+    "metrics": {
+      "duration_ms": 1800032,
+      "cost_usd": 0.0,
+      "tool_calls": 60,
+      "turns": 33,
+      "tokens_total": 392,
+      "tokens_input": 66,
+      "tokens_output": 326,
+      "tokens_reasoning": null,
+      "tokens_cache_read": 2679527
+    },
+    "thumb": null,
+    "game": null,
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "icon.svg",
+        "icon.svg.import",
+        "main.tscn",
+        "project.godot",
+        "scripts/dust.gd",
+        "scripts/dust.gd.uid",
+        "scripts/hurdles.gd",
+        "scripts/hurdles.gd.uid",
+        "scripts/main.gd",
+        "scripts/main.gd.uid",
+        "scripts/scenery.gd",
+        "scripts/scenery.gd.uid",
+        "scripts/voxel_horse.gd",
+        "scripts/voxel_horse.gd.uid",
+        "scripts/voxel_mesh.gd",
+        "scripts/voxel_mesh.gd.uid",
+        "scripts/world.gd",
+        "scripts/world.gd.uid",
+        "tmp_cap.gd",
+        "tmp_cap.tscn"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "claude-sonnet-5-5-cc-max-20260928-191759",
+    "page": "create-a-running-voxel-horse-in",
+    "model": "anthropic/claude-sonnet-5-5",
+    "effort": "max",
+    "kind": "godot",
+    "started_at": "2026-09-29T02:18:01Z",
+    "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
+    "verified": null,
+    "harness": {
+      "name": "claude-code",
+      "version": "2.1.284"
+    },
+    "state": "timeout",
+    "error": "timed out after 1800s",
+    "metrics": {
+      "duration_ms": 1800031,
+      "cost_usd": 0.0,
+      "tool_calls": 54,
+      "turns": 47,
+      "tokens_total": 614,
+      "tokens_input": 94,
+      "tokens_output": 520,
+      "tokens_reasoning": null,
+      "tokens_cache_read": 7424797
+    },
+    "thumb": null,
+    "game": null,
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "status": "session/status.json"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "_dev/dev_util.gd",
+        "_dev/gait_sheet.gd",
+        "_dev/gait_sheet.tscn",
+        "_dev/test_mesher.gd",
+        "_dev/test_mesher.tscn",
+        "_dev/view_horse.gd",
+        "_dev/view_horse.tscn",
+        "_scratch/.godot/.gdignore",
+        "_scratch/.godot/editor/filesystem_cache10",
+        "_scratch/.godot/editor/project_metadata.cfg",
+        "_scratch/.godot/editor/t.tscn-folding-2bff31f46e2072cb9ad08d142b754a68.cfg",
+        "_scratch/.godot/global_script_class_cache.cfg",
+        "_scratch/gen_input.gd",
+        "_scratch/input_section.txt",
+        "_scratch/project.godot",
+        "_scratch/t.tscn",
+        "_shots/.gdignore",
+        "_shots/g_.png",
+        "_shots/g_a.png",
+        "_shots/g_b.png",
+        "_shots/g_canter.png",
+        "_shots/g_trot.png",
+        "_shots/g_walk.png",
+        "_shots/log.txt",
+        "_shots/mesher.png",
+        "_shots/rest_front.png",
+        "_shots/rest_q34.png",
+        "_shots/rest_rear.png",
+        "_shots/rest_side.png",
+        "_shots/sheet_gallop.png",
+        "_shots/v2_front.png",
+        "_shots/v2_q34.png",
+        "_shots/v2_rear.png",
+        "_shots/v2_side.png",
+        "_shots/v3_q34.png",
+        "_shots/v3_side.png",
+        "_shots/v4_q34.png",
+        "_shots/v4_side.png",
+        "project.godot",
+        "scripts/horse_model.gd",
+        "scripts/voxel_horse.gd",
+        "scripts/voxel_model.gd"
+      ]
+    },
+    "rank": null
+  }
+]
