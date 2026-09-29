@@ -430,6 +430,9 @@ pre.cmd, pre.code, pre.out, pre.tool-args {
 .tool-block > pre.cmd, .tool-block > pre.code, .tool-block > pre.out, .tool-block > pre.tool-args, .tool-block > details { margin: 8px 12px; }
 .tool-block > :last-child { margin-bottom: 12px; }
 details.out-collapse > pre { margin: 6px 0 0; }
+figure.tool-image { margin: 8px 12px; }
+figure.tool-image img { display: block; max-width: min(320px, 100%); height: auto; border: 1px solid var(--line); border-radius: var(--r-sm); }
+figure.tool-image figcaption { margin-top: 4px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
 pre.cmd { background: transparent; padding: 0; color: var(--ink); font-weight: 600; }
 pre.code { max-height: 26em; overflow-y: auto; }
 pre.out { color: var(--ink-2); }

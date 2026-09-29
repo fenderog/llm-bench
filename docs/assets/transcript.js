@@ -53,24 +53,49 @@ function argLine(args) {
     .join("\n");
 }
 
+const COLLAPSE_LINES = 20;
+const COLLAPSE_CHARS = 4000; // also collapse a few very long lines (minified JSON, base64...)
+
+// Text longer than COLLAPSE_LINES lines or COLLAPSE_CHARS characters starts collapsed behind a
+// "<label> (N lines)" toggle (or "(N KB)" for a few long lines).
+function collapsible(label, nodes, text) {
+  const body = text == null ? "" : String(text);
+  const lines = body.split("\n").length;
+  if (lines <= COLLAPSE_LINES && body.length <= COLLAPSE_CHARS) return nodes;
+  const size = lines > COLLAPSE_LINES ? `${lines} lines` : `${Math.round(body.length / 1024)} KB`;
+  return [el("details", { class: "out-collapse" }, [el("summary", { text: `${label} (${size})` }), ...nodes])];
+}
+
 function renderOutput(text, isError) {
   const body = text == null ? "" : String(text);
-  const lines = body.split("\n");
-  const pre = el("pre", { class: isError ? "out out-error" : "out", text: body });
-  if (lines.length > 20) {
-    return el("details", { class: "out-collapse" }, [
-      el("summary", { text: `Output (${lines.length} lines)` }),
-      pre,
-    ]);
-  }
-  return pre;
+  return collapsible("Output", [el("pre", { class: isError ? "out out-error" : "out", text: body })], body);
 }
 
 function resultText(resultMsg) {
   if (!resultMsg) return "(no result recorded)";
   const content = resultMsg.content;
-  if (Array.isArray(content)) return content.map((c) => c.text ?? JSON.stringify(c)).join("\n");
+  if (Array.isArray(content)) return content.filter((c) => c.type !== "image").map((c) => c.text ?? JSON.stringify(c)).join("\n");
   return String(content ?? "");
+}
+
+const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
+const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
+
+// An image in a tool result (pi: {type: "image", data, mimeType}; Claude Code runs keep a small JPEG
+// thumbnail plus the original's sourceMimeType and bytes) is shown as an <img> thumbnail with a caption.
+// Only raster types with plain base64 data become an <img> (never SVG); otherwise just the caption.
+function renderImage(c) {
+  const data = typeof c.data === "string" ? c.data : "";
+  const bytes = c.bytes ?? Math.floor((data.length * 3) / 4);
+  const caption = el("figcaption", { text: `[image: ${c.sourceMimeType ?? c.mimeType ?? "unknown type"}, ${Math.round(bytes / 1024)} KB]` });
+  const ok = IMAGE_TYPES.has(c.mimeType) && BASE64.test(data);
+  const img = ok ? el("img", { attrs: { src: `data:${c.mimeType};base64,${data}`, alt: "image from a tool result", loading: "lazy" } }) : null;
+  return el("figure", { class: "tool-image" }, [img, caption]);
+}
+
+function resultImages(resultMsg) {
+  const content = resultMsg && Array.isArray(resultMsg.content) ? resultMsg.content : [];
+  return content.filter((c) => c && c.type === "image").map(renderImage);
 }
 
 function renderToolBlock(block, resultMsg, span) {
@@ -82,25 +107,36 @@ function renderToolBlock(block, resultMsg, span) {
   const args = block.arguments || {};
 
   if (block.name === "bash") {
-    wrap.append(el("pre", { class: "cmd", text: `$ ${args.command ?? ""}` }));
-    wrap.append(renderOutput(resultText(resultMsg), isError));
+    const command = `$ ${args.command ?? ""}`;
+    const firstLine = command.split("\n")[0].slice(0, 100);  // a long command (e.g. a heredoc) collapses to its first line
+    wrap.append(...collapsible(`${firstLine} …`, [el("pre", { class: "cmd", text: command })], command));
+    wrap.append(...renderOutput(resultText(resultMsg), isError));
   } else if (block.name === "write") {
     wrap.append(el("div", { class: "tool-path", text: args.path ?? "" }));
-    wrap.append(el("pre", { class: "code", text: args.content ?? "" }));
+    wrap.append(...collapsible("File", [el("pre", { class: "code", text: args.content ?? "" })], args.content));
   } else if (block.name === "edit") {
     wrap.append(el("div", { class: "tool-path", text: args.path ?? "" }));
     const edits = Array.isArray(args.edits) ? args.edits : [{ oldText: args.oldText, newText: args.newText }];
-    for (const e of edits) {
-      wrap.append(el("pre", { class: "code diff-old", text: `- ${e.oldText ?? ""}` }));
-      wrap.append(el("pre", { class: "code diff-new", text: `+ ${e.newText ?? ""}` }));
-    }
+    const diff = edits.flatMap((e) => [
+      el("pre", { class: "code diff-old", text: `- ${e.oldText ?? ""}` }),
+      el("pre", { class: "code diff-new", text: `+ ${e.newText ?? ""}` }),
+    ]);
+    wrap.append(...collapsible("Diff", diff, edits.map((e) => `${e.oldText ?? ""}\n${e.newText ?? ""}`).join("\n")));
   } else if (block.name === "read" || block.name === "ls") {
     const line = argLine(args);
     if (line) wrap.append(el("pre", { class: "tool-args", text: line }));
-    wrap.append(renderOutput(resultText(resultMsg), isError));
+    wrap.append(...renderOutput(resultText(resultMsg), isError));
   } else {
-    wrap.append(el("pre", { class: "tool-args", text: JSON.stringify(args, null, 2) }));
-    wrap.append(renderOutput(resultText(resultMsg), isError));
+    const json = JSON.stringify(args, null, 2);
+    wrap.append(...collapsible("Arguments", [el("pre", { class: "tool-args", text: json })], json));
+    wrap.append(...renderOutput(resultText(resultMsg), isError));
+  }
+  const images = resultImages(resultMsg);
+  if (images.length) {
+    // Reading an image usually returns no text: drop the empty output block.
+    const last = wrap.lastElementChild;
+    if (last?.matches("pre.out") && !last.textContent) last.remove();
+    wrap.append(...images);
   }
   return wrap;
 }
@@ -144,7 +180,7 @@ export async function renderTranscript(root, conversation, eventsText) {
     const elapsedMs = Date.parse(m.timestamp) - sessionStartMs;
     const head = el("div", { class: "turn-head" }, [el("span", { class: "role-badge", text: roleLabel(role) })]);
     const elapsed = fmtElapsed(elapsedMs);
-    if (elapsed) head.append(el("span", { class: "elapsed", text: elapsed }));
+    if (elapsed) head.append(el("span", { class: "elapsed", text: elapsed, attrs: { title: new Date(m.timestamp).toLocaleString() } }));
     if (m.message.usage) head.append(el("span", { class: "usage", text: `${fmtNum(m.message.usage.totalTokens)} tok` }));
     turn.append(head);
 

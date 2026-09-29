@@ -2,7 +2,9 @@
 idempotency. Uses the synthetic effort_run fixture from conftest.py."""
 
 import json
+from pathlib import Path
 
+from bench import clean
 from bench.cli import main
 from bench.util import make_run_id, parse_folder, title_from_slug
 
@@ -187,6 +189,22 @@ def test_secret_redact_continues_and_scrubs(bench_root, effort_run_factory):
     convo = (run_dir(bench_root, "redactrun", low_id) / "session/conversation.json").read_text()
     assert "B" * 24 not in convo
     assert "[REDACTED]" in convo
+
+
+def test_image_data_skips_rewrites_and_secret_scan_but_text_does_not():
+    home = str(Path.home())
+    lucky = "AKIA" + "Q" * 16 + "/" + home.replace("/", "+") + "=="  # base64 that looks like an AWS key
+    convo = [{"type": "message", "message": {"role": "toolResult", "content": [
+        {"type": "text", "text": f"opened {home}/shot.png"},
+        {"type": "image", "mimeType": "image/jpeg", "data": lucky},
+        {"type": "image", "mimeType": "image/jpeg", "data": "not base64: AKIA" + "Z" * 16},
+    ]}}]
+    images = []
+    text, _ = clean.clean_json(json.dumps(convo), [(home, "~")], images)
+    hits = clean.scan_secrets(text)
+    assert [h[1] for h in hits] == ["AKIA" + "Z" * 16]  # only the data that isn't base64 is still scanned
+    content = json.loads(clean.restore_images(text, images))[0]["message"]["content"]
+    assert content[0]["text"] == "opened ~/shot.png" and content[1]["data"] == lucky
 
 
 # --- dry-run / idempotency ------------------------------------------------------------------

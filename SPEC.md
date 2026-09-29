@@ -167,7 +167,10 @@ Title = the slug with dashes turned into spaces and the first letter capitalized
    `(?i)(api[_-]?key|secret|token|password)["'\s:=]+[A-Za-z0-9_\-/+]{24,}`.
    Any hit aborts the import **before anything is written**. The error prints file:line and the match masked
    (first 4 characters + `…`). With `--redact`, each match is replaced with `[REDACTED]` and the import continues.
-5. JSONL files are cleaned line by line. `output.md` and source files get steps 2 and 4 only.
+5. Image data (the base64 `data` of `{type: "image"}` blocks in session JSON) is set aside before steps 2 and 4 and
+   put back after: it's binary, so rewrites could corrupt it and the scan finds random matches (`AKIA…`) in it.
+   Data that isn't plain base64 stays in place and is scanned.
+6. JSONL files are cleaned line by line. `output.md` and source files get steps 2 and 4 only.
 
 ## CLI (`bench`, run from the repo root, or pass `--root`)
 
@@ -315,8 +318,8 @@ command = `pi -p --mode json --model M:LEVEL --session-dir DIR -ne -ns -np -nc B
 prompt templates or AGENTS.md, so runs are reproducible); session file = the one `*.jsonl` in DIR.
 
 Claude Code (`claude`): version = first word of `claude --version`. Models come from a table in the harness (there's no
-listing command): `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5`, `claude-haiku-4-5`, each with levels
-low, medium, high, xhigh, max (no minimal/off), plus the aliases fable/opus/sonnet/haiku; runs are recorded as
+listing command): `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-sonnet-5`, `claude-haiku-4-5`, each with levels
+low, medium, high, xhigh, max (no minimal/off), plus the aliases fable/opus/sonnet/haiku (each the newest of its family, `sonnet` = `claude-sonnet-5-5`); runs are recorded as
 `anthropic/<id>`. Command = `claude -p --model ID --effort LEVEL --output-format stream-json --verbose --safe-mode
 --permission-mode bypassPermissions --no-session-persistence --tools=Bash,Read,Write,Edit,Glob,Grep
 --disallowed-tools=Agent,Task --disable-slash-commands -- BRIEF`: one direct agent with only the core file and shell
@@ -327,8 +330,11 @@ the session; its raw events carry account/session details, so they're not publis
 assistant events are merged by message id (the stream emits one per content block, each repeating the usage) and
 become assistant messages (text; thinking only when non-empty, print mode usually omits it; `tool_use` → `toolCall`
 with Bash/Write/Edit/MultiEdit/Read mapped to pi's bash/write/edit/read names and argument shapes, file paths made
-relative to the run dir; other tools keep their name and input); `tool_result` blocks become `toolResult` messages;
-the brief is the first user message; an error result adds a final assistant message with `stopReason: "error"`.
+relative to the run dir; other tools keep their name and input); `tool_result` blocks become `toolResult` messages (text blocks joined into one text block; each image block becomes
+`{type: "image", mimeType: "image/jpeg", data: <≤320px JPEG thumbnail made with ffmpeg>, sourceMimeType, bytes}`,
+without `data` when ffmpeg is missing or fails, never the original ~500 KB image);
+messages keep the stream event's `timestamp` (a merged message its first event's; the session entry and the brief the
+first one in the stream); the brief is the first user message; an error result adds a final assistant message with `stopReason: "error"`.
 Sub-agent events (`parent_tool_use_id` set) are skipped. Metrics: turns = top-level assistant API messages, tool
 calls = their `tool_use` blocks; tokens from the final `result.usage` (the stream's per-message usage is a snapshot
 taken before output is written and undercounts it; it's only summed while the run is still going), reasoning =
@@ -401,8 +407,11 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   - *Transcript*: renders `session.conversation`. System prompt collapsed. User text. For each assistant message:
     thinking (collapsed, toggle "show thinking"), text (markdown), and toolCall blocks paired with their toolResult by
     `toolCallId`. Tool display: `bash` → command + output, `write` → path + content, `edit` → path + old/new blocks,
-    `read`/`ls` → args + output. Output is collapsed past 20 lines, and `isError` gets a ✗ badge. Show `+m:ss` since
-    session start and per-message token usage. Durations come from `events.jsonl` `tool_execution_start`/`_end`
+    `read`/`ls` → args + output. Any block past 20 lines or 4000 characters starts collapsed behind a toggle: output ("Output (N lines)"),
+    a written file ("File (N lines)"), an edit's diff, other tools' arguments, and a bash command (its first line shown).
+    An image in a tool result is shown as an `<img>` thumbnail (a data: URL, only for
+    jpeg/png/gif/webp with plain base64 data, never SVG) captioned `[image: <type>, N KB]`, never as text.
+    `isError` gets a ✗ badge. Show `+m:ss` since session start (the clock time on hover) and per-message token usage. Durations come from `events.jsonl` `tool_execution_start`/`_end`
     (matched by `toolCallId`) when present. Filter buttons: all / tool calls / errors.
   - *Output* (instead of Game, for a `media` run): every item as a captioned figure (file name, size, duration,
     bytes, a `download` link). Images, **SVGs included**, are only ever shown with `<img>` (which never runs an

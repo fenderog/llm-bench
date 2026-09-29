@@ -307,6 +307,25 @@ def test_run_transcript_tool_calls_and_filters(site, page):
     assert page.locator(".tool-block").count() == 5  # bash, ls, write, edit, read
     assert page.locator(".badge-error").count() == 1  # the bash call errors
 
+    # a long write is collapsed behind "File (N lines)" and opens on click
+    file_toggle = page.locator("details.out-collapse summary", has_text="File (31 lines)")
+    assert file_toggle.count() == 1
+    written = page.locator("details.out-collapse:has(summary:has-text('File')) pre.code")
+    assert not written.is_visible()
+    file_toggle.click()
+    assert written.is_visible() and "print('line 30')" in written.inner_text()
+
+    # an image in a tool result is shown as an <img> thumbnail with a caption, never as base64 text
+    text = page.locator(".transcript").inner_text()
+    assert "[image: image/png, 7 KB]" in text and "iVBORw0KGgo" not in text
+    thumb = page.locator("figure.tool-image img")
+    assert thumb.count() == 1 and thumb.get_attribute("src").startswith("data:image/png;base64,")
+    assert thumb.evaluate("img => img.decode().then(() => img.naturalWidth)") == 48
+
+    # each turn shows +m:ss since the session started, with the clock time on hover
+    elapsed = page.locator(".turn-head .elapsed").first
+    assert elapsed.inner_text().startswith("+0:") and elapsed.get_attribute("title")
+
     # thinking hidden by default, shown after toggle
     thinking = page.locator(".thinking-block").first
     assert not thinking.is_visible()

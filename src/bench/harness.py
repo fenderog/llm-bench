@@ -5,12 +5,15 @@ Every harness hands the runner the same things: a command line, a session in pi'
 (`session_entries`, published as conversation.json, which the viewer renders) and metrics.
 """
 
+import base64
+import binascii
 import json
 import os
 import subprocess
 import threading
 from pathlib import Path
 
+from .media import thumbnail
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError
 
 
@@ -229,10 +232,11 @@ class ClaudeCode(Harness):
     MODELS = {
         "claude-fable-5-1": ["low", "medium", "high", "xhigh", "max"],
         "claude-opus-5-5": ["low", "medium", "high", "xhigh", "max"],
+        "claude-sonnet-5-5": ["low", "medium", "high", "xhigh", "max"],
         "claude-sonnet-5": ["low", "medium", "high", "xhigh", "max"],
         "claude-haiku-4-5": ["low", "medium", "high", "xhigh", "max"],
     }
-    ALIASES = {"fable": "claude-fable-5-1", "opus": "claude-opus-5-5", "sonnet": "claude-sonnet-5", "haiku": "claude-haiku-4-5"}
+    ALIASES = {"fable": "claude-fable-5-1", "opus": "claude-opus-5-5", "sonnet": "claude-sonnet-5-5", "haiku": "claude-haiku-4-5"}
     # Only the core file and shell tools, like pi: no web, scheduling, messaging or skills, and no
     # sub-agents (each model x effort is one direct run).
     TOOLS = "Bash,Read,Write,Edit,Glob,Grep"
@@ -336,12 +340,34 @@ def _pi_usage(u):
     return usage
 
 
-def _tool_text(content):
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        return "\n".join(c.get("text", "") if isinstance(c, dict) and c.get("type") == "text" else json.dumps(c) for c in content)
-    return "" if content is None else json.dumps(content)
+def _tool_content(content):
+    """A tool_result's content -> pi content blocks: one text block, then one image block per image.
+    An image (e.g. the agent reading a screenshot, often ~500 KB) is kept only as a small JPEG
+    thumbnail, plus its original type and size; without ffmpeg it has no `data`."""
+    blocks = content if isinstance(content, list) else [content]
+    texts, images = [], []
+    for c in blocks:
+        if isinstance(c, dict) and c.get("type") == "image":
+            images.append(_image_block(c.get("source") or {}))
+        elif isinstance(c, dict) and c.get("type") == "text":
+            texts.append(c.get("text", ""))
+        elif isinstance(c, str):
+            texts.append(c)
+        elif c is not None:
+            texts.append(json.dumps(c))
+    return [{"type": "text", "text": "\n".join(texts)}, *images]
+
+
+def _image_block(source):
+    try:
+        raw = base64.b64decode(source.get("data") or "", validate=True)
+    except (binascii.Error, ValueError):
+        raw = b""
+    block = {"type": "image", "mimeType": "image/jpeg", "sourceMimeType": source.get("media_type"), "bytes": len(raw)}
+    thumb = thumbnail(raw) if raw else None
+    if thumb:
+        block["data"] = base64.b64encode(thumb).decode()
+    return block
 
 
 def _tool_call(block, cwd):
@@ -369,14 +395,16 @@ def _tool_call(block, cwd):
 def convert_claude_stream(events, brief, level):
     """Claude Code stream-json events -> pi-format session entries (see SPEC.md "Harness
     interface"): session, model and effort entries, the brief as the user message, assistant
-    messages (text / thinking / toolCall, with usage) and toolResult messages."""
+    messages (text / thinking / toolCall, with usage) and toolResult messages. Messages carry
+    their stream event's `timestamp`; the session and the brief get the first one in the stream."""
     init = next((e for e in events if e.get("type") == "system" and e.get("subtype") == "init"), {})
     cwd = init.get("cwd") or ""
+    start = _stamp({}, next((e.get("timestamp") for e in events if e.get("timestamp")), None))
     entries = [
-        {"type": "session", "cwd": cwd},
+        {"type": "session", "cwd": cwd, **start},
         {"type": "model_change", "provider": "anthropic", "modelId": init.get("model")},
         {"type": "thinking_level_change", "thinkingLevel": level},
-        {"type": "message", "message": {"role": "user", "content": [{"type": "text", "text": brief}]}},
+        {"type": "message", "message": {"role": "user", "content": [{"type": "text", "text": brief}]}, **start},
     ]
     pending = list(_claude_messages(events))  # merged, in stream order: emitted at their first event
     for e in events:
@@ -394,23 +422,30 @@ def convert_claude_stream(events, brief, level):
                     content.append({"type": "thinking", "thinking": b["thinking"]})
                 elif b.get("type") == "tool_use":
                     content.append(_tool_call(b, cwd))
-            entries.append({"type": "message", "message": {
+            entries.append(_stamp({"type": "message", "message": {
                 "role": "assistant", "content": content, "usage": _pi_usage(msg.get("usage") or {}),
                 "stopReason": msg.get("stop_reason"),
-            }})
+            }}, e.get("timestamp")))
         elif e.get("type") == "user":
             for b in (e.get("message") or {}).get("content") or []:
                 if isinstance(b, dict) and b.get("type") == "tool_result":
-                    entries.append({"type": "message", "message": {
+                    entries.append(_stamp({"type": "message", "message": {
                         "role": "toolResult", "toolCallId": b.get("tool_use_id"),
-                        "content": [{"type": "text", "text": _tool_text(b.get("content"))}], "isError": bool(b.get("is_error")),
-                    }})
+                        "content": _tool_content(b.get("content")), "isError": bool(b.get("is_error")),
+                    }}, e.get("timestamp")))
     result = next((e for e in reversed(events) if e.get("type") == "result"), None)
     if result and result.get("is_error"):
         entries.append({"type": "message", "message": {
             "role": "assistant", "content": [{"type": "text", "text": _result_error(result)}], "stopReason": "error",
         }})
     return entries
+
+
+def _stamp(entry, timestamp):
+    """Adds pi's `timestamp` field to a session entry when the stream event had one."""
+    if timestamp:
+        entry["timestamp"] = timestamp
+    return entry
 
 
 def _result_error(result):

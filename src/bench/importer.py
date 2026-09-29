@@ -60,10 +60,11 @@ def write_cleaned(src, dest, kind, rewrites, redact, batch):
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(src, dest)
         return
+    images = []  # image data, set aside from rewriting and the secret scan, restored before writing
     if kind == "json":
-        text, n = clean.clean_json(raw, rewrites)
+        text, n = clean.clean_json(raw, rewrites, images)
     elif kind == "jsonl":
-        text, n = clean.clean_jsonl(raw, rewrites)
+        text, n = clean.clean_jsonl(raw, rewrites, images)
     else:
         text, n = clean.clean_plain(raw, rewrites)
     batch.rewritten += n
@@ -75,7 +76,7 @@ def write_cleaned(src, dest, kind, rewrites, redact, batch):
         for line, secret in clean.scan_secrets(text):
             batch.hits.append((batch.run_id, rel.as_posix(), line, secret))
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(text, encoding="utf-8")
+    dest.write_text(clean.restore_images(text, images), encoding="utf-8")
 
 
 def final_prompt(run_dir, level):

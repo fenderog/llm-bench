@@ -54,21 +54,21 @@ def main():
     u3 = {"input_tokens": 2, "output_tokens": 30, "cache_read_input_tokens": 1300, "cache_creation_input_tokens": 0}
     emit({"type": "system", "subtype": "init", "cwd": cwd, "session_id": "sess-fake", "model": model,
           "tools": ["Bash", "Edit", "Read", "Write"], "apiKeySource": "none"})
-    emit({"type": "assistant", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
+    emit({"type": "assistant", "timestamp": "2026-01-01T00:00:00.000Z", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
         "id": "msg_1", "role": "assistant", "model": model, "usage": u1, "stop_reason": None,
         "content": [{"type": "thinking", "thinking": "Plan the files.", "signature": "c2lnbmF0dXJlLW5vdC1yZWFs"}]}})
     emit({"type": "system", "subtype": "thinking_tokens", "estimated_tokens": 12, "estimated_tokens_delta": 12})
-    emit({"type": "assistant", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
+    emit({"type": "assistant", "timestamp": "2026-01-01T00:00:05.000Z", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
         "id": "msg_1", "role": "assistant", "model": model, "usage": u1, "stop_reason": "tool_use",
         "content": [{"type": "tool_use", "id": "toolu_1", "name": "Write", "input": {"file_path": f"{cwd}/{written}", "content": "..."}}]}})
-    emit({"type": "user", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {"role": "user", "content": [
+    emit({"type": "user", "timestamp": "2026-01-01T00:00:10.000Z", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {"role": "user", "content": [
         {"type": "tool_result", "tool_use_id": "toolu_1", "content": f"File created successfully at: {cwd}/{written}"}]}})
-    emit({"type": "assistant", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
+    emit({"type": "assistant", "timestamp": "2026-01-01T00:00:15.000Z", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
         "id": "msg_2", "role": "assistant", "model": model, "usage": u2, "stop_reason": "tool_use",
         "content": [{"type": "tool_use", "id": "toolu_2", "name": "Bash", "input": {"command": "godot --headless --quit", "description": "check"}}]}})
-    emit({"type": "user", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {"role": "user", "content": [
+    emit({"type": "user", "timestamp": "2026-01-01T00:00:20.000Z", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {"role": "user", "content": [
         {"type": "tool_result", "tool_use_id": "toolu_2", "content": [{"type": "text", "text": "godot: command failed"}], "is_error": True}]}})
-    emit({"type": "assistant", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
+    emit({"type": "assistant", "timestamp": "2026-01-01T00:00:25.000Z", "session_id": "sess-fake", "parent_tool_use_id": None, "message": {
         "id": "msg_3", "role": "assistant", "model": model, "usage": u3, "stop_reason": "end_turn",
         "content": [{"type": "text", "text": "Done: built it."}]}})
     error = bool(os.environ.get("FAKE_CLAUDE_ERROR"))

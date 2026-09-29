@@ -3,6 +3,7 @@ imported, metrics, and --resume. Uses a fake `pi` (tests/fixtures/fake_pi/pi) on
 real model, Godot or Playwright is needed; Godot export/verify are monkeypatched to fast fakes.
 """
 
+import base64
 import json
 import os
 import shutil
@@ -13,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from bench.cli import main
-from bench.harness import Pi
+from bench.harness import Pi, convert_claude_stream
 from bench.runner import expand_levels, parse_duration, plan_runs
 from bench.util import BenchError
 
@@ -542,11 +543,38 @@ def test_page_without_prompt_must_exist(run_root, capsys):
 
 def test_claude_code_prefix_resolves_aliases_and_levels():
     assert plan_runs(["claude-code:opus:high"], None) == [("claude-code", "claude-opus-5-5", "high")]
+    assert plan_runs(["claude-code:sonnet:high"], None) == [("claude-code", "claude-sonnet-5-5", "high")]
     assert [l for _, _, l in plan_runs(["claude-code:claude-sonnet-5"], None)] == ["low", "medium", "high", "xhigh", "max"]
     with pytest.raises(BenchError, match="minimal.*not supported"):
         plan_runs(["claude-code:claude-opus-5-5:minimal"], None)
     with pytest.raises(BenchError, match="unknown model 'claude-opus-9'.*claude-opus-5-5"):
         plan_runs(["claude-code:claude-opus-9:high"], None)
+
+
+def _claude_image_result(data):
+    events = [
+        {"type": "assistant", "message": {"id": "m1", "content": [{"type": "tool_use", "id": "t1", "name": "Read", "input": {"file_path": "shot.png"}}]}},
+        {"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "t1", "content": [
+            {"type": "text", "text": "read it"}, {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": data}}]}]}},
+    ]
+    [result] = [e["message"] for e in convert_claude_stream(events, "brief", "low") if e.get("message", {}).get("role") == "toolResult"]
+    return result["content"]
+
+
+def test_claude_image_tool_results_keep_only_their_size_when_not_an_image():
+    text, image = _claude_image_result("A" * 4096)  # decodes, but isn't an image: no thumbnail, never the raw data
+    assert text == {"type": "text", "text": "read it"}
+    assert image == {"type": "image", "mimeType": "image/jpeg", "sourceMimeType": "image/png", "bytes": 3072}
+
+
+@pytest.mark.skipif(not shutil.which("ffmpeg"), reason="needs ffmpeg")
+def test_claude_image_tool_results_become_small_jpeg_thumbnails():
+    png = subprocess.run(["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=1280x720", "-frames:v", "1",
+                          "-f", "image2pipe", "-c:v", "png", "pipe:1"], capture_output=True, check=True).stdout
+    _, image = _claude_image_result(base64.b64encode(png).decode())
+    thumb = base64.b64decode(image["data"])
+    assert image["bytes"] == len(png) and image["sourceMimeType"] == "image/png"
+    assert thumb.startswith(b"\xff\xd8") and len(thumb) < 40_000  # a JPEG, much smaller than the original
 
 
 def test_mixed_harness_batch_records_each_runs_harness_and_session(run_root, monkeypatch, tmp_path):
@@ -590,7 +618,9 @@ def test_mixed_harness_batch_records_each_runs_harness_and_session(run_root, mon
     results_by_call = {mm["toolCallId"]: mm for mm in msgs if mm["role"] == "toolResult"}
     assert results_by_call[calls[1]["id"]]["isError"] is True
     assert [mm["content"][0]["type"] for mm in msgs if mm["role"] == "assistant"] == ["thinking", "toolCall", "text"]
-    page = json.loads((run_root / "docs/data/mixed-harness/page.json").read_text())
+    # timestamps come from the stream: a merged message keeps its first event's, the brief gets the first one
+    assert [e["timestamp"][-8:-5] for e in convo if e["type"] == "message"] == [":00", ":00", ":10", ":15", ":20", ":25"]
+    page =json.loads((run_root / "docs/data/mixed-harness/page.json").read_text())
     assert page["final_prompt"].startswith("mixed harness\n\nBuild this")
 
 
@@ -612,7 +642,7 @@ def test_claude_code_in_a_model_set_and_models_listing(run_root, capsys):
     write_sets(run_root, 'mix = ["claude-code:sonnet:low", "openai-codex/gpt-6-sol:low"]\n')
     assert main(["run", "--dry-run", "cube", "--set", "mix", "--root", str(run_root)]) == 0
     out = capsys.readouterr().out
-    assert "claude-code:claude-sonnet-5:low" in out and "openai-codex/gpt-6-sol:low" in out
+    assert "claude-code:claude-sonnet-5-5:low" in out and "openai-codex/gpt-6-sol:low" in out
     assert "harness: claude-code 9.9.9-fake, pi 0.1.0-fake" in out
     assert main(["models", "--harness", "claude-code", "opus"]) == 0
     assert "claude-opus-5-5: low, medium, high, xhigh, max" in capsys.readouterr().out

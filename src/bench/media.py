@@ -35,6 +35,19 @@ def probe(path):
     }
 
 
+def thumbnail(raw, width=320):
+    """Image bytes -> a small JPEG (at most `width` px wide), or None when ffmpeg is missing or fails."""
+    if not shutil.which("ffmpeg"):
+        return None
+    cmd = ["ffmpeg", "-v", "error", "-i", "pipe:0", "-vf", f"scale='min({width},iw)':-2", "-frames:v", "1",
+           "-q:v", "6", "-f", "image2pipe", "-c:v", "mjpeg", "pipe:1"]
+    try:
+        r = subprocess.run(cmd, input=raw, capture_output=True, timeout=60)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return r.stdout if r.returncode == 0 and r.stdout else None
+
+
 def _ffmpeg(*args):
     r = subprocess.run(["ffmpeg", "-y", "-v", "error", *args], capture_output=True, text=True, timeout=600)
     return r.returncode == 0
