@@ -5,7 +5,7 @@ rewrite = { "/Volumes/M2SSD" = "<vol>", "--Volumes-M2SSD-" = "--vol-" }
 [run]
 dir = "~/dev/bench-runs"   # where batch folders go (never inside ~/dev/effort-runs)
 parallel = 8
-timeout = "30m"
+timeout = "45m"
 # Tools listed in the media brief ("name note"); ones not on PATH are left out.
 tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", "ffprobe"]
 
