@@ -10,10 +10,11 @@ A CLI (`bench`, Python) plus a static GitHub Pages site that publishes LLM bench
 
 - **Page** = one prompt/task (e.g. `voxel-horse`).
 - **Run** = one model × effort level attempt at that task.
-- **Kind** = what a page's runs produce: `godot` (a project, published as a playable web build) or `media`
-  (image/video files the agent saved in `./output/`). One kind per page.
+- **Kind** = what a page's runs produce: `godot` (a project, published as a playable web build), `media`
+  (image/video files the agent saved in `./output/`) or `web` (a page with ES modules + npm packages, packaged
+  into one `index.html` with esbuild). One kind per page.
 
-Each run has three parts: its output (a playable Godot web build, or images/videos), the full agent
+Each run has three parts: its output (a playable Godot web build, images/videos, or a packaged web page), the full agent
 transcript with every tool call, and metrics (tokens, cost, duration).
 
 - Repo: github.com/fenderog/llm-bench (public). The site is served from `main:/docs`:
@@ -39,6 +40,7 @@ src/bench/          CLI, standard library only (argparse, json, subprocess, toml
   runner.py         `bench run`: plan -> run agents in parallel -> collect -> export -> verify -> import
   build.py          headless Godot export + Playwright boot check (Playwright is optional, imported lazily)
   media.py          kind "media": check/normalize ./output/ files with ffprobe/ffmpeg -> media/<level>/manifest.json
+  web.py            kind "web": inline the page's scripts/stylesheets with esbuild -> web/<level>/index.html (one file)
   briefs/<kind>.md  brief template per kind ({prompt}, and {tools} from [run].tools, are substituted)
 docs/               the site: vanilla JS ES modules, no build step, no framework
   index.html page.html run.html compare.html, assets/*.js, assets/style.css
@@ -57,6 +59,7 @@ uv run pytest -q                      # all tests, ~40s; must stay green
 uv run bench serve --port 8000        # preview docs/ exactly like GitHub Pages
 uv run bench run --dry-run "prompt" -m openai-codex/gpt-6-sol:low   # plan only, no model calls
 uv run bench run --dry-run --kind media "an SVG pelican" -m openai-codex/gpt-6-sol:low
+uv run bench run --dry-run --kind web "a three.js horse" -m openai-codex/gpt-6-sol:low   # needs esbuild + npm
 uv run bench run --dry-run "prompt" --set cheap   # a model set from bench.toml [sets] (or a file path)
 uv run bench run --dry-run --page <slug> -m MODEL:LEVEL   # add runs to an existing page (reuses its prompt + kind)
 uv run bench models gpt-6             # models + effort levels from pi
@@ -76,13 +79,16 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   point `--root` at a throwaway copy of the site so live data isn't touched. (ADR-0009)
 - **Game iframes must never get `allow-same-origin`.** `sandboxedGame()` in `docs/assets/common.js` is the
   only place games are embedded. (ADR-0004)
+- **Web pages are verified the way they're shown:** offline, inside the site's sandbox (`verify_build(web=True)`).
+  Don't relax that to a plain page load; it's what guarantees a packaged page has no outside dependencies. (ADR-0013)
 - **Model-made SVGs are only shown with `<img>`** (`mediaElement()` in common.js), which never runs their
   scripts. Never inline them, put them in object/embed/iframe, or link them for viewing on the site's origin
   (downloads use the `download` attribute). (ADR-0004)
 - **Everything published is cleaned and secret-scanned first.** A hit aborts before anything is written
   (`--redact` masks instead). The repo is public: no real session files or personal paths in test
   fixtures. (ADR-0005)
-- **Keep it lean.** Stdlib-only CLI, no JS frameworks or bundler; the user checks for this. Prefer small
+- **Keep it lean.** Stdlib-only CLI, no JS frameworks or bundler for the site (esbuild only packages model-made
+  web pages, ADR-0013); the user checks for this. Prefer small
   functions and small diffs, and don't add dependencies without asking. (ADR-0002)
 - **Rankings are only written by `bench serve` on the user's machine** (`PUT api/rank`, which refuses cross-site
   writes). Never add a way for the published site to write data. (ADR-0010)
@@ -134,6 +140,10 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
 - **Viewer data JSON is fetched with `cache: "no-cache"`** (`getJSON()`); without it the browser's heuristic cache
   showed stale results after saving a ranking (and after a publish).
 - **Tests address table cells by `data-col`**, not position: adding a column (like Rank) shifted `nth()` indexes.
+- **Web kind packaging:** a classic `<script src>` is inlined as a `data:` URL, not bundled: esbuild's IIFE output turns
+  its top-level `var`s (globals other scripts use) into locals. Only module scripts are bundled.
+- **Sync Playwright can't nest:** `test_web.py` keeps a session-wide browser open, so other tests that start Playwright
+  (verify, the web end-to-end test) run it in a worker thread (`in_thread()` in `test_web_kind.py`).
 - **ffmpeg here has no WebP encoder** (it can decode WebP), so oversized images are re-encoded as JPEG.
 - **`uv run` puts `.venv/bin` first on PATH**, so agents (and the brief's tool list) see the venv's python3,
   not Homebrew's. The user also has `bench` installed as an editable uv tool (`uv tool install --editable '.[verify]'`),

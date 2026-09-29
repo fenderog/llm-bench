@@ -146,8 +146,9 @@ function renderGame(run, base) {
     else showMessage(panel, "No output files recorded for this run.");
     return;
   }
+  if (run.kind === "web") document.querySelector('#tabs button[data-tab="game"]').textContent = "Page";
   if (!run.game) {
-    showMessage(panel, "No game recorded for this run.");
+    showMessage(panel, run.kind === "web" ? "No packaged page recorded for this run." : "No game recorded for this run.");
     return;
   }
   const entryUrl = base + run.game.entry;

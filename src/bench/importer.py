@@ -8,7 +8,7 @@ import tomllib
 from pathlib import Path
 from types import SimpleNamespace
 
-from . import clean, godot, site
+from . import clean, godot, site, web
 from .harness import HARNESSES
 from .util import BenchError, iso_from_ms, make_run_id, mask, parse_folder
 
@@ -34,6 +34,7 @@ SOURCE_SKIP = {
     "data.json",
     ".DS_Store",
     ".godot",
+    "node_modules",  # web runs: npm packages (bundled into the packaged page, never published as source)
 }
 
 FALLBACK_HARNESS = {"name": "pi", "version": None}
@@ -154,6 +155,15 @@ def stage_media(media_dir, run_dir, rewrites, redact, batch):
     return items or None, thumb, manifest["ok"]
 
 
+def stage_web(web_dir, run_dir, rewrites, redact, batch):
+    """web/<level>/ (written by web.package) -> runs/<id>/game/index.html. The page is model-written
+    code, so it's cleaned and secret-scanned like source. Returns (game, thumb, verified)."""
+    write_cleaned(web_dir / "index.html", run_dir / "game" / "index.html", "text", rewrites, redact, batch)
+    manifest = web.read_manifest(web_dir)
+    game = {"kind": "web", "entry": "game/index.html", "bytes": manifest.get("bytes"), "esbuild": manifest.get("esbuild")}
+    return game, godot.stage_thumb(web_dir, run_dir), godot.read_verified(web_dir)
+
+
 def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info, kind):
     harness_cls = HARNESSES.get(harness_info.get("name"))
     run_id = make_run_id(run_data["model"], level, effort_dir.name, harness_cls.tag if harness_cls else "")
@@ -164,10 +174,13 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
     level_dir = effort_dir / level
     wasm_dir = effort_dir / "wasm" / level
     media_dir = effort_dir / "media" / level
+    web_dir = effort_dir / "web" / level
 
     game = engine_sha = engine_files = thumb = verified = media_items = None
     if (media_dir / "manifest.json").is_file():
         media_items, thumb, verified = stage_media(media_dir, run_dir, rewrites, redact, batch)
+    elif (web_dir / "index.html").is_file():
+        game, thumb, verified = stage_web(web_dir, run_dir, rewrites, redact, batch)
     elif wasm_dir.is_dir():
         game, engine_sha, engine_files = godot.stage_game(
             wasm_dir, run_dir / "game", docs_root, slug, run_id, allow_threads, known_engines

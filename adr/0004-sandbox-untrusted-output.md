@@ -23,6 +23,7 @@ There is exactly one way to show each type of output:
 | Output | How it's shown | Where |
 |---|---|---|
 | Godot games (HTML/JS/wasm) | `<iframe sandbox="allow-scripts allow-pointer-lock">`, **never `allow-same-origin`**, so the game gets an opaque origin | `sandboxedGame()` in `common.js`, the only place games are embedded |
+| Web pages (kind `web`, one packaged `index.html`) | The same sandboxed iframe as games, via `sandboxedGame()`; verification boots them in that sandbox too (0013) | `sandboxedGame()` |
 | Images, SVGs included | `<img>` only, which never runs an SVG's scripts. Never inlined, never in object/embed/iframe, never linked for viewing on the site's origin (downloads use the `download` attribute) | `mediaElement()` in `common.js` |
 | Images inside a transcript (screenshots the agent read) | `<img>` with a `data:` URL, only for jpeg/png/gif/webp with plain base64 data, never SVG. Claude Code runs store a ≤320px JPEG thumbnail re-encoded by ffmpeg, not the original | `renderImage()` in `transcript.js` |
 | Videos | `<video controls preload="none">`, never autoplay | `mediaElement()` |

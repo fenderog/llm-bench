@@ -406,6 +406,46 @@ def test_metrics_match_real_session_numbers():
         assert m["turns"] == turns
 
 
+# --- web kind ------------------------------------------------------------------------------------
+needs_esbuild = pytest.mark.skipif(shutil.which("esbuild") is None, reason="esbuild not on PATH")
+
+
+@needs_esbuild
+def test_web_run_publishes_one_packaged_page(run_root):
+    rc = main(["run", "--yes", "--kind", "web", "a spinning horse", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
+    assert rc == 0
+    assert json.loads((run_root / "docs/data/a-spinning-horse/page.json").read_text())["kind"] == "web"
+    [run] = json.loads((run_root / "docs/data/a-spinning-horse/results.json").read_text())
+    assert run["kind"] == "web" and run["state"] == "complete" and run["error"] is None
+    assert run["game"]["kind"] == "web" and run["game"]["entry"] == "game/index.html" and run["game"]["esbuild"]
+    run_dir = run_root / "docs/data/a-spinning-horse/runs" / run["id"]
+    assert [p.name for p in (run_dir / "game").iterdir()] == ["index.html"]  # one file
+    html = (run_dir / "game/index.html").read_text()
+    assert "spinning " in html and "#123" in html  # the npm package and the stylesheet are inlined
+    assert 'src="main.js"' not in html and "fakepkg" not in html and "style.css" not in html
+    assert str(Path.home()) not in html  # cleaned like source
+    assert run["source"]["files"] == ["index.html", "main.js", "package.json", "style.css"]  # no node_modules/
+
+
+@needs_esbuild
+def test_web_run_that_fails_to_package_keeps_state_and_sets_error(run_root, monkeypatch):
+    monkeypatch.setenv("FAKE_PI_BAD_WEB", "1")
+    rc = main(["run", "--yes", "--kind", "web", "broken page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
+    assert rc == 0
+    [run] = json.loads((run_root / "docs/data/broken-page/results.json").read_text())
+    assert run["state"] == "complete" and run["game"] is None
+    assert run["error"].startswith("packaging failed: esbuild:") and "missing.js" in run["error"]
+    assert "main.js" in run["source"]["files"]  # the source is still published
+
+
+def test_web_run_needs_esbuild(run_root, monkeypatch):
+    monkeypatch.setattr("bench.runner.shutil.which", lambda name: None if name == "esbuild" else "/bin/" + name)
+    with pytest.raises(BenchError, match="needs esbuild"):
+        from bench.runner import cmd_run
+
+        cmd_run(run_root, prompt="x", model_specs=["openai-codex/gpt-6-sol:low"], kind="web", dry_run=True)
+
+
 # --- media kind ----------------------------------------------------------------------------------
 
 needs_ffmpeg = pytest.mark.skipif(not shutil.which("ffmpeg") or not shutil.which("ffprobe"), reason="needs ffmpeg")

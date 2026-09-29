@@ -39,3 +39,4 @@ Copy `template.md` to `NNNN-short-title.md` using the next number, and add it to
 | [0010](0010-rankings-are-local-only.md) | Rankings are written only locally; the site is read-only | Accepted |
 | [0011](0011-publish-pushes-to-main.md) | `bench publish` pushes to `main`, no PR flow | Accepted |
 | [0012](0012-asset-cache-busting.md) | Asset cache-busting | Proposed |
+| [0013](0013-web-kind-packaged-with-esbuild.md) | Web pages are packaged into one file with esbuild | Accepted |

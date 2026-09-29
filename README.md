@@ -98,7 +98,7 @@ Entries are exactly what `-m` takes. `--set` also accepts a file path with one `
 (`#` starts a comment). Sets can be repeated and combined with `-m`, and `-e` applies to entries without
 levels.
 
-### Games (default) and images/videos (`--kind media`)
+### Games (default), images/videos (`--kind media`) and web pages (`--kind web`)
 
 **Godot games** (`--kind godot`, the default): each project is exported to a web build and booted in
 headless Chrome to check it runs. The Godot engine (~38 MB) is stored once in `docs/engines/` and shared
@@ -116,6 +116,18 @@ up to your prompt ("hand-written SVG", "use Python", ...). The brief lists the t
 machine, from `[run].tools` in `bench.toml`, with their versions. Afterwards every file is checked with
 ffprobe; videos are trimmed to 10 s and re-encoded to H.264 mp4 when needed and get a poster frame, and
 oversized images become JPEG. Problems are shown on the run, not fatal.
+
+**Web pages** (`--kind web`):
+
+```sh
+uv run bench run --kind web "a running voxel horse with three.js" -m openai-codex/gpt-6-sol
+```
+
+The agent writes `index.html` plus ES modules and may `npm install` packages (three.js, ...) and import them by
+name. Afterwards esbuild bundles every script and stylesheet the page references, with everything they import,
+into one self-contained `index.html` (typically a few hundred KB with three.js). That file is then loaded in
+headless Chrome inside the same sandboxed iframe the site uses, with the network blocked: a page that fetches
+anything from outside, or needs localStorage, fails verification. `node_modules/` is never published.
 
 A page holds one kind: a media prompt can't be added to a Godot page.
 
@@ -171,6 +183,7 @@ gets a permission error; to contribute runs they'd fork the repo and open a pull
   (`claude`, logged in) for `claude-code:` models.
 - `godot` on PATH with the matching web export templates (game runs).
 - `ffmpeg` and `ffprobe` on PATH (media runs).
+- `esbuild` and `npm` on PATH (web runs): `brew install esbuild node`.
 - Google Chrome and Playwright for checking game builds and for the viewer tests (`pip install
   bench[verify]`; already in the dev dependencies).
 

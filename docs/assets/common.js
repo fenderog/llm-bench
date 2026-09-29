@@ -134,6 +134,9 @@ export function effortIndex(effort) {
   return i === -1 ? EFFORTS.length : i;
 }
 
+// Page kinds as the viewer names them.
+export const KIND_LABEL = { godot: "Game", media: "Media", web: "Web" };
+
 // The effort level as a pill with a 6-step meter (minimal = 1 .. max = 6). Its text is just the level.
 export function effortPill(effort) {
   const i = EFFORTS.indexOf(effort);

@@ -14,7 +14,8 @@ tomllib, http.server, subprocess). The site is vanilla JS ES modules, with one o
 - **Run**: one model × effort level attempt at a page's task. One `bench import` of an effort-run folder
   adds one run per effort level (usually low, medium, high).
 - **Kind**: what a page's runs produce. `godot` = a Godot project, published as a playable web build;
-  `media` = image and/or video files. Every run of a page has the page's kind.
+  `media` = image and/or video files; `web` = a web page (HTML + ES modules + npm packages), published as one
+  self-contained `index.html` packaged with esbuild. Every run of a page has the page's kind.
 
 ## Site layout (the data contract between the CLI and the viewer)
 
@@ -40,6 +41,7 @@ docs/
       thumb.png                   # optional (godot)
       game/index.html, index.pck, index.png, index.icon.png, index.apple-touch-icon.png   # godot
       media/<file>, media/<name>.poster.jpg                                              # media
+      game/index.html             # web: the packaged page, one file (cleaned and secret-scanned like source)
       session/conversation.json   # cleaned (see Cleaning)
       session/events.jsonl        # cleaned
       session/status.json         # cleaned
@@ -104,6 +106,9 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   video's poster. `verified` = the manifest's `ok`. SVGs are model-written text, so they are cleaned and
   secret-scanned like source files. The run's `source` holds only text files of at most 512 KB, and never
   `output/`.
+- `game` (kind `web`) = `{kind: "web", entry: "game/index.html", bytes, esbuild}` from `web/<level>/package-manifest.json`;
+  `thumb` = `thumb.png` (the verify step's first screenshot); `verified` = `web/<level>/verification/verify-report.json` → `.ok`.
+  The run's `source` never includes `node_modules/` (for any kind).
 - `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS from the folder name>`.
 - `verified` = `wasm/<level>/verification/verify-report.json` → `.ok`, or `null` if that file is missing.
 - `harness` = `data.json` → `harness`; for an old `fe-model-effort-fanout/1` folder without it, `{"name": "pi", "version": null}`.
@@ -197,7 +202,7 @@ only `pi` for now), exports + verifies each Godot project, then imports everythi
 
 ```
 bench run PROMPT | --prompt-file FILE
-    --kind godot|media  what the agents produce (default: the existing page's kind, else godot); must match it
+    --kind godot|media|web  what the agents produce (default: the existing page's kind, else godot); must match it
     -m MODEL[:LEVELS]   repeatable. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
                         | "all" (every supported level except off) | explicit "off". No suffix = "all".
     -s, --set SET       repeatable: a model set, either a NAME from bench.toml [sets] or a FILE with one
@@ -265,6 +270,17 @@ cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4
    keep the state and set `error` (joined with `; `, the first 200 characters). ffmpeg and ffprobe must be
    on PATH before a media batch starts.
 
+   **Package** (kind `web`, only when state is `complete`, when `web/<level>/index.html` is missing): read
+   `<level>/index.html` and inline what it references (`web.bundle_html()`): each local `<script type="module">`
+   (with `src` or inline) is bundled by `esbuild --bundle --format=esm --minify` with everything it imports, npm
+   packages from `node_modules/` included, and imported assets (images, models, audio, fonts) become data: URLs; each
+   local `<link rel="stylesheet">` is bundled into a `<style>`; a classic `<script src>` is kept verbatim as a
+   `data:text/javascript` URL (bundling would turn its globals into locals). `</script`/`</style` inside inlined code
+   is escaped. Remote URLs, import maps and other script types are left alone for verify to catch. A `src`/`href` must
+   name a file inside the level dir. Write `web/<level>/index.html` (≤ 20 MB) and `package-manifest.json`
+   (`esbuild` version, `bytes`, `packagedAt`). Failure → keep state, set `error = "packaging failed: <reason>"`
+   (e.g. `esbuild: Could not resolve "./x.js"`), no web dir. `esbuild` and `npm` must be on PATH before a web batch starts.
+
    **Export** (kind `godot`, only when state is `complete`; one export at a time, other agents keep running): write
    `export_presets.cfg` (preset "Web", nothreads, `exclude_filter` listing the session files), run
    `godot --headless --path <level> --export-release Web <abs wasm/<level>>/index.html`, then check `index.html`,
@@ -275,12 +291,17 @@ cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4
    serve the export dir, open it in Chrome with the swiftshader flags, wait for Godot to remove `#status` (≤ 30s), take
    `verification/frame-1.png`, wait 1.2s, take `frame-2.png`; `verify-report.json` =
    `{ok, booted, framesDiffer, consoleErrors, pageErrors}` with `ok = booted and framesDiffer and no pageErrors`.
+   Kind `web`: serve `web/<level>/`, load `index.html` inside `verification/frame.html`, an iframe sandboxed exactly
+   like the site's (`allow-scripts allow-pointer-lock`, so storage APIs throw), with every request except those two
+   pages aborted and recorded; wait for `document.readyState == "complete"` (≤ 30s) and 1.2s more, then take the two
+   frames. The report adds `blockedRequests`, and `ok = booted and no pageErrors and no blockedRequests` (a static
+   page is fine, so frames needn't differ).
 8. **Import**: `bench import` each model dir with `--page` (and `--title` for a new page), then print where to preview
    (`bench serve`) and publish, or run `bench publish` with `--publish`.
 
 Progress: on a tty a table (model, effort, state, elapsed, turns, tokens, cost) redrawn every 2s, read from each
-session file as it grows; otherwise one line per state change. States: queued, running, exporting, verifying,
-processing (media), done, failed, timeout.
+session file as it grows; otherwise one line per state change. States: queued, running, exporting, packaging (web),
+verifying, processing (media), done, failed, timeout.
 
 ### Metrics (from the session log, the same numbers pi-subagents reported)
 Over assistant messages: `turns` = count; `toolCalls` = number of `toolCall` content blocks; `tokens.input/output/
@@ -349,7 +370,8 @@ Kills every running agent's process group, marks those runs `queued` in batch.js
 `batch.json` = `{prompt, kind, page, title, harness, brief, created, runs: [{model, level, model_dir, state}]}`, updated on
 every state change. `--resume DIR` reads it and, per run: `queued`/`running` → start the agent again (clear its level
 dir first); a finished agent is never rerun. Then export where `wasm/<level>` is missing, verify where
-`verify-report.json` is missing (media: process where `media/<level>/manifest.json` is missing), and import. Failed and timed-out runs stay as they are.
+`verify-report.json` is missing (media: process where `media/<level>/manifest.json` is missing; web: package where
+`web/<level>/index.html` is missing), and import. Failed and timed-out runs stay as they are.
 
 ## Ranking
 
@@ -420,6 +442,7 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
     bytes, a `download` link). Images, **SVGs included**, are only ever shown with `<img>` (which never runs an
     SVG's scripts), never inlined or put in an object/embed/iframe, and never linked for viewing on this origin.
     Videos use `<video controls preload="none">` with the poster, and never autoplay.
+  - *Page* (instead of Game, for a `web` run): the packaged page with click-to-play, in the same sandboxed iframe as games.
   - *Source*: a file list, and clicking a file shows it in a `<pre>`. The first code file opens right away.
   - *Metrics*: all metrics as a table of raw values (with a readable form beside durations, costs and big counts,
     including Harness, State and Error), plus links to download the raw session files.
@@ -453,6 +476,11 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   leftover binary frame. `tests/test_media.py` checks the media step on ffmpeg-generated inputs (trim + re-encode,
   oversized image → JPEG, bad files, empty output, too many files, name clashes); media tests are skipped without
   ffmpeg. A slow test (skipped without `godot`) exports a tiny real project. No test calls a real model.
+  For a web brief the fake pi writes `index.html`, `main.js`, `style.css` and a fake npm package in `node_modules/`.
+  `tests/test_web_kind.py` (skipped without esbuild) packages pages with the real esbuild (module + inline module +
+  classic scripts, stylesheets, imported assets, `</script>` escaping, remote/importmap left alone, missing imports and
+  paths outside the project), verifies offline in the sandbox (a remote fetch and localStorage both fail it), and runs
+  a web batch end to end into the viewer (kind chip, Page tab, the bundled package running in the sandboxed iframe).
 - Integration (skipped when `~/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse` is missing): import the real run
   into a temp site, serve it, and check that all 3 Godot games boot inside the sandboxed iframe in compare. Headless Chrome
   needs `--enable-unsafe-swiftshader --use-angle=swiftshader` for WebGL. Godot removes `#status` from its document

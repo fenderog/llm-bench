@@ -1,7 +1,6 @@
-import { el, getJSON, showMessage, modelParts } from "./common.js";
+import { el, getJSON, showMessage, modelParts, KIND_LABEL } from "./common.js";
 
 const cards = document.getElementById("cards");
-const KIND_LABEL = { godot: "Game", media: "Media" };
 
 try {
   const pages = await getJSON("data/pages.json");

@@ -1,7 +1,7 @@
 import {
   qs, el, getJSON, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
   mediaGallery, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
-  rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorAttrs,
+  rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorAttrs, KIND_LABEL,
 } from "./common.js";
 
 const slug = qs("p");
@@ -17,7 +17,7 @@ const COLUMNS = [
   { key: "harness", label: "Harness", get: (r) => harnessLabel(r), num: false,
     help: "The agent program that ran the model and executed its tool calls (pi or claude-code), with its version. Every run is one direct agent with only file and shell tools." },
   { key: "verified", label: "Verified", get: (r) => r.verified, num: false,
-    help: "Game pages: whether the exported web build booted in headless Chrome (a WebGL canvas rendered, two screenshots differed, no page errors). Media pages: whether every output file was a readable image or video within the limits. – means no check was recorded." },
+    help: "Game pages: whether the exported web build booted in headless Chrome (a WebGL canvas rendered, two screenshots differed, no page errors). Web pages: whether the packaged page loaded offline in a sandboxed iframe with no page errors and no network requests. Media pages: whether every output file was a readable image or video within the limits. – means no check was recorded." },
   { key: "duration_ms", label: "Duration", get: (r) => r.metrics.duration_ms, num: true, fmt: fmtDuration,
     help: "Wall-clock time of the agent session, from start to finish. ★ marks the fastest completed run." },
   { key: "tokens_total", label: "Tokens", get: (r) => r.metrics.tokens_total, num: true, fmt: fmtNum,
@@ -237,7 +237,7 @@ function renderMeta(page, runs) {
   const latest = runs.map((r) => r.started_at).filter(Boolean).sort().pop();
   const meta = document.getElementById("page-meta");
   meta.append(
-    el("span", { class: "kind-chip", text: page.kind === "media" ? "Media" : "Game" }),
+    el("span", { class: "kind-chip", text: KIND_LABEL[page.kind] ?? "Game" }),
     el("span", { text: `${runs.length} run${runs.length === 1 ? "" : "s"}` }),
     el("span", { text: `${models.size} model${models.size === 1 ? "" : "s"}` }),
   );

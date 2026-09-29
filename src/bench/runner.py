@@ -19,15 +19,16 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import build, clean, media
+from . import build, clean, media, web
 from .harness import HARNESSES, split_harness
 from .importer import cmd_import
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError, title_from_slug
 
 # batch.json run states that mean "this agent hasn't produced a finished result yet".
 UNFINISHED = ("queued", "running")
-# What a run produces. godot: a project, exported + verified; media: image/video files in ./output/.
-KINDS = ("godot", "media")
+# What a run produces. godot: a project, exported + verified; media: image/video files in ./output/;
+# web: a page (index.html + ES modules + npm packages), packaged into one file with esbuild + verified.
+KINDS = ("godot", "media", "web")
 DEFAULT_TOOLS = ["python3", "node", "ffmpeg", "ffprobe"]
 
 
@@ -500,6 +501,30 @@ def finalize_media(run, entry, progress):
     progress.update(key, state="done")
 
 
+def package_and_verify(run, entry, do_verify, progress):
+    """Package <level>/ into web/<level>/index.html (if missing) and verify it offline (if its report is
+    missing). Like a failed export, a page that doesn't package keeps state "complete" and only sets
+    entry["error"]."""
+    if entry["state"] != "complete":
+        return
+    model, level, model_dir, key = run["model"], run["level"], run["model_dir"], run_key(run)
+    out_dir = model_dir / "web" / level
+    if not (out_dir / "index.html").is_file():
+        progress.update(key, state="packaging")
+        ok, _manifest, error = web.package(model_dir / level, out_dir)
+        if not ok:
+            entry["error"] = error
+            progress.update(key, state="failed")
+            return
+    if do_verify and not (out_dir / "verification" / "verify-report.json").is_file():
+        progress.update(key, state="verifying")
+        try:
+            build.verify_build(out_dir, web=True)
+        except Exception as e:  # verification must never fail the run
+            print(f"note: verification of {model}/{level} failed to run: {e}", file=sys.stderr)
+    progress.update(key, state="done")
+
+
 def write_batch_json(batch_dir, batch):
     serializable = {**batch, "runs": [{**r, "model_dir": str(r["model_dir"])} for r in batch["runs"]]}
     (batch_dir / "batch.json").write_text(json.dumps(serializable, indent=2) + "\n")
@@ -561,6 +586,8 @@ def execute(root, batch_dir, batch, harnesses, parallel, timeout_s, godot_bin, v
             return
         if kind == "media":
             finalize_media(run, entry, progress)
+        elif kind == "web":
+            package_and_verify(run, entry, verify, progress)
         else:
             export_and_verify(run, entry, export_lock, godot_bin, verify, progress)
         write_model_data_json(model_dir, harness, version, entries_by_model[model_dir], kind)
@@ -640,6 +667,10 @@ def cmd_run(
         missing = [t for t in ("ffmpeg", "ffprobe") if not shutil.which(t)]
         if missing:
             raise BenchError(f"--kind media needs {' and '.join(missing)} on PATH")
+    if kind == "web":
+        missing = [t for t in ("esbuild", "npm") if not shutil.which(t)]
+        if missing:
+            raise BenchError(f"--kind web needs {' and '.join(missing)} on PATH (brew install esbuild node)")
 
     plan = plan_runs(model_specs, effort, harnesses)
     versions = {name: harnesses[name].version() for name in dict.fromkeys(name for name, _, _ in plan)}

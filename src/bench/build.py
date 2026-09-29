@@ -93,10 +93,24 @@ def export_project(godot_bin, project_dir, out_dir, timeout=600):
     return True, manifest, None
 
 
-def verify_build(out_dir, wait_s=30, settle_s=1.2):
+# Boot signals: Godot removes #status once the engine is up; a web page just has to finish loading.
+GODOT_READY = "!document.getElementById('status')"
+# The web kind is checked the way the site shows it: in an iframe sandboxed like sandboxedGame() in
+# docs/assets/common.js (opaque origin, so storage APIs throw), with every request but the page blocked.
+SANDBOX_FRAME = """<!doctype html><html><body style="margin:0">
+<iframe src="../index.html" sandbox="allow-scripts allow-pointer-lock" style="border:0;width:100vw;height:100vh;display:block"></iframe>
+</body></html>
+"""
+
+
+def verify_build(out_dir, wait_s=30, settle_s=1.2, web=False):
     """Serve out_dir, open it in headless Chrome, and check it boots. Returns the report dict,
     or None (with a printed note) if Playwright isn't installed. Writes verification/*.png and
     verify-report.json under out_dir.
+
+    web=True (the web kind): load index.html inside a sandboxed iframe with the network blocked
+    (only the page itself is served); ok = it loaded with no page errors and no blocked requests.
+    Otherwise (Godot): ok = the engine booted, two screenshots differ and there were no page errors.
     """
     try:
         from playwright.sync_api import sync_playwright
@@ -109,26 +123,45 @@ def verify_build(out_dir, wait_s=30, settle_s=1.2):
     verify_dir = out_dir / "verification"
     verify_dir.mkdir(parents=True, exist_ok=True)
     server = serve_in_thread(out_dir)
-    port = server.server_address[1]
+    origin = f"http://127.0.0.1:{server.server_address[1]}"
     console_errors = []
     page_errors = []
+    blocked = []
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(channel="chrome", args=["--enable-unsafe-swiftshader", "--use-angle=swiftshader"])
             page = browser.new_page()
             page.on("console", lambda m: console_errors.append(m.text) if m.type == "error" else None)
             page.on("pageerror", lambda e: page_errors.append(str(e)))
-            page.goto(f"http://127.0.0.1:{port}/index.html")
+            if web:
+                (verify_dir / "frame.html").write_text(SANDBOX_FRAME)
+                allowed = {f"{origin}/verification/frame.html", f"{origin}/index.html"}
+
+                def route(r):
+                    if r.request.url in allowed:
+                        r.continue_()
+                    else:
+                        blocked.append(r.request.url[:200])
+                        r.abort()
+
+                page.route("**/*", route)
+                page.goto(f"{origin}/verification/frame.html")
+                target = page.frames[1] if len(page.frames) > 1 else page.main_frame
+                ready_js = "document.readyState === 'complete'"
+            else:
+                page.goto(f"{origin}/index.html")
+                target, ready_js = page.main_frame, GODOT_READY
             booted = False
-            deadline_ms = wait_s * 1000
             waited = 0
             step = 500
-            while waited < deadline_ms:
-                if page.evaluate("!document.getElementById('status')"):
+            while waited < wait_s * 1000:
+                if target.evaluate(ready_js):
                     booted = True
                     break
                 page.wait_for_timeout(step)
                 waited += step
+            if web:
+                page.wait_for_timeout(int(settle_s * 1000))  # let the first frames render
             frame1 = verify_dir / "frame-1.png"
             page.screenshot(path=str(frame1))
             page.wait_for_timeout(int(settle_s * 1000))
@@ -140,12 +173,18 @@ def verify_build(out_dir, wait_s=30, settle_s=1.2):
         server.server_close()
 
     frames_differ = frame1.read_bytes() != frame2.read_bytes()
+    if web:
+        ok = booted and not page_errors and not blocked
+    else:
+        ok = booted and frames_differ and not page_errors
     report = {
-        "ok": booted and frames_differ and not page_errors,
+        "ok": ok,
         "booted": booted,
         "framesDiffer": frames_differ,
         "consoleErrors": console_errors,
         "pageErrors": page_errors,
     }
+    if web:
+        report["blockedRequests"] = blocked
     (verify_dir / "verify-report.json").write_text(json.dumps(report, indent=2) + "\n")
     return report

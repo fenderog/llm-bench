@@ -12,9 +12,11 @@ Behavior knobs (env vars), read at `-p` run time:
   FAKE_PI_HANG=1        sleep "forever" (simulates a hung agent; the caller must kill it)
   FAKE_PI_ERROR_STOP=1  write a session whose last assistant message has stopReason "error"
   FAKE_PI_BAD_OUTPUT=1  (media briefs) also put an unsupported file in ./output/
+  FAKE_PI_BAD_WEB=1     (web briefs) import a module that doesn't exist, so packaging fails
 
 A media brief (one mentioning ./output/) gets ./output/ with an SVG, a PNG and a 2s mp4 (made with
-ffmpeg), plus a make.py and a leftover binary frame instead of a Godot project.
+ffmpeg), plus a make.py and a leftover binary frame instead of a Godot project. A web brief (one
+mentioning esbuild) gets index.html + main.js + style.css and a fake npm package in node_modules/.
 """
 import base64
 import json
@@ -102,6 +104,8 @@ def cmd_run():
 
     if "./output/" in brief:
         write_media()
+    elif "esbuild" in brief:
+        write_web()
     else:
         # A tiny fake Godot project, just enough for the import step to find "source" files.
         Path("project.godot").write_text("config_version=5\n")
@@ -168,6 +172,25 @@ def write_media():
     Path("make.py").write_text("print('made the files')\n")
     Path("frames").mkdir(exist_ok=True)
     (Path("frames") / "f001.png").write_bytes(PNG_1X1)  # a leftover binary: never published as source
+
+
+def write_web():
+    Path("index.html").write_text(
+        '<!doctype html><html><head><link rel="stylesheet" href="style.css"></head>'
+        '<body><canvas id="c"></canvas><script type="module" src="main.js"></script></body></html>\n'
+    )
+    Path("style.css").write_text("body { margin: 0; background: #123; }\n")
+    missing = 'import "./missing.js";\n' if os.environ.get("FAKE_PI_BAD_WEB") else ""
+    Path("main.js").write_text(
+        f'{missing}import {{ spin }} from "fakepkg";\n'
+        f'console.log("built in {os.getcwd()}");\n'
+        'document.title = spin("horse");\n'
+    )
+    pkg = Path("node_modules") / "fakepkg"
+    pkg.mkdir(parents=True, exist_ok=True)
+    (pkg / "package.json").write_text('{"name": "fakepkg", "version": "1.0.0", "main": "index.js"}\n')
+    (pkg / "index.js").write_text('export function spin(s) { return "spinning " + s; }\n')
+    Path("package.json").write_text('{"dependencies": {"fakepkg": "1.0.0"}}\n')
 
 
 def main():

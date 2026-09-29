@@ -17,6 +17,7 @@ The first design (DESIGN.md) was generic: a run could hold any mix of artifacts 
 - **A page has exactly one kind**, and every run of the page has it:
   - `godot`: a project published as a playable web build.
   - `media`: images/videos the agent saved to `./output/`.
+  - `web`: a web page, packaged into one `index.html` (added later, see 0013).
   
   Importing a run of another kind is an error.
 - Each kind has its own brief template (`src/bench/briefs/<kind>.md`), post-processing step (export + verify, or
