@@ -79,10 +79,10 @@ function column(r, best) {
   const base = runDir(slug, r.id);
   const sb = stateBadge(r);
   const heading = [el("a", { attrs: { href: runUrl(slug, r.id) } }, [modelLabel(r.model)]), el("span", {}, [rankChip(r.rank), r.rank != null ? " " : null, effortPill(r.effort), sb ? " " : null, sb])];
-  const parts = [el("h3", {}, heading), metricsLine(r, best)];
-  if (r.error) parts.push(el("p", { class: "run-error", text: r.error }));
-  if (r.media) parts.push(mediaGallery(r, base));
-  else if (r.game) parts.push(buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null));
-  else parts.push(el("p", { class: "msg", text: r.kind === "media" ? "No output files recorded." : "No game recorded." }));
-  return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed", attrs: vendorAttrs(r.model) }, parts);
+  const body = el("div", { class: "compare-body" });
+  if (r.error) body.append(el("p", { class: "run-error", text: r.error }));
+  if (r.media) body.append(mediaGallery(r, base));
+  else if (r.game) body.append(buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null));
+  else body.append(el("p", { class: "msg", text: r.kind === "media" ? "No output files recorded." : "No game recorded." }));
+  return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed", attrs: vendorAttrs(r.model) }, [el("h3", {}, heading), metricsLine(r, best), body]);
 }
