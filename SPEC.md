@@ -371,7 +371,10 @@ The page owner ranks runs in the browser; there is no CLI command for it. Only `
 
 Shared conventions: runs are ordered by model, then effort from minimal to max (`EFFORTS` in common.js), not
 alphabetically. Effort is shown as a pill whose text is just the level, with a 6-step meter. Model ids show the model
-name in bold and the provider prefix quietly (`modelLabel()`). "Best" means the lowest cost, duration or total tokens
+name in bold and the provider prefix quietly (`modelLabel()`). Runs are grouped by vendor with a faint tint and a thin
+stripe in the vendor's hue on table rows (page.html) and compare cards (`vendorOf()`/`vendorAttrs()`: the first segment of the
+model id up to `-`, or the second after `openrouter/`; sets `data-vendor` and `--vh`). It is color only, so it works under any
+sort; runs of one vendor sit together in the default model order. "Best" means the lowest cost, duration or total tokens
 among **completed** runs (a failed run never wins), only when at least two runs compete (`rankBy()`); it's marked in green
 with ★. Styling is one token set on `:root` (light) redefined under `prefers-color-scheme: dark`, system fonts only.
 

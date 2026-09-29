@@ -123,6 +123,8 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
 - **Stale browser cache after a deploy** (Pages caches for 10 minutes) can pair new HTML with old JS and
   throw null errors. Hard refresh first. A cache-busting fix was drafted in a git stash, but the stash was lost
   when the repo was moved (2026-09-28); the options are in ADR-0012.
+- **Vendor tint:** table rows and compare cards get `data-vendor` + `--vh` from `vendorAttrs(model)` (common.js); CSS turns
+  that into a faint tint and stripe. Color only, so it survives any sort. New vendors get a hashed hue unless added to `VENDOR_HUES`.
 - **Page width:** the runs table fits at ≥1240px wide. Adding a column needs a check that it still fits.
 - **Runs table markup is load-bearing for the phone layout:** at ≤720px CSS turns rows into cards using each cell's
   `data-col`/`data-label`. A new column needs those attributes and a placement in the `@media (max-width: 720px)` block.

@@ -1,7 +1,7 @@
 import {
   qs, el, getJSON, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
   mediaGallery, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
-  rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip,
+  rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorAttrs,
 } from "./common.js";
 
 const slug = qs("p");
@@ -161,7 +161,7 @@ function render(page, runs, editable) {
           tds.push(el("td", { text: v ?? "–", attrs }));
         }
       }
-      const tr = el("tr", { class: isComplete(r) ? "run-row" : "run-row is-failed", attrs: { tabindex: "0", "aria-expanded": "false" } }, tds);
+      const tr = el("tr", { class: isComplete(r) ? "run-row" : "run-row is-failed", attrs: { tabindex: "0", "aria-expanded": "false", ...vendorAttrs(r.model) } }, tds);
       const toggle = () => {
         const open = tr.getAttribute("aria-expanded") === "true";
         tr.setAttribute("aria-expanded", String(!open));

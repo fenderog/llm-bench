@@ -149,6 +149,27 @@ export function modelParts(model) {
   return i === -1 ? { provider: "", name: s } : { provider: s.slice(0, i), name: s.slice(i + 1) };
 }
 
+// Who made the model, for the quiet color grouping: "anthropic/claude-x" → "anthropic",
+// "openai-codex/gpt-6" → "openai", "openrouter/deepseek/v4" → "deepseek".
+export function vendorOf(model) {
+  const parts = String(model ?? "").split("/");
+  const first = parts.length > 2 && parts[0] === "openrouter" ? parts[1] : parts[0];
+  return first.split("-")[0].toLowerCase() || "unknown";
+}
+
+// One hue per vendor (fixed for the common ones, hashed for the rest), applied as data-vendor + --vh.
+const VENDOR_HUES = { anthropic: 25, openai: 160, google: 215, xai: 275, meta: 250, deepseek: 195, mistral: 35, qwen: 265 };
+export function vendorAttrs(model) {
+  const v = vendorOf(model);
+  let hue = VENDOR_HUES[v];
+  if (hue == null) {
+    let h = 0;
+    for (const ch of v) h = (h * 31 + ch.charCodeAt(0)) % 360;
+    hue = h;
+  }
+  return { "data-vendor": v, style: `--vh:${hue}` };
+}
+
 // Model name in bold with its provider prefix quiet below it.
 export function modelLabel(model) {
   const { provider, name } = modelParts(model);

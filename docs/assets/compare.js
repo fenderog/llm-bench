@@ -1,6 +1,6 @@
 import {
   qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
-  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip,
+  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorAttrs,
 } from "./common.js";
 
 // compare.html?p=<slug> shows every run of the page; &r=<id>,<id> limits it to those runs.
@@ -84,5 +84,5 @@ function column(r, best) {
   if (r.media) parts.push(mediaGallery(r, base));
   else if (r.game) parts.push(buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null));
   else parts.push(el("p", { class: "msg", text: r.kind === "media" ? "No output files recorded." : "No game recorded." }));
-  return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed" }, parts);
+  return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed", attrs: vendorAttrs(r.model) }, parts);
 }

@@ -298,6 +298,10 @@ tr.run-row .caret {
 tr.run-row:hover .caret { background: var(--surface-3); color: var(--ink); }
 tr.run-row[aria-expanded="true"] .caret { transform: rotate(90deg); }
 tr.run-row[aria-expanded="true"] td { border-bottom-color: transparent; background: var(--surface-2); }
+/* Vendor grouping: a faint tint and a thin stripe in the vendor's hue (set as --vh by vendorAttrs()). */
+[data-vendor] { --vendor: hsl(var(--vh) 55% 48%); }
+tr.run-row[data-vendor] { background: color-mix(in srgb, var(--vendor) 5%, transparent); }
+tr.run-row[data-vendor] td:first-child { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--vendor) 50%, transparent); }
 tr.run-row.is-failed td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
 tr.run-row.is-failed .model-name { color: var(--ink-2); }
 tr.run-detail td { white-space: normal; padding: 4px 16px 20px 44px; background: var(--surface-2); }
@@ -482,6 +486,7 @@ table.metrics .hint { color: var(--ink-3); margin-left: 8px; }
   min-width: 0; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px; background: var(--surface);
   box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px;
 }
+.compare-col[data-vendor] { background: color-mix(in srgb, var(--vendor) 4%, var(--surface)); box-shadow: inset 0 3px 0 color-mix(in srgb, var(--vendor) 50%, transparent), var(--shadow); }
 .compare-col.is-failed { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
 .compare-col h3 { margin: 0; font-size: 1rem; display: flex; align-items: flex-start; gap: 8px 12px; flex-wrap: wrap; justify-content: space-between; }
 .compare-col h3 > a { min-width: 0; }
@@ -562,6 +567,8 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
   }
   table.runs tr.run-row[aria-expanded="true"] { border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: 0; background: var(--surface); }
   table.runs tr.run-row[aria-expanded="true"] td { background: none; }
+  table.runs tr.run-row[data-vendor] { background: color-mix(in srgb, var(--vendor) 5%, var(--surface)); box-shadow: inset 3px 0 0 color-mix(in srgb, var(--vendor) 50%, transparent), var(--shadow); }
+  table.runs tr.run-row[data-vendor] td:first-child { box-shadow: none; }
   table.runs tr.run-row.is-failed { box-shadow: inset 3px 0 0 var(--bad), var(--shadow); }
   table.runs td { display: block; padding: 0; border: 0; min-width: 0; white-space: normal; text-align: left !important; }
   tr.run-row td:first-child { display: none; }

@@ -231,6 +231,15 @@ def test_page_orders_by_effort_and_highlights_best_completed_run(site, page):
     assert_no_errors(page)
 
 
+def test_runs_are_tinted_by_vendor(site, page):
+    for url, sel in ((f"{site}page.html?p=demo", "table.runs tbody tr.run-row"), (f"{site}compare.html?p=demo", ".compare-col")):
+        page.goto(url)
+        page.wait_for_selector(sel)
+        vendors = page.locator(sel).evaluate_all("els => els.map(e => [e.dataset.vendor, e.style.getPropertyValue('--vh')])")
+        assert len(vendors) == 3 and len({tuple(v) for v in vendors}) == 1 and vendors[0][0] and vendors[0][1]
+        assert_no_errors(page)
+
+
 def test_run_switcher_and_ranks(site, page):
     page.goto(f"{site}run.html?p=demo&r={MEDIUM_ID}")
     page.wait_for_selector("#run-switcher a")
