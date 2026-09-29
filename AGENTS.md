@@ -111,6 +111,8 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
     model instead of failing. `bench run` checks both against `pi --list-models` and the RPC levels query
     before starting.
   - Model ids can contain `:`, so levels are read from after the last colon.
+  - bench keeps no list of pi models (Codex included): they come live from `pi --list-models`. New ones show up
+    after `pi update --models` refreshes pi's catalog.
   - `--mode json` stdout is ~1 MB of `message_update` streaming snapshots; they're dropped from the
     published `events.jsonl`.
 - **Claude Code's stream-json:** per-message `usage` is a snapshot taken before the output is written (output
