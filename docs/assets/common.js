@@ -153,9 +153,10 @@ export function modelParts(model) {
 }
 
 // Who made the model, for the quiet color grouping: "anthropic/claude-x" → "anthropic",
-// "openai-codex/gpt-6" → "openai", "openrouter/deepseek/v4" → "deepseek".
+// "openai-codex/gpt-6" → "openai", "openrouter/deepseek/v4" → "deepseek" (the @upstream suffix is ignored).
 export function vendorOf(model) {
-  const parts = String(model ?? "").split("/");
+  const base = String(model ?? "").split("@")[0];
+  const parts = base.split("/");
   const first = parts.length > 2 && parts[0] === "openrouter" ? parts[1] : parts[0];
   return first.split("-")[0].toLowerCase() || "unknown";
 }
@@ -173,12 +174,17 @@ export function vendorAttrs(model) {
   return { "data-vendor": v, style: `--vh:${hue}` };
 }
 
-// Model name in bold with its provider prefix quiet below it.
+// Model name in bold with its provider prefix quiet below it. An OpenRouter `@upstream` suffix
+// (e.g. "…flash@deepinfra") is shown as a quiet "via …" chip, via textContent only.
 export function modelLabel(model) {
-  const { provider, name } = modelParts(model);
+  const s = String(model ?? "–");
+  const at = s.indexOf("@");
+  const { provider, name } = modelParts(at === -1 ? s : s.slice(0, at));
+  const via = at === -1 ? null : el("span", { class: "model-via", text: `via ${s.slice(at + 1)}` });
   return el("span", { class: "model", attrs: { title: model } }, [
     el("span", { class: "model-name", text: name }),
     provider ? el("span", { class: "model-provider", text: provider }) : null,
+    via,
   ]);
 }
 

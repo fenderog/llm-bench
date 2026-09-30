@@ -204,6 +204,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
         "harness": harness_info,
         "state": run_data.get("state", "complete"),
         "error": run_data.get("error"),
+        "route": run_data.get("route"),
         "metrics": {
             "duration_ms": run_data.get("durationMs"),
             "cost_usd": run_data.get("costUsd"),

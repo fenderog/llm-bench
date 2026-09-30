@@ -216,6 +216,7 @@ function renderSource(run, base) {
 
 function renderMetrics(run, base) {
   const panel = document.getElementById("panel-metrics");
+  const route = run.route;
   const rows = [
     ["id", run.id],
     ["model", run.model],
@@ -226,6 +227,7 @@ function renderMetrics(run, base) {
     ["verified", run.verified == null ? "–" : String(run.verified)],
     ["state", run.state ?? "–"],
     ["error", run.error ?? "–"],
+    ...(route ? [["route.requested", JSON.stringify(route.requested)], ["route.served", (route.served || []).join(", ") || "–"]] : []),
     ...Object.entries(run.metrics || {}),
   ];
   const table = el("table", { class: "metrics" });

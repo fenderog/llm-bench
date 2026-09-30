@@ -109,12 +109,17 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 - `game` (kind `web`) = `{kind: "web", entry: "game/index.html", bytes, esbuild}` from `web/<level>/package-manifest.json`;
   `thumb` = `thumb.png` (the verify step's first screenshot); `verified` = `web/<level>/verification/verify-report.json` → `.ok`.
   The run's `source` never includes `node_modules/` (for any kind).
-- `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS from the folder name>`.
+- `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS from the folder name>`,
+  URL/filesystem-safe: `@` becomes `-via-` (OpenRouter upstreams, e.g.
+  `deepseek-v4.1-flash-via-deepinfra-low-20261001-101500`), anything else outside `[a-z0-9.-]` becomes `-`.
 - `verified` = `wasm/<level>/verification/verify-report.json` → `.ok`, or `null` if that file is missing.
 - `harness` = `data.json` → `harness`; for an old `fe-model-effort-fanout/1` folder without it, `{"name": "pi", "version": null}`.
 - `state` = `runs.<level>.state` (`complete` | `failed` | `timeout`), default `complete`.
 - `error` = `runs.<level>.error` (a one-line reason: harness exit, timeout, or "Godot export failed: …"), default `null`.
   A run with `state` ≠ `complete` is still imported (it usually has no game).
+- `route` = `runs.<level>.route` (`{"requested": {"only": [...], "allow_fallbacks": false}, "served": [...]}`
+  for a run pinned to an OpenRouter upstream with `MODEL@slug`, else `null`). `served` is the upstream(s)
+  that actually served the run, in order. A served value outside `requested.only` is appended to `error`.
 
 ## Input: an effort-run folder (`fe-model-effort-fanout/1`)
 
@@ -204,10 +209,12 @@ only `pi` for now), exports + verifies each Godot project, then imports everythi
 ```
 bench run PROMPT | -f/--prompt-file FILE
     -k, --kind godot|media|web what the agents produce (default: the existing page's kind, else godot); must match it
-    -m, --model MODEL[:LEVELS]  repeatable. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
+    -m, --model MODEL[@UPSTREAMS][:LEVELS]  repeatable. UPSTREAMS: comma-separated OpenRouter provider slugs
+                        (pi `openrouter/` models only, e.g. `openrouter/deepseek/deepseek-v4.1-flash@deepinfra:low`);
+                        pinned with fallbacks off, recorded as part of the model name. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
                         | "all" (every supported level except off) | explicit "off". No suffix = "all".
     -s, --set SET       repeatable: a model set, either a NAME from bench.toml [sets] or a FILE with one
-                        MODEL[:LEVELS] per line (# comments, blank lines ignored). Its entries are added before
+                        MODEL[@UPSTREAMS][:LEVELS] per line (# comments, blank lines ignored). Its entries are added before
                         the -m specs, exactly as if given with -m. An unknown name that isn't a file is an error
                         listing the defined sets.
     -e, --effort LEVELS default LEVELS for every model without a suffix (-m or set entry)
@@ -236,7 +243,7 @@ parallel = 8
 timeout = "30m"
 tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", "ffprobe"]   # listed in the brief
 
-[sets]   # each a list of "MODEL[:LEVELS]" strings (anything else is an error)
+[sets]   # each a list of "MODEL[@UPSTREAMS][:LEVELS]" strings (anything else is an error)
 cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4.1-flash:low..high"]
 ```
 
@@ -260,7 +267,8 @@ cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4
    (`{state, error, exit_code, argv, harness, startedAt, endedAt, durationMs}`), `<level>/data.json` (the run entry
    below). The model dir's `data.json` = `{"schema": "bench-run/1", "harness": {...}, "runs": {"<level>": entry}}`,
    rewritten after every run finishes. Entry: `model, thinkingLevel, startedAt, endedAt, durationMs, costUsd,
-   toolCalls, turns, tokens: {input, output, total, reasoning, cacheRead, cacheWrite}, state, error`.
+   toolCalls, turns, tokens: {input, output, total, reasoning, cacheRead, cacheWrite}, state, error, route`
+   (`route` = `{"requested", "served"}` for a pinned OpenRouter run, else `null`).
 6. **Media** (kind `media`, only when state is `complete`, when `media/<level>/manifest.json` is missing):
    check every file in `<level>/output/` (sorted, flattened as `a-b.png` for `a/b.png`, at most 8) into
    `media/<level>/`. Images (`.png .jpg .jpeg .webp .gif`) must be readable by ffprobe; one over 2 MB is
@@ -329,7 +337,7 @@ class Harness:           # one per agent program
     def levels(self, model) -> list[str]                # supported effort levels, in LEVEL_ORDER
     def display_model(self, model) -> str               # the model name recorded for the run
     def command(self, model, level, brief, session_dir) -> list[str]
-    def env(self) -> dict | None                        # the agent's environment (None = inherit)
+    def env(self, model=None, harness_dir=None) -> dict | None  # the agent's environment (None = inherit)
     def session_file(self, session_dir) -> Path | None  # the raw session (copied to <level>/session.jsonl, never published)
     def session_entries(self, session_dir, brief, level) -> list  # the session in pi's format -> conversation.json
     def metrics(self, session_dir, level) -> dict | None          # parse_session()'s shape; tolerates a growing file
@@ -339,6 +347,13 @@ Pi: `pi --version`; `pi --list-models` (parse the table); levels via `pi --mode 
 sending `{"type":"get_available_thinking_levels"}` and reading the matching response;
 command = `pi -p --mode json --model M:LEVEL --session-dir DIR -ne -ns -np -nc BRIEF` (no user extensions, skills,
 prompt templates or AGENTS.md, so runs are reproducible); session file = the one `*.jsonl` in DIR.
+A routed run (`MODEL@slug`, pi `openrouter/` models only) passes the base id to `--model`, adds
+`-e src/bench/pi_ext/openrouter_routing.ts` (explicit `-e` paths still load under `-ne`), and sets
+`BENCH_OPENROUTER_ROUTING={"only": [...], "allow_fallbacks": false}` plus `BENCH_ROUTE_LOG=<harness
+ dir>/route.jsonl` in that run's environment. The extension merges the routing into the request's
+`provider` field and logs the upstream that served each response; the run records
+`route.requested`/`route.served` (see Run). The upstream is part of the recorded model name
+(`openrouter/…/flash@deepinfra`), so two upstreams are separate rows; run ids use `-via-`.
 
 Claude Code (`claude`): version = first word of `claude --version`. Models come from a table in the harness (there's no
 listing command): `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-sonnet-5`, `claude-haiku-4-5`, each with levels

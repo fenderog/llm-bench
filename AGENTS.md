@@ -38,6 +38,9 @@ src/bench/          CLI, standard library only (argparse, json, subprocess, toml
   serve.py          `bench serve` (GitHub-Pages-like) + the local-only ranking API (PUT api/rank)
   harness.py        Harness interface + Pi and ClaudeCode (stream-json -> pi-format session) + metrics parsers
   runner.py         `bench run`: plan -> run agents in parallel -> collect -> export -> verify -> import
+  pi_ext/           bench-shipped pi extensions loaded with explicit `-e` (work under `-ne`):
+                    `openrouter_routing.ts` pins the OpenRouter upstream per run from
+                    `BENCH_OPENROUTER_ROUTING` and logs the serving upstream to `BENCH_ROUTE_LOG`
   build.py          headless Godot export + Playwright boot check (Playwright is optional, imported lazily)
   media.py          kind "media": check/normalize ./output/ files with ffprobe/ffmpeg -> media/<level>/manifest.json
   web.py            kind "web": inline the page's scripts/stylesheets with esbuild -> web/<level>/index.html (one file)
@@ -62,6 +65,7 @@ uv run bench run --dry-run --kind media "an SVG pelican" -m openai-codex/gpt-6-s
 uv run bench run --dry-run --kind web "a three.js horse" -m openai-codex/gpt-6-sol:low   # needs esbuild + npm
 uv run bench run --dry-run "prompt" --set cheap   # a model set from bench.toml [sets] (or a file path)
 uv run bench run --dry-run --page <slug> -m MODEL:LEVEL   # add runs to an existing page (reuses its prompt + kind)
+uv run bench run --dry-run "prompt" -m openrouter/deepseek/deepseek-v4.1-flash@deepinfra:low   # pin the OpenRouter upstream
 uv run bench models gpt-6             # models + effort levels from pi
 uv run bench models --harness claude-code   # Claude Code's (from the table in harness.py)
 uv run bench run --dry-run "prompt" -m claude-code:opus:high -m openai-codex/gpt-6-sol:high   # mixed harnesses
@@ -122,6 +126,9 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   Variadic flags (`--tools`, `--disallowed-tools`) must use the `=` form and the brief goes after `--`, or
   the brief gets swallowed as a tool name.
 - **Model ids of Claude Code aren't listed by any command:** update `ClaudeCode.MODELS` when models change.
+- **`-ne` still loads explicit `-e` extensions.** Per-run OpenRouter routing goes through the bench-shipped
+  `pi_ext/openrouter_routing.ts` plus `BENCH_OPENROUTER_ROUTING`/`BENCH_ROUTE_LOG` env vars (never the global
+  `models.json`, which would affect every pi session on the machine).
 - **`replaceChildren()`/`append()` print `null` as text**; `el()` skips null children, so pass optional nodes
   through `el()` or `.filter(Boolean)`.
 - **Metrics from a pi session:** `tokens.total = input + output` (not `totalTokens`, which includes cache

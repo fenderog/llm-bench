@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import build, clean, media, web
-from .harness import HARNESSES, split_harness
+from .harness import HARNESSES, split_harness, split_model_route
 from .importer import cmd_import
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError, title_from_slug
 
@@ -116,6 +116,22 @@ def model_tag(model):
     return re.sub(r"[^a-z0-9]", "", model.rsplit("/", 1)[-1].lower())
 
 
+SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9._/-]*$")
+
+
+def split_route(rest):
+    """'openrouter/x/y@a,b:low' -> ('openrouter/x/y:low', ['a', 'b']); no '@' -> (rest, None).
+    The part after '@' is SLUGS[:LEVELS], so the levels suffix stays attached to the spec."""
+    base, sep, tail = rest.partition("@")
+    if not sep:
+        return rest, None
+    route, _, levels = tail.partition(":")
+    slugs = [s.strip().lower() for s in route.split(",") if s.strip()]
+    if not slugs or any(not SLUG_RE.match(s) for s in slugs):
+        raise BenchError(f"bad @UPSTREAM in {rest!r}: expected @slug[,slug...] (each matching {SLUG_RE.pattern!r})")
+    return base + (f":{levels}" if levels else ""), slugs
+
+
 def slug_from_prompt(prompt):
     words = prompt.strip().split()[:6]
     slug = re.sub(r"[^a-z0-9]+", "-", " ".join(words).lower()).strip("-")
@@ -175,22 +191,27 @@ class Harnesses(dict):
 
 
 def plan_runs(model_specs, effort_default, harnesses=None):
-    """Resolve every -m [HARNESS:]MODEL[:LEVELS] against its harness (pi when there's no prefix)
-    before anything starts. Returns [(harness name, model, level), ...] with the harness's own model
-    id. The same model given twice has its levels merged; two models that resolve to the same
+    """Resolve every -m [HARNESS:]MODEL[@UPSTREAMS][:LEVELS] against its harness (pi when there's
+    no prefix) before anything starts. Returns [(harness name, model_arg, level), ...] with the
+    harness's own model id (`model_arg` keeps the `@slugs` suffix; the base id is what pi gets).
+    The same model+upstream given twice has its levels merged; two models that resolve to the same
     model-dir tag are an error."""
     harnesses = harnesses if harnesses is not None else Harnesses()
     known, levels_by_model = {}, {}
     for spec in model_specs:
         name, rest = split_harness(spec)
+        rest, route = split_route(rest)
         harness = harnesses[name]
         if name not in known:
             known[name] = set(harness.models())
         model, levels_text = parse_model_spec(rest, known[name])
         model = harness.resolve(model)
+        if route and (name != "pi" or not model.startswith("openrouter/")):
+            raise BenchError(f"{spec}: @UPSTREAM only works for pi openrouter/ models")
         supported = harness.levels(model)
         levels = expand_levels(levels_text or effort_default or "all", supported, model)
-        levels_by_model.setdefault((name, model), {}).update(dict.fromkeys(levels))
+        model_arg = f"{model}@{','.join(route)}" if route else model
+        levels_by_model.setdefault((name, model_arg), {}).update(dict.fromkeys(levels))
 
     tag_owner = {}
     for name, model in levels_by_model:
@@ -360,7 +381,7 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
     exit_code, timed_out = None, False
     try:
         with open(stdout_path, "wb") as out, open(stderr_path, "wb") as err:
-            proc = subprocess.Popen(cmd, cwd=level_dir, stdin=subprocess.DEVNULL, stdout=out, stderr=err, start_new_session=True, env=harness.env())
+            proc = subprocess.Popen(cmd, cwd=level_dir, stdin=subprocess.DEVNULL, stdout=out, stderr=err, start_new_session=True, env=harness.env(run.get("model_arg", model), harness_dir))
             with live_lock:
                 live[key] = proc
                 if interrupted.is_set():  # Ctrl-C landed between Popen and registering: kill it here
@@ -401,6 +422,27 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
     return entry
 
 
+def read_route(harness_dir, model):
+    """The OpenRouter route for a run: {requested: {only, allow_fallbacks}, served: [...]}.
+    served comes from route.jsonl (written by the pi routing extension, one line per response);
+    None for unrouted runs."""
+    _, slugs = split_model_route(model)
+    if not slugs:
+        return None
+    requested = {"only": slugs, "allow_fallbacks": False}
+    path = Path(harness_dir) / "route.jsonl"
+    served = []
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+            try:
+                provider = json.loads(line).get("provider")
+            except (ValueError, AttributeError):
+                continue
+            if provider and provider not in served:
+                served.append(provider)
+    return {"requested": requested, "served": served}
+
+
 def collect(level_dir, harness_dir, session_path, cmd, harness, version, started, ended, exit_code, state, error, model, metrics, brief, level):
     """Write <level>/session.jsonl (the harness's raw session, never published), conversation.json
     (the session in pi's format, which the viewer renders), events.jsonl (when the harness publishes
@@ -430,6 +472,13 @@ def collect(level_dir, harness_dir, session_path, cmd, harness, version, started
     (level_dir / "status.json").write_text(json.dumps(status, indent=2) + "\n")
 
     tokens = (metrics or {}).get("tokens") or {"input": 0, "output": 0, "total": 0, "reasoning": 0, "cacheRead": 0, "cacheWrite": 0}
+    route = read_route(harness_dir, model)
+    if route and route["served"]:
+        only = {s.lower() for s in route["requested"]["only"]}
+        outside = [s for s in route["served"] if s.lower() not in only]
+        if outside:
+            note = f"served upstream outside requested only: {', '.join(outside)}"
+            error = f"{error}; {note}" if error else note
     entry = {
         "model": model,
         "thinkingLevel": (metrics or {}).get("thinking_level"),
@@ -442,6 +491,7 @@ def collect(level_dir, harness_dir, session_path, cmd, harness, version, started
         "tokens": tokens,
         "state": state,
         "error": error,
+        "route": route,
     }
     (level_dir / "data.json").write_text(json.dumps(entry, indent=2) + "\n")
     return entry
