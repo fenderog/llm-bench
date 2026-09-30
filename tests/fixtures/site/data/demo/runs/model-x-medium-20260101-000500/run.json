@@ -6,7 +6,7 @@
   "started_at": "2026-01-01T00:05:00Z",
   "source_dir": "2026-01-01-medium-modelx-demo",
   "verified": true,
-  "harness": { "name": "pi", "version": null },
+  "harness": { "name": "claude-code", "version": "2.1.284" },
   "state": "complete",
   "error": null,
   "metrics": {

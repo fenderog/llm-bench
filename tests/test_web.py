@@ -137,7 +137,8 @@ def test_page_harness_column_and_failed_badge(site, page):
     row = lambda effort: rows.filter(has=page.locator("td", has_text=effort)).first
 
     high_text = row("high").inner_text()
-    assert "pi 0.87.1" in high_text
+    assert "pi" in high_text and "0.87.1" in high_text
+    assert row("medium").locator('td[data-col="harness"] .harness-version').inner_text() == "2.1.284"
 
     low = row("low")
     assert "failed" in low.locator(".badge-bad").inner_text()
@@ -171,7 +172,7 @@ def test_every_column_header_has_hover_help(site, page):
     assert headers.count() == 14  # caret, thumb, 12 data columns
     helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(14)}
     assert all(t and len(t) > 20 for t in helps.values()), helps
-    assert "reasoning" in helps["Reasoning tok"].lower()
+    assert "reasoning" in helps["Reasoning"].lower()
     assert headers.nth(0).get_attribute("title") is None  # no slow native tooltip competing
 
     # custom tooltip: not instant, shown after ~0.5s, stays on screen, hidden on leave
@@ -186,6 +187,33 @@ def test_every_column_header_has_hover_help(site, page):
     page.locator("h1").hover()
     assert not tip.is_visible()
     assert_no_errors(page)
+
+
+@pytest.mark.parametrize("width", [1440, 1280, 1100, 900, 721])
+def test_runs_table_never_scrolls_horizontally(site, browser, width):
+    """Above the phone breakpoint the table fits its wrapper; low-priority columns hide instead of scrolling.
+    The fixture has a claude-code harness label, and one run gets a long pinned-upstream model name."""
+    ctx = browser.new_context(viewport={"width": width, "height": 900})
+    pg = ctx.new_page()
+    long_model = "openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8"
+
+    def long_name(route):
+        body = route.fetch().json()
+        body[0]["model"] = long_model
+        route.fulfill(json=body)
+
+    pg.route("**/data/demo/results.json*", long_name)
+    pg.goto(f"{site}page.html?p=demo")
+    pg.wait_for_selector("table.runs tbody tr")
+    assert pg.locator(".model-via").first.is_visible()
+    m = pg.evaluate("""() => { const w = document.querySelector('.table-wrap');
+      return { wrap: w.clientWidth, table: w.querySelector('table').scrollWidth }; }""")
+    assert m["table"] <= m["wrap"], (width, m)
+    for col in ("model", "effort", "verified", "duration_ms", "cost_usd"):
+        assert pg.locator(f'tr.run-row:first-child td[data-col="{col}"]').is_visible(), (width, col)
+    if width >= 1240:
+        assert pg.locator('th[data-key="tokens_reasoning"]').is_visible()
+    ctx.close()
 
 
 def test_runs_table_shows_each_runs_image(site, page):
@@ -432,7 +460,7 @@ def test_compare_shows_harness_in_metrics_line(site, page):
     cols = page.locator(".compare-col")
     for i in range(3):
         metrics = cols.nth(i).locator(".compare-metrics").inner_text()
-        assert metrics.startswith("pi")
+        assert metrics.startswith(("pi", "claude-code"))
     # the failed run's column shows its badge next to the title and its error
     low_col = cols.filter(has_text="low").first
     assert "failed" in low_col.locator("h3 .badge-bad").inner_text()
