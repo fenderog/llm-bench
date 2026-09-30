@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Rubik's Cube</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="hud">
+        <h1>Rubik's Cube</h1>
+        <dl class="stats">
+          <div><dt>Time</dt><dd id="time">0:00.00</dd></div>
+          <div><dt>Moves</dt><dd id="moves">0</dd></div>
+        </dl>
+      </header>
+
+      <p id="scramble" class="scramble" hidden></p>
+
+      <aside id="help" class="panel help" hidden>
+        <button id="btn-help-close" class="close" aria-label="Close help">×</button>
+        <h2>Controls</h2>
+        <ul class="gestures">
+          <li><b>Drag a sticker</b> to turn its layer</li>
+          <li><b>Drag the background</b> to look around</li>
+          <li><b>Scroll / pinch</b> to zoom</li>
+        </ul>
+        <dl class="keys">
+          <dt><kbd>U</kbd><kbd>D</kbd><kbd>L</kbd><kbd>R</kbd><kbd>F</kbd><kbd>B</kbd></dt>
+          <dd>Turn a face clockwise, relative to your view</dd>
+          <dt><kbd>Shift</kbd> + key</dt>
+          <dd>Counter-clockwise</dd>
+          <dt><kbd>M</kbd><kbd>E</kbd><kbd>S</kbd></dt>
+          <dd>Middle slices</dd>
+          <dt><kbd>X</kbd><kbd>Y</kbd><kbd>Z</kbd></dt>
+          <dd>Rotate the whole cube</dd>
+          <dt><kbd>2</kbd>–<kbd>5</kbd> then a face</dt>
+          <dd>Turn an inner layer</dd>
+          <dt><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Z</kbd></dt>
+          <dd>Undo</dd>
+        </dl>
+      </aside>
+
+      <div class="dock">
+        <p id="toast" class="toast" role="status" hidden></p>
+        <nav class="toolbar">
+          <div class="sizes" role="group" aria-label="Cube size">
+            <button data-size="2">2×2</button>
+            <button data-size="3">3×3</button>
+            <button data-size="4">4×4</button>
+            <button data-size="5">5×5</button>
+          </div>
+          <div class="actions">
+            <button id="btn-scramble" class="primary">Scramble</button>
+            <button id="btn-undo">Undo</button>
+            <button id="btn-solve" title="Rewinds every move back to the solved state">Solve</button>
+            <button id="btn-reset">Reset</button>
+            <button id="btn-help" class="icon" aria-label="Controls">?</button>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

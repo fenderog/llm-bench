@@ -1,0 +1,14 @@
+html, body { margin: 0; height: 100%; overflow: hidden; background: radial-gradient(circle at 50% 40%, #2b3346, #0d1018); font-family: system-ui, sans-serif; color: #e8ecf5; }
+#app { position: fixed; inset: 0; touch-action: none; }
+#hud { position: fixed; top: 16px; left: 16px; background: rgba(15,18,28,.72); backdrop-filter: blur(6px); padding: 14px 16px; border-radius: 12px; max-width: 300px; box-shadow: 0 6px 24px rgba(0,0,0,.4); user-select: none; }
+h1 { margin: 0 0 8px; font-size: 18px; letter-spacing: .5px; }
+.stats { display: flex; gap: 18px; font-size: 14px; margin-bottom: 10px; opacity: .9; }
+.stats b { font-variant-numeric: tabular-nums; }
+.buttons, .keys { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center; }
+button { background: #3a4460; color: #fff; border: 0; border-radius: 7px; padding: 7px 11px; font-size: 13px; cursor: pointer; }
+button:hover { background: #4e5b80; }
+button:disabled { opacity: .45; cursor: default; }
+.keys button { width: 34px; padding: 6px 0; font-weight: 600; }
+.keys label { font-size: 13px; margin-left: 4px; }
+.help { font-size: 12px; opacity: .65; margin: 4px 0 0; line-height: 1.5; }
+#banner { position: fixed; top: 22px; left: 50%; transform: translateX(-50%); background: #2ecc71; color: #0b2414; font-weight: 700; padding: 10px 22px; border-radius: 999px; font-size: 18px; box-shadow: 0 6px 20px rgba(0,0,0,.4); pointer-events: none; }

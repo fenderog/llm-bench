@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Rubik’s Cube</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="scene" aria-label="Interactive Rubik’s Cube. Drag a face to turn a layer, drag the background to look around."></canvas>
+    <canvas id="confetti" aria-hidden="true"></canvas>
+
+    <header class="topbar">
+      <h1>Rubik’s Cube</h1>
+      <dl class="stats">
+        <div>
+          <dt>Moves</dt>
+          <dd id="moves">0</dd>
+        </div>
+        <div>
+          <dt>Time</dt>
+          <dd id="time">0:00</dd>
+        </div>
+      </dl>
+    </header>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <p id="hint" class="hint">Drag a face to turn it &middot; drag the background to look around</p>
+
+    <aside id="help" class="help" hidden>
+      <h2>Controls</h2>
+      <ul>
+        <li><b>Drag a face</b> to turn that layer (flick for a quick turn)</li>
+        <li><b>Drag the background</b>, or right-drag / two fingers, to orbit; scroll or pinch to zoom</li>
+        <li><kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> turn a face clockwise; hold <kbd>Shift</kbd> for counter-clockwise</li>
+        <li><kbd>M</kbd> <kbd>E</kbd> <kbd>S</kbd> turn the middle slices</li>
+        <li><kbd>Backspace</kbd> or <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes your last move</li>
+        <li><b>Scramble</b> starts a timed solve; <b>Solve</b> plays your moves back to the start</li>
+      </ul>
+    </aside>
+
+    <footer class="dock">
+      <div class="buttons">
+        <button id="scramble" type="button" class="primary">Scramble</button>
+        <button id="solve" type="button">Solve</button>
+        <button id="undo" type="button">Undo</button>
+        <button id="reset" type="button">Reset</button>
+      </div>
+      <label class="speed">
+        <span>Speed</span>
+        <input id="speed" type="range" min="0.5" max="3" step="0.1" value="1" aria-label="Turn speed" />
+      </label>
+      <button id="help-toggle" type="button" class="round" aria-expanded="false" aria-controls="help" title="Show controls">?</button>
+    </footer>
+
+    <p id="fallback" class="fallback" hidden>WebGL isn’t available in this browser, so the cube can’t be drawn.</p>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

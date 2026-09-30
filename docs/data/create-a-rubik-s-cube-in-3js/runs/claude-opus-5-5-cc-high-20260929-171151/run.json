@@ -1,0 +1,49 @@
+{
+  "id": "claude-opus-5-5-cc-high-20260929-171151",
+  "page": "create-a-rubik-s-cube-in-3js",
+  "model": "anthropic/claude-opus-5-5",
+  "effort": "high",
+  "kind": "web",
+  "started_at": "2026-09-30T00:11:57Z",
+  "source_dir": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
+  "verified": true,
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.284"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 318405,
+    "cost_usd": 0.9840336000000001,
+    "tool_calls": 10,
+    "turns": 11,
+    "tokens_total": 31763,
+    "tokens_input": 22,
+    "tokens_output": 31741,
+    "tokens_reasoning": 13590,
+    "tokens_cache_read": 273628
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "web",
+    "entry": "game/index.html",
+    "bytes": 609397,
+    "esbuild": "0.28.2"
+  },
+  "media": null,
+  "session": {
+    "conversation": "session/conversation.json",
+    "status": "session/status.json"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "index.html",
+      "main.js",
+      "package-lock.json",
+      "package.json"
+    ]
+  }
+}

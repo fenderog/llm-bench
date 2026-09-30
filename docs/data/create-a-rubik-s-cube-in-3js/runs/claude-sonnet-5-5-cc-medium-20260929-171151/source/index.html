@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Rubik's Cube</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#1b1f2a;font-family:system-ui,sans-serif;color:#fff}
+canvas{display:block;touch-action:none}
+#ui{position:fixed;left:0;right:0;bottom:12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:0 8px}
+button{background:#2e3547;color:#fff;border:1px solid #485068;border-radius:6px;padding:8px 11px;font:600 14px system-ui;cursor:pointer}
+button:hover{background:#3d4661}
+#hint{position:fixed;top:10px;width:100%;text-align:center;font-size:13px;opacity:.7;pointer-events:none}
+</style></head><body>
+<div id="hint">Drag a cube face to turn a layer · drag the background to orbit · scroll to zoom</div>
+<div id="ui"></div>
+<script type="module" src="main.js"></script></body></html>

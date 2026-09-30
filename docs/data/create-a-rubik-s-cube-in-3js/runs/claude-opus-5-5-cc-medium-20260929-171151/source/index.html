@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rubik's Cube — three.js</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app"></div>
+<div id="hud">
+  <h1>Rubik's Cube</h1>
+  <div class="stats"><span>Moves <b id="moves">0</b></span><span>Time <b id="time">0:00.0</b></span></div>
+  <div class="buttons">
+    <button id="scramble">Scramble</button>
+    <button id="solve">Solve</button>
+    <button id="undo">Undo</button>
+    <button id="reset">Reset</button>
+  </div>
+  <div class="keys">
+    <button data-move="U">U</button><button data-move="D">D</button><button data-move="L">L</button>
+    <button data-move="R">R</button><button data-move="F">F</button><button data-move="B">B</button>
+    <button data-move="M">M</button><button data-move="E">E</button><button data-move="S">S</button>
+    <label><input type="checkbox" id="prime" /> prime (')</label>
+  </div>
+  <p class="help">Drag a face to turn a layer · drag empty space to orbit · scroll to zoom<br />
+  Keys: U D L R F B M E S (Shift = counter-clockwise), Ctrl+Z undo</p>
+</div>
+<div id="banner" hidden>Solved! 🎉</div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

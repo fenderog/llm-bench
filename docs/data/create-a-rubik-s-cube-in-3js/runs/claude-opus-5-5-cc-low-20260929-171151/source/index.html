@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rubik's Cube</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#1b1e24;font-family:system-ui,sans-serif;color:#eee}
+  #ui{position:absolute;top:10px;left:10px;display:flex;flex-wrap:wrap;gap:6px;max-width:420px}
+  button{background:#2d323c;color:#eee;border:1px solid #444;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:14px}
+  button:hover{background:#3b4250}
+  #help{position:absolute;bottom:10px;left:10px;font-size:13px;opacity:.7}
+</style>
+</head>
+<body>
+<div id="ui"></div>
+<div id="help">Drag to orbit · Keys U D L R F B (Shift = counter‑clockwise) · Space = scramble</div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

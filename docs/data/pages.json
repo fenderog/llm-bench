@@ -1,5 +1,18 @@
 [
   {
+    "slug": "create-a-rubik-s-cube-in-3js",
+    "title": "Rubiks Cube Model",
+    "kind": "web",
+    "n_runs": 11,
+    "models": [
+      "anthropic/claude-opus-5-5",
+      "anthropic/claude-sonnet-5-5",
+      "openai-codex/gpt-6.1-sol"
+    ],
+    "updated": "2026-09-30T00:28:32Z",
+    "thumb": "data/create-a-rubik-s-cube-in-3js/runs/gpt-6.1-sol-high-20260929-171151/thumb.png"
+  },
+  {
     "slug": "create-a-running-voxel-horse-in",
     "title": "Create a running voxel horse in",
     "kind": "godot",

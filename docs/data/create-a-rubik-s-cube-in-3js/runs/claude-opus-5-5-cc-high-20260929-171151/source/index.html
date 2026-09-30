@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Rubik's Cube — three.js</title>
+  <style>
+    :root {
+      --panel: rgba(18, 20, 28, 0.72);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #e8eaf0;
+      --muted: #9aa0b0;
+      --accent: #4f8cff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: radial-gradient(ellipse at 50% 35%, #2c3346 0%, #151821 60%, #0b0c11 100%);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #app { position: fixed; inset: 0; }
+    #app canvas { display: block; touch-action: none; outline: none; }
+
+    .panel {
+      position: fixed;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 12px 14px;
+    }
+    #stats { top: 16px; left: 16px; min-width: 190px; }
+    #stats h1 { margin: 0 0 8px; font-size: 16px; letter-spacing: 0.02em; }
+    .stat { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin: 2px 0; }
+    .stat b { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
+    #log {
+      margin-top: 8px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 190px;
+      min-height: 16px;
+      word-wrap: break-word;
+    }
+
+    #help { top: 16px; right: 16px; max-width: 270px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+    #help b { color: var(--text); }
+    #help kbd {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 11px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0 4px;
+      color: var(--text);
+    }
+    #help.collapsed .body { display: none; }
+    #help .head { display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; color: var(--text); font-weight: 600; font-size: 13px; }
+    #help .body { margin-top: 6px; }
+
+    #controls {
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    button {
+      font: inherit;
+      font-size: 13px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+    }
+    button:hover { background: rgba(255, 255, 255, 0.14); }
+    button:active { transform: translateY(1px); }
+    button.primary { background: var(--accent); border-color: transparent; color: white; }
+    button.primary:hover { background: #6a9dff; }
+    .pad button { min-width: 38px; padding: 6px 8px; font-family: ui-monospace, Menlo, monospace; }
+    label.speed { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; margin-left: 6px; }
+    label.speed input { width: 90px; accent-color: var(--accent); }
+
+    #toast {
+      position: fixed;
+      top: 22%;
+      left: 50%;
+      transform: translate(-50%, -10px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 24px;
+      font-size: 18px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      text-align: center;
+    }
+    #toast.show { opacity: 1; transform: translate(-50%, 0); }
+    #toast small { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+
+    @media (max-width: 700px) {
+      #help { display: none; }
+      #stats { padding: 8px 10px; }
+      #controls { width: calc(100% - 20px); bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="stats" class="panel">
+    <h1>Rubik's Cube</h1>
+    <div class="stat">Moves <b id="moves">0</b></div>
+    <div class="stat">Time <b id="time">0:00.0</b></div>
+    <div class="stat">State <b id="state">Solved</b></div>
+    <div id="log"></div>
+  </div>
+
+  <div id="help" class="panel">
+    <div class="head">How to play <span id="helpToggle">–</span></div>
+    <div class="body">
+      <b>Drag a face</b> to turn that layer.<br />
+      <b>Drag the background</b> to orbit, scroll to zoom.<br />
+      Keys: <kbd>U</kbd> <kbd>D</kbd> <kbd>L</kbd> <kbd>R</kbd> <kbd>F</kbd> <kbd>B</kbd> faces,
+      <kbd>M</kbd> <kbd>E</kbd> <kbd>S</kbd> slices,
+      <kbd>X</kbd> <kbd>Y</kbd> <kbd>Z</kbd> whole cube.<br />
+      Hold <kbd>Shift</kbd> for counter‑clockwise (′).<br />
+      <kbd>Backspace</kbd> undo · <kbd>Space</kbd> scramble
+    </div>
+  </div>
+
+  <div id="controls" class="panel">
+    <div class="row pad" id="pad"></div>
+    <div class="row">
+      <button id="scramble" class="primary">Scramble</button>
+      <button id="solve">Solve</button>
+      <button id="undo">Undo</button>
+      <button id="reset">Reset</button>
+      <button id="view">Reset view</button>
+      <label class="speed">Speed <input id="speed" type="range" min="0" max="1" step="0.01" value="0.5" /></label>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

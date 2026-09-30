@@ -1,0 +1,55 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #e8ecf4;
+  background: radial-gradient(ellipse at 50% 40%, #3a4262 0%, #20263d 55%, #12152a 100%);
+  user-select: none;
+  -webkit-user-select: none;
+}
+canvas#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+.hud { position: fixed; top: 16px; left: 20px; pointer-events: none; }
+.hud h1 { margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: .5px; }
+.stats { font-size: 14px; opacity: .85; display: flex; gap: 12px; }
+#status { color: #7dffa8; font-weight: 600; }
+
+.help {
+  position: fixed; top: 16px; right: 20px; text-align: right;
+  font-size: 12px; line-height: 1.7; opacity: .65; pointer-events: none;
+}
+kbd {
+  background: rgba(255,255,255,.14); border-radius: 4px; padding: 1px 5px;
+  font-family: ui-monospace, Menlo, monospace; font-size: 11px;
+}
+
+.panel {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 10px; align-items: center;
+  padding: 12px 14px; border-radius: 14px;
+  background: rgba(15, 18, 34, .6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.1);
+  max-width: calc(100vw - 20px);
+}
+.moves { display: grid; grid-template-columns: repeat(6, 44px); gap: 6px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+
+button {
+  font: inherit; font-size: 13px; font-weight: 600; color: inherit; cursor: pointer;
+  padding: 8px 14px; border-radius: 8px;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16);
+  transition: background .15s, transform .05s;
+}
+button:hover { background: rgba(255,255,255,.2); }
+button:active { transform: scale(.96); }
+button.primary { background: #4c6fff; border-color: #6f8cff; }
+button.primary:hover { background: #6483ff; }
+.moves button { padding: 8px 0; border-bottom: 3px solid var(--c); }
+
+.speed { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-left: 6px; }
+.speed input { width: 90px; accent-color: #6f8cff; }
+
+@media (max-width: 560px) {
+  .help { display: none; }
+  .moves { grid-template-columns: repeat(6, 38px); }
+}

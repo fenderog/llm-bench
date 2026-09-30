@@ -1,0 +1,50 @@
+{
+  "id": "claude-sonnet-5-5-cc-high-20260929-171151",
+  "page": "create-a-rubik-s-cube-in-3js",
+  "model": "anthropic/claude-sonnet-5-5",
+  "effort": "high",
+  "kind": "web",
+  "started_at": "2026-09-30T00:11:57Z",
+  "source_dir": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
+  "verified": true,
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.284"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 86862,
+    "cost_usd": 0.20657920000000002,
+    "tool_calls": 4,
+    "turns": 4,
+    "tokens_total": 13609,
+    "tokens_input": 8,
+    "tokens_output": 13601,
+    "tokens_reasoning": 4924,
+    "tokens_cache_read": 37106
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "web",
+    "entry": "game/index.html",
+    "bytes": 605575,
+    "esbuild": "0.28.2"
+  },
+  "media": null,
+  "session": {
+    "conversation": "session/conversation.json",
+    "status": "session/status.json"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "index.html",
+      "main.js",
+      "package-lock.json",
+      "package.json",
+      "style.css"
+    ]
+  }
+}

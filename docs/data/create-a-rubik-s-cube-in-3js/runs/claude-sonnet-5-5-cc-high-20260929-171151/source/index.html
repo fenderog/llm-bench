@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rubik's Cube</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <header class="hud">
+    <h1>Rubik's Cube</h1>
+    <div class="stats"><span id="moves">0 moves</span><span id="status"></span></div>
+  </header>
+
+  <aside class="help">
+    Drag a sticker to turn a layer<br>
+    Drag the background to orbit &middot; scroll to zoom<br>
+    Keys: <kbd>U D L R F B</kbd> (+ <kbd>Shift</kbd> for reverse)
+  </aside>
+
+  <div class="panel">
+    <div class="moves" id="moveButtons"></div>
+    <div class="row">
+      <button id="scramble" class="primary">Scramble</button>
+      <button id="solve">Solve</button>
+      <button id="reset">Reset</button>
+      <label class="speed">Speed <input id="speed" type="range" min="0" max="100" value="60"></label>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

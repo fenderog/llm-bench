@@ -1,0 +1,333 @@
+:root {
+  --ink: #e9edfb;
+  --ink-dim: #a3adcc;
+  --panel: rgba(18, 22, 40, 0.55);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --accent: #5b8cff;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background: radial-gradient(ellipse 90% 80% at 50% 42%, #4a5580 0%, #2a3253 45%, #12152a 100%);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#scene,
+#confetti {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#scene {
+  touch-action: none;
+  outline: none;
+}
+
+#confetti {
+  pointer-events: none;
+}
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: max(16px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+
+.stats {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+}
+
+.stats div {
+  min-width: 78px;
+  padding: 6px 12px 7px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.stats dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+}
+
+.stats dd {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.toast {
+  position: fixed;
+  top: 74px;
+  left: 50%;
+  max-width: calc(100% - 32px);
+  padding: 12px 22px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 600;
+  background: rgba(20, 24, 44, 0.78);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translate(-50%, -12px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.toast small {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-dim);
+}
+
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  margin: 0;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+  transform: translateX(-50%);
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.hint.hidden {
+  opacity: 0;
+}
+
+.dock {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 16px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 10px 14px;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 550;
+  color: var(--ink);
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+button.primary:hover:not(:disabled) {
+  background: #7aa0ff;
+}
+
+button.round {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #9db9ff;
+  outline-offset: 2px;
+}
+
+.speed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+}
+
+.speed input {
+  width: 96px;
+  accent-color: var(--accent);
+}
+
+.help {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  width: min(340px, calc(100% - 32px));
+  padding: 14px 18px 16px;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  background: rgba(16, 20, 38, 0.86);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.help[hidden] {
+  display: none;
+}
+
+.help h2 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.help ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.help li + li {
+  margin-top: 6px;
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 0 5px;
+  font: 600 0.78rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--panel-border);
+  border-radius: 5px;
+}
+
+.fallback {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+}
+
+.fallback[hidden] {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .topbar h1 {
+    font-size: 1rem;
+  }
+
+  .stats div {
+    min-width: 64px;
+    padding: 4px 8px 5px;
+  }
+
+  .stats dd {
+    font-size: 1.05rem;
+  }
+
+  .toast {
+    top: 66px;
+  }
+
+  .hint {
+    bottom: calc(132px + env(safe-area-inset-bottom));
+  }
+
+  .help {
+    bottom: calc(128px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .hint,
+  button {
+    transition: none;
+  }
+}

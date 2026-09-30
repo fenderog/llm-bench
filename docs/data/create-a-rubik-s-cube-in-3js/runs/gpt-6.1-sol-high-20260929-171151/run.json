@@ -1,0 +1,53 @@
+{
+  "id": "gpt-6.1-sol-high-20260929-171151",
+  "page": "create-a-rubik-s-cube-in-3js",
+  "model": "openai-codex/gpt-6.1-sol",
+  "effort": "high",
+  "kind": "web",
+  "started_at": "2026-09-30T00:12:37Z",
+  "source_dir": "2026-09-29-171151-gpt61sol-create-a-rubik-s-cube-in-3js",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.99.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 606608,
+    "cost_usd": 0.23885680000000004,
+    "tool_calls": 22,
+    "turns": 17,
+    "tokens_total": 43350,
+    "tokens_input": 26956,
+    "tokens_output": 16394,
+    "tokens_reasoning": 2921,
+    "tokens_cache_read": 210048
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "web",
+    "entry": "game/index.html",
+    "bytes": 628411,
+    "esbuild": "0.28.2"
+  },
+  "media": null,
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      ".gitignore",
+      "README.md",
+      "index.html",
+      "main.js",
+      "package-lock.json",
+      "package.json",
+      "style.css"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f7f2"><title>Twist — a little perspective</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="app">
+<header><a class="brand" href="#" aria-label="Twist home"><span class="brand-icon">✳</span> twist<span class="brand-dot">.</span></a><span class="header-note">A LITTLE PERSPECTIVE GOES A LONG WAY</span><button id="helpButton" class="icon-button" aria-label="How to play">?</button></header>
+<main>
+<section class="playground">
+<div class="intro"><div class="eyebrow"><span></span> THE CLASSIC, REIMAGINED</div><h1>Find your<br><em>next move.</em></h1><p>Six colors. Endless possibilities.<br>Take a breath, give it a twist.</p></div>
+<div id="scene" aria-label="Interactive 3D Rubik’s cube"><div class="scene-label"><span class="live-dot"></span> 3 × 3 × 3 <span class="label-separator">/</span> ORIGINAL CUBE</div><div id="canvas-mount"></div><button class="view-reset" id="viewReset" title="Reset camera view">↺ <span>Reset view</span></button><div class="orbit-hint"><span class="mouse-icon"></span> Drag to orbit <span>·</span> Click a face to turn</div></div>
+<div class="bottom-note"><span class="small-star">✳</span><span>A small challenge. A fresh perspective.</span><span class="edition">NO. 001</span></div>
+</section>
+<aside>
+<div class="panel-header"><span class="eyebrow">YOUR PLAYGROUND</span><span id="status" class="status">Solved</span></div>
+<div class="stats"><div><span class="stat-label">TIME</span><strong id="timer">00:00<span>.0</span></strong></div><div><span class="stat-label">MOVES</span><strong id="moves">0</strong></div></div>
+<button id="scramble" class="primary"><span class="shuffle-icon">⇄</span> Mix things up <span>↗</span></button><div class="action-row"><button id="undo">↶ <span>Undo</span></button><button id="solve">✧ <span>Auto-solve</span></button></div>
+<div class="divider"></div>
+<div class="control-title"><h2>Make your move</h2><span>FACE CONTROLS</span></div><p class="control-description">Pick a face. Give it a quarter turn.</p>
+<div class="direction" role="group" aria-label="Turn direction"><button id="clockwise" class="selected" aria-pressed="true">↻ Clockwise</button><button id="counterclockwise" aria-pressed="false">↺ Counterclockwise</button></div>
+<div class="face-grid">
+<button data-face="U"><span class="swatch white"></span><span>Up</span><kbd>U</kbd></button><button data-face="D"><span class="swatch yellow"></span><span>Down</span><kbd>D</kbd></button><button data-face="L"><span class="swatch red"></span><span>Left</span><kbd>L</kbd></button><button data-face="R"><span class="swatch orange"></span><span>Right</span><kbd>R</kbd></button><button data-face="F"><span class="swatch green"></span><span>Front</span><kbd>F</kbd></button><button data-face="B"><span class="swatch blue"></span><span>Back</span><kbd>B</kbd></button>
+</div><p class="keyboard-note"><kbd>shift</kbd> + face key for a reverse turn</p>
+<div class="divider history-divider"></div><div class="control-title"><h2>Move history</h2><button id="reset" class="text-button">Start fresh ↗</button></div><div id="history" class="history"><span class="history-empty">Every great solve starts with a twist.</span></div>
+<div class="tip"><span>↗</span><p><strong>Look at it differently.</strong><br>Drag the cube to discover every side.</p></div>
+</aside>
+</main><footer><span>MADE FOR CURIOUS MINDS</span><span>Less scrolling. More solving. <span class="footer-star">✳</span></span></footer>
+</div>
+<dialog id="help"><button id="closeHelp" class="icon-button" aria-label="Close help">×</button><div class="eyebrow">A NEW PERSPECTIVE</div><h2>A twist is all it takes.</h2><p>Match all nine squares on each face to solve the cube.</p><ul><li>Drag to orbit. Scroll to zoom.</li><li>Click a colored face to turn it.</li><li>Use U, D, L, R, F and B to turn faces. Hold Shift to reverse.</li><li>Mix things up to scramble. Undo takes back a move.</li><li>Auto-solve retraces your moves back to the beginning.</li></ul><button id="gotIt" class="primary">Let’s play ↗</button></dialog>
+<script type="module" src="main.js"></script>
+</body></html>
