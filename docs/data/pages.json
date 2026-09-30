@@ -3,14 +3,15 @@
     "slug": "create-a-rubik-s-cube-in-3js",
     "title": "Rubiks Cube Model",
     "kind": "web",
-    "n_runs": 11,
+    "n_runs": 14,
     "models": [
       "anthropic/claude-opus-5-5",
       "anthropic/claude-sonnet-5-5",
-      "openai-codex/gpt-6.1-sol"
+      "openai-codex/gpt-6.1-sol",
+      "openrouter/deepseek/deepseek-v4.1-flash"
     ],
-    "updated": "2026-09-30T00:28:32Z",
-    "thumb": "data/create-a-rubik-s-cube-in-3js/runs/gpt-6.1-sol-high-20260929-171151/thumb.png"
+    "updated": "2026-09-30T21:04:40Z",
+    "thumb": "data/create-a-rubik-s-cube-in-3js/runs/deepseek-v4.1-flash-max-20260930-121814/thumb.png"
   },
   {
     "slug": "create-a-running-voxel-horse-in",

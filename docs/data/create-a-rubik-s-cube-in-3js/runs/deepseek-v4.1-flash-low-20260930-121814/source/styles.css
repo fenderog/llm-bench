@@ -1,0 +1,159 @@
+:root {
+  --ink: #eef2f8;
+  --muted: #9fb0c8;
+  --panel: rgba(18, 24, 38, 0.62);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --accent: #4f8cff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #070a12;
+  color: var(--ink);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #26324f 0%, #131a2b 45%, #070a12 100%);
+}
+
+#scene canvas {
+  display: block;
+  touch-action: none;
+}
+
+.hud {
+  position: fixed;
+  top: 22px;
+  left: 26px;
+  max-width: 430px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hud h1 {
+  margin: 0 0 6px;
+  font-size: clamp(20px, 3.4vw, 30px);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #ffffff, #8fb4ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hud p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 5px;
+  margin: 0 1px;
+  border: 1px solid var(--panel-border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  font: inherit;
+  font-size: 11px;
+  text-align: center;
+  color: var(--ink);
+}
+
+.controls {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  max-width: min(760px, 92vw);
+}
+
+.controls .group {
+  display: flex;
+  gap: 6px;
+  padding: 0 8px;
+}
+
+.controls .group + .group {
+  border-left: 1px solid var(--panel-border);
+}
+
+.controls button {
+  min-width: 44px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.controls button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.controls button:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.controls button.accent {
+  background: linear-gradient(180deg, rgba(79, 140, 255, 0.35), rgba(79, 140, 255, 0.18));
+  border-color: rgba(79, 140, 255, 0.5);
+}
+
+.controls button.accent:hover {
+  background: linear-gradient(180deg, rgba(79, 140, 255, 0.5), rgba(79, 140, 255, 0.28));
+}
+
+@media (max-width: 560px) {
+  .controls {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .controls .group {
+    padding: 0 5px;
+  }
+
+  .controls button {
+    min-width: 38px;
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .hud {
+    left: 16px;
+    right: 16px;
+    top: 16px;
+  }
+}

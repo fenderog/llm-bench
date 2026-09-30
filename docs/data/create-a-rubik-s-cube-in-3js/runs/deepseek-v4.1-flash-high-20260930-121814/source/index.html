@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rubik's Cube &mdash; Three.js</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <header class="hud">
+      <h1>Rubik&rsquo;s Cube</h1>
+      <p class="hint">Drag a face to turn it &middot; drag the background to orbit &middot; scroll to zoom</p>
+    </header>
+
+    <div class="controls">
+      <button id="scramble" type="button">Scramble</button>
+      <button id="reset" type="button">Reset</button>
+      <button id="undo" type="button">Undo</button>
+      <button id="top" type="button">Top view</button>
+    </div>
+
+    <div class="footer">
+      <span>Keys: <kbd>U</kbd><kbd>D</kbd><kbd>L</kbd><kbd>R</kbd><kbd>F</kbd><kbd>B</kbd> &middot; hold <kbd>Shift</kbd> to reverse</span>
+      <span id="status">Solved</span>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

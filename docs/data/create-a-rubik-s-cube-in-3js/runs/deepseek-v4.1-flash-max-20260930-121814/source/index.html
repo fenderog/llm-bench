@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Rubik's Cube · three.js</title>
+    <link rel="icon" href="data:," />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #edf1f8;
+        --muted: #97a3b6;
+        --stroke: rgba(255, 255, 255, 0.1);
+        --panel: rgba(14, 18, 27, 0.55);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow: hidden;
+        background:
+          radial-gradient(120% 90% at 50% -10%, #2e3854 0%, #1a2133 38%, #0b0e16 72%, #05060a 100%);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+          Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      #stage {
+        position: fixed;
+        inset: 0;
+      }
+
+      #stage canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+        cursor: grab;
+      }
+
+      #stage canvas:active {
+        cursor: grabbing;
+      }
+
+      .hud {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: clamp(14px, 2.4vw, 28px);
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: clamp(18px, 2.2vw, 24px);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        background: linear-gradient(180deg, #ffffff 0%, #b9c6dc 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .brand p {
+        margin: 5px 0 0;
+        font-size: clamp(11px, 1.2vw, 13px);
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        pointer-events: auto;
+        appearance: none;
+        border: 1px solid var(--stroke);
+        border-radius: 12px;
+        padding: 10px 18px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--ink);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025));
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+        cursor: pointer;
+        transition:
+          transform 0.12s ease,
+          background 0.2s ease,
+          border-color 0.2s ease;
+      }
+
+      .btn:hover {
+        border-color: rgba(255, 255, 255, 0.24);
+        transform: translateY(-1px);
+      }
+
+      .btn:active {
+        transform: translateY(0) scale(0.98);
+      }
+
+      .btn.primary {
+        background: linear-gradient(180deg, #4d80f0, #2d5ccc);
+        border-color: rgba(140, 175, 255, 0.55);
+      }
+
+      .btn.primary:hover {
+        background: linear-gradient(180deg, #5c8cf4, #3565d6);
+      }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 16px;
+      }
+
+      .stats {
+        display: flex;
+        gap: 10px;
+      }
+
+      .stat {
+        min-width: 86px;
+        padding: 8px 14px 10px;
+        border: 1px solid var(--stroke);
+        border-radius: 14px;
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+      }
+
+      .stat .label {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .stat .value {
+        display: block;
+        margin-top: 2px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 18px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .hint {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 7px 14px;
+        max-width: 560px;
+        padding: 9px 14px;
+        border: 1px solid var(--stroke);
+        border-radius: 14px;
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .hint span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+
+      kbd {
+        display: inline-block;
+        min-width: 18px;
+        padding: 2px 5px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-bottom-width: 2px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.07);
+        color: #dfe7f5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+        line-height: 1.15;
+        text-align: center;
+      }
+
+      .toast {
+        position: fixed;
+        top: clamp(72px, 12vh, 120px);
+        left: 50%;
+        transform: translate(-50%, -12px) scale(0.96);
+        padding: 12px 22px;
+        border: 1px solid rgba(90, 220, 140, 0.45);
+        border-radius: 999px;
+        background: rgba(16, 46, 30, 0.82);
+        box-shadow:
+          0 12px 40px rgba(0, 0, 0, 0.45),
+          0 0 30px rgba(80, 220, 140, 0.18);
+        color: #d8ffe8;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s ease;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+
+      @media (max-width: 680px) {
+        .brand p {
+          display: none;
+        }
+
+        .hint {
+          justify-content: flex-start;
+          max-width: 100%;
+        }
+
+        .hint span:nth-child(n + 4) {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+
+    <div class="hud">
+      <header>
+        <div class="brand">
+          <h1>Rubik's Cube</h1>
+          <p>Drag a face to turn it · drag the background to orbit · scroll to zoom</p>
+        </div>
+        <div class="actions">
+          <button id="scramble" class="btn primary" type="button">Scramble</button>
+          <button id="reset" class="btn" type="button">Reset</button>
+        </div>
+      </header>
+
+      <footer>
+        <div class="stats">
+          <div class="stat">
+            <span class="label">Time</span>
+            <span class="value" id="timer">0.00</span>
+          </div>
+          <div class="stat">
+            <span class="label">Moves</span>
+            <span class="value" id="moves">0</span>
+          </div>
+        </div>
+        <div class="hint">
+          <span><kbd>U</kbd><kbd>D</kbd><kbd>L</kbd><kbd>R</kbd><kbd>F</kbd><kbd>B</kbd> turn</span>
+          <span><kbd>shift</kbd> inverse</span>
+          <span><kbd>X</kbd><kbd>Y</kbd><kbd>Z</kbd> spin cube</span>
+          <span><kbd>M</kbd><kbd>E</kbd><kbd>S</kbd> slices</span>
+        </div>
+      </footer>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <noscript>This page needs JavaScript to render the cube.</noscript>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

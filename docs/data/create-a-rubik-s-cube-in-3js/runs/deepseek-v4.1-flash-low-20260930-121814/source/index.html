@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rubik's Cube — three.js</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="scene"></div>
+
+    <header class="hud">
+      <h1>Rubik&rsquo;s Cube</h1>
+      <p>
+        Drag the cube to turn a face &middot; drag the background to orbit &middot;
+        scroll to zoom. You can also use the buttons or the keys
+        <kbd>R</kbd><kbd>L</kbd><kbd>U</kbd><kbd>D</kbd><kbd>F</kbd><kbd>B</kbd>
+        (hold <kbd>Shift</kbd> for counter-clockwise).
+      </p>
+    </header>
+
+    <div class="controls">
+      <div class="group">
+        <button data-move="U">U</button>
+        <button data-move="U'">U&prime;</button>
+        <button data-move="D">D</button>
+        <button data-move="D'">D&prime;</button>
+      </div>
+      <div class="group">
+        <button data-move="L">L</button>
+        <button data-move="L'">L&prime;</button>
+        <button data-move="R">R</button>
+        <button data-move="R'">R&prime;</button>
+      </div>
+      <div class="group">
+        <button data-move="F">F</button>
+        <button data-move="F'">F&prime;</button>
+        <button data-move="B">B</button>
+        <button data-move="B'">B&prime;</button>
+      </div>
+      <div class="group">
+        <button id="scramble" class="accent">Scramble</button>
+        <button id="reset" class="accent">Reset</button>
+      </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

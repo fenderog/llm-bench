@@ -571,5 +571,164 @@
       ]
     },
     "rank": null
+  },
+  {
+    "id": "deepseek-v4.1-flash-low-20260930-121814",
+    "page": "create-a-rubik-s-cube-in-3js",
+    "model": "openrouter/deepseek/deepseek-v4.1-flash",
+    "effort": "low",
+    "kind": "web",
+    "started_at": "2026-09-30T20:56:05Z",
+    "source_dir": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
+    "verified": true,
+    "harness": {
+      "name": "pi",
+      "version": "0.99.1"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 335079,
+      "cost_usd": 0.018366656519999996,
+      "tool_calls": 45,
+      "turns": 46,
+      "tokens_total": 124343,
+      "tokens_input": 91763,
+      "tokens_output": 32580,
+      "tokens_reasoning": 19910,
+      "tokens_cache_read": 1253632
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "web",
+      "entry": "game/index.html",
+      "bytes": 601632,
+      "esbuild": "0.28.2"
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "events": "session/events.jsonl",
+      "status": "session/status.json",
+      "stderr": "session/stderr.txt"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "index.html",
+        "main.js",
+        "package-lock.json",
+        "package.json",
+        "styles.css"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "deepseek-v4.1-flash-high-20260930-121814",
+    "page": "create-a-rubik-s-cube-in-3js",
+    "model": "openrouter/deepseek/deepseek-v4.1-flash",
+    "effort": "high",
+    "kind": "web",
+    "started_at": "2026-09-30T20:56:05Z",
+    "source_dir": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
+    "verified": true,
+    "harness": {
+      "name": "pi",
+      "version": "0.99.1"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 61745,
+      "cost_usd": 0.007347647519999999,
+      "tool_calls": 13,
+      "turns": 11,
+      "tokens_total": 21681,
+      "tokens_input": 4280,
+      "tokens_output": 17401,
+      "tokens_reasoning": 8475,
+      "tokens_cache_read": 127872
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "web",
+      "entry": "game/index.html",
+      "bytes": 539057,
+      "esbuild": "0.28.2"
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "events": "session/events.jsonl",
+      "status": "session/status.json",
+      "stderr": "session/stderr.txt"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "index.html",
+        "main.js",
+        "package-lock.json",
+        "package.json",
+        "styles.css"
+      ]
+    },
+    "rank": null
+  },
+  {
+    "id": "deepseek-v4.1-flash-max-20260930-121814",
+    "page": "create-a-rubik-s-cube-in-3js",
+    "model": "openrouter/deepseek/deepseek-v4.1-flash",
+    "effort": "max",
+    "kind": "web",
+    "started_at": "2026-09-30T20:56:05Z",
+    "source_dir": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
+    "verified": true,
+    "harness": {
+      "name": "pi",
+      "version": "0.99.1"
+    },
+    "state": "complete",
+    "error": null,
+    "metrics": {
+      "duration_ms": 515149,
+      "cost_usd": 0.03666238872,
+      "tool_calls": 68,
+      "turns": 54,
+      "tokens_total": 108510,
+      "tokens_input": 39850,
+      "tokens_output": 68660,
+      "tokens_reasoning": 44871,
+      "tokens_cache_read": 2984192
+    },
+    "thumb": "thumb.png",
+    "game": {
+      "kind": "web",
+      "entry": "game/index.html",
+      "bytes": 613963,
+      "esbuild": "0.28.2"
+    },
+    "media": null,
+    "session": {
+      "conversation": "session/conversation.json",
+      "events": "session/events.jsonl",
+      "status": "session/status.json",
+      "stderr": "session/stderr.txt"
+    },
+    "source": {
+      "root": "source/",
+      "files": [
+        "README.md",
+        "cube.js",
+        "index.html",
+        "main.js",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "rank": null
   }
 ]

@@ -1,0 +1,10 @@
+{
+  "name": "rubiks-cube-threejs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive Rubik's cube built with three.js",
+  "dependencies": {
+    "three": "^0.186.1"
+  }
+}

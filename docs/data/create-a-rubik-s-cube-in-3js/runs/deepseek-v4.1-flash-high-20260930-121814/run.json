@@ -1,0 +1,52 @@
+{
+  "id": "deepseek-v4.1-flash-high-20260930-121814",
+  "page": "create-a-rubik-s-cube-in-3js",
+  "model": "openrouter/deepseek/deepseek-v4.1-flash",
+  "effort": "high",
+  "kind": "web",
+  "started_at": "2026-09-30T20:56:05Z",
+  "source_dir": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.99.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 61745,
+    "cost_usd": 0.007347647519999999,
+    "tool_calls": 13,
+    "turns": 11,
+    "tokens_total": 21681,
+    "tokens_input": 4280,
+    "tokens_output": 17401,
+    "tokens_reasoning": 8475,
+    "tokens_cache_read": 127872
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "web",
+    "entry": "game/index.html",
+    "bytes": 539057,
+    "esbuild": "0.28.2"
+  },
+  "media": null,
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "index.html",
+      "main.js",
+      "package-lock.json",
+      "package.json",
+      "styles.css"
+    ]
+  }
+}
