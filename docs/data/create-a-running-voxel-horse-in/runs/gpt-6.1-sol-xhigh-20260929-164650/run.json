@@ -1,0 +1,70 @@
+{
+  "id": "gpt-6.1-sol-xhigh-20260929-164650",
+  "page": "create-a-running-voxel-horse-in",
+  "model": "openai-codex/gpt-6.1-sol",
+  "effort": "xhigh",
+  "kind": "godot",
+  "started_at": "2026-09-29T23:46:52Z",
+  "source_dir": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
+  "verified": true,
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
+  "state": "complete",
+  "error": null,
+  "metrics": {
+    "duration_ms": 1523297,
+    "cost_usd": 0.6774627999999998,
+    "tool_calls": 51,
+    "turns": 36,
+    "tokens_total": 110173,
+    "tokens_input": 71275,
+    "tokens_output": 38898,
+    "tokens_reasoning": 17164,
+    "tokens_cache_read": 1459328
+  },
+  "thumb": "thumb.png",
+  "game": {
+    "kind": "godot",
+    "entry": "game/index.html",
+    "engine": "dd54ab29f8a9",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "threads": false
+  },
+  "media": null,
+  "session": {
+    "conversation": "session/conversation.json",
+    "events": "session/events.jsonl",
+    "status": "session/status.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      ".gitignore",
+      "README.md",
+      "export_presets.cfg",
+      "icon.svg",
+      "icon.svg.import",
+      "main.tscn",
+      "project.godot",
+      "scripts/audio.gd",
+      "scripts/audio.gd.uid",
+      "scripts/glyph.gd",
+      "scripts/glyph.gd.uid",
+      "scripts/interface.gd",
+      "scripts/interface.gd.uid",
+      "scripts/landscape.gd",
+      "scripts/landscape.gd.uid",
+      "scripts/main.gd",
+      "scripts/main.gd.uid",
+      "scripts/voxel_builder.gd",
+      "scripts/voxel_builder.gd.uid",
+      "scripts/voxel_horse.gd",
+      "scripts/voxel_horse.gd.uid",
+      "tests/smoke.gd",
+      "tests/smoke.gd.uid"
+    ]
+  }
+}
