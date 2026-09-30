@@ -15,18 +15,18 @@ from .util import BenchError
 
 def build_parser():
     common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--root", default=".", type=Path, help="repo root (site is <root>/docs)")
+    common.add_argument("-C", "--root", default=".", type=Path, help="repo root (site is <root>/docs)")
 
     parser = argparse.ArgumentParser(prog="bench")
     sub = parser.add_subparsers(dest="command", required=True)
 
     imp = sub.add_parser("import", parents=[common], help="import an effort-run folder")
     imp.add_argument("effort_dir")
-    imp.add_argument("--page", help="override the page slug")
-    imp.add_argument("--title", help="override the page title")
-    imp.add_argument("--redact", action="store_true", help="redact secret hits instead of aborting")
-    imp.add_argument("--allow-threads", action="store_true", help="allow a threaded Godot export")
-    imp.add_argument("--dry-run", action="store_true", help="do the work but write nothing to docs/")
+    imp.add_argument("-p", "--page", help="override the page slug")
+    imp.add_argument("-t", "--title", help="override the page title")
+    imp.add_argument("-r", "--redact", action="store_true", help="redact secret hits instead of aborting")
+    imp.add_argument("-a", "--allow-threads", action="store_true", help="allow a threaded Godot export")
+    imp.add_argument("-n", "--dry-run", action="store_true", help="do the work but write nothing to docs/")
 
     sub.add_parser("list", parents=[common], help="list pages and their runs")
 
@@ -37,32 +37,32 @@ def build_parser():
     sub.add_parser("rebuild", parents=[common], help="regenerate results.json + pages.json")
 
     srv = sub.add_parser("serve", parents=[common], help="serve docs/ like GitHub Pages")
-    srv.add_argument("--port", type=int, default=8000)
+    srv.add_argument("-p", "--port", type=int, default=8000)
 
     pub = sub.add_parser("publish", parents=[common], help="git add docs && commit && push")
     pub.add_argument("-m", "--message")
 
     run = sub.add_parser("run", parents=[common], help="run agents locally, then import")
     run.add_argument("prompt", nargs="?", help="the task prompt")
-    run.add_argument("--prompt-file", type=Path)
+    run.add_argument("-f", "--prompt-file", type=Path)
     run.add_argument("-m", "--model", dest="models", action="append", default=[], help="[claude-code:]MODEL[:LEVELS], repeatable (no prefix = pi)")
     run.add_argument("-s", "--set", dest="sets", action="append", default=[], help="a model set: a NAME from bench.toml [sets], or a FILE with one MODEL[:LEVELS] per line; repeatable, combines with -m")
     run.add_argument("-e", "--effort", help="default LEVELS for every model without a suffix")
-    run.add_argument("--kind", choices=["godot", "media", "web"], help="what the agents produce (default: the page's kind, else godot)")
-    run.add_argument("--page", help="page slug (default: from the prompt); an existing page with no PROMPT reuses its prompt")
-    run.add_argument("--change-prompt", action="store_true", help="allow a different prompt for an existing page (replaces it for the whole page)")
-    run.add_argument("--title", help="page title (default: from slug)")
-    run.add_argument("--brief", type=Path, help="brief template file ({prompt} is substituted)")
+    run.add_argument("-k", "--kind", choices=["godot", "media", "web"], help="what the agents produce (default: the page's kind, else godot)")
+    run.add_argument("-p", "--page", help="page slug (default: from the prompt); an existing page with no PROMPT reuses its prompt")
+    run.add_argument("-c", "--change-prompt", action="store_true", help="allow a different prompt for an existing page (replaces it for the whole page)")
+    run.add_argument("-t", "--title", help="page title (default: from slug)")
+    run.add_argument("-b", "--brief", type=Path, help="brief template file ({prompt} is substituted)")
     run.add_argument("-j", type=int, dest="parallel", help="max agents at once")
-    run.add_argument("--timeout", help='per agent, e.g. "30m" (default [run].timeout or 30m)')
-    run.add_argument("--yes", action="store_true", help="don't ask for confirmation")
-    run.add_argument("--dry-run", action="store_true", help="print the plan and exit")
-    run.add_argument("--publish", action="store_true", help="run `bench publish` after importing")
-    run.add_argument("--resume", type=Path, help="finish an interrupted batch dir")
+    run.add_argument("-T", "--timeout", help='per agent, e.g. "30m" (default [run].timeout or 30m)')
+    run.add_argument("-y", "--yes", action="store_true", help="don't ask for confirmation")
+    run.add_argument("-n", "--dry-run", action="store_true", help="print the plan and exit")
+    run.add_argument("-P", "--publish", action="store_true", help="run `bench publish` after importing")
+    run.add_argument("-r", "--resume", type=Path, help="finish an interrupted batch dir")
 
     models_p = sub.add_parser("models", parents=[common], help="models the harness can run")
     models_p.add_argument("search", nargs="?", help="also show effort levels for matching models")
-    models_p.add_argument("--harness", default="pi", choices=sorted(HARNESSES), help="which agent program's models (default: pi)")
+    models_p.add_argument("-H", "--harness", default="pi", choices=sorted(HARNESSES), help="which agent program's models (default: pi)")
 
     return parser
 

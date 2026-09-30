@@ -686,3 +686,19 @@ def test_claude_code_in_a_model_set_and_models_listing(run_root, capsys):
     assert "harness: claude-code 9.9.9-fake, pi 0.1.0-fake" in out
     assert main(["models", "--harness", "claude-code", "opus"]) == 0
     assert "claude-opus-5-5: low, medium, high, xhigh, max" in capsys.readouterr().out
+
+
+def test_every_long_option_has_a_short_form():
+    import argparse
+
+    from bench.cli import build_parser
+
+    sub = next(a for a in build_parser()._actions if isinstance(a, argparse._SubParsersAction))
+    for name, parser in sub.choices.items():
+        for action in parser._actions:
+            longs = [o for o in action.option_strings if o.startswith("--")]
+            shorts = [o for o in action.option_strings if not o.startswith("--")]
+            assert not longs or shorts, f"bench {name} {longs[0]} has no short form"
+    args = build_parser().parse_args(["run", "-n", "-y", "-k", "web", "-p", "pg", "-t", "T", "-T", "5m", "-b", "b.md", "-c", "-P", "-C", "/tmp", "x"])
+    assert (args.dry_run, args.yes, args.kind, args.page, args.title, args.timeout, str(args.brief), args.change_prompt, args.publish) == \
+        (True, True, "web", "pg", "T", "5m", "b.md", True, True)

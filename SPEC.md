@@ -177,19 +177,20 @@ Title = the slug with dashes turned into spaces and the first letter capitalized
    Data that isn't plain base64 stays in place and is scanned.
 6. JSONL files are cleaned line by line. `output.md` and source files get steps 2 and 4 only.
 
-## CLI (`bench`, run from the repo root, or pass `--root`)
+## CLI (`bench`, run from the repo root, or pass `-C/--root`)
 
 ```
-bench import <effort-run-dir> [--page SLUG] [--redact] [--allow-threads] [--dry-run]
+bench import <effort-run-dir> [-p/--page SLUG] [-t/--title TEXT] [-r/--redact] [-a/--allow-threads] [-n/--dry-run]
 bench list                      # pages and their runs
 bench rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuild
 bench rebuild                   # regenerate results.json + pages.json from runs/*/run.json; delete engines no run references
-bench serve [--port 8000]       # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
+bench serve [-p/--port 8000]    # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
                                 #   plus the local-only ranking API (see Ranking)
 bench publish [-m MSG]          # git add docs && git commit && git push
 bench run ...                   # run agents locally, then import (see "Running benchmarks")
-bench models [SEARCH]           # models the harness can run; with SEARCH also their effort levels
+bench models [SEARCH] [-H/--harness pi|claude-code]   # models the harness can run; with SEARCH also their effort levels
 ```
+Every long option has a single-dash short form (shown as `-p/--page`); the short forms are listed with each command.
 - `import` is idempotent. Re-importing the same folder replaces runs with the same id.
 - `import` prints a short summary per run: id, engine stored or reused, bytes written, paths rewritten, secret hits.
 - `--dry-run` does all the work, including the secret scan, in a temp dir and writes nothing to docs/.
@@ -201,26 +202,27 @@ Runs one prompt through one or more models × effort levels on this machine with
 only `pi` for now), exports + verifies each Godot project, then imports everything into one page.
 
 ```
-bench run PROMPT | --prompt-file FILE
-    --kind godot|media|web  what the agents produce (default: the existing page's kind, else godot); must match it
-    -m MODEL[:LEVELS]   repeatable. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
+bench run PROMPT | -f/--prompt-file FILE
+    -k, --kind godot|media|web what the agents produce (default: the existing page's kind, else godot); must match it
+    -m, --model MODEL[:LEVELS]  repeatable. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
                         | "all" (every supported level except off) | explicit "off". No suffix = "all".
     -s, --set SET       repeatable: a model set, either a NAME from bench.toml [sets] or a FILE with one
                         MODEL[:LEVELS] per line (# comments, blank lines ignored). Its entries are added before
                         the -m specs, exactly as if given with -m. An unknown name that isn't a file is an error
                         listing the defined sets.
-    -e LEVELS           default LEVELS for every model without a suffix (-m or set entry)
-    --page SLUG         add to this page (default: slug of the prompt's first 6 words, max 40 chars). For an existing
+    -e, --effort LEVELS default LEVELS for every model without a suffix (-m or set entry)
+    -p, --page SLUG     add to this page (default: slug of the prompt's first 6 words, max 40 chars). For an existing
                         page, PROMPT can be left out: its prompt (page.json) and kind are reused.
-    --change-prompt     allow a PROMPT that differs from the existing page's (after path cleaning); without it that's
+    -c, --change-prompt allow a PROMPT that differs from the existing page's (after path cleaning); without it that's
                         an error, since every import replaces the page's prompt for all its runs
-    --title TEXT        page title (default: from slug, as for import)
-    --brief FILE        use this brief template instead of the built-in one ({prompt} is substituted)
+    -t, --title TEXT    page title (default: from slug, as for import)
+    -b, --brief FILE    use this brief template instead of the built-in one ({prompt} is substituted)
     -j N                max agents at once (default [run].parallel or 8)
-    --timeout DUR       per agent, "30m" / "90s" / "1h" (default [run].timeout or 30m)
-    --yes               don't ask for confirmation     --dry-run   print the plan and exit
-    --publish           run `bench publish` after importing
-bench run --resume DIR  finish an interrupted batch (see Resume)
+    -T, --timeout DUR   per agent, "30m" / "90s" / "1h" (default [run].timeout or 30m)
+    -y, --yes           don't ask for confirmation
+    -n, --dry-run       print the plan and exit
+    -P, --publish       run `bench publish` after importing
+bench run -r/--resume DIR  finish an interrupted batch (see Resume)
 ```
 `LEVEL_ORDER = off, minimal, low, medium, high, xhigh, max`. Every requested level is checked against the harness's
 list for that model **before anything starts**; an unknown model or unsupported level is an error that names the

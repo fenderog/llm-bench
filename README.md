@@ -41,10 +41,11 @@ everything is imported into one page. Nothing is pushed until you run `bench pub
   model without a suffix.
 - Every model and level is checked against the harness before anything starts (so a typo or an
   unsupported level fails up front). `bench models [SEARCH]` lists models and their levels.
-- It shows the planned runs and asks for confirmation. `--dry-run` only shows the plan; `--yes` skips
-  the question.
-- `--page`, `--title`, `-j N` (maximum agents at once), `--timeout 30m`, and `--brief FILE` (your own
-  brief template, with `{prompt}` replaced by the prompt).
+- It shows the planned runs and asks for confirmation. `-n/--dry-run` only shows the plan; `-y/--yes`
+  skips the question.
+- `-p/--page`, `-t/--title`, `-j N` (maximum agents at once), `-T/--timeout 30m`, and `-b/--brief FILE` (your
+  own brief template, with `{prompt}` replaced by the prompt). Every long option has a single-dash short form;
+  `bench run -h` lists them.
 - Ctrl-C stops every running agent. `bench run --resume <batch dir>` finishes the batch without rerunning
   agents that already completed.
 
