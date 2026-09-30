@@ -519,6 +519,36 @@ def test_media_compare_shows_outputs_and_no_play_all(site, page):
     assert_no_errors(page)
 
 
+def test_group_by_vendor_orders_groups_by_best_rank(site, page):
+    page.goto(f"{site}compare.html?p=demo")
+    page.wait_for_selector(".compare-col")
+    res = page.evaluate("""async () => {
+      const { groupByVendor } = await import("./assets/common.js");
+      const run = (id, model, rank) => ({ id, model, rank });
+      const names = (rs) => groupByVendor(rs).map((g) => g.name + ":" + g.runs.map((r) => r.id).join(","));
+      const plain = [run("a1", "anthropic/claude-x"), run("o1", "openai-codex/gpt-6"), run("a2", "anthropic/claude-x"), run("d1", "openrouter/deepseek/v4"), run("z1", "zeta/m")];
+      const ranked = [run("o1", "openai-codex/gpt-6", 1), run("a1", "anthropic/claude-x", 2), run("a2", "anthropic/claude-x"), run("d1", "openrouter/deepseek/v4")];
+      return [names(plain), names(ranked)];
+    }""")
+    assert res[0] == ["Anthropic:a1,a2", "DeepSeek:d1", "OpenAI:o1", "Zeta:z1"]  # unranked: alphabetical, order inside kept
+    assert res[1] == ["OpenAI:o1", "Anthropic:a1,a2", "DeepSeek:d1"]  # best rank first, then unranked
+    assert_no_errors(page)
+
+
+def test_compare_groups_runs_by_vendor(site, page):
+    page.goto(f"{site}compare.html?p=demo")
+    page.wait_for_selector(".compare-col")
+    assert page.locator(".vendor-group").count() == 1
+    head = page.locator(".vendor-group .vendor-head").inner_text()
+    assert "3 runs" in head and head.split()[0].lower() == page.locator(".vendor-group").get_attribute("data-vendor") or "3 runs" in head
+    assert page.locator(".vendor-group .compare-columns > .compare-col").count() == 3
+    page.goto(f"{site}compare.html?p=demo&r={HIGH_ID}")
+    page.wait_for_selector(".compare-col")
+    assert page.locator(".vendor-group").count() == 1
+    assert "1 run" in page.locator(".vendor-head").inner_text() and "1 runs" not in page.locator(".vendor-head").inner_text()
+    assert_no_errors(page)
+
+
 def test_compare_lays_runs_out_in_a_wrapping_grid(site, page):
     page.set_viewport_size({"width": 1280, "height": 900})
     page.goto(f"{site}compare.html?p=demo")

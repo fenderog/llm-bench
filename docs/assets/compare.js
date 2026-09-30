@@ -1,6 +1,6 @@
 import {
   qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
-  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorAttrs,
+  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorAttrs, groupByVendor,
 } from "./common.js";
 
 // compare.html?p=<slug> shows every run of the page; &r=<id>,<id> limits it to those runs.
@@ -37,7 +37,18 @@ if (!slug) {
       const ranks = rankBy(shown, key);
       best[key] = new Set([...ranks].filter(([, rank]) => rank === 1).map(([id]) => id));
     }
-    for (const r of shown) columnsEl.append(column(r, best));
+    for (const g of groupByVendor(shown)) { // one labelled grid per vendor; the stars above still compare all shown runs
+      const grid = el("div", { class: "compare-columns" }, g.runs.map((r) => column(r, best)));
+      columnsEl.append(
+        el("section", { class: "vendor-group", attrs: { ...vendorAttrs(g.runs[0].model), "aria-label": g.name } }, [
+          el("h2", { class: "vendor-head" }, [
+            el("span", { class: "vendor-name", text: g.name }),
+            el("span", { class: "vendor-count", text: `${g.runs.length} run${g.runs.length === 1 ? "" : "s"}` }),
+          ]),
+          grid,
+        ])
+      );
+    }
     setupPlayAll();
   } catch (err) {
     showMessage(main, `Could not load comparison: ${err.message}`, "error");

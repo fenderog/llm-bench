@@ -170,6 +170,23 @@ export function vendorOf(model) {
 
 // One hue per vendor (fixed for the common ones, hashed for the rest), applied as data-vendor + --vh.
 const VENDOR_HUES = { anthropic: 25, openai: 160, google: 215, xai: 275, meta: 250, deepseek: 195, mistral: 35, qwen: 265 };
+const VENDOR_NAMES = { anthropic: "Anthropic", openai: "OpenAI", google: "Google", deepseek: "DeepSeek", xai: "xAI", meta: "Meta", mistral: "Mistral", qwen: "Qwen" };
+export function vendorName(key) {
+  return VENDOR_NAMES[key] ?? key[0].toUpperCase() + key.slice(1);
+}
+
+// Groups runs (already sorted by byRankThenModel) by vendor. Groups go by their best rank, then unranked ones by name.
+export function groupByVendor(runs) {
+  const groups = new Map();
+  for (const r of runs) {
+    const key = vendorOf(r.model);
+    if (!groups.has(key)) groups.set(key, { key, name: vendorName(key), runs: [] });
+    groups.get(key).runs.push(r);
+  }
+  const best = (g) => Math.min(...g.runs.map((r) => r.rank ?? Infinity));
+  return [...groups.values()].sort((a, b) => best(a) - best(b) || a.name.localeCompare(b.name));
+}
+
 export function vendorAttrs(model) {
   const v = vendorOf(model);
   let hue = VENDOR_HUES[v];
