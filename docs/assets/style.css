@@ -481,6 +481,15 @@ table.metrics .hint { color: var(--ink-3); margin-left: 8px; }
 .downloads a:hover { background: var(--accent-soft); }
 
 /* ---- compare ---- */
+/* Cards are grouped by vendor: a quiet label in the vendor's hue with a run count and a thin rule, no box. */
+.vendor-groups { display: flex; flex-direction: column; gap: 26px; }
+.vendor-head {
+  display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; padding-bottom: 6px;
+  font-size: 12px; font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--vendor) 75%, var(--ink));
+  border-bottom: 1px solid color-mix(in srgb, var(--vendor) 30%, var(--line));
+}
+.vendor-count { color: var(--ink-3); font-weight: 500; letter-spacing: 0; text-transform: none; }
 /* A grid: as many ~380px columns as fit, wrapping into more rows (one column on phones). */
 .compare-columns { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); column-gap: 18px; }
 /* Each card spans three rows of the grid (heading, metrics, output) as a subgrid, so those line up across a row of cards. */

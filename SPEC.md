@@ -476,6 +476,11 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   among the shown runs starred), and its game with click-to-play (each column boots independently, never automatically),
   or for a `media` run its outputs stacked (the Play all button is hidden when there are no games).
   Cards are subgrids spanning three grid rows (heading, metrics, output), so those line up across a row even when a metrics line wraps.
+  Cards are grouped by vendor (`groupByVendor()`, `vendorOf()`): a section per vendor with a quiet header (name from
+  `VENDOR_NAMES`/`vendorName()`, run count, thin rule in the vendor's hue), always shown, even with a single vendor. Within a
+  group the order is `byRankThenModel()`; groups go by their best rank, then unranked groups by name. Each group is its own
+  grid, so the subgrid rows line up per group. The ★ best values are still computed across all shown runs, and `&r=` only
+  limits which runs (and so which groups) appear. `#columns` holds the groups, not the cards.
 - Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/llm-bench/`),
   so use only relative URLs. It supports dark mode via `prefers-color-scheme`, has readable defaults, and has no frameworks.
 
