@@ -180,6 +180,7 @@ a.btn { display: inline-flex; text-decoration: none; }
 .model { display: inline-flex; flex-direction: column; min-width: 0; line-height: 1.25; }
 .model-name { font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
 .model-provider { font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+.model-via { font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
 a:has(> .model) { text-decoration: none; }
 a:hover > .model .model-name { text-decoration: underline; text-underline-offset: 3px; }
 

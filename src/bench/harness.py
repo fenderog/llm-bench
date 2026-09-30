@@ -16,6 +16,19 @@ from pathlib import Path
 from .media import thumbnail
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError
 
+# Bench-shipped pi extension that pins the OpenRouter upstream per run (see
+# pi_ext/openrouter_routing.ts). Passed with an explicit `-e` (which still loads under `-ne`).
+ROUTING_EXTENSION = Path(__file__).parent / "pi_ext" / "openrouter_routing.ts"
+
+
+def split_model_route(model_arg):
+    """'openrouter/x/y@a,b' -> ('openrouter/x/y', ['a', 'b']); no '@' -> (model_arg, None)."""
+    base, sep, tail = model_arg.partition("@")
+    if not sep:
+        return model_arg, None
+    slugs = [s.strip().lower() for s in tail.split(",") if s.strip()]
+    return base, slugs
+
 
 class Harness:
     """One per agent program. `tag` marks its runs' ids and folders ("" for pi, the default)."""
@@ -43,8 +56,9 @@ class Harness:
     def command(self, model, level, brief, session_dir):
         raise NotImplementedError
 
-    def env(self):
-        """The agent's environment (None = inherit bench's)."""
+    def env(self, model=None, harness_dir=None):
+        """The agent's environment (None = inherit bench's). Routed pi runs pass their
+        model_arg + harness dir so per-run routing env can be set."""
         return None
 
     def session_file(self, session_dir):
@@ -139,21 +153,36 @@ class Pi(Harness):
                 proc.kill()
 
     def command(self, model, level, brief, session_dir):
-        return [
+        base, slugs = split_model_route(model)
+        cmd = [
             self.binary,
             "-p",
             "--mode",
             "json",
             "--model",
-            f"{model}:{level}",
+            f"{base}:{level}",
             "--session-dir",
             str(session_dir),
             "-ne",
             "-ns",
             "-np",
             "-nc",
-            brief,
         ]
+        if slugs:
+            cmd += ["-e", str(ROUTING_EXTENSION)]
+        return cmd + [brief]
+
+    def env(self, model=None, harness_dir=None):
+        if model is None:
+            return None
+        _, slugs = split_model_route(model)
+        if not slugs:
+            return None
+        return {
+            **os.environ,
+            "BENCH_OPENROUTER_ROUTING": json.dumps({"only": slugs, "allow_fallbacks": False}),
+            "BENCH_ROUTE_LOG": str(Path(harness_dir) / "route.jsonl"),
+        }
 
     def session_file(self, session_dir):
         matches = sorted(Path(session_dir).glob("*.jsonl"))
@@ -281,7 +310,7 @@ class ClaudeCode(Harness):
             "--", brief,
         ]
 
-    def env(self):
+    def env(self, model=None, harness_dir=None):
         # bench itself may be running inside Claude Code; don't let the agent think it's nested.
         return {k: v for k, v in os.environ.items() if k != "CLAUDECODE" and not k.startswith("CLAUDE_CODE_")}
 

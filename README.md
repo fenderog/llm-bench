@@ -69,6 +69,27 @@ Claude Code models: `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5`, 
 shell tools, like pi: no sub-agents, web, skills or scheduling, and none of your CLAUDE.md, memory, plugins, hooks or
 MCP servers (your login is used). Its cost is Claude Code's estimate at API prices, also on a subscription.
 
+### Pinning the OpenRouter upstream
+
+For a pi `openrouter/` model, `@slug` pins which upstream provider serves the run, so the same model
+can be benchmarked on different upstreams side by side on one page:
+
+```sh
+uv run bench run "a voxel horse" -m openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8:low \
+                   -m openrouter/deepseek/deepseek-v4.1-flash@fireworks:low
+```
+
+Slugs are OpenRouter's endpoint tags, variants included (`deepinfra/fp8`, `fireworks/us`); list them with
+`curl -s https://openrouter.ai/api/v1/models/<model id>/endpoints`. `@deepinfra,fireworks` lets OpenRouter pick among the listed upstreams. Pinning uses fallbacks off,
+so the run really used what its name says; the upstream is part of the recorded model name
+(`…flash@deepinfra`, shown as a `via …` chip) and `route.requested`/`route.served` are on the run's
+Metrics tab. Works in `-m`, `--set` entries and set files alike; anything else with `@` is an error.
+
+Cost: a pinned run's cost is what OpenRouter actually charged (reported in each response), not pi's
+estimate, which prices every OpenRouter call at one catalog rate whatever upstream served it and came out
+2–7× too low on real runs. Both are on the Metrics tab (`route.cost_usd`, `route.pi_cost_usd`). Unpinned
+OpenRouter runs still show pi's estimate.
+
 ### Adding runs to an existing page
 
 Name the page and leave out the prompt; its prompt and kind are reused:

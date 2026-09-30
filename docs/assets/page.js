@@ -261,7 +261,7 @@ function renderHighlights(runs) {
       el("a", { class: "hl hl-good", attrs: { href: runUrl(slug, winner.id) } }, [
         el("span", { class: "hl-label", text: label }),
         el("span", { class: "hl-value", text: fmt(winner.metrics[key]) }),
-        el("span", { class: "hl-sub" }, [effortPill(winner.effort), el("span", { class: "name", text: modelParts(winner.model).name, attrs: { title: winner.model } })]),
+        el("span", { class: "hl-sub" }, [effortPill(winner.effort), el("span", { class: "name", text: modelParts(winner.model).short, attrs: { title: winner.model } })]),
       ])
     );
   }
@@ -295,7 +295,7 @@ function renderGallery(runs) {
         thumb,
         el("div", { class: "card-body" }, [
           el("div", { class: "card-head" }, [rankChip(r.rank), effortPill(r.effort), sb || (n > 1 ? el("span", { class: "card-more", text: `${n} files` }) : null)]),
-          el("div", { class: "card-meta", text: modelParts(r.model).name, attrs: { title: r.model } }),
+          el("div", { class: "card-meta", text: modelParts(r.model).short, attrs: { title: r.model } }),
           el("div", { class: "card-meta", text: `${fmtCost(r.metrics.cost_usd)} · ${fmtDuration(r.metrics.duration_ms)}` }),
         ]),
       ])

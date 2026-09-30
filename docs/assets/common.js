@@ -145,17 +145,25 @@ export function effortPill(effort) {
   return node;
 }
 
-// "openrouter/deepseek/deepseek-v4.1-flash" → { provider: "openrouter/deepseek", name: "deepseek-v4.1-flash" }
+// "openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8" → { provider: "openrouter/deepseek",
+// name: "deepseek-v4.1-flash", via: "deepinfra/fp8", short: "deepseek-v4.1-flash via deepinfra/fp8" }.
+// The @route (a pinned OpenRouter upstream) is split off first: it can contain "/" itself.
+// `short` is for places with room for one line (chips, tiles, cards), so pinned upstreams stay apart.
 export function modelParts(model) {
   const s = String(model ?? "–");
-  const i = s.lastIndexOf("/");
-  return i === -1 ? { provider: "", name: s } : { provider: s.slice(0, i), name: s.slice(i + 1) };
+  const at = s.indexOf("@");
+  const base = at === -1 ? s : s.slice(0, at);
+  const via = at === -1 ? "" : s.slice(at + 1);
+  const i = base.lastIndexOf("/");
+  const [provider, name] = i === -1 ? ["", base] : [base.slice(0, i), base.slice(i + 1)];
+  return { provider, name, via, short: via ? `${name} via ${via}` : name };
 }
 
 // Who made the model, for the quiet color grouping: "anthropic/claude-x" → "anthropic",
-// "openai-codex/gpt-6" → "openai", "openrouter/deepseek/v4" → "deepseek".
+// "openai-codex/gpt-6" → "openai", "openrouter/deepseek/v4" → "deepseek" (the @upstream suffix is ignored).
 export function vendorOf(model) {
-  const parts = String(model ?? "").split("/");
+  const base = String(model ?? "").split("@")[0];
+  const parts = base.split("/");
   const first = parts.length > 2 && parts[0] === "openrouter" ? parts[1] : parts[0];
   return first.split("-")[0].toLowerCase() || "unknown";
 }
@@ -173,12 +181,14 @@ export function vendorAttrs(model) {
   return { "data-vendor": v, style: `--vh:${hue}` };
 }
 
-// Model name in bold with its provider prefix quiet below it.
+// Model name in bold with its provider prefix quiet below it. An OpenRouter `@upstream` suffix
+// (e.g. "…flash@deepinfra") is shown as a quiet "via …" chip, via textContent only.
 export function modelLabel(model) {
-  const { provider, name } = modelParts(model);
+  const { provider, name, via } = modelParts(model);
   return el("span", { class: "model", attrs: { title: model } }, [
     el("span", { class: "model-name", text: name }),
     provider ? el("span", { class: "model-provider", text: provider }) : null,
+    via ? el("span", { class: "model-via", text: `via ${via}` }) : null,
   ]);
 }
 

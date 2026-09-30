@@ -13,6 +13,10 @@ Behavior knobs (env vars), read at `-p` run time:
   FAKE_PI_ERROR_STOP=1  write a session whose last assistant message has stopReason "error"
   FAKE_PI_BAD_OUTPUT=1  (media briefs) also put an unsupported file in ./output/
   FAKE_PI_BAD_WEB=1     (web briefs) import a module that doesn't exist, so packaging fails
+  FAKE_PI_ARGV=FILE     write {argv, BENCH_OPENROUTER_ROUTING, BENCH_ROUTE_LOG} to FILE
+  BENCH_ROUTE_LOG       (set by bench for routed runs) append what the routing extension would log:
+                        {id, provider} (the first requested upstream's name) and {id, cost: 0.0042}
+  FAKE_PI_SERVED=NAME   report NAME as the upstream that served the request
 
 A media brief (one mentioning ./output/) gets ./output/ with an SVG, a PNG and a 2s mp4 (made with
 ffmpeg), plus a make.py and a leftover binary frame instead of a Godot project. A web brief (one
@@ -40,6 +44,7 @@ MODEL_LEVELS = {
     "test/limited": ["low", "medium", "high"],
     "anthropic/claude-opus-5-5": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
     "openrouter/openai/gpt-6-sol:batch": ["off", "low", "medium", "high", "xhigh", "max"],  # ':' in the id
+    "openrouter/test/model": ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
 }
 
 
@@ -91,6 +96,25 @@ def cmd_run():
     brief = sys.argv[-1]
     provider, rest = model_level.split("/", 1)
     model_id, level = rest.split(":", 1)
+
+    argv_file = os.environ.get("FAKE_PI_ARGV")
+    if argv_file:
+        Path(argv_file).write_text(json.dumps({
+            "argv": sys.argv,
+            "routing": os.environ.get("BENCH_OPENROUTER_ROUTING"),
+            "route_log": os.environ.get("BENCH_ROUTE_LOG"),
+        }))
+    route_log = os.environ.get("BENCH_ROUTE_LOG")
+    if route_log:
+        # Like the routing extension: OpenRouter's display name of the first requested upstream
+        # ("deepinfra/fp8" -> "Deepinfra"), or FAKE_PI_SERVED, then the charge from the final chunk.
+        routing = json.loads(os.environ.get("BENCH_OPENROUTER_ROUTING") or "{}")
+        slug = (routing.get("only") or ["fake"])[0]
+        served = os.environ.get("FAKE_PI_SERVED") or slug.split("/")[0].capitalize()
+        Path(route_log).parent.mkdir(parents=True, exist_ok=True)
+        with open(route_log, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"id": "gen-fake-1", "provider": served}) + "\n")
+            f.write(json.dumps({"id": "gen-fake-1", "cost": 0.0042}) + "\n")
 
     if os.environ.get("FAKE_PI_HANG"):
         Path("fake_pi.pid").write_text(str(os.getpid()))  # lets a test check this exact process died
