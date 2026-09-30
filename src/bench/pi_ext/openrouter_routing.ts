@@ -3,9 +3,11 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 // Pins the OpenRouter upstream for a bench run. The runner passes `-e` this file (explicit `-e`
 // paths still load under pi's `-ne`) and sets BENCH_OPENROUTER_ROUTING (e.g.
-// `{"only": ["deepinfra"], "allow_fallbacks": false}`) plus BENCH_ROUTE_LOG in that run's
-// environment. The routing is merged into the request's `provider` field; the upstream that
-// actually served each response is appended to the log (one line per response).
+// `{"only": ["deepinfra/fp8"], "allow_fallbacks": false}`) plus BENCH_ROUTE_LOG in that run's
+// environment. The routing is merged into the request's `provider` field. For each response
+// (generation id) the log gets `{id, provider}` from its first chunk (OpenRouter's display name of
+// the upstream that served it, e.g. "DeepInfra") and `{id, cost}` from the final chunk's
+// `usage.cost`: what OpenRouter actually charged, which pi's own catalog-rate cost doesn't reflect.
 export default function (pi: ExtensionAPI) {
   const routing = JSON.parse(process.env.BENCH_OPENROUTER_ROUTING ?? "null") as Record<string, unknown> | null;
   const log = process.env.BENCH_ROUTE_LOG;
@@ -14,13 +16,15 @@ export default function (pi: ExtensionAPI) {
     const body = event.payload as Record<string, unknown>;
     return { ...body, provider: { ...((body.provider as object) ?? {}), ...routing } };
   });
-  let lastId: unknown = null;
+  if (!log) return;
+  const seen = new Set<unknown>();
   pi.on("provider_stream_event", (event) => {
-    const data = event.data as { id?: unknown; provider?: string } | null;
-    const served = data?.provider;
-    if (log && served && data?.id !== lastId) {
-      lastId = data?.id;
-      appendFileSync(log, JSON.stringify({ provider: served }) + "\n");
+    const data = event.data as { id?: unknown; provider?: string; usage?: { cost?: number } } | null;
+    if (!data?.id) return;
+    if (data.provider && !seen.has(data.id)) {
+      seen.add(data.id);
+      appendFileSync(log, JSON.stringify({ id: data.id, provider: data.provider }) + "\n");
     }
+    if (typeof data.usage?.cost === "number") appendFileSync(log, JSON.stringify({ id: data.id, cost: data.usage.cost }) + "\n");
   });
 }

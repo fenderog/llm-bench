@@ -39,11 +39,16 @@ chunks that carry the serving upstream, and `-e <path>` extensions that still lo
 ## Consequences
 
 - pi computes `usage.cost.total` from its catalog rates (`calculateCost(model, usage)` in pi-ai's
-  `models.js`), not from what OpenRouter actually charged — verified by reading pi's source, no model
-  call needed. Upstreams are priced differently, so **costs of pinned runs may be wrong**: compare
-  cross-upstream costs in the OpenRouter dashboard, not on the page. No follow-up can fix this in bench
-  (the true charge is only in OpenRouter's generation API); the caveat is in README.md.
-- The served upstream is recorded from stream chunks, trusting pi to surface OpenRouter's `provider`
-  field there. If a future pi changes that shape, routed runs will show an empty `served`.
+  `models.js`), one rate per model whatever upstream served the call. On the first real routed runs that was
+  2–7× below what OpenRouter charged. OpenRouter reports the real charge in each response's final stream chunk
+  (`usage.cost`), so the extension logs it and a routed run's cost is that sum (`route.cost_usd`), with pi's
+  figure kept as `route.pi_cost_usd`. Unrouted OpenRouter runs still show pi's estimate; loading the extension
+  for every OpenRouter run would fix those too (a possible follow-up).
+- The served upstream is recorded from stream chunks (`provider_stream_event`, confirmed firing under
+  `-p --mode json`), as OpenRouter's display name ("DeepInfra", "AtlasCloud"), not the slug. It's matched to the
+  requested slugs by normalized name (`upstream_key()`); the `/variant` of a slug (`/fp8`) can't be checked.
+  If a future pi changes the chunk shape, routed runs will show an empty `served` and pi's cost.
+- Real slugs contain `/` (`deepinfra/fp8`), so run ids, model dir tags and the viewer split off the `@route`
+  before taking the model name after the last `/`.
 - No new Python dependencies; the extension is plain TypeScript that pi loads itself, shipped in the
   wheel like `briefs/*.md`.

@@ -110,16 +110,22 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   `thumb` = `thumb.png` (the verify step's first screenshot); `verified` = `web/<level>/verification/verify-report.json` → `.ok`.
   The run's `source` never includes `node_modules/` (for any kind).
 - `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS from the folder name>`,
-  URL/filesystem-safe: `@` becomes `-via-` (OpenRouter upstreams, e.g.
-  `deepseek-v4.1-flash-via-deepinfra-low-20261001-101500`), anything else outside `[a-z0-9.-]` becomes `-`.
+  URL/filesystem-safe: a pinned OpenRouter route (`@…`, which can contain `/` itself) is split off first and
+  appended as `-via-<route>`, e.g. `…flash@deepinfra/fp8` → `deepseek-v4.1-flash-via-deepinfra-fp8-low-20261001-101500`;
+  anything else outside `[a-z0-9.-]` becomes `-`. Model dir tags likewise keep the model name plus the route.
 - `verified` = `wasm/<level>/verification/verify-report.json` → `.ok`, or `null` if that file is missing.
 - `harness` = `data.json` → `harness`; for an old `fe-model-effort-fanout/1` folder without it, `{"name": "pi", "version": null}`.
 - `state` = `runs.<level>.state` (`complete` | `failed` | `timeout`), default `complete`.
 - `error` = `runs.<level>.error` (a one-line reason: harness exit, timeout, or "Godot export failed: …"), default `null`.
   A run with `state` ≠ `complete` is still imported (it usually has no game).
-- `route` = `runs.<level>.route` (`{"requested": {"only": [...], "allow_fallbacks": false}, "served": [...]}`
-  for a run pinned to an OpenRouter upstream with `MODEL@slug`, else `null`). `served` is the upstream(s)
-  that actually served the run, in order. A served value outside `requested.only` is appended to `error`.
+- `route` = `runs.<level>.route` for a run pinned to an OpenRouter upstream with `MODEL@slug`, else `null`:
+  `{"requested": {"only": [...], "allow_fallbacks": false}, "served": [...], "cost_usd": 0.00085, "pi_cost_usd": 0.00038}`.
+  `served` = the upstreams that served the run, in order, as OpenRouter names them ("DeepInfra", "AtlasCloud").
+  They're matched to the requested slugs by `upstream_key()` (lowercase alphanumerics of the name, and of the slug
+  before its `/variant`: `atlas-cloud/fp8` and "AtlasCloud" → `atlascloud`); one outside `requested.only` is appended
+  to `error`. `cost_usd` = what OpenRouter charged (the sum of each response's `usage.cost`), `null` when no response
+  reported one; `pi_cost_usd` = pi's own estimate. For a routed run `metrics.cost_usd` is `cost_usd` when present:
+  pi prices every OpenRouter call at one catalog rate whatever upstream served it (≈ 2–7× too low on real runs).
 
 ## Input: an effort-run folder (`fe-model-effort-fanout/1`)
 
@@ -209,8 +215,9 @@ only `pi` for now), exports + verifies each Godot project, then imports everythi
 ```
 bench run PROMPT | -f/--prompt-file FILE
     -k, --kind godot|media|web what the agents produce (default: the existing page's kind, else godot); must match it
-    -m, --model MODEL[@UPSTREAMS][:LEVELS]  repeatable. UPSTREAMS: comma-separated OpenRouter provider slugs
-                        (pi `openrouter/` models only, e.g. `openrouter/deepseek/deepseek-v4.1-flash@deepinfra:low`);
+    -m, --model MODEL[@UPSTREAMS][:LEVELS]  repeatable. UPSTREAMS: comma-separated OpenRouter provider slugs, as
+                        OpenRouter lists a model's endpoints, variants included (`deepinfra/fp8`, `fireworks/us`)
+                        (pi `openrouter/` models only, e.g. `openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8:low`);
                         pinned with fallbacks off, recorded as part of the model name. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
                         | "all" (every supported level except off) | explicit "off". No suffix = "all".
     -s, --set SET       repeatable: a model set, either a NAME from bench.toml [sets] or a FILE with one
@@ -351,8 +358,8 @@ A routed run (`MODEL@slug`, pi `openrouter/` models only) passes the base id to 
 `-e src/bench/pi_ext/openrouter_routing.ts` (explicit `-e` paths still load under `-ne`), and sets
 `BENCH_OPENROUTER_ROUTING={"only": [...], "allow_fallbacks": false}` plus `BENCH_ROUTE_LOG=<harness
  dir>/route.jsonl` in that run's environment. The extension merges the routing into the request's
-`provider` field and logs the upstream that served each response; the run records
-`route.requested`/`route.served` (see Run). The upstream is part of the recorded model name
+`provider` field and logs, per response (generation id), `{id, provider}` from its first stream chunk and
+`{id, cost}` from the final chunk's `usage.cost`; the run records `route` from that log (see Run). The upstream is part of the recorded model name
 (`openrouter/…/flash@deepinfra`), so two upstreams are separate rows; run ids use `-via-`.
 
 Claude Code (`claude`): version = first word of `claude --version`. Models come from a table in the harness (there's no

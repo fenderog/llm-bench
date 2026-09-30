@@ -40,7 +40,7 @@ src/bench/          CLI, standard library only (argparse, json, subprocess, toml
   runner.py         `bench run`: plan -> run agents in parallel -> collect -> export -> verify -> import
   pi_ext/           bench-shipped pi extensions loaded with explicit `-e` (work under `-ne`):
                     `openrouter_routing.ts` pins the OpenRouter upstream per run from
-                    `BENCH_OPENROUTER_ROUTING` and logs the serving upstream to `BENCH_ROUTE_LOG`
+                    `BENCH_OPENROUTER_ROUTING` and logs the serving upstream + real cost to `BENCH_ROUTE_LOG`
   build.py          headless Godot export + Playwright boot check (Playwright is optional, imported lazily)
   media.py          kind "media": check/normalize ./output/ files with ffprobe/ffmpeg -> media/<level>/manifest.json
   web.py            kind "web": inline the page's scripts/stylesheets with esbuild -> web/<level>/index.html (one file)
@@ -129,6 +129,10 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
 - **`-ne` still loads explicit `-e` extensions.** Per-run OpenRouter routing goes through the bench-shipped
   `pi_ext/openrouter_routing.ts` plus `BENCH_OPENROUTER_ROUTING`/`BENCH_ROUTE_LOG` env vars (never the global
   `models.json`, which would affect every pi session on the machine).
+- **OpenRouter upstreams:** slugs contain `/` (`deepinfra/fp8`), so anything that takes "the model name after the
+  last `/"` must split off `@route` first (`make_run_id`, `model_tag`, `modelParts()`). Responses name the upstream
+  by display name ("AtlasCloud"), not slug: compare with `upstream_key()`. pi's cost for OpenRouter calls is a
+  catalog estimate (2–7× too low on the first real routed runs); routed runs use OpenRouter's `usage.cost` instead.
 - **`replaceChildren()`/`append()` print `null` as text**; `el()` skips null children, so pass optional nodes
   through `el()` or `.filter(Boolean)`.
 - **Metrics from a pi session:** `tokens.total = input + output` (not `totalTokens`, which includes cache

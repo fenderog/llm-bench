@@ -606,3 +606,17 @@ def test_run_title_has_no_stray_text_for_unranked_runs(site, page):
         title = page.locator("#title").inner_text()
         assert "null" not in title and "undefined" not in title, title
     assert_no_errors(page)
+
+
+def test_model_parts_split_off_a_pinned_openrouter_upstream(site, page):
+    page.goto(f"{site}index.html")
+    parts = page.evaluate("""async () => {
+      const { modelParts, modelLabel } = await import("./assets/common.js");
+      const label = modelLabel("openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8");
+      return { routed: modelParts("openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8"), plain: modelParts("anthropic/claude-opus-5-5"),
+               label: [...label.children].map((c) => c.className + ":" + c.textContent) };
+    }""")
+    assert parts["routed"] == {"provider": "openrouter/deepseek", "name": "deepseek-v4.1-flash", "via": "deepinfra/fp8",
+                               "short": "deepseek-v4.1-flash via deepinfra/fp8"}
+    assert parts["plain"] == {"provider": "anthropic", "name": "claude-opus-5-5", "via": "", "short": "claude-opus-5-5"}
+    assert parts["label"] == ["model-name:deepseek-v4.1-flash", "model-provider:openrouter/deepseek", "model-via:via deepinfra/fp8"]

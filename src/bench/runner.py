@@ -113,7 +113,14 @@ def expand_sets(root, set_args):
 
 
 def model_tag(model):
-    return re.sub(r"[^a-z0-9]", "", model.rsplit("/", 1)[-1].lower())
+    base, _, route = model.partition("@")  # an OpenRouter route may contain "/" ("deepinfra/fp8")
+    return re.sub(r"[^a-z0-9]", "", (base.rsplit("/", 1)[-1] + route).lower())
+
+
+def upstream_key(name):
+    """An OpenRouter upstream as a comparable key: slug "atlas-cloud/fp8" and the display name
+    "AtlasCloud" (what responses report) both -> "atlascloud". The "/variant" can't be checked."""
+    return re.sub(r"[^a-z0-9]", "", name.split("/", 1)[0].lower())
 
 
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9._/-]*$")
@@ -423,24 +430,30 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
 
 
 def read_route(harness_dir, model):
-    """The OpenRouter route for a run: {requested: {only, allow_fallbacks}, served: [...]}.
-    served comes from route.jsonl (written by the pi routing extension, one line per response);
-    None for unrouted runs."""
+    """The OpenRouter route for a run: {requested: {only, allow_fallbacks}, served: [...], cost_usd}.
+    From route.jsonl, written by the pi routing extension: `{id, provider}` and `{id, cost}` lines
+    per response. served = the distinct upstream names; cost_usd = what OpenRouter charged, summed
+    over responses (the last cost per id), or None when no response reported one. None for
+    unrouted runs."""
     _, slugs = split_model_route(model)
     if not slugs:
         return None
-    requested = {"only": slugs, "allow_fallbacks": False}
     path = Path(harness_dir) / "route.jsonl"
-    served = []
+    served, costs = [], {}
     if path.is_file():
         for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
             try:
-                provider = json.loads(line).get("provider")
-            except (ValueError, AttributeError):
+                rec = json.loads(line)
+            except ValueError:
                 continue
-            if provider and provider not in served:
-                served.append(provider)
-    return {"requested": requested, "served": served}
+            if not isinstance(rec, dict):
+                continue
+            if rec.get("provider") and rec["provider"] not in served:
+                served.append(rec["provider"])
+            if isinstance(rec.get("cost"), (int, float)):
+                costs[rec.get("id")] = rec["cost"]
+    return {"requested": {"only": slugs, "allow_fallbacks": False}, "served": served,
+            "cost_usd": sum(costs.values()) if costs else None}
 
 
 def collect(level_dir, harness_dir, session_path, cmd, harness, version, started, ended, exit_code, state, error, model, metrics, brief, level):
@@ -472,20 +485,26 @@ def collect(level_dir, harness_dir, session_path, cmd, harness, version, started
     (level_dir / "status.json").write_text(json.dumps(status, indent=2) + "\n")
 
     tokens = (metrics or {}).get("tokens") or {"input": 0, "output": 0, "total": 0, "reasoning": 0, "cacheRead": 0, "cacheWrite": 0}
+    cost_usd = (metrics or {}).get("cost_usd", 0.0)
     route = read_route(harness_dir, model)
-    if route and route["served"]:
-        only = {s.lower() for s in route["requested"]["only"]}
-        outside = [s for s in route["served"] if s.lower() not in only]
+    if route:
+        only = {upstream_key(s) for s in route["requested"]["only"]}
+        outside = [s for s in route["served"] if upstream_key(s) not in only]
         if outside:
             note = f"served upstream outside requested only: {', '.join(outside)}"
             error = f"{error}; {note}" if error else note
+        # pi prices OpenRouter calls at one catalog rate whatever upstream served them; what
+        # OpenRouter reports is the real charge. Keep pi's figure alongside for comparison.
+        route["pi_cost_usd"] = cost_usd
+        if route["cost_usd"] is not None:
+            cost_usd = route["cost_usd"]
     entry = {
         "model": model,
         "thinkingLevel": (metrics or {}).get("thinking_level"),
         "startedAt": int(started.timestamp() * 1000),
         "endedAt": int(ended.timestamp() * 1000),
         "durationMs": duration_ms,
-        "costUsd": (metrics or {}).get("cost_usd", 0.0),
+        "costUsd": cost_usd,
         "toolCalls": (metrics or {}).get("tool_calls", 0),
         "turns": (metrics or {}).get("turns", 0),
         "tokens": tokens,

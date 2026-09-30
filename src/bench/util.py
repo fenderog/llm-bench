@@ -34,7 +34,8 @@ def make_run_id(model, effort, folder_name, harness_tag=""):
     [a-z0-9.-] becomes '-'."""
     ts, _, _ = parse_folder(folder_name)
     y, mo, d, hhmmss = ts.split("-")
-    model_short = model.rsplit("/", 1)[-1].lower().replace("@", "-via-")
+    base, _, route = model.partition("@")  # the route may contain "/" itself ("deepinfra/fp8")
+    model_short = base.rsplit("/", 1)[-1].lower() + (f"-via-{route.lower()}" if route else "")
     model_short = re.sub(r"[^a-z0-9.-]", "-", model_short) + (f"-{harness_tag}" if harness_tag else "")
     return f"{model_short}-{effort}-{y}{mo}{d}-{hhmmss}"
 

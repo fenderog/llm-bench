@@ -18,7 +18,7 @@ FAKE_PI = Path(__file__).parent / "fixtures" / "fake_pi"
 def fake_pi_on_path(monkeypatch):
     monkeypatch.setenv("PATH", f"{FAKE_PI}{os.pathsep}{os.environ['PATH']}")
     for var in ("FAKE_PI_EXIT_CODE", "FAKE_PI_HANG", "FAKE_PI_ERROR_STOP",
-                "FAKE_CLAUDE_ERROR", "FAKE_CLAUDE_HANG", "FAKE_CLAUDE_ARGV", "FAKE_PI_ARGV"):
+                "FAKE_CLAUDE_ERROR", "FAKE_CLAUDE_HANG", "FAKE_CLAUDE_ARGV", "FAKE_PI_ARGV", "FAKE_PI_SERVED"):
         monkeypatch.delenv(var, raising=False)
 
 
@@ -128,6 +128,28 @@ def test_make_run_id_sanitizes_at():
     assert run_id == "deepseek-v4.1-flash-via-deepinfra-low-20261001-101500"
 
 
+def test_route_with_a_slash_keeps_the_model_name():
+    """Real OpenRouter slugs carry a variant after "/" ("deepinfra/fp8"); it must not be taken
+    for the model name in run ids or model dir tags."""
+    from bench.runner import model_tag
+
+    assert split_route("openrouter/x/y@deepinfra/fp8,atlas-cloud/fp8:low") == ("openrouter/x/y:low", ["deepinfra/fp8", "atlas-cloud/fp8"])
+    model = "openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8"
+    assert make_run_id(model, "low", "2026-10-01-101500-x-slug") == "deepseek-v4.1-flash-via-deepinfra-fp8-low-20261001-101500"
+    assert model_tag(model) == "deepseekv41flashdeepinfrafp8"
+    assert model_tag("openrouter/deepseek/deepseek-v4.1-flash@deepinfra/turbo") != model_tag("openrouter/other/model@deepinfra/turbo")
+
+
+def test_upstream_key_matches_slugs_to_display_names():
+    from bench.runner import upstream_key
+
+    # (slug, what OpenRouter reports) pairs seen on real endpoints
+    for slug, name in [("deepinfra/fp8", "DeepInfra"), ("atlas-cloud/fp8", "AtlasCloud"), ("io-net/fp8", "Io Net"),
+                       ("sail-research/fp4", "Sail Research"), ("open-inference/fp4", "OpenInference"), ("fireworks/us", "Fireworks")]:
+        assert upstream_key(slug) == upstream_key(name)
+    assert upstream_key("deepinfra") != upstream_key("Fireworks")
+
+
 def test_routing_extension_exists():
     from bench.harness import ROUTING_EXTENSION
 
@@ -156,7 +178,9 @@ def test_routed_run_pins_upstream_and_records_route(run_root, monkeypatch, tmp_p
     [run] = json.loads((run_root / "docs/data/routed-run/results.json").read_text())
     assert run["model"] == "openrouter/test/model@deepinfra"
     assert run["route"] == {"requested": {"only": ["deepinfra"], "allow_fallbacks": False},
-                            "served": ["FakeUpstream"]}
+                            "served": ["Deepinfra"], "cost_usd": 0.0042, "pi_cost_usd": 0.0025}
+    assert run["metrics"]["cost_usd"] == 0.0042  # what OpenRouter charged, not pi's catalog estimate
+    assert run["error"] is None  # "Deepinfra" is the requested upstream
     assert "-via-deepinfra-" in run["id"]
     run_dir = run_root / "docs/data/routed-run/runs" / run["id"]
     assert (run_dir / "run.json").exists()
@@ -200,4 +224,24 @@ def test_resume_reruns_routed_with_same_argv_env(run_root, monkeypatch, tmp_path
     assert second["routing"] == first["routing"]
     [run] = json.loads((run_root / "docs/data/resume-routed/results.json").read_text())
     assert run["model"] == "openrouter/test/model@deepinfra"
-    assert run["route"]["served"] == ["FakeUpstream"]
+    assert run["route"]["served"] == ["Deepinfra"]
+
+
+def test_routed_run_served_elsewhere_sets_error(run_root, monkeypatch):
+    monkeypatch.setenv("FAKE_PI_SERVED", "Fireworks")
+    assert main(["run", "--yes", "served elsewhere", "-m", "openrouter/test/model@deepinfra/fp8:low", "--root", str(run_root)]) == 0
+    [run] = json.loads((run_root / "docs/data/served-elsewhere/results.json").read_text())
+    assert run["state"] == "complete"
+    assert run["error"] == "served upstream outside requested only: Fireworks"
+
+
+def test_read_route_parses_the_log(tmp_path):
+    from bench.runner import read_route
+
+    log = tmp_path / "route.jsonl"
+    log.write_text('{"id": "g1", "provider": "DeepInfra"}\nnot json\n[1]\n')
+    route = read_route(tmp_path, "openrouter/x/y@deepinfra/fp8")
+    assert route == {"requested": {"only": ["deepinfra/fp8"], "allow_fallbacks": False}, "served": ["DeepInfra"], "cost_usd": None}
+    log.write_text('{"id": "g1", "cost": 0.1}\n{"id": "g1", "cost": 0.2}\n{"id": "g2", "cost": 0.05}\n')
+    assert read_route(tmp_path, "openrouter/x/y@a")["cost_usd"] == pytest.approx(0.25)  # last cost per response, summed
+    assert read_route(tmp_path, "openrouter/x/y") is None

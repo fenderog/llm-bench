@@ -31,8 +31,8 @@ if (!slug || !runId) {
 
 function render(run, base, siblings) {
   document.title = `${run.model} · ${run.effort} – llm-bench`;
-  const { provider, name } = modelParts(run.model);
-  document.getElementById("run-provider").textContent = provider;
+  const { provider, name, via } = modelParts(run.model);
+  document.getElementById("run-provider").textContent = via ? `${provider} · via ${via}` : provider;
   const myRank = siblings.find((r) => r.id === run.id)?.rank; // run.json has no rank; results.json does
   // (replaceChildren would print a null/undefined chip as text, so only real nodes go in)
   document.getElementById("title").replaceChildren(...[el("span", { text: name, attrs: { title: run.model } }), effortPill(run.effort), rankChip(myRank)].filter(Boolean));
@@ -103,7 +103,7 @@ function renderSwitcher(run, siblings) {
   const groups = new Map();
   for (const r of [...siblings].sort(byModelThenEffort)) {
     if (!groups.has(r.model)) {
-      const g = el("div", { class: "sw-group" }, [multiModel ? el("span", { class: "sw-model", text: modelParts(r.model).name, attrs: { title: r.model } }) : null]);
+      const g = el("div", { class: "sw-group" }, [multiModel ? el("span", { class: "sw-model", text: modelParts(r.model).short, attrs: { title: r.model } }) : null]);
       groups.set(r.model, g);
       nav.append(g);
     }
@@ -227,7 +227,7 @@ function renderMetrics(run, base) {
     ["verified", run.verified == null ? "–" : String(run.verified)],
     ["state", run.state ?? "–"],
     ["error", run.error ?? "–"],
-    ...(route ? [["route.requested", JSON.stringify(route.requested)], ["route.served", (route.served || []).join(", ") || "–"]] : []),
+    ...(route ? [["route.requested", JSON.stringify(route.requested)], ["route.served", (route.served || []).join(", ") || "–"], ["route.cost_usd", route.cost_usd], ["route.pi_cost_usd", route.pi_cost_usd]] : []),
     ...Object.entries(run.metrics || {}),
   ];
   const table = el("table", { class: "metrics" });

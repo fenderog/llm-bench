@@ -75,18 +75,20 @@ For a pi `openrouter/` model, `@slug` pins which upstream provider serves the ru
 can be benchmarked on different upstreams side by side on one page:
 
 ```sh
-uv run bench run "a voxel horse" -m openrouter/deepseek/deepseek-v4.1-flash@deepinfra:low \
+uv run bench run "a voxel horse" -m openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8:low \
                    -m openrouter/deepseek/deepseek-v4.1-flash@fireworks:low
 ```
 
-`@deepinfra,fireworks` lets OpenRouter pick among the listed upstreams. Pinning uses fallbacks off,
+Slugs are OpenRouter's endpoint tags, variants included (`deepinfra/fp8`, `fireworks/us`); list them with
+`curl -s https://openrouter.ai/api/v1/models/<model id>/endpoints`. `@deepinfra,fireworks` lets OpenRouter pick among the listed upstreams. Pinning uses fallbacks off,
 so the run really used what its name says; the upstream is part of the recorded model name
 (`…flash@deepinfra`, shown as a `via …` chip) and `route.requested`/`route.served` are on the run's
 Metrics tab. Works in `-m`, `--set` entries and set files alike; anything else with `@` is an error.
 
-Cost caveat: bench reports pi's `usage.cost.total`, which is computed from pi's catalog price rather
-than what OpenRouter actually charged, so pinned runs on differently-priced upstreams may show the
-wrong cost. Compare costs across upstreams in the OpenRouter dashboard, not on the page.
+Cost: a pinned run's cost is what OpenRouter actually charged (reported in each response), not pi's
+estimate, which prices every OpenRouter call at one catalog rate whatever upstream served it and came out
+2–7× too low on real runs. Both are on the Metrics tab (`route.cost_usd`, `route.pi_cost_usd`). Unpinned
+OpenRouter runs still show pi's estimate.
 
 ### Adding runs to an existing page
 

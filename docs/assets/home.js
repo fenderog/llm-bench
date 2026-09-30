@@ -26,7 +26,7 @@ function renderCard(p) {
     el("div", { class: "card-media" }, [thumb, KIND_LABEL[p.kind] ? el("span", { class: "kind-chip", text: KIND_LABEL[p.kind] }) : null]),
     el("div", { class: "card-body" }, [
       el("div", { class: "card-title", text: p.title }),
-      el("div", { class: "model-chips" }, models.map((m) => el("span", { class: "model-chip", text: modelParts(m).name, attrs: { title: m } }))),
+      el("div", { class: "model-chips" }, models.map((m) => el("span", { class: "model-chip", text: modelParts(m).short, attrs: { title: m } }))),
       el("div", { class: "card-foot card-meta" }, [
         el("span", { text: `${p.n_runs} run${p.n_runs === 1 ? "" : "s"}` }),
         date,
