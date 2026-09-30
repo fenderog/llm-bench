@@ -266,22 +266,26 @@ table.runs th:first-child { border-top-left-radius: var(--r-lg); }
 table.runs th:last-child { border-top-right-radius: var(--r-lg); }
 table.runs th:hover { color: var(--ink); }
 table.runs th.has-help { text-decoration: underline dotted; text-underline-offset: 4px; text-decoration-color: var(--line-strong); }
-table.runs th.is-num, table.runs td.is-num { text-align: right; }
+table.runs th.is-num, table.runs td.is-num { text-align: right; padding-left: 6px; padding-right: 6px; }
 table.runs th[aria-sort] { color: var(--ink); }
 table.runs th[aria-sort="ascending"]::after { content: " \2191"; color: var(--accent); }
 table.runs th[aria-sort="descending"]::after { content: " \2193"; color: var(--accent); }
 table.runs tbody tr.run-row:hover { background: color-mix(in srgb, var(--surface-2) 70%, transparent); }
 table.runs td.harness-cell { color: var(--ink-3); font-size: 12.5px; }
+.harness { display: inline-flex; flex-direction: column; line-height: 1.25; }
+.harness-version { font-size: 11.5px; color: var(--ink-3); }
+table.runs td[data-col="model"] { white-space: normal; }
+table.runs td[data-col="model"] .model-name { overflow-wrap: anywhere; }
 td.thumb-cell { padding: 6px 4px 6px 0; width: 1px; }
 img.row-thumb {
-  display: block; width: 104px; height: 60px; object-fit: cover; border-radius: var(--r-sm);
+  display: block; width: 96px; height: 56px; object-fit: cover; border-radius: var(--r-sm);
   border: 1px solid var(--line); background: var(--surface-2);
 }
-.thumb-none { display: flex; width: 104px; height: 60px; align-items: center; justify-content: center; border-radius: var(--r-sm); background: var(--surface-2); color: var(--ink-3); }
+.thumb-none { display: flex; width: 96px; height: 56px; align-items: center; justify-content: center; border-radius: var(--r-sm); background: var(--surface-2); color: var(--ink-3); }
 .media-page img.row-thumb { object-fit: contain; background: repeating-conic-gradient(var(--checker-a) 0 25%, var(--checker-b) 0 50%) 0 0 / 12px 12px; }
 
 /* numeric cells: value on top, a thin bar scaled to the column max below */
-.bar-cell { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 64px; }
+.bar-cell { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 56px; }
 .bar-cell .val { font-variant-numeric: tabular-nums; }
 .bar-cell .track { width: 100%; height: 3px; border-radius: 2px; background: var(--surface-3); overflow: hidden; display: flex; justify-content: flex-end; }
 .bar-cell .bar { display: block; height: 100%; border-radius: 2px; background: color-mix(in srgb, var(--accent) 55%, transparent); }
@@ -532,6 +536,23 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
 .rank-status { font-size: 12.5px; color: var(--ink-3); }
 .rank-status.is-error { color: var(--bad); }
 .rank-chip { font-size: 1rem; line-height: 1; }
+
+/* Runs table below the full 1240px page: hide columns by priority (least important first) so it never scrolls.
+   Model, effort, verified, duration and cost always stay; the rest is on the run page and in compare. */
+@media (min-width: 721px) and (max-width: 1199px) {
+  table.runs th[data-key="tokens_reasoning"], table.runs td[data-col="tokens_reasoning"] { display: none; }
+}
+@media (min-width: 721px) and (max-width: 1099px) {
+  table.runs th[data-key="turns"], table.runs td[data-col="turns"],
+  table.runs th[data-key="tokens_output"], table.runs td[data-col="tokens_output"] { display: none; }
+}
+@media (min-width: 721px) and (max-width: 959px) {
+  table.runs th[data-key="harness"], table.runs td[data-col="harness"],
+  table.runs th[data-key="tool_calls"], table.runs td[data-col="tool_calls"] { display: none; }
+}
+@media (min-width: 721px) and (max-width: 799px) {
+  table.runs th[data-key="thumb"], table.runs td[data-col="thumb"] { display: none; }
+}
 
 @media (max-width: 720px) {
   :root { --gutter: 16px; }

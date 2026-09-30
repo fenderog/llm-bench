@@ -443,8 +443,12 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   The table is sortable (default: model, then effort), numeric columns are right-aligned with a thin bar under the value
   scaled to the column max, the best completed value in duration / tokens / cost is starred, and every header has a help
   tooltip (shown after 0.5s). Clicking a row expands it and boots that run's game inline; clicking again removes it.
-  At ≤720px the table turns into a list of cards (headers become sort chips; harness and reasoning tokens are hidden).
-  It fits without horizontal scrolling at ≥1240px.
+  The Harness cell shows the name with the version small underneath. At ≤720px the table turns into a list of cards
+  (headers become sort chips; harness and reasoning tokens are hidden). Above that it never scrolls horizontally: the full
+  table fits the 1240px page, and below it columns hide by priority: Reasoning at ≤1199px, Turns and Output tok at
+  ≤1099px, Harness and Tool calls at ≤959px, the thumbnail at ≤799px. Model, Effort, Verified, Duration and Cost (plus
+  the rank, caret and Tokens) always stay; hidden metrics are on the run page's Metrics tab and in compare.
+  (`.table-wrap` keeps `overflow-x: auto` as a safety net only.) Model names with a pinned upstream wrap inside their cell.
 - **run.html**: a header with model (provider above) and effort, a switcher with every run of the same page (grouped by
   model, current one marked), stat tiles (cost, duration, tokens, output tokens, tool calls, turns) each with the run's
   rank among the page's completed runs ("cheapest of 6", "3rd of 6"), a line with verified, harness, started (plus the

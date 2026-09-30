@@ -24,7 +24,7 @@ const COLUMNS = [
     help: "Input + output tokens reported by the provider. Excludes input served from the prompt cache. ★ marks the completed run that used the fewest." },
   { key: "tokens_output", label: "Output tok", get: (r) => r.metrics.tokens_output, num: true, fmt: fmtNum,
     help: "Tokens the model generated: messages, tool-call arguments and file contents it wrote. Includes reasoning tokens when the provider counts them as output (OpenAI does)." },
-  { key: "tokens_reasoning", label: "Reasoning tok", get: (r) => r.metrics.tokens_reasoning, num: true, fmt: fmtNum,
+  { key: "tokens_reasoning", label: "Reasoning", get: (r) => r.metrics.tokens_reasoning, num: true, fmt: fmtNum,
     help: "Tokens spent on hidden internal reasoning (thinking) before answering. Not shown in the transcript beyond short summaries, but billed as output." },
   { key: "cost_usd", label: "Cost", get: (r) => r.metrics.cost_usd, num: true, fmt: fmtCost,
     help: "Cost in USD for the whole session as reported by the provider, including cached input at its discounted rate. For Claude Code runs it's Claude Code's own estimate at API prices (also when run on a subscription). ★ marks the cheapest completed run." },
@@ -89,7 +89,7 @@ function render(page, runs, editable) {
 
   const headRow = el("tr", {}, [
     el("th", { attrs: { "data-help": isMedia ? "Click a row to expand it and see that run's output files." : "Click a row to expand it and play that run's game inline." } }),
-    el("th", { attrs: { "data-help": isMedia ? "The run's first output (a video shows its poster frame). Click to open the run." : "Screenshot of the running game taken during verification. Click to open the run." } }),
+    el("th", { attrs: { "data-key": "thumb", "data-help": isMedia ? "The run's first output (a video shows its poster frame). Click to open the run." : "Screenshot of the running game taken during verification. Click to open the run." } }),
     ...COLUMNS.map((c) =>
       el("th", { text: c.label, class: c.num ? "has-help is-num" : "has-help", attrs: { "data-key": c.key, "data-help": `${c.help}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
     ),
@@ -130,7 +130,7 @@ function render(page, runs, editable) {
       const thumb = r.thumb
         ? el("a", { attrs: { href: url, "aria-label": "Open run" } }, [el("img", { class: "row-thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })])
         : el("span", { class: "thumb-none", text: "–" });
-      const tds = [el("td", {}, [el("span", { class: "caret", text: "▶" })]), el("td", { class: "thumb-cell" }, [thumb])];
+      const tds = [el("td", {}, [el("span", { class: "caret", text: "▶" })]), el("td", { class: "thumb-cell", attrs: { "data-col": "thumb" } }, [thumb])];
       for (const c of COLUMNS) {
         const v = c.get(r);
         const attrs = { "data-col": c.key, "data-label": c.label };
@@ -141,7 +141,12 @@ function render(page, runs, editable) {
         } else if (c.key === "effort") {
           tds.push(el("td", { attrs }, [effortPill(v)]));
         } else if (c.key === "harness") {
-          tds.push(el("td", { class: "harness-cell", text: v ?? "–", attrs }));
+          const h = r.harness;
+          tds.push(el("td", { class: "harness-cell", attrs }, [
+            h && h.name
+              ? el("span", { class: "harness" }, [el("span", { text: h.name }), h.version ? el("span", { class: "harness-version", text: h.version }) : null])
+              : "–",
+          ]));
         } else if (c.key === "verified") {
           const sb = stateBadge(r);
           tds.push(el("td", { attrs }, [sb || (v === true ? badge("✓", "good") : v === false ? badge("✗", "bad") : el("span", { class: "muted", text: "–" }))]));
