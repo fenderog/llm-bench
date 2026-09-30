@@ -600,3 +600,19 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
   table.runs tr.run-detail { display: block; margin-bottom: 10px; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 var(--r) var(--r); overflow: hidden; }
   table.runs tr.run-detail td { display: block; padding: 12px; }
 }
+
+/* play.html: one run's output alone in a window */
+body.play { margin: 0; height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.play-bar { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-bottom: 1px solid var(--line); flex: none; white-space: nowrap; overflow: hidden; }
+.play-bar .model { flex-direction: row; gap: 8px; align-items: baseline; min-width: 0; }
+.play-bar .model-name, .play-bar .model-provider, .play-bar .model-via { overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.play-bar a:last-child { margin-left: auto; font-size: 13px; }
+.play-main { flex: 1; min-height: 0; overflow: auto; }
+.play-frame, .play-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+.play-main .media-grid { padding: 16px; }
+.play-main > .msg, .play-main > .run-error { margin: 16px; }
+
+/* the compare card's "open in its own window" button */
+.popout { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; color: var(--ink-3); text-decoration: none; font-size: 14px; vertical-align: middle; }
+.popout:hover { color: var(--ink); background: var(--surface-2); }
+.popout:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

@@ -1,6 +1,7 @@
 import {
   qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
   effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorAttrs, groupByVendor,
+  playUrl,
 } from "./common.js";
 
 // compare.html?p=<slug> shows every run of the page; &r=<id>,<id> limits it to those runs.
@@ -89,7 +90,14 @@ function metricsLine(r, best) {
 function column(r, best) {
   const base = runDir(slug, r.id);
   const sb = stateBadge(r);
-  const heading = [el("a", { attrs: { href: runUrl(slug, r.id) } }, [modelLabel(r.model)]), el("span", {}, [rankChip(r.rank), r.rank != null ? " " : null, effortPill(r.effort), sb ? " " : null, sb])];
+  // ↗ opens the run alone in a popup window, through the sandboxed play.html (never the raw entry URL)
+  const url = playUrl(slug, r.id);
+  const pop = r.game || r.media ? el("a", {
+    class: "popout", text: "↗",
+    attrs: { href: url, target: "_blank", rel: "noopener", title: "Open in its own window", "aria-label": `Open ${r.model} ${r.effort} in its own window` },
+    on: { click: (e) => { e.preventDefault(); window.open(url, "_blank", "popup,noopener,width=1280,height=800"); } },
+  }) : null;
+  const heading = [el("a", { attrs: { href: runUrl(slug, r.id) } }, [modelLabel(r.model)]), el("span", {}, [rankChip(r.rank), r.rank != null ? " " : null, effortPill(r.effort), sb ? " " : null, sb, pop ? " " : null, pop])];
   const body = el("div", { class: "compare-body" });
   if (r.error) body.append(el("p", { class: "run-error", text: r.error }));
   if (r.media) body.append(mediaGallery(r, base));

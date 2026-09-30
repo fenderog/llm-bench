@@ -26,6 +26,7 @@ docs/
   page.html?p=<slug>              # one page: runs table + gallery (reads data/<slug>/results.json)
   run.html?p=<slug>&r=<run_id>    # one run: tabs Game | Transcript | Source | Metrics
   compare.html?p=<slug>[&r=<id>,<id>]   # side by side: all runs of the page, or just the listed ones
+  play.html?p=<slug>&r=<run_id>   # one run's output alone, full window (the compare cards' pop-out target)
   assets/                         # shared JS/CSS
   engines/<sha12>/godot.wasm      # deduplicated Godot engine files, one dir per unique engine
   engines/<sha12>/godot.js
@@ -482,6 +483,13 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   group the order is `byRankThenModel()`; groups go by their best rank, then unranked groups by name. Each group is its own
   grid, so the subgrid rows line up per group. The ★ best values are still computed across all shown runs, and `&r=` only
   limits which runs (and so which groups) appear. `#columns` holds the groups, not the cards.
+  A card with output also has a small ↗ button (`a.popout`, next to the effort pill) that opens `play.html` for that run in a
+  separate popup window (`window.open(..., "popup,noopener,width=1280,height=800")`); middle/cmd-click falls back to the
+  `href` and opens a tab. It never carries `data-play`, so Play all ignores it.
+- **play.html**: one run's output alone. A 36px bar (model, effort pill, state badge, "Run page →" link to run.html) above
+  the output, which fills the rest of the window: for `godot`/`web` runs one `sandboxedGame()` iframe that boots immediately
+  (opening the window was the click), for `media` runs `mediaGallery()` (videos still don't autoplay). A run's `error` is
+  shown above the output; a missing/unknown `p`/`r` or a run without output shows a message. Never links or embeds the raw entry URL.
 - Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/llm-bench/`),
   so use only relative URLs. It supports dark mode via `prefers-color-scheme`, has readable defaults, and has no frameworks.
 

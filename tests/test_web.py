@@ -440,6 +440,51 @@ def test_compare_shows_harness_in_metrics_line(site, page):
     assert_no_errors(page)
 
 
+def test_compare_popout_opens_sandboxed_play_window(site, page):
+    page.goto(f"{site}compare.html?p=demo")
+    page.wait_for_selector(".compare-col")
+    # only the run with a game gets the button (the other two have nothing to show)
+    assert page.locator(".compare-col a.popout").count() == 1
+    pop = page.locator(".compare-col", has=page.locator("a.popout")).locator("a.popout")
+    assert pop.get_attribute("href") == f"play.html?p=demo&r={HIGH_ID}"
+    assert pop.get_attribute("data-play") is None
+    with page.expect_popup() as info:
+        pop.click()
+    popup = info.value
+    popup.on("pageerror", lambda e: page._page_errors.append(str(e)))
+    popup.wait_for_selector("#play iframe")
+    assert popup.url.endswith(f"play.html?p=demo&r={HIGH_ID}")
+    frames = popup.locator("iframe")
+    assert frames.count() == 1
+    assert frames.get_attribute("sandbox") == "allow-scripts allow-pointer-lock"
+    assert frames.get_attribute("src").endswith("game/index.html")
+    bar = popup.locator("#play-bar").inner_text()
+    assert "model-x" in bar and "high" in bar
+    assert popup.locator("#play-bar a").get_attribute("href") == f"run.html?p=demo&r={HIGH_ID}"
+    assert_no_errors(page)
+    popup.close()
+
+
+def test_play_media_run_uses_img_only(site, page):
+    page.goto(f"{site}play.html?p=art&r={ART_HIGH_ID}")
+    page.wait_for_selector(".media-grid")
+    page.wait_for_function("[...document.querySelectorAll('.media-grid img')].every(i => i.complete && i.naturalWidth > 0)")
+    assert page.locator(".media-grid img").count() == 2
+    assert page.evaluate("window.svgRan") is None
+    assert page.locator("#play svg, #play object, #play embed, #play iframe").count() == 0
+    assert_no_errors(page)
+
+
+def test_play_bad_params_show_messages(site, page):
+    page.goto(f"{site}play.html")
+    page.wait_for_selector(".msg-error")
+    assert "Missing" in page.locator("#play").inner_text()
+    page.goto(f"{site}play.html?p=demo&r=nope")
+    page.wait_for_selector(".msg-error")
+    assert 'No run "nope"' in page.locator("#play").inner_text()
+    assert_no_errors(page)
+
+
 def test_compare_play_all_starts_every_game(site, page):
     page.goto(f"{site}compare.html?p=demo")
     page.wait_for_selector(".compare-col")
