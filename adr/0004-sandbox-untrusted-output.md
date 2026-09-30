@@ -33,7 +33,9 @@ There is exactly one way to show each type of output:
 - Never use `innerHTML` with run data. The exception is `renderMarkdown()`, whose output is sanitized as
   described above.
 - "Open full screen" runs a game outside the sandbox, so the link says "(unsandboxed)".
-- Games boot only on click, never automatically.
+- Games boot only on click, never automatically. The exception is `play.html` (the compare cards' ↗ pop-out
+  window), which boots at once because opening the window was the click. It shows output only through
+  `sandboxedGame()` / `mediaGallery()`, so it is not a new unsandboxed entry point.
 - Tests check that the fixture SVG's embedded script never runs and that games are embedded in a sandboxed iframe.
 
 ## Alternatives considered

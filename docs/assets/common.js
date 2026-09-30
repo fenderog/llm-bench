@@ -196,6 +196,17 @@ export function runUrl(slug, id) {
   return `run.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(id)}`;
 }
 
+// The pop-out viewer: one run's output alone in a window (play.html, always sandboxed).
+export function playUrl(slug, id) {
+  return `play.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(id)}`;
+}
+
+// What to say when a run has no game / page / media to show.
+export function noOutputText(run) {
+  if (run.kind === "media") return "No output files recorded for this run.";
+  return run.kind === "web" ? "No packaged page recorded for this run." : "No game recorded for this run.";
+}
+
 // Default run order everywhere: by model, then effort from low to high.
 export function byModelThenEffort(a, b) {
   return String(a.model).localeCompare(String(b.model)) || effortIndex(a.effort) - effortIndex(b.effort) || String(a.id).localeCompare(String(b.id));

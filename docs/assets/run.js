@@ -1,6 +1,6 @@
 import {
   qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge,
-  mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip,
+  mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, noOutputText,
 } from "./common.js";
 import { renderTranscript } from "./transcript.js";
 
@@ -143,12 +143,12 @@ function renderGame(run, base) {
   if (run.kind === "media") {
     document.querySelector('#tabs button[data-tab="game"]').textContent = "Output";
     if (run.media) panel.append(mediaGallery(run, base));
-    else showMessage(panel, "No output files recorded for this run.");
+    else showMessage(panel, noOutputText(run));
     return;
   }
   if (run.kind === "web") document.querySelector('#tabs button[data-tab="game"]').textContent = "Page";
   if (!run.game) {
-    showMessage(panel, run.kind === "web" ? "No packaged page recorded for this run." : "No game recorded for this run.");
+    showMessage(panel, noOutputText(run));
     return;
   }
   const entryUrl = base + run.game.entry;
