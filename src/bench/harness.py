@@ -16,8 +16,9 @@ from pathlib import Path
 from .media import thumbnail
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError
 
-# Bench-shipped pi extension that pins the OpenRouter upstream per run (see
-# pi_ext/openrouter_routing.ts). Passed with an explicit `-e` (which still loads under `-ne`).
+# Bench-shipped pi extension for OpenRouter runs (see pi_ext/openrouter_routing.ts): it records
+# which upstream served each response and what OpenRouter charged, and pins the upstream for
+# `MODEL@slug` runs. Passed with an explicit `-e` (which still loads under `-ne`).
 ROUTING_EXTENSION = Path(__file__).parent / "pi_ext" / "openrouter_routing.ts"
 
 
@@ -168,21 +169,23 @@ class Pi(Harness):
             "-np",
             "-nc",
         ]
-        if slugs:
+        if base.startswith("openrouter/"):
             cmd += ["-e", str(ROUTING_EXTENSION)]
         return cmd + [brief]
 
     def env(self, model=None, harness_dir=None):
-        if model is None:
+        """Every OpenRouter run logs its upstreams and real cost to BENCH_ROUTE_LOG; a pinned one
+        (`MODEL@slug`) also gets BENCH_OPENROUTER_ROUTING. Other models inherit bench's env."""
+        if model is None or harness_dir is None:
             return None
-        _, slugs = split_model_route(model)
-        if not slugs:
+        base, slugs = split_model_route(model)
+        if not base.startswith("openrouter/"):
             return None
-        return {
-            **os.environ,
-            "BENCH_OPENROUTER_ROUTING": json.dumps({"only": slugs, "allow_fallbacks": False}),
-            "BENCH_ROUTE_LOG": str(Path(harness_dir) / "route.jsonl"),
-        }
+        env = {**os.environ, "BENCH_ROUTE_LOG": str(Path(harness_dir) / "route.jsonl")}
+        env.pop("BENCH_OPENROUTER_ROUTING", None)
+        if slugs:
+            env["BENCH_OPENROUTER_ROUTING"] = json.dumps({"only": slugs, "allow_fallbacks": False})
+        return env
 
     def session_file(self, session_dir):
         matches = sorted(Path(session_dir).glob("*.jsonl"))

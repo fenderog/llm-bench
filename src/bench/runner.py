@@ -430,13 +430,14 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
 
 
 def read_route(harness_dir, model):
-    """The OpenRouter route for a run: {requested: {only, allow_fallbacks}, served: [...], cost_usd}.
+    """The OpenRouter route for a run: {requested, served: [...], cost_usd}. requested =
+    {only, allow_fallbacks} for a pinned run (`MODEL@slug`), None when OpenRouter picked the upstream.
     From route.jsonl, written by the pi routing extension: `{id, provider}` and `{id, cost}` lines
     per response. served = the distinct upstream names; cost_usd = what OpenRouter charged, summed
-    over responses (the last cost per id), or None when no response reported one. None for
-    unrouted runs."""
-    _, slugs = split_model_route(model)
-    if not slugs:
+    over responses (the last cost per id), or None when no response reported one. None for runs
+    that aren't OpenRouter runs."""
+    base, slugs = split_model_route(model)
+    if not base.startswith("openrouter/"):
         return None
     path = Path(harness_dir) / "route.jsonl"
     served, costs = [], {}
@@ -452,7 +453,8 @@ def read_route(harness_dir, model):
                 served.append(rec["provider"])
             if isinstance(rec.get("cost"), (int, float)):
                 costs[rec.get("id")] = rec["cost"]
-    return {"requested": {"only": slugs, "allow_fallbacks": False}, "served": served,
+    requested = {"only": slugs, "allow_fallbacks": False} if slugs else None
+    return {"requested": requested, "served": served,
             "cost_usd": sum(costs.values()) if costs else None}
 
 
@@ -488,8 +490,8 @@ def collect(level_dir, harness_dir, session_path, cmd, harness, version, started
     cost_usd = (metrics or {}).get("cost_usd", 0.0)
     route = read_route(harness_dir, model)
     if route:
-        only = {upstream_key(s) for s in route["requested"]["only"]}
-        outside = [s for s in route["served"] if upstream_key(s) not in only]
+        only = {upstream_key(s) for s in route["requested"]["only"]} if route["requested"] else None
+        outside = [s for s in route["served"] if upstream_key(s) not in only] if only else []
         if outside:
             note = f"served upstream outside requested only: {', '.join(outside)}"
             error = f"{error}; {note}" if error else note

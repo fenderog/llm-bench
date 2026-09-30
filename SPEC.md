@@ -118,13 +118,14 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 - `state` = `runs.<level>.state` (`complete` | `failed` | `timeout`), default `complete`.
 - `error` = `runs.<level>.error` (a one-line reason: harness exit, timeout, or "Godot export failed: …"), default `null`.
   A run with `state` ≠ `complete` is still imported (it usually has no game).
-- `route` = `runs.<level>.route` for a run pinned to an OpenRouter upstream with `MODEL@slug`, else `null`:
+- `route` = `runs.<level>.route` for a pi `openrouter/` run, else `null`:
   `{"requested": {"only": [...], "allow_fallbacks": false}, "served": [...], "cost_usd": 0.00085, "pi_cost_usd": 0.00038}`.
+  `requested` is `null` for an unpinned run (OpenRouter chose the upstream); the rest is recorded either way.
   `served` = the upstreams that served the run, in order, as OpenRouter names them ("DeepInfra", "AtlasCloud").
   They're matched to the requested slugs by `upstream_key()` (lowercase alphanumerics of the name, and of the slug
   before its `/variant`: `atlas-cloud/fp8` and "AtlasCloud" → `atlascloud`); one outside `requested.only` is appended
   to `error`. `cost_usd` = what OpenRouter charged (the sum of each response's `usage.cost`), `null` when no response
-  reported one; `pi_cost_usd` = pi's own estimate. For a routed run `metrics.cost_usd` is `cost_usd` when present:
+  reported one; `pi_cost_usd` = pi's own estimate. For an OpenRouter run `metrics.cost_usd` is `cost_usd` when present:
   pi prices every OpenRouter call at one catalog rate whatever upstream served it (≈ 2–7× too low on real runs).
 
 ## Input: an effort-run folder (`fe-model-effort-fanout/1`)
@@ -354,11 +355,11 @@ Pi: `pi --version`; `pi --list-models` (parse the table); levels via `pi --mode 
 sending `{"type":"get_available_thinking_levels"}` and reading the matching response;
 command = `pi -p --mode json --model M:LEVEL --session-dir DIR -ne -ns -np -nc BRIEF` (no user extensions, skills,
 prompt templates or AGENTS.md, so runs are reproducible); session file = the one `*.jsonl` in DIR.
-A routed run (`MODEL@slug`, pi `openrouter/` models only) passes the base id to `--model`, adds
-`-e src/bench/pi_ext/openrouter_routing.ts` (explicit `-e` paths still load under `-ne`), and sets
-`BENCH_OPENROUTER_ROUTING={"only": [...], "allow_fallbacks": false}` plus `BENCH_ROUTE_LOG=<harness
- dir>/route.jsonl` in that run's environment. The extension merges the routing into the request's
-`provider` field and logs, per response (generation id), `{id, provider}` from its first stream chunk and
+Every `openrouter/` run adds `-e src/bench/pi_ext/openrouter_routing.ts` (explicit `-e` paths still load under
+`-ne`) and sets `BENCH_ROUTE_LOG=<harness dir>/route.jsonl` in that run's environment. A pinned run (`MODEL@slug`)
+passes the base id to `--model` and also sets `BENCH_OPENROUTER_ROUTING={"only": [...], "allow_fallbacks": false}`
+(never inherited from bench's own environment), which the extension merges into the request's
+`provider` field. The extension logs, per response (generation id), `{id, provider}` from its first stream chunk and
 `{id, cost}` from the final chunk's `usage.cost`; the run records `route` from that log (see Run). The upstream is part of the recorded model name
 (`openrouter/…/flash@deepinfra`), so two upstreams are separate rows; run ids use `-via-`.
 

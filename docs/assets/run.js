@@ -227,7 +227,7 @@ function renderMetrics(run, base) {
     ["verified", run.verified == null ? "–" : String(run.verified)],
     ["state", run.state ?? "–"],
     ["error", run.error ?? "–"],
-    ...(route ? [["route.requested", JSON.stringify(route.requested)], ["route.served", (route.served || []).join(", ") || "–"], ["route.cost_usd", route.cost_usd], ["route.pi_cost_usd", route.pi_cost_usd]] : []),
+    ...(route ? [["route.requested", route.requested ? JSON.stringify(route.requested) : "– (OpenRouter's choice)"], ["route.served", (route.served || []).join(", ") || "–"], ["route.cost_usd", route.cost_usd], ["route.pi_cost_usd", route.pi_cost_usd]] : []),
     ...Object.entries(run.metrics || {}),
   ];
   const table = el("table", { class: "metrics" });

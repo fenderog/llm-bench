@@ -85,10 +85,11 @@ so the run really used what its name says; the upstream is part of the recorded 
 (`…flash@deepinfra`, shown as a `via …` chip) and `route.requested`/`route.served` are on the run's
 Metrics tab. Works in `-m`, `--set` entries and set files alike; anything else with `@` is an error.
 
-Cost: a pinned run's cost is what OpenRouter actually charged (reported in each response), not pi's
-estimate, which prices every OpenRouter call at one catalog rate whatever upstream served it and came out
-2–7× too low on real runs. Both are on the Metrics tab (`route.cost_usd`, `route.pi_cost_usd`). Unpinned
-OpenRouter runs still show pi's estimate.
+Cost: every OpenRouter run's cost, pinned or not, is what OpenRouter actually charged (reported in each
+response), not pi's estimate, which prices every OpenRouter call at one catalog rate whatever upstream served
+it and came out 2–7× too low on real runs. Both are on the Metrics tab (`route.cost_usd`, `route.pi_cost_usd`),
+with the upstream(s) that served the run (`route.served`). With BYOK (your own provider key in OpenRouter)
+the reported cost is only OpenRouter's fee.
 
 ### Adding runs to an existing page
 

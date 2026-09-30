@@ -244,4 +244,23 @@ def test_read_route_parses_the_log(tmp_path):
     assert route == {"requested": {"only": ["deepinfra/fp8"], "allow_fallbacks": False}, "served": ["DeepInfra"], "cost_usd": None}
     log.write_text('{"id": "g1", "cost": 0.1}\n{"id": "g1", "cost": 0.2}\n{"id": "g2", "cost": 0.05}\n')
     assert read_route(tmp_path, "openrouter/x/y@a")["cost_usd"] == pytest.approx(0.25)  # last cost per response, summed
-    assert read_route(tmp_path, "openrouter/x/y") is None
+    assert read_route(tmp_path, "openrouter/x/y")["requested"] is None  # unpinned: OpenRouter's choice
+    assert read_route(tmp_path, "openai-codex/gpt-6-sol") is None  # not an OpenRouter run
+
+
+def test_unpinned_openrouter_run_records_upstream_and_real_cost(run_root, monkeypatch, tmp_path):
+    """Every OpenRouter run loads the extension for the served upstream and the real charge;
+    only pinned runs get BENCH_OPENROUTER_ROUTING."""
+    argv_file = tmp_path / "pi-argv.json"
+    monkeypatch.setenv("FAKE_PI_ARGV", str(argv_file))
+    monkeypatch.setenv("BENCH_OPENROUTER_ROUTING", '{"only": ["leaked"]}')  # a stray value from bench's own env
+    monkeypatch.setenv("FAKE_PI_SERVED", "Fireworks")
+    assert main(["run", "--yes", "unpinned run", "-m", "openrouter/test/model:low", "--root", str(run_root)]) == 0
+    sent = json.loads(argv_file.read_text())
+    assert sent["argv"][sent["argv"].index("--model") + 1] == "openrouter/test/model:low"
+    assert sent["argv"][sent["argv"].index("-e") + 1].endswith("openrouter_routing.ts")
+    assert sent["routing"] is None and sent["route_log"].endswith("route.jsonl")
+    [run] = json.loads((run_root / "docs/data/unpinned-run/results.json").read_text())
+    assert run["model"] == "openrouter/test/model" and "-via-" not in run["id"]
+    assert run["route"] == {"requested": None, "served": ["Fireworks"], "cost_usd": 0.0042, "pi_cost_usd": 0.0025}
+    assert run["metrics"]["cost_usd"] == 0.0042 and run["error"] is None

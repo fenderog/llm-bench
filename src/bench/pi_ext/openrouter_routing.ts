@@ -1,21 +1,22 @@
 import { appendFileSync } from "node:fs";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-// Pins the OpenRouter upstream for a bench run. The runner passes `-e` this file (explicit `-e`
-// paths still load under pi's `-ne`) and sets BENCH_OPENROUTER_ROUTING (e.g.
-// `{"only": ["deepinfra/fp8"], "allow_fallbacks": false}`) plus BENCH_ROUTE_LOG in that run's
-// environment. The routing is merged into the request's `provider` field. For each response
+// Loaded by bench for every OpenRouter run (`-e` this file; explicit `-e` paths still load under
+// pi's `-ne`). BENCH_ROUTE_LOG is always set; BENCH_OPENROUTER_ROUTING (e.g.
+// `{"only": ["deepinfra/fp8"], "allow_fallbacks": false}`) only for a pinned run (`MODEL@slug`), and
+// is then merged into the request's `provider` field. For each response
 // (generation id) the log gets `{id, provider}` from its first chunk (OpenRouter's display name of
 // the upstream that served it, e.g. "DeepInfra") and `{id, cost}` from the final chunk's
 // `usage.cost`: what OpenRouter actually charged, which pi's own catalog-rate cost doesn't reflect.
 export default function (pi: ExtensionAPI) {
   const routing = JSON.parse(process.env.BENCH_OPENROUTER_ROUTING ?? "null") as Record<string, unknown> | null;
   const log = process.env.BENCH_ROUTE_LOG;
-  if (!routing) return;
-  pi.on("before_provider_request", (event) => {
-    const body = event.payload as Record<string, unknown>;
-    return { ...body, provider: { ...((body.provider as object) ?? {}), ...routing } };
-  });
+  if (routing) {
+    pi.on("before_provider_request", (event) => {
+      const body = event.payload as Record<string, unknown>;
+      return { ...body, provider: { ...((body.provider as object) ?? {}), ...routing } };
+    });
+  }
   if (!log) return;
   const seen = new Set<unknown>();
   pi.on("provider_stream_event", (event) => {

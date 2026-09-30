@@ -42,8 +42,8 @@ chunks that carry the serving upstream, and `-e <path>` extensions that still lo
   `models.js`), one rate per model whatever upstream served the call. On the first real routed runs that was
   2–7× below what OpenRouter charged. OpenRouter reports the real charge in each response's final stream chunk
   (`usage.cost`), so the extension logs it and a routed run's cost is that sum (`route.cost_usd`), with pi's
-  figure kept as `route.pi_cost_usd`. Unrouted OpenRouter runs still show pi's estimate; loading the extension
-  for every OpenRouter run would fix those too (a possible follow-up).
+  figure kept as `route.pi_cost_usd`. Since 2026-09-30 the extension is loaded for **every** OpenRouter run,
+  pinned or not, so unpinned runs get the real charge and their served upstream too (`route.requested: null`).
 - The served upstream is recorded from stream chunks (`provider_stream_event`, confirmed firing under
   `-p --mode json`), as OpenRouter's display name ("DeepInfra", "AtlasCloud"), not the slug. It's matched to the
   requested slugs by normalized name (`upstream_key()`); the `/variant` of a slug (`/fp8`) can't be checked.
