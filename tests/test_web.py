@@ -7,6 +7,7 @@ ThreadingHTTPServer (no dependency on the CLI's own serve command).
 
 import functools
 import http.server
+import re
 import shutil
 import threading
 from pathlib import Path
@@ -214,6 +215,17 @@ def test_runs_table_never_scrolls_horizontally(site, browser, width):
     if width >= 1240:
         assert pg.locator('th[data-key="tokens_reasoning"]').is_visible()
     ctx.close()
+
+
+def test_runs_table_has_run_time_and_no_output_tokens_column(site, page):
+    page.goto(f"{site}page.html?p=demo")
+    page.wait_for_selector("table.runs tbody tr")
+    assert page.locator('th[data-key="tokens_output"]').count() == 0
+    assert page.locator('td[data-col="tokens_output"]').count() == 0
+    cell = page.locator('tr.run-row:first-child td[data-col="started_at"]')
+    assert cell.is_visible()
+    assert cell.inner_text() != "–"
+    assert re.search(r"\d{4}", cell.get_attribute("title"))  # the full date (with year) is on hover
 
 
 def test_runs_table_shows_each_runs_image(site, page):

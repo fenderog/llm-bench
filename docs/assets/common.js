@@ -52,6 +52,14 @@ export function fmtCost(usd) {
   return `$${Number(usd).toFixed(usd < 0.01 ? 4 : 3)}`;
 }
 
+// "Sep 27, 07:12 AM": compact form for table cells (fmtDate has the year).
+export function fmtDateShort(iso) {
+  if (!iso) return "–";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso);
+  return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
 export function fmtDate(iso) {
   if (!iso) return "–";
   const d = new Date(iso);

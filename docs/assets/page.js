@@ -1,5 +1,5 @@
 import {
-  qs, el, getJSON, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
+  qs, el, getJSON, fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
   mediaGallery, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
   rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorAttrs, KIND_LABEL,
 } from "./common.js";
@@ -16,14 +16,14 @@ const COLUMNS = [
     help: "Reasoning effort the model was run at (minimal / low / medium / high / xhigh / max; the bars show the level). Higher effort lets it think longer before acting. Level names are the harness's; the same name can mean different budgets at different providers." },
   { key: "harness", label: "Harness", get: (r) => harnessLabel(r), num: false,
     help: "The agent program that ran the model and executed its tool calls (pi or claude-code), with its version. Every run is one direct agent with only file and shell tools." },
+  { key: "started_at", label: "Run at", get: (r) => r.started_at ?? null, num: false,
+    help: "When the agent session started, in your local time. Click to sort." },
   { key: "verified", label: "Verified", get: (r) => r.verified, num: false,
     help: "Game pages: whether the exported web build booted in headless Chrome (a WebGL canvas rendered, two screenshots differed, no page errors). Web pages: whether the packaged page loaded offline in a sandboxed iframe with no page errors and no network requests. Media pages: whether every output file was a readable image or video within the limits. – means no check was recorded." },
   { key: "duration_ms", label: "Duration", get: (r) => r.metrics.duration_ms, num: true, fmt: fmtDuration,
     help: "Wall-clock time of the agent session, from start to finish. ★ marks the fastest completed run." },
   { key: "tokens_total", label: "Tokens", get: (r) => r.metrics.tokens_total, num: true, fmt: fmtNum,
     help: "Input + output tokens reported by the provider. Excludes input served from the prompt cache. ★ marks the completed run that used the fewest." },
-  { key: "tokens_output", label: "Output tok", get: (r) => r.metrics.tokens_output, num: true, fmt: fmtNum,
-    help: "Tokens the model generated: messages, tool-call arguments and file contents it wrote. Includes reasoning tokens when the provider counts them as output (OpenAI does)." },
   { key: "tokens_reasoning", label: "Reasoning", get: (r) => r.metrics.tokens_reasoning, num: true, fmt: fmtNum,
     help: "Tokens spent on hidden internal reasoning (thinking) before answering. Not shown in the transcript beyond short summaries, but billed as output." },
   { key: "cost_usd", label: "Cost", get: (r) => r.metrics.cost_usd, num: true, fmt: fmtCost,
@@ -147,6 +147,8 @@ function render(page, runs, editable) {
               ? el("span", { class: "harness" }, [el("span", { text: h.name }), h.version ? el("span", { class: "harness-version", text: h.version }) : null])
               : "–",
           ]));
+        } else if (c.key === "started_at") {
+          tds.push(el("td", { class: "started-cell", attrs: { ...attrs, title: fmtDate(v) } }, [fmtDateShort(v)]));
         } else if (c.key === "verified") {
           const sb = stateBadge(r);
           tds.push(el("td", { attrs }, [sb || (v === true ? badge("✓", "good") : v === false ? badge("✗", "bad") : el("span", { class: "muted", text: "–" }))]));

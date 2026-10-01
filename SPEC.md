@@ -437,7 +437,7 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
 - **page.html**: title, a meta line (kind, n runs, n models, last run), the Prompt (prompt.md) and a collapsed Final prompt,
   then **highlights**: the cheapest, fastest and fewest-tokens completed run (each links to it) plus verified count, failed
   count and total spend. Then a "Compare all" link → compare.html and a runs table (thumb, rank, model, effort, harness,
-  verified ✓/✗, duration, tokens total/output/reasoning, cost, tool calls, turns). Harness shows "pi 0.87.1" (name only
+  verified ✓/✗, run at (the run's `started_at`, local time, year on hover; in the phone cards a line under the metrics), duration, tokens total/reasoning, cost, tool calls, turns). Harness shows "pi 0.87.1" (name only
   when version is null, "–" when missing).
   A `media` page also has a **Gallery** above the table: one card per run (its thumb, effort, model, cost, duration,
   "N files" when more than one), linking to the run. Expanding a media row shows its outputs. A run whose `state` isn't `complete`
@@ -447,8 +447,8 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   tooltip (shown after 0.5s). Clicking a row expands it and boots that run's game inline; clicking again removes it.
   The Harness cell shows the name with the version small underneath. At ≤720px the table turns into a list of cards
   (headers become sort chips; harness and reasoning tokens are hidden). Above that it never scrolls horizontally: the full
-  table fits the 1240px page, and below it columns hide by priority: Reasoning at ≤1199px, Turns and Output tok at
-  ≤1099px, Harness and Tool calls at ≤959px, the thumbnail at ≤799px. Model, Effort, Verified, Duration and Cost (plus
+  table fits the 1240px page, and below it columns hide by priority: Reasoning at ≤1199px, Turns at
+  ≤1099px, Harness and Tool calls at ≤959px, the thumbnail at ≤799px. Model, Effort, Run at, Verified, Duration and Cost (plus
   the rank, caret and Tokens) always stay; hidden metrics are on the run page's Metrics tab and in compare.
   (`.table-wrap` keeps `overflow-x: auto` as a safety net only.) Model names with a pinned upstream wrap inside their cell.
 - **run.html**: a header with model (provider above) and effort, a switcher with every run of the same page (grouped by
