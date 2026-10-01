@@ -30,8 +30,6 @@ const COLUMNS = [
     help: "Cost in USD for the whole session as reported by the provider, including cached input at its discounted rate. For Claude Code runs it's Claude Code's own estimate at API prices (also when run on a subscription). ★ marks the cheapest completed run." },
   { key: "tool_calls", label: "Tool calls", get: (r) => r.metrics.tool_calls, num: true, fmt: fmtNum,
     help: "Number of tools the agent invoked (bash, read, write, edit, ls, …)." },
-  { key: "turns", label: "Turns", get: (r) => r.metrics.turns, num: true, fmt: fmtNum,
-    help: "Number of model responses in the session. Each turn can make tool calls; the last one is usually the final answer." },
 ];
 
 if (!slug) {

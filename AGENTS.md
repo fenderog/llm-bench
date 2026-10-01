@@ -148,7 +148,7 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   that into a faint tint and stripe. Color only, so it survives any sort. New vendors get a hashed hue unless added to `VENDOR_HUES`.
 - **Page width:** the runs table must fit without horizontal scroll at every width above 720px. The full table fits the
   1240px page; below that, columns hide by priority in the `@media (min-width: 721px) and (max-width: …)` blocks before the
-  phone block (reasoning tokens, then turns, then harness + tool calls, then the thumbnail). A new column
+  phone block (reasoning tokens, then harness + tool calls, then the thumbnail). A new column
   needs a priority there and a re-run of `test_runs_table_never_scrolls_horizontally`. Measure with Playwright
   (`.table-wrap` clientWidth vs `table.scrollWidth`), never guess breakpoints. `.table-wrap { overflow-x: auto }` stays
   only as a safety net.

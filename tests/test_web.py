@@ -170,19 +170,19 @@ def test_every_column_header_has_hover_help(site, page):
     page.goto(f"{site}page.html?p=demo")
     page.wait_for_selector("table.runs tbody tr")
     headers = page.locator("table.runs thead th")
-    assert headers.count() == 14  # caret, thumb, 12 data columns
-    helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(14)}
+    assert headers.count() == 13  # caret, thumb, 11 data columns
+    helps = {headers.nth(i).inner_text().strip(" ▲▼"): headers.nth(i).get_attribute("data-help") for i in range(13)}
     assert all(t and len(t) > 20 for t in helps.values()), helps
     assert "reasoning" in helps["Reasoning"].lower()
     assert headers.nth(0).get_attribute("title") is None  # no slow native tooltip competing
 
     # custom tooltip: not instant, shown after ~0.5s, stays on screen, hidden on leave
     tip = page.locator(".col-tip")
-    page.locator('th[data-key="turns"]').hover()
+    page.locator('th[data-key="tool_calls"]').hover()
     page.wait_for_timeout(150)
     assert not tip.is_visible()
     page.wait_for_timeout(600)
-    assert tip.is_visible() and "model responses" in tip.inner_text()
+    assert tip.is_visible() and "tools the agent invoked" in tip.inner_text()
     box = tip.bounding_box()
     assert box["x"] >= 0 and box["x"] + box["width"] <= page.viewport_size["width"]
     page.locator("h1").hover()

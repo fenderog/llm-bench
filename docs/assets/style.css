@@ -552,9 +552,6 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
 @media (min-width: 721px) and (max-width: 1199px) {
   table.runs th[data-key="tokens_reasoning"], table.runs td[data-col="tokens_reasoning"] { display: none; }
 }
-@media (min-width: 721px) and (max-width: 1099px) {
-  table.runs th[data-key="turns"], table.runs td[data-col="turns"] { display: none; }
-}
 @media (min-width: 721px) and (max-width: 959px) {
   table.runs th[data-key="harness"], table.runs td[data-col="harness"],
   table.runs th[data-key="tool_calls"], table.runs td[data-col="tool_calls"] { display: none; }
@@ -617,7 +614,7 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
   table.runs td.is-num::before { content: attr(data-label); display: block; font-size: 11px; color: var(--ink-3); font-weight: 600; margin-bottom: 1px; }
   table.runs td[data-col="started_at"] { grid-column: 1 / -1; order: 3; }
   table.runs td[data-col="cost_usd"] { order: 1; }
-  table.runs td[data-col="tokens_total"], table.runs td[data-col="tool_calls"], table.runs td[data-col="turns"] { order: 2; }
+  table.runs td[data-col="tokens_total"], table.runs td[data-col="tool_calls"] { order: 2; }
   .bar-cell { display: flex; align-items: stretch; min-width: 0; }
   table.runs tr.run-detail { display: block; margin-bottom: 10px; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 var(--r) var(--r); overflow: hidden; }
   table.runs tr.run-detail td { display: block; padding: 12px; }
