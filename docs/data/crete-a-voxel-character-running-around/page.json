@@ -5,5 +5,649 @@
   "prompt": "Crete a voxel character running around in a small sandbox environment",
   "final_prompt": "Crete a voxel character running around in a small sandbox environment\n\nBuild this as a complete, playable Godot 4.7.2 project in the current directory.\n- Use the gl_compatibility renderer, and don't enable thread support (it must run as a web export).\n- Set a main scene in project.godot. Add a short README.md with run instructions.\n- Keep it self-contained: no downloads, external assets or plugins.\n- Only create or edit files inside the current directory. Don't export the project; that happens afterwards.\n- Check it loads: run `godot --headless --path . --editor --quit` and fix any errors.\n- Finish with a short summary of what you built.\n",
   "created": "2026-09-28T04:49:08Z",
-  "updated": "2026-09-28T05:13:37Z"
+  "updated": "2026-09-28T05:13:37Z",
+  "runs": [
+    {
+      "id": "muse-spark-1.3-contributor-minimal-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "minimal",
+      "started_at": "2026-09-28T04:47:51Z",
+      "source_dir": "2026-09-27-214751-musespark13contributor-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 64723,
+        "cost_usd": 0.003749604,
+        "tool_calls": 13,
+        "turns": 11,
+        "tokens_total": 29343,
+        "tokens_input": 22209,
+        "tokens_output": 7134,
+        "tokens_reasoning": 457,
+        "tokens_cache_read": 50952
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "main.gd",
+          "main.gd.uid",
+          "main.tscn",
+          "player.gd",
+          "player.gd.uid",
+          "player.tscn",
+          "project.godot"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-low-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "low",
+      "started_at": "2026-09-28T04:47:51Z",
+      "source_dir": "2026-09-27-214751-musespark13contributor-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 114175,
+        "cost_usd": 0.005022428000000001,
+        "tool_calls": 13,
+        "turns": 10,
+        "tokens_total": 34260,
+        "tokens_input": 19965,
+        "tokens_output": 14295,
+        "tokens_reasoning": 3007,
+        "tokens_cache_read": 83464
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "icon.svg",
+          "icon.svg.import",
+          "main.tscn",
+          "project.godot",
+          "scripts/follow_camera.gd",
+          "scripts/follow_camera.gd.uid",
+          "scripts/hud.gd",
+          "scripts/hud.gd.uid",
+          "scripts/main.gd",
+          "scripts/main.gd.uid",
+          "scripts/player.gd",
+          "scripts/player.gd.uid"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "qwen3.8-27b-low-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "openrouter/qwen/qwen3.8-27b",
+      "effort": "low",
+      "started_at": "2026-09-28T04:47:51Z",
+      "source_dir": "2026-09-27-214751-qwen3827b-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 762141,
+        "cost_usd": 0.19218497999999998,
+        "tool_calls": 27,
+        "turns": 22,
+        "tokens_total": 74330,
+        "tokens_input": 21947,
+        "tokens_output": 52383,
+        "tokens_reasoning": 37357,
+        "tokens_cache_read": 303744
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "character.tscn",
+          "export_presets.cfg",
+          "main.tscn",
+          "project.godot",
+          "resources/environment.tres",
+          "scripts/camera_rig.gd",
+          "scripts/camera_rig.gd.uid",
+          "scripts/player.gd",
+          "scripts/player.gd.uid",
+          "scripts/world.gd",
+          "scripts/world.gd.uid"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-medium-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "medium",
+      "started_at": "2026-09-28T04:47:51Z",
+      "source_dir": "2026-09-27-214751-musespark13contributor-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 170593,
+        "cost_usd": 0.0068034939999999985,
+        "tool_calls": 19,
+        "turns": 14,
+        "tokens_total": 43969,
+        "tokens_input": 24287,
+        "tokens_output": 19682,
+        "tokens_reasoning": 6263,
+        "tokens_cache_read": 219197
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "icon.svg",
+          "icon.svg.import",
+          "project.godot",
+          "scenes/main.tscn",
+          "scripts/bounce_pad.gd",
+          "scripts/bounce_pad.gd.uid",
+          "scripts/coin.gd",
+          "scripts/coin.gd.uid",
+          "scripts/hud.gd",
+          "scripts/hud.gd.uid",
+          "scripts/main.gd",
+          "scripts/main.gd.uid",
+          "scripts/player.gd",
+          "scripts/player.gd.uid",
+          "scripts/sandbox.gd",
+          "scripts/sandbox.gd.uid"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "qwen3.8-27b-medium-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "openrouter/qwen/qwen3.8-27b",
+      "effort": "medium",
+      "started_at": "2026-09-28T04:47:51Z",
+      "source_dir": "2026-09-27-214751-qwen3827b-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 251163,
+        "cost_usd": 0.08306813999999998,
+        "tool_calls": 21,
+        "turns": 20,
+        "tokens_total": 36531,
+        "tokens_input": 16227,
+        "tokens_output": 20304,
+        "tokens_reasoning": 12247,
+        "tokens_cache_read": 180480
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "project.godot",
+          "scenes/main.tscn",
+          "scripts/main.gd",
+          "scripts/main.gd.uid"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-high-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "high",
+      "started_at": "2026-09-28T04:47:51Z",
+      "source_dir": "2026-09-27-214751-musespark13contributor-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 373330,
+        "cost_usd": 0.01336635,
+        "tool_calls": 16,
+        "turns": 8,
+        "tokens_total": 87376,
+        "tokens_input": 45464,
+        "tokens_output": 41912,
+        "tokens_reasoning": 28845,
+        "tokens_cache_read": 218775
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "icon.svg",
+          "icon.svg.import",
+          "main.tscn",
+          "project.godot",
+          "scripts/camera_rig.gd",
+          "scripts/camera_rig.gd.uid",
+          "scripts/coin.gd",
+          "scripts/coin.gd.uid",
+          "scripts/hud.gd",
+          "scripts/hud.gd.uid",
+          "scripts/main.gd",
+          "scripts/main.gd.uid",
+          "scripts/player.gd",
+          "scripts/player.gd.uid",
+          "scripts/voxel_character.gd",
+          "scripts/voxel_character.gd.uid",
+          "scripts/world_builder.gd",
+          "scripts/world_builder.gd.uid"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-xhigh-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "xhigh",
+      "started_at": "2026-09-28T04:47:51Z",
+      "source_dir": "2026-09-27-214751-musespark13contributor-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 494060,
+        "cost_usd": 0.023493588,
+        "tool_calls": 20,
+        "turns": 16,
+        "tokens_total": 167970,
+        "tokens_input": 113398,
+        "tokens_output": 54572,
+        "tokens_reasoning": 37140,
+        "tokens_cache_read": 619694
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "icon.svg",
+          "icon.svg.import",
+          "project.godot",
+          "scenes/main.tscn",
+          "scripts/hud.gd",
+          "scripts/hud.gd.uid",
+          "scripts/main.gd",
+          "scripts/main.gd.uid",
+          "scripts/pickup.gd",
+          "scripts/pickup.gd.uid",
+          "scripts/player.gd",
+          "scripts/player.gd.uid",
+          "scripts/sfx.gd",
+          "scripts/sfx.gd.uid"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "qwen3.8-27b-xhigh-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "openrouter/qwen/qwen3.8-27b",
+      "effort": "xhigh",
+      "started_at": "2026-09-28T04:47:51Z",
+      "source_dir": "2026-09-27-214751-qwen3827b-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 1546500,
+        "cost_usd": 0.4909055800000001,
+        "tool_calls": 46,
+        "turns": 41,
+        "tokens_total": 172223,
+        "tokens_input": 43387,
+        "tokens_output": 128836,
+        "tokens_reasoning": 99806,
+        "tokens_cache_read": 1013824
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "icon.svg",
+          "icon.svg.import",
+          "project.godot",
+          "scenes/main.tscn",
+          "scripts/character.gd",
+          "scripts/character.gd.uid",
+          "scripts/main.gd",
+          "scripts/main.gd.uid"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "deepseek-v4.1-flash-low-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "openrouter/deepseek/deepseek-v4.1-flash",
+      "effort": "low",
+      "started_at": "2026-09-28T04:49:08Z",
+      "source_dir": "2026-09-27-214751-deepseekv41flash-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 118372,
+        "cost_usd": 0.013706717999999998,
+        "tool_calls": 15,
+        "turns": 16,
+        "tokens_total": 24871,
+        "tokens_input": 4453,
+        "tokens_output": 20418,
+        "tokens_reasoning": 11191,
+        "tokens_cache_read": 262656
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "main.tscn",
+          "project.godot",
+          "scripts/main.gd",
+          "scripts/main.gd.uid",
+          "scripts/voxel_character.gd",
+          "scripts/voxel_character.gd.uid"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "deepseek-v4.1-flash-high-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "openrouter/deepseek/deepseek-v4.1-flash",
+      "effort": "high",
+      "started_at": "2026-09-28T04:49:57Z",
+      "source_dir": "2026-09-27-214751-deepseekv41flash-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 68950,
+        "cost_usd": 0.008851524000000001,
+        "tool_calls": 15,
+        "turns": 15,
+        "tokens_total": 17542,
+        "tokens_input": 4774,
+        "tokens_output": 12768,
+        "tokens_reasoning": 5150,
+        "tokens_cache_read": 158208
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "README.md",
+          "export_presets.cfg",
+          "icon.svg",
+          "icon.svg.import",
+          "main.gd",
+          "main.gd.uid",
+          "main.tscn",
+          "player.gd",
+          "player.gd.uid",
+          "project.godot"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "deepseek-v4.1-flash-max-20260927-214751",
+      "page": "crete-a-voxel-character-running-around",
+      "model": "openrouter/deepseek/deepseek-v4.1-flash",
+      "effort": "max",
+      "started_at": "2026-09-28T04:50:55Z",
+      "source_dir": "2026-09-27-214751-deepseekv41flash-crete-a-voxel-character-running-around",
+      "verified": true,
+      "harness": {
+        "name": "pi",
+        "version": "0.87.1"
+      },
+      "state": "complete",
+      "error": null,
+      "metrics": {
+        "duration_ms": 457671,
+        "cost_usd": 0.06191800799999998,
+        "tool_calls": 55,
+        "turns": 39,
+        "tokens_total": 103413,
+        "tokens_input": 18752,
+        "tokens_output": 84661,
+        "tokens_reasoning": 59622,
+        "tokens_cache_read": 2769536
+      },
+      "thumb": "thumb.png",
+      "game": {
+        "kind": "godot",
+        "entry": "game/index.html",
+        "engine": "dd54ab29f8a9",
+        "godot": "4.7.2.stable.official.ed1daf0bf",
+        "threads": false
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "events": "session/events.jsonl",
+        "status": "session/status.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          ".gitignore",
+          "README.md",
+          "export_presets.cfg",
+          "icon.svg",
+          "icon.svg.import",
+          "main.tscn",
+          "project.godot",
+          "scripts/coin.gd",
+          "scripts/coin.gd.uid",
+          "scripts/game.gd",
+          "scripts/game.gd.uid",
+          "scripts/player.gd",
+          "scripts/player.gd.uid"
+        ]
+      },
+      "rank": null
+    }
+  ]
 }

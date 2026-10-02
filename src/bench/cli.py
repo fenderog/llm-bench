@@ -34,7 +34,7 @@ def build_parser():
     rm.add_argument("slug")
     rm.add_argument("run_id", nargs="?")
 
-    sub.add_parser("rebuild", parents=[common], help="regenerate results.json + pages.json")
+    sub.add_parser("rebuild", parents=[common], help="regenerate page.json + pages.json")
 
     srv = sub.add_parser("serve", parents=[common], help="serve docs/ like GitHub Pages")
     srv.add_argument("-p", "--port", type=int, default=8000)

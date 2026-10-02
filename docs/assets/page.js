@@ -1,5 +1,5 @@
 import {
-  qs, el, getJSON, fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
+  qs, el, loadPage, fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
   mediaGallery, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
   rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorOptions, KIND_LABEL, playUrl,
 } from "./common.js";
@@ -32,19 +32,8 @@ const COLUMNS = [
     help: "Number of tools the agent invoked (bash, read, write, edit, ls, …)." },
 ];
 
-if (!slug) {
-  showMessage(main, "Missing ?p=<slug> – pick a page from the home page.", "error");
-} else {
-  try {
-    const [page, runs] = await Promise.all([
-      getJSON(`data/${slug}/page.json`),
-      getJSON(`data/${slug}/results.json`),
-    ]);
-    render(page, runs, await canEditRanks());
-  } catch (err) {
-    showMessage(main, `Could not load page "${slug}": ${err.message}`, "error");
-  }
-}
+const page = await loadPage(slug);
+if (page) render(page, page.runs, await canEditRanks());
 
 function render(page, runs, editable) {
   document.title = `${page.title} – llm-bench`;
@@ -187,7 +176,7 @@ function render(page, runs, editable) {
   }
 
   // Local ranking: one select per run (– or 1…N, ties allowed). Every change saves the whole page's
-  // ranking through `bench serve`, which rewrites ranking.json and results.json.
+  // ranking through `bench serve`, which rewrites ranking.json and page.json.
   function rankPicker(r) {
     const select = el("select", { class: "rank-select", attrs: { "aria-label": `Rank for ${r.model} ${r.effort}` } }, [
       el("option", { text: "–", attrs: { value: "" } }),

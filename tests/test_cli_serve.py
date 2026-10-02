@@ -89,7 +89,7 @@ def test_saving_a_ranking_writes_it_and_rebuilds(served):
     assert (status, body) == (200, {"ok": True})
     ranking = json.loads((docs / "data/demo/ranking.json").read_text())
     assert ranking["ranks"] == {HIGH: 1, LOW: 2}
-    ranks = {r["id"]: r["rank"] for r in json.loads((docs / "data/demo/results.json").read_text())}
+    ranks = {r["id"]: r["rank"] for r in json.loads((docs / "data/demo/page.json").read_text())["runs"]}
     assert ranks == {HIGH: 1, LOW: 2, "model-x-medium-20260101-000500": None}
 
     _put(base + "api/rank?p=demo", {"ranks": {HIGH: 1, LOW: None}})  # null = unranked

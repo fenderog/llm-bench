@@ -1,4 +1,4 @@
-"""Regenerate results.json / page.json / pages.json from runs/*/run.json, and GC unreferenced
+"""Regenerate page.json / pages.json from runs/*/run.json, and GC unreferenced
 engines. Also `rm` and `list`, which both end by calling rebuild()."""
 
 import json
@@ -56,7 +56,7 @@ def rebuild(root):
 
         runs.sort(key=effort_sort_key)
         apply_ranking(page_dir, runs)
-        (page_dir / "results.json").write_text(json.dumps(runs, indent=2) + "\n")
+        (page_dir / "results.json").unlink(missing_ok=True)
         for run in runs:
             game = run.get("game")
             if game and game.get("engine"):
@@ -73,6 +73,7 @@ def rebuild(root):
             "final_prompt": existing.get("final_prompt"),
             "created": existing.get("created") or min(r["started_at"] for r in runs),
             "updated": max(_ended_at(r) for r in runs),
+            "runs": runs,
         }
         page_json_path.write_text(json.dumps(page, indent=2) + "\n")
 
@@ -123,7 +124,7 @@ def cmd_list(root):
         return 0
     for p in json.loads(pages_json.read_text()):
         print(f"{p['slug']}\t{p['n_runs']} runs\tupdated {p['updated']}\t{', '.join(p['models'])}")
-        results = json.loads((root / "docs" / "data" / p["slug"] / "results.json").read_text())
+        results = json.loads((root / "docs" / "data" / p["slug"] / "page.json").read_text())["runs"]
         for r in results:
             verified = {True: "yes", False: "no", None: "?"}[r["verified"]]
             print(f"  {r['id']}\t{r['effort']}\t{r['model']}\tverified={verified}")

@@ -23,7 +23,7 @@ tomllib, http.server, subprocess). The site is vanilla JS ES modules, with one p
 docs/
   .nojekyll
   index.html                      # home: list of pages            (reads data/pages.json)
-  page.html?p=<slug>              # one page: runs table + gallery (reads data/<slug>/results.json)
+  page.html?p=<slug>              # one page: runs table + gallery (reads data/<slug>/page.json)
   run.html?p=<slug>&r=<run_id>    # one run: tabs Game | Transcript | Source | Metrics
   compare.html?p=<slug>[&r=<id>,<id>]   # side by side: all runs of the page, or just the listed ones
   play.html?p=<slug>&r=<run_id>   # one run's output alone, full window (the compare cards' pop-out target)
@@ -35,7 +35,6 @@ docs/
   data/
     pages.json                    # [PageSummary]
     <slug>/page.json              # Page
-    <slug>/results.json           # [Run], every run.json of the page concatenated, sorted by started_at then effort order, plus each run's `rank`
     <slug>/ranking.json           # optional: {"ranks": {"<run id>": 1, ...}, "updated": "<iso>"}, the owner's ranking (see Ranking)
     <slug>/runs/<run_id>/
       run.json                    # Run
@@ -65,10 +64,11 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 { "slug": "voxel-horse", "title": "Voxel horse", "kind": "godot",
   "prompt": "<contents of prompt.md, the originating prompt; refreshed on every import>",
   "final_prompt": "<the full brief each run received: first user message of the cleaned session, ./<level>/ -> ./<effort>/; null if none>",
-  "created": "2026-09-26T07:12:42Z", "updated": "2026-09-26T07:15:57Z" }
+  "created": "2026-09-26T07:12:42Z", "updated": "2026-09-26T07:15:57Z",
+  "runs": ["<Run with rank; see below>"] }
 ```
 
-### Run (`run.json`, and each element of `results.json`)
+### Run (`run.json`, and each element of `page.json.runs`)
 ```json
 {
   "id": "gpt-6-sol-high-20260926-001158",
@@ -97,7 +97,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 }
 ```
 - `game`, `media`, `session`, `source`, and `thumb` can each be `null` when the input doesn't have them.
-- `rank` exists only in `results.json` (never in `run.json`): the run's rank from `ranking.json`, or `null`.
+- `rank` exists only in `page.json.runs` (never in `run.json`): the run's rank from `ranking.json`, or `null`.
 - `kind` = the model dir's `data.json` → `kind`, default `godot` (runs imported before kinds existed have no
   `kind`; the viewer treats that as `godot`). Importing into a page of another kind is an error.
 - `media` (kind `media`) = the items of `media/<level>/manifest.json` (see "bench run" step 6), each
@@ -196,7 +196,7 @@ Title = the slug with dashes turned into spaces and the first letter capitalized
 bench import <effort-run-dir> [-p/--page SLUG] [-t/--title TEXT] [-r/--redact] [-a/--allow-threads] [-n/--dry-run]
 bench list                      # pages and their runs
 bench rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuild
-bench rebuild                   # regenerate results.json + pages.json from runs/*/run.json; delete engines no run references
+bench rebuild                   # regenerate page.json + pages.json from runs/*/run.json; delete engines no run references
 bench serve [-p/--port 8000]    # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
                                 #   plus the local-only ranking API (see Ranking)
 bench publish [-m MSG]          # git add docs && git commit && git push
@@ -411,11 +411,16 @@ The page owner ranks runs in the browser; there is no CLI command for it. Only `
 - Cross-site writes are refused: the request must be `Content-Type: application/json` (so another site can't send it
   without a CORS preflight, which the server doesn't answer) → else 415, and an `Origin` header, when present, must
   match the `Host` → else 403.
-- `rebuild` copies each run's rank into `results.json` (`rank`, `null` when unranked) and drops `ranking.json` entries
+- `rebuild` copies each run's rank into `page.json.runs` (`rank`, `null` when unranked) and drops `ranking.json` entries
   for runs that no longer exist (e.g. after `bench rm`).
 - The viewer only asks `api/local` when served from localhost; when it answers, the page shows a rank picker per row.
 
 ## Viewer (docs/)
+
+All four page views use `loadPage(slug)` in common.js: one fetch of `page.json`, which includes
+`runs` sorted by started_at then effort order with ranks applied. `run.json` stays the rebuild source of truth;
+`bench list` reads `page.json.runs`. Rebuild removes legacy `results.json`. The loader owns missing-page
+parameters and fetch-error messages; run/play find their run by id in `page.runs`.
 
 All five viewer documents enforce a meta CSP: `default-src 'self'; script-src 'self'; style-src 'self';
 img-src 'self' data:; media-src 'self'; connect-src 'self'; frame-src 'self'; object-src 'none';
