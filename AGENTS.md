@@ -83,7 +83,7 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   point `--root` at a throwaway copy of the site so live data isn't touched. (ADR-0009)
 - **Game iframes must never get `allow-same-origin`.** `sandboxedGame()` in `docs/assets/common.js` is the
   only place games are embedded. The compare cards' ↗ pop-out opens `play.html` (which uses it), never the raw
-  entry URL. (ADR-0004)
+  entry URL; run and expanded-table fullscreen links also go through `play.html`. (ADR-0004)
 - **Web pages are verified the way they're shown:** offline, inside the site's sandbox (`verify_build(web=True)`).
   Don't relax that to a plain page load; it's what guarantees a packaged page has no outside dependencies. (ADR-0013)
 - **Model-made SVGs are only shown with `<img>`** (`mediaElement()` in common.js), which never runs their

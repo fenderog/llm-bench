@@ -1,6 +1,7 @@
 import {
   qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge,
   mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, noOutputText,
+  playUrl,
 } from "./common.js";
 import { renderTranscript } from "./transcript.js";
 
@@ -156,7 +157,7 @@ function renderGame(run, base) {
   panel.append(buildGameFrame(entryUrl, thumbUrl));
   panel.append(
     el("div", { class: "game-links" }, [
-      el("a", { text: "Open full screen ↗ (unsandboxed)", attrs: { href: entryUrl, target: "_blank", rel: "noopener noreferrer" } }),
+      el("a", { text: "Open full screen ↗", attrs: { href: playUrl(slug, run.id), target: "_blank", rel: "noopener noreferrer" } }),
     ])
   );
 }

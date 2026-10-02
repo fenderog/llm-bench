@@ -2,6 +2,7 @@ import {
   qs, el, getJSON, fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
   mediaGallery, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
   rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorAttrs, KIND_LABEL,
+  playUrl,
 } from "./common.js";
 
 const slug = qs("p");
@@ -225,7 +226,7 @@ function render(page, runs, editable) {
       body = [...errorLine, mediaGallery(r, runDir(slug, r.id)), links];
     } else if (r.game) {
       const entry = runDir(slug, r.id) + r.game.entry;
-      links.append(el("a", { text: "Open full screen ↗ (unsandboxed)", attrs: { href: entry, target: "_blank", rel: "noopener noreferrer" } }));
+      links.append(el("a", { text: "Open full screen ↗", attrs: { href: playUrl(slug, r.id), target: "_blank", rel: "noopener noreferrer" } }));
       body = [...errorLine, el("div", { class: "game-frame" }, [sandboxedGame(entry)]), links];
     } else {
       const none = isMedia ? "No output files recorded for this run." : "No playable build recorded for this run.";

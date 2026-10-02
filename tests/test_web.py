@@ -735,3 +735,21 @@ def test_model_parts_split_off_a_pinned_openrouter_upstream(site, page):
                                "short": "deepseek-v4.1-flash via deepinfra/fp8"}
     assert parts["plain"] == {"provider": "anthropic", "name": "claude-opus-5-5", "via": "", "short": "claude-opus-5-5"}
     assert parts["label"] == ["model-name:deepseek-v4.1-flash", "model-provider:openrouter/deepseek", "model-via:via deepinfra/fp8"]
+
+
+@pytest.mark.parametrize("view", ["page", "run"])
+def test_fullscreen_links_use_sandboxed_play(site, page, view):
+    page.goto(site + (f"run.html?p=demo&r={HIGH_ID}" if view == "run" else "page.html?p=demo"))
+    if view == "page":
+        page.locator("tr.run-row").filter(has=page.locator("td[data-col=effort]", has_text="high")).locator("td[data-col=effort]").click()
+    link = page.locator(".game-links a", has_text="Open full screen")
+    assert link.get_attribute("href") == f"play.html?p=demo&r={HIGH_ID}"
+    assert "unsandboxed" not in link.inner_text()
+    assert page.locator('a[href*="game/index.html"]').count() == 0
+    with page.expect_popup() as popup:
+        link.click()
+    out = popup.value
+    out.wait_for_selector("iframe")
+    assert out.locator("iframe").get_attribute("sandbox") == "allow-scripts allow-pointer-lock"
+    out.close()
+    assert_no_errors(page)
