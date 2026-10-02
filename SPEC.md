@@ -457,7 +457,7 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   Source show a count):
   - *Game*: click-to-play overlay (shows thumb). On click it inserts
     `<iframe sandbox="allow-scripts allow-pointer-lock" allow="fullscreen; autoplay; gamepad">` pointing at `game.entry`.
-    There's also an "Open full screen ↗" link (plain link to the entry; it runs unsandboxed, so label it).
+    There's also an "Open full screen ↗" link (link to `play.html`, which boots it in the sandbox).
   - *Transcript*: renders `session.conversation`. System prompt collapsed. User text. For each assistant message:
     thinking (collapsed, toggle "show thinking"), text (markdown), and toolCall blocks paired with their toolResult by
     `toolCallId`. Tool display: `bash` → command + output, `write` → path + content, `edit` → path + old/new blocks,
