@@ -200,10 +200,10 @@ def test_runs_table_never_scrolls_horizontally(site, browser, width):
 
     def long_name(route):
         body = route.fetch().json()
-        body[0]["model"] = long_model
+        body["runs"][0]["model"] = long_model
         route.fulfill(json=body)
 
-    pg.route("**/data/demo/results.json*", long_name)
+    pg.route("**/data/demo/page.json*", long_name)
     pg.goto(f"{site}page.html?p=demo")
     pg.wait_for_selector("table.runs tbody tr")
     assert pg.locator(".model-via").first.is_visible()
@@ -704,7 +704,7 @@ def test_ranking_can_be_edited_through_bench_serve(bench_served, page):
 
     ranking = json.loads((docs / "data/demo/ranking.json").read_text())["ranks"]
     assert ranking == {MEDIUM_ID: 1, HIGH_ID: 2}
-    results = {r["id"]: r["rank"] for r in json.loads((docs / "data/demo/results.json").read_text())}
+    results = {r["id"]: r["rank"] for r in json.loads((docs / "data/demo/page.json").read_text())["runs"]}
     assert results == {MEDIUM_ID: 1, HIGH_ID: 2, LOW_ID: None}
 
     page.reload()  # sorted by the saved ranking now
@@ -831,4 +831,21 @@ if a < b && c > d:
     assert md.locator("script, img").count() == 0
     assert md.locator("a[href]").count() == 2
     assert not page.evaluate("window.markdownRan === true")
+    assert_no_errors(page)
+
+
+@pytest.mark.parametrize("view,selector", [
+    ("page.html?p=demo", "tr.run-row"),
+    ("compare.html?p=demo", ".compare-col"),
+    (f"run.html?p=demo&r={HIGH_ID}", "#title .effort"),
+    (f"play.html?p=demo&r={HIGH_ID}", "iframe"),
+])
+def test_page_views_load_one_page_json(site, page, view, selector):
+    requests = []
+    page.on("request", lambda request: requests.append(request.url))
+    page.goto(site + view)
+    page.wait_for_selector(selector)
+    page.wait_for_load_state("networkidle")
+    assert sum(url.endswith("/data/demo/page.json") for url in requests) == 1
+    assert not any("results.json" in url or url.endswith("/run.json") for url in requests)
     assert_no_errors(page)

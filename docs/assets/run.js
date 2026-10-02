@@ -1,5 +1,5 @@
 import {
-  qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge,
+  qs, el, loadPage, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge,
   mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, noOutputText, playUrl,
 } from "./common.js";
 
@@ -7,24 +7,16 @@ const slug = qs("p");
 const runId = qs("r");
 const main = document.getElementById("main");
 
-if (!slug || !runId) {
-  showMessage(main, "Missing ?p=<slug>&r=<run_id> in the URL.", "error");
-} else {
-  const base = runDir(slug, runId);
-  try {
-    const [page, run, siblings] = await Promise.all([
-      getJSON(`data/${slug}/page.json`).catch(() => null),
-      getJSON(`${base}run.json`),
-      getJSON(`data/${slug}/results.json`).catch(() => []),
-    ]);
-    if (page) {
-      const link = document.getElementById("page-link");
-      link.textContent = page.title;
-      link.href = `page.html?p=${encodeURIComponent(slug)}`;
-    }
-    render(run, base, Array.isArray(siblings) ? siblings : []);
-  } catch (err) {
-    showMessage(main, `Could not load run "${runId}" for page "${slug}": ${err.message}`, "error");
+const page = await loadPage(slug);
+if (page) {
+  const run = page.runs.find((r) => r.id === runId);
+  if (!runId) showMessage(main, "Missing ?r=<run_id> in the URL.", "error");
+  else if (!run) showMessage(main, `No run "${runId}" on page "${slug}".`, "error");
+  else {
+    const link = document.getElementById("page-link");
+    link.textContent = page.title;
+    link.href = `page.html?p=${encodeURIComponent(slug)}`;
+    render(run, runDir(slug, runId), page.runs);
   }
 }
 
@@ -32,7 +24,7 @@ function render(run, base, siblings) {
   document.title = `${run.model} · ${run.effort} – llm-bench`;
   const { provider, name, via } = modelParts(run.model);
   document.getElementById("run-provider").textContent = via ? `${provider} · via ${via}` : provider;
-  const myRank = siblings.find((r) => r.id === run.id)?.rank; // run.json has no rank; results.json does
+  const myRank = run.rank;
   // (replaceChildren would print a null/undefined chip as text, so only real nodes go in)
   document.getElementById("title").replaceChildren(...[el("span", { text: name, attrs: { title: run.model } }), effortPill(run.effort), rankChip(myRank)].filter(Boolean));
 

@@ -45,7 +45,7 @@ def title_from_slug(slug):
 
 
 def effort_sort_key(run):
-    """Sort key for results.json: started_at, then effort order (LEVEL_ORDER, then alpha)."""
+    """Sort key for page.json: started_at, then effort order (LEVEL_ORDER, then alpha)."""
     return (run["started_at"], LEVEL_INDEX.get(run["effort"], 99), run["effort"])
 
 

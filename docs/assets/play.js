@@ -1,4 +1,4 @@
-import { qs, el, getJSON, showMessage, runDir, runUrl, sandboxedGame, mediaGallery, modelLabel, effortPill, stateBadge, noOutputText } from "./common.js";
+import { qs, el, loadPage, showMessage, runDir, runUrl, sandboxedGame, mediaGallery, modelLabel, effortPill, stateBadge, noOutputText } from "./common.js";
 
 // play.html?p=<slug>&r=<run id>: one run's output alone in a window. Games and web pages go through
 // sandboxedGame() and media through mediaGallery(), exactly as elsewhere (ADR-0004), never the raw entry URL.
@@ -6,17 +6,12 @@ const slug = qs("p");
 const id = qs("r");
 const main = document.getElementById("play");
 
-if (!slug || !id) {
-  showMessage(main, "Missing ?p=<slug>&r=<run id>.", "error");
-} else {
-  try {
-    const runs = await getJSON(`data/${slug}/results.json`);
-    const r = runs.find((x) => x.id === id);
-    if (!r) showMessage(main, `No run "${id}" on page "${slug}".`, "error");
-    else render(r);
-  } catch (err) {
-    showMessage(main, `Could not load run "${id}" for page "${slug}": ${err.message}`, "error");
-  }
+const page = await loadPage(slug, main);
+if (page) {
+  const r = page.runs.find((x) => x.id === id);
+  if (!id) showMessage(main, "Missing ?r=<run id>.", "error");
+  else if (!r) showMessage(main, `No run "${id}" on page "${slug}".`, "error");
+  else render(r);
 }
 
 function render(r) {

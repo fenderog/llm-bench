@@ -1,6 +1,7 @@
 # 0003. The repo is the database; `docs/data` is generated
 
 - Status: Accepted
+- Amendment: results.json aggregation superseded by [0016](0016-page-json-includes-runs.md).
 - Recorded: 2026-09-28 (written after the fact from SPEC.md, DESIGN.md and AGENTS.md)
 
 ## Context

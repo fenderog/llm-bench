@@ -1,5 +1,5 @@
 import {
-  qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
+  qsList, qs, el, loadPage, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
   effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorOptions, groupByVendor,
   playUrl,
 } from "./common.js";
@@ -10,50 +10,40 @@ const ids = qsList("r");
 const main = document.getElementById("main");
 const columnsEl = document.getElementById("columns");
 
-if (!slug) {
-  showMessage(main, "Missing ?p=<slug> in the URL.", "error");
-} else {
-  try {
-    const [page, runs] = await Promise.all([
-      getJSON(`data/${slug}/page.json`).catch(() => null),
-      getJSON(`data/${slug}/results.json`),
-    ]);
-    if (page) {
-      const link = document.getElementById("page-link");
-      link.textContent = page.title;
-      link.href = `page.html?p=${encodeURIComponent(slug)}`;
-      document.title = `Compare – ${page.title} – llm-bench`;
-      document.getElementById("title").textContent = page.title;
-      if (page.prompt) {
-        const p = document.getElementById("compare-prompt");
-        p.textContent = page.prompt;
-        p.hidden = false;
-      }
-    }
-    const shown = (ids.length ? runs.filter((r) => ids.includes(r.id)) : runs).sort(byRankThenModel); // your ranking first, when there is one
-    document.getElementById("compare-count").textContent = `${shown.length} run${shown.length === 1 ? "" : "s"} side by side · ★ best among them`;
-    if (!shown.length) showMessage(columnsEl, "No matching runs to compare.", "error");
-    const best = {};
-    for (const key of Object.keys(LOWER_IS_BETTER)) {
-      const ranks = rankBy(shown, key);
-      best[key] = new Set([...ranks].filter(([, rank]) => rank === 1).map(([id]) => id));
-    }
-    for (const g of groupByVendor(shown)) { // one labelled grid per vendor; the stars above still compare all shown runs
-      const grid = el("div", { class: "compare-columns" }, g.runs.map((r) => column(r, best)));
-      columnsEl.append(
-        el("section", { class: "vendor-group", ...vendorOptions(g.runs[0].model), attrs: { ...vendorOptions(g.runs[0].model).attrs, "aria-label": g.name } }, [
-          el("h2", { class: "vendor-head" }, [
-            el("span", { class: "vendor-name", text: g.name }),
-            el("span", { class: "vendor-count", text: `${g.runs.length} run${g.runs.length === 1 ? "" : "s"}` }),
-          ]),
-          grid,
-        ])
-      );
-    }
-    setupPlayAll();
-  } catch (err) {
-    showMessage(main, `Could not load comparison: ${err.message}`, "error");
+const page = await loadPage(slug);
+if (page) {
+  const runs = page.runs;
+  const link = document.getElementById("page-link");
+  link.textContent = page.title;
+  link.href = `page.html?p=${encodeURIComponent(slug)}`;
+  document.title = `Compare – ${page.title} – llm-bench`;
+  document.getElementById("title").textContent = page.title;
+  if (page.prompt) {
+    const p = document.getElementById("compare-prompt");
+    p.textContent = page.prompt;
+    p.hidden = false;
   }
+  const shown = (ids.length ? runs.filter((r) => ids.includes(r.id)) : runs).sort(byRankThenModel); // your ranking first, when there is one
+  document.getElementById("compare-count").textContent = `${shown.length} run${shown.length === 1 ? "" : "s"} side by side · ★ best among them`;
+  if (!shown.length) showMessage(columnsEl, "No matching runs to compare.", "error");
+  const best = {};
+  for (const key of Object.keys(LOWER_IS_BETTER)) {
+    const ranks = rankBy(shown, key);
+    best[key] = new Set([...ranks].filter(([, rank]) => rank === 1).map(([id]) => id));
+  }
+  for (const g of groupByVendor(shown)) { // one labelled grid per vendor; the stars above still compare all shown runs
+    const grid = el("div", { class: "compare-columns" }, g.runs.map((r) => column(r, best)));
+    columnsEl.append(
+      el("section", { class: "vendor-group", ...vendorOptions(g.runs[0].model), attrs: { ...vendorOptions(g.runs[0].model).attrs, "aria-label": g.name } }, [
+        el("h2", { class: "vendor-head" }, [
+          el("span", { class: "vendor-name", text: g.name }),
+          el("span", { class: "vendor-count", text: `${g.runs.length} run${g.runs.length === 1 ? "" : "s"}` }),
+        ]),
+        grid,
+      ])
+    );
+  }
+  setupPlayAll();
 }
 
 // Starts every game at once by pressing each column's play overlay. Each sandboxed game

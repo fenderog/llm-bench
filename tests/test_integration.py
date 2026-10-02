@@ -53,7 +53,7 @@ def site(tmp_path_factory):
 def test_import_output(site):
     root, _ = site
     docs = root / "docs"
-    runs = json.loads((docs / "data/voxel-horse/results.json").read_text())
+    runs = json.loads((docs / "data/voxel-horse/page.json").read_text())["runs"]
     assert sorted(r["effort"] for r in runs) == ["high", "low", "medium"]
     assert len(list((docs / "engines").iterdir())) == 1, "engine should be stored once"
     for r in runs:
@@ -69,7 +69,7 @@ def test_all_games_boot_sandboxed_in_compare(site):
     from playwright.sync_api import sync_playwright
 
     root, base = site
-    runs = json.loads((root / "docs/data/voxel-horse/results.json").read_text())
+    runs = json.loads((root / "docs/data/voxel-horse/page.json").read_text())["runs"]
     ids = ",".join(r["id"] for r in runs)
     with sync_playwright() as p:
         browser = p.chromium.launch(channel="chrome", args=["--enable-unsafe-swiftshader", "--use-angle=swiftshader"])

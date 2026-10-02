@@ -34,7 +34,7 @@ src/bench/          CLI, standard library only (argparse, json, subprocess, toml
   importer.py       effort-run folder -> docs/data/<page>/runs/<id>/ (clean, secret scan, then move)
   godot.py          engine dedupe + index.html rewrite for Godot web exports
   clean.py          session cleaning, path rewrites, secret scan/redact
-  site.py           rebuild results.json / pages.json (+ each run's rank from ranking.json), rm, list, engine GC
+  site.py           rebuild page.json (with runs) / pages.json (+ each run's rank from ranking.json), rm, list, engine GC
   serve.py          `bench serve` (GitHub-Pages-like) + the local-only ranking API (PUT api/rank)
   harness.py        Harness interface + Pi and ClaudeCode (stream-json -> pi-format session) + metrics parsers
   runner.py         `bench run`: plan -> run agents in parallel -> collect -> export -> verify -> import
@@ -95,6 +95,8 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
 - **Viewer dependencies:** third-party JS is vendored and pinned under `docs/assets/vendor/`, never loaded from a CDN.
   Markdown uses `markdown.js` (loaded through the transcript), never `innerHTML`; dynamic styles use CSSOM properties
   because all five viewer documents enforce a same-origin CSP. (ADR-0015)
+- **Viewer data:** `page.json.runs` includes ranks; per-run `run.json` remains the source of truth. `rebuild` removes
+  legacy `results.json`. All four page views use `loadPage()` for a single page-data request. (ADR-0016)
 - **Keep it lean.** Stdlib-only CLI, no JS frameworks or bundler for the site (esbuild only packages model-made
   web pages, ADR-0013); the user checks for this. Prefer small
   functions and small diffs, and don't add dependencies without asking. (ADR-0002)

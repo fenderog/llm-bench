@@ -82,6 +82,20 @@ export async function getJSON(url) {
   return res.json();
 }
 
+// All page views share one request and the same URL/error handling.
+export async function loadPage(slug, container = document.getElementById("main")) {
+  if (!slug) {
+    showMessage(container, "Missing ?p=<slug> in the URL.", "error");
+    return null;
+  }
+  try {
+    return await getJSON(`data/${encodeURIComponent(slug)}/page.json`);
+  } catch (err) {
+    showMessage(container, `Could not load page "${slug}": ${err.message}`, "error");
+    return null;
+  }
+}
+
 export async function getText(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`${url} → HTTP ${res.status}`);

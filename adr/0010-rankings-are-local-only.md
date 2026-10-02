@@ -1,6 +1,7 @@
 # 0010. Rankings are written only locally; the site is read-only
 
 - Status: Accepted
+- Amendment: results.json aggregation superseded by [0016](0016-page-json-includes-runs.md).
 - Recorded: 2026-09-28 (written after the fact from SPEC.md, DESIGN.md and AGENTS.md)
 
 ## Context

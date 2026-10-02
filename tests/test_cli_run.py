@@ -160,7 +160,7 @@ def test_missing_confirmation_on_nontty_is_an_error(run_root, monkeypatch):
 def test_yes_skips_confirmation_and_runs(run_root):
     rc = main(["run", "--yes", "a spinning cube", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    results = json.loads((run_root / "docs/data/a-spinning-cube/results.json").read_text())
+    results = json.loads((run_root / "docs/data/a-spinning-cube/page.json").read_text())["runs"]
     assert len(results) == 1
     assert results[0]["effort"] == "low"
     assert results[0]["state"] == "complete"
@@ -178,7 +178,7 @@ def test_failed_run_is_still_imported(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_PI_EXIT_CODE", "1")
     rc = main(["run", "--yes", "broken run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    results = json.loads((run_root / "docs/data/broken-run/results.json").read_text())
+    results = json.loads((run_root / "docs/data/broken-run/page.json").read_text())["runs"]
     assert results[0]["state"] == "failed"
     assert results[0]["error"]
 
@@ -187,7 +187,7 @@ def test_error_stop_produces_failed_state(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_PI_ERROR_STOP", "1")
     rc = main(["run", "--yes", "error stop run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    results = json.loads((run_root / "docs/data/error-stop-run/results.json").read_text())
+    results = json.loads((run_root / "docs/data/error-stop-run/page.json").read_text())["runs"]
     assert results[0]["state"] == "failed"
     assert "fake induced error" in results[0]["error"]
 
@@ -196,7 +196,7 @@ def test_timeout_kills_hung_agent(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_PI_HANG", "1")
     rc = main(["run", "--yes", "--timeout", "1s", "hung run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    results = json.loads((run_root / "docs/data/hung-run/results.json").read_text())
+    results = json.loads((run_root / "docs/data/hung-run/page.json").read_text())["runs"]
     assert results[0]["state"] == "timeout"
 
 
@@ -215,7 +215,7 @@ def test_status_json_records_the_real_exit_code(run_root, monkeypatch, tmp_path)
 def test_brief_is_not_written_into_the_agents_working_dir(run_root):
     rc = main(["run", "--yes", "brief location run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    results = json.loads((run_root / "docs/data/brief-location-run/results.json").read_text())
+    results = json.loads((run_root / "docs/data/brief-location-run/page.json").read_text())["runs"]
     files = results[0]["source"]["files"]
     assert "brief.md" not in files
 
@@ -223,7 +223,7 @@ def test_brief_is_not_written_into_the_agents_working_dir(run_root):
 def test_published_events_drop_streaming_snapshots(run_root):
     rc = main(["run", "--yes", "events run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    run_id = json.loads((run_root / "docs/data/events-run/results.json").read_text())[0]["id"]
+    run_id = json.loads((run_root / "docs/data/events-run/page.json").read_text())["runs"][0]["id"]
     events = (run_root / f"docs/data/events-run/runs/{run_id}/session/events.jsonl").read_text().splitlines()
     types = [json.loads(line)["type"] for line in events]
     assert "message_start" in types and "message_update" not in types
@@ -236,7 +236,7 @@ def test_export_failure_keeps_state_complete_and_only_sets_error(run_root, monke
     monkeypatch.setattr("bench.runner.build.export_project", failing_export)
     rc = main(["run", "--yes", "export fails run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    results = json.loads((run_root / "docs/data/export-fails-run/results.json").read_text())
+    results = json.loads((run_root / "docs/data/export-fails-run/page.json").read_text())["runs"]
     assert results[0]["state"] == "complete"
     assert "boom" in results[0]["error"]
     assert results[0]["game"] is None
@@ -253,7 +253,7 @@ def test_multiple_models_and_levels_all_run(run_root):
         "--root", str(run_root),
     ])
     assert rc == 0
-    results = json.loads((run_root / "docs/data/many-runs/results.json").read_text())
+    results = json.loads((run_root / "docs/data/many-runs/page.json").read_text())["runs"]
     assert len(results) == 3
     assert {r["effort"] for r in results} == {"low", "medium", "high"}
     assert {r["model"] for r in results} == {"openai-codex/gpt-6-sol", "openai-codex/gpt-6-luna"}
@@ -322,7 +322,7 @@ def test_resume_does_not_rerun_finished_agents(run_root, monkeypatch, tmp_path):
     medium_entry = json.loads((model_dir / "medium" / "data.json").read_text())
     assert medium_entry["state"] == "complete"
 
-    results = json.loads((run_root / "docs/data/resume-me/results.json").read_text())
+    results = json.loads((run_root / "docs/data/resume-me/page.json").read_text())["runs"]
     assert sorted(r["effort"] for r in results) == ["low", "medium"]
 
 
@@ -415,7 +415,7 @@ def test_web_run_publishes_one_packaged_page(run_root):
     rc = main(["run", "--yes", "--kind", "web", "a spinning horse", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
     assert json.loads((run_root / "docs/data/a-spinning-horse/page.json").read_text())["kind"] == "web"
-    [run] = json.loads((run_root / "docs/data/a-spinning-horse/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/a-spinning-horse/page.json").read_text())["runs"]
     assert run["kind"] == "web" and run["state"] == "complete" and run["error"] is None
     assert run["game"]["kind"] == "web" and run["game"]["entry"] == "game/index.html" and run["game"]["esbuild"]
     run_dir = run_root / "docs/data/a-spinning-horse/runs" / run["id"]
@@ -432,7 +432,7 @@ def test_web_run_that_fails_to_package_keeps_state_and_sets_error(run_root, monk
     monkeypatch.setenv("FAKE_PI_BAD_WEB", "1")
     rc = main(["run", "--yes", "--kind", "web", "broken page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    [run] = json.loads((run_root / "docs/data/broken-page/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/broken-page/page.json").read_text())["runs"]
     assert run["state"] == "complete" and run["game"] is None
     assert run["error"].startswith("packaging failed: esbuild:") and "missing.js" in run["error"]
     assert "main.js" in run["source"]["files"]  # the source is still published
@@ -458,7 +458,7 @@ def test_media_run_publishes_output_files(run_root):
     page = json.loads((run_root / "docs/data/a-red-circle/page.json").read_text())
     assert page["kind"] == "media"
     assert "./output/" in page["final_prompt"] and "Tools available on this machine: " in page["final_prompt"]
-    [run] = json.loads((run_root / "docs/data/a-red-circle/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/a-red-circle/page.json").read_text())["runs"]
     assert run["kind"] == "media" and run["game"] is None
     assert run["verified"] is True and run["error"] is None
     by_path = {m["path"]: m for m in run["media"]}
@@ -482,7 +482,7 @@ def test_media_run_with_bad_output_keeps_state_and_sets_error(run_root, monkeypa
     monkeypatch.setenv("FAKE_PI_BAD_OUTPUT", "1")
     rc = main(["run", "--yes", "--kind", "media", "bad media", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    [run] = json.loads((run_root / "docs/data/bad-media/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/bad-media/page.json").read_text())["runs"]
     assert run["state"] == "complete" and run["verified"] is False
     assert "notes.txt: unsupported file type" in run["error"]
     assert len(run["media"]) == 3  # the good files are still published
@@ -550,7 +550,7 @@ def test_page_alone_reuses_the_pages_prompt_and_kind(run_root):
     assert main(["run", "--yes", "--kind", "media", "a red circle", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
     rc = main(["run", "--yes", "--page", "a-red-circle", "-m", "openai-codex/gpt-6-luna:minimal", "--root", str(run_root)])
     assert rc == 0
-    results = json.loads((run_root / "docs/data/a-red-circle/results.json").read_text())
+    results = json.loads((run_root / "docs/data/a-red-circle/page.json").read_text())["runs"]
     assert {(r["model"], r["effort"], r["kind"]) for r in results} == {
         ("openai-codex/gpt-6-sol", "low", "media"), ("openai-codex/gpt-6-luna", "minimal", "media")}
     assert json.loads((run_root / "docs/data/a-red-circle/page.json").read_text())["prompt"] == "a red circle"
@@ -562,14 +562,14 @@ def test_a_different_prompt_for_an_existing_page_is_refused(run_root, capsys):
     assert rc == 1
     err = capsys.readouterr().err
     assert "different prompt" in err and "a spinning cube" in err and "--change-prompt" in err
-    assert len(json.loads((run_root / "docs/data/a-spinning-cube/results.json").read_text())) == 1
+    assert len(json.loads((run_root / "docs/data/a-spinning-cube/page.json").read_text())["runs"]) == 1
 
     # the same prompt is fine, and --change-prompt replaces it on purpose
     assert main(["run", "--yes", "--page", "a-spinning-cube", "a spinning cube", "-m", "openai-codex/gpt-6-sol:medium", "--root", str(run_root)]) == 0
     rc = main(["run", "--yes", "--change-prompt", "--page", "a-spinning-cube", "a spinning red cube", "-m", "openai-codex/gpt-6-sol:high", "--root", str(run_root)])
     assert rc == 0
     assert json.loads((run_root / "docs/data/a-spinning-cube/page.json").read_text())["prompt"] == "a spinning red cube"
-    assert len(json.loads((run_root / "docs/data/a-spinning-cube/results.json").read_text())) == 3
+    assert len(json.loads((run_root / "docs/data/a-spinning-cube/page.json").read_text())["runs"]) == 3
 
 
 def test_page_without_prompt_must_exist(run_root, capsys):
@@ -624,7 +624,7 @@ def test_mixed_harness_batch_records_each_runs_harness_and_session(run_root, mon
     rc = main(["run", "--yes", "mixed harness", "-m", "claude-code:claude-opus-5-5:high",
                "-m", "anthropic/claude-opus-5-5:high", "--root", str(run_root)])
     assert rc == 0
-    results = {r["harness"]["name"]: r for r in json.loads((run_root / "docs/data/mixed-harness/results.json").read_text())}
+    results = {r["harness"]["name"]: r for r in json.loads((run_root / "docs/data/mixed-harness/page.json").read_text())["runs"]}
     assert set(results) == {"pi", "claude-code"}
     cc, pi = results["claude-code"], results["pi"]
     assert cc["model"] == pi["model"] == "anthropic/claude-opus-5-5"
@@ -667,14 +667,14 @@ def test_mixed_harness_batch_records_each_runs_harness_and_session(run_root, mon
 def test_claude_code_error_result_is_a_failed_run(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_CLAUDE_ERROR", "1")
     assert main(["run", "--yes", "cc error", "-m", "claude-code:haiku:low", "--root", str(run_root)]) == 0
-    [run] = json.loads((run_root / "docs/data/cc-error/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/cc-error/page.json").read_text())["runs"]
     assert run["state"] == "failed" and "overloaded" in run["error"]
 
 
 def test_claude_code_timeout(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_CLAUDE_HANG", "1")
     assert main(["run", "--yes", "--timeout", "1s", "cc hang", "-m", "claude-code:haiku:low", "--root", str(run_root)]) == 0
-    [run] = json.loads((run_root / "docs/data/cc-hang/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/cc-hang/page.json").read_text())["runs"]
     assert run["state"] == "timeout"
 
 

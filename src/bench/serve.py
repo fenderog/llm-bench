@@ -4,7 +4,7 @@ Plus a local-only ranking API (GitHub Pages never has it, so the viewer only sho
 controls when served by `bench serve`):
   GET api/local                 -> {"rank": true}
   PUT api/rank?p=<slug>         body {"ranks": {"<run id>": 1, ...}}  (null/missing = unranked)
-    -> writes docs/data/<slug>/ranking.json and rebuilds, so results.json carries each run's rank.
+    -> writes docs/data/<slug>/ranking.json and rebuilds, so page.json carries each run's rank.
 Writes need Content-Type: application/json (so another site can't send one without a CORS
 preflight, which this server doesn't answer) and, when present, a same-host Origin."""
 

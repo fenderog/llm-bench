@@ -1,11 +1,11 @@
-"""bench rm / rebuild / list, and the shape of pages.json / results.json / page.json."""
+"""bench rm / rebuild / list, and the shape of pages.json / page.json."""
 
 import json
 
 from bench.cli import main
 
 
-def test_pages_and_results_json_shapes(bench_root, effort_run):
+def test_pages_and_page_json_shapes(bench_root, effort_run):
     main(["import", str(effort_run), "--root", str(bench_root)])
 
     pages = json.loads((bench_root / "docs/data/pages.json").read_text())
@@ -24,9 +24,12 @@ def test_pages_and_results_json_shapes(bench_root, effort_run):
     assert page["prompt"] == "draw a running horse"
     assert page["title"] == "Voxel horse"
 
-    results = json.loads((bench_root / "docs/data/voxel-horse/results.json").read_text())
+    results = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())["runs"]
     assert [r["effort"] for r in results] == ["low", "high"]  # sorted by started_at then effort order
+    assert not (bench_root / "docs/data/voxel-horse/results.json").exists()
     run = results[0]
+    original = json.loads((bench_root / "docs/data/voxel-horse/runs" / run["id"] / "run.json").read_text())
+    assert "rank" not in original
     for key in (
         "id", "page", "model", "effort", "started_at", "source_dir", "verified",
         "metrics", "thumb", "game", "session", "source",
@@ -40,7 +43,7 @@ def test_pages_and_results_json_shapes(bench_root, effort_run):
 
 
 def _high_id(bench_root):
-    results = json.loads((bench_root / "docs/data/voxel-horse/results.json").read_text())
+    results = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())["runs"]
     return next(r["id"] for r in results if r["effort"] == "high")
 
 
@@ -82,7 +85,7 @@ def test_rm_run_then_rm_page(bench_root, effort_run):
 
     rc = main(["rm", "voxel-horse", high_id, "--root", str(bench_root)])
     assert rc == 0
-    results = json.loads((bench_root / "docs/data/voxel-horse/results.json").read_text())
+    results = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())["runs"]
     assert len(results) == 1
     assert results[0]["effort"] == "low"
     assert not (bench_root / "docs/data/voxel-horse/runs" / high_id).exists()
@@ -124,7 +127,7 @@ def test_rebuild_gcs_unreferenced_engines(bench_root, effort_run_factory):
     remaining = list((bench_root / "docs/engines").iterdir())
     assert len(remaining) == 1
 
-    results_b = json.loads((bench_root / "docs/data/page-b/results.json").read_text())
+    results_b = json.loads((bench_root / "docs/data/page-b/page.json").read_text())["runs"]
     assert remaining[0].name == results_b[0]["game"]["engine"]
 
 
@@ -141,3 +144,12 @@ def test_list_on_empty_site(bench_root, capsys):
     rc = main(["list", "--root", str(bench_root)])
     assert rc == 0
     assert "no pages" in capsys.readouterr().out
+
+
+def test_rebuild_removes_legacy_results(bench_root, effort_run):
+    main(["import", str(effort_run), "--root", str(bench_root)])
+    legacy = bench_root / "docs/data/voxel-horse/results.json"
+    legacy.write_text("[]")
+    main(["rebuild", "--root", str(bench_root)])
+    assert not legacy.exists()
+    assert len(json.loads(legacy.with_name("page.json").read_text())["runs"]) == 2

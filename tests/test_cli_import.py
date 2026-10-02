@@ -10,7 +10,7 @@ from bench.util import make_run_id, parse_folder, title_from_slug
 
 
 def run_data_json(root, slug):
-    return json.loads((root / "docs/data" / slug / "results.json").read_text())
+    return json.loads((root / "docs/data" / slug / "page.json").read_text())["runs"]
 
 
 def run_dir(root, slug, run_id):

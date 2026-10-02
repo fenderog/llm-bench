@@ -175,7 +175,7 @@ def test_routed_run_pins_upstream_and_records_route(run_root, monkeypatch, tmp_p
     assert ext.endswith("openrouter_routing.ts")
     assert json.loads(sent["routing"]) == {"only": ["deepinfra"], "allow_fallbacks": False}
 
-    [run] = json.loads((run_root / "docs/data/routed-run/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/routed-run/page.json").read_text())["runs"]
     assert run["model"] == "openrouter/test/model@deepinfra"
     assert run["route"] == {"requested": {"only": ["deepinfra"], "allow_fallbacks": False},
                             "served": ["Deepinfra"], "cost_usd": 0.0042, "pi_cost_usd": 0.0025}
@@ -196,7 +196,7 @@ def test_unrouted_run_passes_no_extension_or_env(run_root, monkeypatch, tmp_path
     sent = json.loads(argv_file.read_text())
     assert "-e" not in sent["argv"]
     assert sent["routing"] is None
-    [run] = json.loads((run_root / "docs/data/plain-run/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/plain-run/page.json").read_text())["runs"]
     assert run.get("route") is None
 
 
@@ -222,7 +222,7 @@ def test_resume_reruns_routed_with_same_argv_env(run_root, monkeypatch, tmp_path
     second = json.loads(argv_file.read_text())
     assert second["argv"] == first["argv"]
     assert second["routing"] == first["routing"]
-    [run] = json.loads((run_root / "docs/data/resume-routed/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/resume-routed/page.json").read_text())["runs"]
     assert run["model"] == "openrouter/test/model@deepinfra"
     assert run["route"]["served"] == ["Deepinfra"]
 
@@ -230,7 +230,7 @@ def test_resume_reruns_routed_with_same_argv_env(run_root, monkeypatch, tmp_path
 def test_routed_run_served_elsewhere_sets_error(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_PI_SERVED", "Fireworks")
     assert main(["run", "--yes", "served elsewhere", "-m", "openrouter/test/model@deepinfra/fp8:low", "--root", str(run_root)]) == 0
-    [run] = json.loads((run_root / "docs/data/served-elsewhere/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/served-elsewhere/page.json").read_text())["runs"]
     assert run["state"] == "complete"
     assert run["error"] == "served upstream outside requested only: Fireworks"
 
@@ -260,7 +260,7 @@ def test_unpinned_openrouter_run_records_upstream_and_real_cost(run_root, monkey
     assert sent["argv"][sent["argv"].index("--model") + 1] == "openrouter/test/model:low"
     assert sent["argv"][sent["argv"].index("-e") + 1].endswith("openrouter_routing.ts")
     assert sent["routing"] is None and sent["route_log"].endswith("route.jsonl")
-    [run] = json.loads((run_root / "docs/data/unpinned-run/results.json").read_text())
+    [run] = json.loads((run_root / "docs/data/unpinned-run/page.json").read_text())["runs"]
     assert run["model"] == "openrouter/test/model" and "-via-" not in run["id"]
     assert run["route"] == {"requested": None, "served": ["Fireworks"], "cost_usd": 0.0042, "pi_cost_usd": 0.0025}
     assert run["metrics"]["cost_usd"] == 0.0042 and run["error"] is None

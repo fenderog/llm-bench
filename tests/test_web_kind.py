@@ -119,7 +119,7 @@ def test_web_run_end_to_end_in_the_viewer(tmp_path, monkeypatch):
     shutil.copytree(repo / "docs/assets", root / "docs/assets")
     (root / "bench.toml").write_text(f'[run]\ndir = "{tmp_path / "runs"}"\n')
     assert in_thread(main, ["run", "--yes", "--kind", "web", "a spinning horse", "-m", "openai-codex/gpt-6-sol:low", "--root", str(root)]) == 0
-    [run] = json.loads((root / "docs/data/a-spinning-horse/results.json").read_text())
+    [run] = json.loads((root / "docs/data/a-spinning-horse/page.json").read_text())["runs"]
     assert run["verified"] is True and run["thumb"] == "thumb.png"
 
     server = serve_in_thread(root / "docs")
