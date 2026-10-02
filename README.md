@@ -24,7 +24,9 @@ is the starting point for coding agents working on this repo.
 - **Compare:** every run of a prompt in a grid, with its game or files, key metrics and the best starred.
 
 Games play in a sandboxed iframe (`allow-scripts` without `allow-same-origin`) and only after a click.
-Fullscreen links open the same sandbox in `play.html`. Model-made SVGs are only ever shown as images, so any script in them can't run. Light and dark mode.
+Fullscreen links open the same sandbox in `play.html`. Model-made SVGs are only ever shown as images,
+so any script in them can't run. The viewer uses local assets, including its pinned Markdown parser,
+and enforces a same-origin Content Security Policy. Light and dark mode.
 
 ## Running a benchmark
 

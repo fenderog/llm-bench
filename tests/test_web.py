@@ -234,7 +234,7 @@ def test_runs_table_shows_each_runs_image(site, page):
     assert page.locator("#gallery").count() == 0  # images live in the table, no separate gallery
     thumbs = page.locator("table.runs img.row-thumb")
     assert thumbs.count() == 2  # medium + high have a thumb, low doesn't
-    page.wait_for_function("[...document.querySelectorAll('img.row-thumb')].every(i => i.complete && i.naturalWidth > 0)")
+    page.wait_for_function("() => [...document.querySelectorAll('img.row-thumb')].every(i => i.complete && i.naturalWidth > 0)")
     for i in range(2):
         href = thumbs.nth(i).locator("xpath=..").get_attribute("href")
         assert href.startswith("run.html?p=demo&r=model-x-")
@@ -416,7 +416,7 @@ def test_run_source_tab_shows_file_content(site, page):
     page.wait_for_selector(".source-files button")
     assert page.locator(".source-files button").count() == 2
     page.locator('.source-files button:has-text("README.md")').click()
-    page.wait_for_function("document.querySelector('.source-view pre').textContent.includes('Demo')")
+    page.wait_for_function("() => document.querySelector('.source-view pre').textContent.includes('Demo')")
     assert "Demo" in page.locator(".source-view pre").inner_text()
     assert_no_errors(page)
 
@@ -508,7 +508,7 @@ def test_compare_popout_opens_sandboxed_play_window(site, page):
 def test_play_media_run_uses_img_only(site, page):
     page.goto(f"{site}play.html?p=art&r={ART_HIGH_ID}")
     page.wait_for_selector(".media-grid")
-    page.wait_for_function("[...document.querySelectorAll('.media-grid img')].every(i => i.complete && i.naturalWidth > 0)")
+    page.wait_for_function("() => [...document.querySelectorAll('.media-grid img')].every(i => i.complete && i.naturalWidth > 0)")
     assert page.locator(".media-grid img").count() == 2
     assert page.evaluate("window.svgRan") is None
     assert page.locator("#play svg, #play object, #play embed, #play iframe").count() == 0
@@ -573,7 +573,7 @@ def test_media_run_output_tab_shows_images_and_video(site, page):
     assert page.locator('#tabs button[data-tab="game"]').inner_text() == "Output"
     imgs = page.locator(".media-grid img")
     assert imgs.count() == 2
-    page.wait_for_function("[...document.querySelectorAll('.media-grid img')].every(i => i.complete && i.naturalWidth > 0)")
+    page.wait_for_function("() => [...document.querySelectorAll('.media-grid img')].every(i => i.complete && i.naturalWidth > 0)")
     video = page.locator(".media-grid video")
     assert video.get_attribute("poster").endswith("/media/clip.poster.jpg")
     assert video.get_attribute("autoplay") is None and video.evaluate("v => v.paused")
@@ -697,10 +697,10 @@ def test_ranking_can_be_edited_through_bench_serve(bench_served, page):
 
     row = lambda effort: page.locator("tr.run-row").filter(has=page.locator('td[data-col="effort"]', has_text=re.compile(f"^{effort}$"))).first
     row("medium").locator(".rank-select").select_option("1")
-    page.wait_for_function("document.getElementById('rank-status').textContent.startsWith('saved')")
+    page.wait_for_function("() => document.getElementById('rank-status').textContent.startsWith('saved')")
     assert page.locator("tr.run-detail").count() == 0  # picking a rank doesn't expand the row
     row("high").locator(".rank-select").select_option("2")
-    page.wait_for_function("document.getElementById('rank-status').textContent.startsWith('saved')")
+    page.wait_for_function("() => document.getElementById('rank-status').textContent.startsWith('saved')")
 
     ranking = json.loads((docs / "data/demo/ranking.json").read_text())["ranks"]
     assert ranking == {MEDIUM_ID: 1, HIGH_ID: 2}
@@ -737,6 +737,27 @@ def test_model_parts_split_off_a_pinned_openrouter_upstream(site, page):
     assert parts["label"] == ["model-name:deepseek-v4.1-flash", "model-provider:openrouter/deepseek", "model-via:via deepinfra/fp8"]
 
 
+@pytest.mark.parametrize("view,selector", [
+    ("index.html", ".card"),
+    ("page.html?p=demo", "tr.run-row"),
+    ("compare.html?p=demo", ".compare-col"),
+    (f"run.html?p=demo&r={HIGH_ID}#transcript", ".transcript .content-md"),
+    (f"play.html?p=demo&r={HIGH_ID}", "iframe"),
+])
+def test_viewer_uses_only_local_resources(site, page, view, selector):
+    requests = []
+    page.on("request", lambda request: requests.append(request.url))
+    # Simulate unavailable outside network while recording any attempted request.
+    page.route("**/*", lambda route: route.continue_() if route.request.url.startswith(site) else route.abort())
+    page.goto(site + view)
+    page.wait_for_selector(selector)
+    page.wait_for_load_state("networkidle")
+    assert all(url.startswith(site) for url in requests), requests
+    if not view.startswith("run.html"):
+        assert not any("marked.esm.js" in url for url in requests)
+    assert_no_errors(page)
+
+
 @pytest.mark.parametrize("view", ["page", "run"])
 def test_fullscreen_links_use_sandboxed_play(site, page, view):
     page.goto(site + (f"run.html?p=demo&r={HIGH_ID}" if view == "run" else "page.html?p=demo"))
@@ -752,4 +773,62 @@ def test_fullscreen_links_use_sandboxed_play(site, page, view):
     out.wait_for_selector("iframe")
     assert out.locator("iframe").get_attribute("sandbox") == "allow-scripts allow-pointer-lock"
     out.close()
+    assert_no_errors(page)
+
+
+def test_markdown_tokens_render_without_html_or_external_network(site, page):
+    page.goto(site)
+    page.wait_for_selector(".card")
+    source = '''# Heading
+
+**bold** *em* ~~gone~~ `a < b & c` &amp; &#65;
+
+> quote
+
+3. third
+4. fourth
+
+- [x] done
+- [ ] todo
+
+| A | B |
+| :- | -: |
+| one | two |
+
+---
+
+```python
+if a < b && c > d:
+    pass
+```
+
+<script>window.markdownRan = true</script>
+
+[bad](javascript:alert%281%29) [encoded](jav&#x61;script:alert%281%29)
+[data](data:text/html,evil) [safe](https://example.com) [local](page.html?p=demo)
+
+![remote](https://example.com/tracker.png)
+'''
+    page.evaluate('''async source => {
+      const { renderMarkdown } = await import('./assets/markdown.js');
+      const container = document.createElement('div');
+      container.id = 'markdown-test';
+      document.body.append(container);
+      renderMarkdown(container, source);
+    }''', source)
+    md = page.locator("#markdown-test")
+    assert md.locator("h1").inner_text() == "Heading"
+    assert md.locator("strong").inner_text() == "bold"
+    assert md.locator("em").inner_text() == "em"
+    assert md.locator("del").inner_text() == "gone"
+    assert md.locator("ol").get_attribute("start") == "3"
+    assert md.locator("input[checked][disabled]").count() == 1
+    assert md.locator("table th").count() == 2
+    assert md.locator("blockquote").inner_text() == "quote"
+    assert "a < b & c" in md.inner_text() and "& A" in md.inner_text()
+    assert "if a < b && c > d:" in md.locator("pre code").inner_text()
+    assert "<script>" in md.inner_text()
+    assert md.locator("script, img").count() == 0
+    assert md.locator("a[href]").count() == 2
+    assert not page.evaluate("window.markdownRan === true")
     assert_no_errors(page)

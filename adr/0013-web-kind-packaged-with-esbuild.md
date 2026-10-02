@@ -1,8 +1,7 @@
 # 0013. Web pages are packaged into one file with esbuild
 
 - Status: Accepted
-- Amendment (2026-10-01, #23): All fullscreen links now open the sandboxed `play.html` viewer;
-  the raw-entry exception below no longer applies.
+- Amendment: Raw fullscreen exception superseded by [0015](0015-viewer-csp-and-local-markdown.md).
 - Date: 2026-09-29
 
 ## Context

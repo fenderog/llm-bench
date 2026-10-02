@@ -2,7 +2,8 @@
 // pairing toolCall blocks with their toolResult by toolCallId, and (when
 // available) tool durations from `events.jsonl`.
 
-import { el, fmtElapsed, fmtNum, fmtDuration, renderMarkdown, badge } from "./common.js";
+import { el, fmtElapsed, fmtNum, fmtDuration, badge } from "./common.js";
+import { renderMarkdown } from "./markdown.js";
 
 export function parseEvents(text) {
   const starts = new Map();

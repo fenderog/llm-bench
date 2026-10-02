@@ -1,6 +1,6 @@
 import {
   qsList, qs, el, getJSON, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
-  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorAttrs, groupByVendor,
+  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorOptions, groupByVendor,
   playUrl,
 } from "./common.js";
 
@@ -41,7 +41,7 @@ if (!slug) {
     for (const g of groupByVendor(shown)) { // one labelled grid per vendor; the stars above still compare all shown runs
       const grid = el("div", { class: "compare-columns" }, g.runs.map((r) => column(r, best)));
       columnsEl.append(
-        el("section", { class: "vendor-group", attrs: { ...vendorAttrs(g.runs[0].model), "aria-label": g.name } }, [
+        el("section", { class: "vendor-group", ...vendorOptions(g.runs[0].model), attrs: { ...vendorOptions(g.runs[0].model).attrs, "aria-label": g.name } }, [
           el("h2", { class: "vendor-head" }, [
             el("span", { class: "vendor-name", text: g.name }),
             el("span", { class: "vendor-count", text: `${g.runs.length} run${g.runs.length === 1 ? "" : "s"}` }),
@@ -103,5 +103,5 @@ function column(r, best) {
   if (r.media) body.append(mediaGallery(r, base));
   else if (r.game) body.append(buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null));
   else body.append(el("p", { class: "msg", text: r.kind === "media" ? "No output files recorded." : "No game recorded." }));
-  return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed", attrs: vendorAttrs(r.model) }, [el("h3", {}, heading), metricsLine(r, best), body]);
+  return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed", ...vendorOptions(r.model) }, [el("h3", {}, heading), metricsLine(r, best), body]);
 }

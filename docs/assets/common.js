@@ -1,4 +1,4 @@
-// Shared helpers: fetch, formatting, query params, tiny DOM builder, markdown.
+// Shared helpers: fetch, formatting, query params and a tiny DOM builder.
 
 export function qs(name) {
   return new URLSearchParams(location.search).get(name);
@@ -10,21 +10,13 @@ export function qsList(name) {
   return v.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
-export function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
 // Tiny DOM builder. `text` is always set via textContent (never HTML).
 export function el(tag, opts = {}, children = []) {
   const node = document.createElement(tag);
   if (opts.class) node.className = opts.class;
   if (opts.text != null) node.textContent = opts.text;
   if (opts.attrs) for (const [k, v] of Object.entries(opts.attrs)) if (v != null) node.setAttribute(k, v);
+  if (opts.style) for (const [k, v] of Object.entries(opts.style)) node.style.setProperty(k, v);
   if (opts.data) for (const [k, v] of Object.entries(opts.data)) node.dataset[k] = v;
   if (opts.on) for (const [k, fn] of Object.entries(opts.on)) node.addEventListener(k, fn);
   for (const c of children) if (c) node.append(c);
@@ -100,40 +92,6 @@ export function showMessage(container, text, kind = "info") {
   container.replaceChildren(el("p", { class: `msg msg-${kind}`, text }));
 }
 
-// Optional markdown rendering via the pinned `marked` CDN module. Falls back to
-// plain text if it can't be loaded. Model output is untrusted: raw HTML in the
-// markdown is rendered as visible text, and links/images may only use http(s)
-// or relative URLs.
-function loadMarked() {
-  const importPromise = import("https://cdn.jsdelivr.net/npm/marked@15.0.12/lib/marked.esm.js")
-    .then(({ Marked }) => new Marked({ renderer: { html: (t) => escapeHtml(typeof t === "string" ? t : t.text) } }))
-    .catch(() => null);
-  const timeout = new Promise((resolve) => setTimeout(() => resolve(null), 1800));
-  return Promise.race([importPromise, timeout]);
-}
-
-export const markedReady = loadMarked();
-
-const SAFE_URL = /^(https?:|#|\.{0,2}\/|[^:]*$)/i;
-
-export async function renderMarkdown(container, text) {
-  const source = text == null ? "" : String(text);
-  const marked = await markedReady;
-  container.replaceChildren();
-  if (marked) {
-    container.classList.add("content-md");
-    container.innerHTML = marked.parse(source);
-    for (const node of container.querySelectorAll("[href], [src]")) {
-      for (const attr of ["href", "src"]) {
-        if (node.hasAttribute(attr) && !SAFE_URL.test(node.getAttribute(attr).trim())) node.removeAttribute(attr);
-      }
-    }
-  } else {
-    container.classList.add("content-plain");
-    container.textContent = source;
-  }
-}
-
 // Effort levels in increasing order, so tables sort low → max instead of alphabetically.
 export const EFFORTS = ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
 
@@ -195,7 +153,7 @@ export function groupByVendor(runs) {
   return [...groups.values()].sort((a, b) => best(a) - best(b) || a.name.localeCompare(b.name));
 }
 
-export function vendorAttrs(model) {
+export function vendorOptions(model) {
   const v = vendorOf(model);
   let hue = VENDOR_HUES[v];
   if (hue == null) {
@@ -203,7 +161,7 @@ export function vendorAttrs(model) {
     for (const ch of v) h = (h * 31 + ch.charCodeAt(0)) % 360;
     hue = h;
   }
-  return { "data-vendor": v, style: `--vh:${hue}` };
+  return { attrs: { "data-vendor": v }, style: { "--vh": String(hue) } };
 }
 
 // Model name in bold with its provider prefix quiet below it. An OpenRouter `@upstream` suffix

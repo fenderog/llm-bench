@@ -304,7 +304,7 @@ tr.run-row .caret {
 tr.run-row:hover .caret { background: var(--surface-3); color: var(--ink); }
 tr.run-row[aria-expanded="true"] .caret { transform: rotate(90deg); }
 tr.run-row[aria-expanded="true"] td { border-bottom-color: transparent; background: var(--surface-2); }
-/* Vendor grouping: a faint tint and a thin stripe in the vendor's hue (set as --vh by vendorAttrs()). */
+/* Vendor grouping: a faint tint and a thin stripe in the vendor's hue (set as --vh by vendorOptions()). */
 [data-vendor] { --vendor: hsl(var(--vh) 55% 48%); }
 tr.run-row[data-vendor] { background: color-mix(in srgb, var(--vendor) 5%, transparent); }
 tr.run-row[data-vendor] td:first-child { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--vendor) 50%, transparent); }
