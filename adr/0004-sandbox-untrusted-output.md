@@ -1,8 +1,7 @@
 # 0004. Untrusted model output is always sandboxed
 
 - Status: Accepted
-- Amendment (2026-10-01, #23): All fullscreen links now open the sandboxed `play.html` viewer;
-  the raw-entry exception below no longer applies.
+- Amendment: Markdown and raw fullscreen exceptions superseded by [0015](0015-viewer-csp-and-local-markdown.md).
 - Recorded: 2026-09-28 (written after the fact from SPEC.md, DESIGN.md and AGENTS.md)
 
 ## Context

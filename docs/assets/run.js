@@ -1,9 +1,7 @@
 import {
   qs, el, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge,
-  mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, noOutputText,
-  playUrl,
+  mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, noOutputText, playUrl,
 } from "./common.js";
-import { renderTranscript } from "./transcript.js";
 
 const slug = qs("p");
 const runId = qs("r");
@@ -174,6 +172,7 @@ async function renderTranscriptTab(run, base) {
       getJSON(base + session.conversation),
       session.events ? getText(base + session.events).catch(() => null) : Promise.resolve(null),
     ]);
+    const { renderTranscript } = await import("./transcript.js");
     await renderTranscript(panel, conversation, eventsText);
   } catch (err) {
     showMessage(panel, `Could not load transcript: ${err.message}`, "error");

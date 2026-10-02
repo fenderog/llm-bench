@@ -41,3 +41,4 @@ Copy `template.md` to `NNNN-short-title.md` using the next number, and add it to
 | [0012](0012-asset-cache-busting.md) | Asset cache-busting | Proposed |
 | [0013](0013-web-kind-packaged-with-esbuild.md) | Web pages are packaged into one file with esbuild | Accepted |
 | [0014](0014-openrouter-upstream-routing.md) | Pin the OpenRouter upstream provider per run (`MODEL@upstream`) | Accepted |
+| [0015](0015-viewer-csp-and-local-markdown.md) | Local Markdown token rendering, CSP and sandboxed fullscreen | Accepted |

@@ -92,13 +92,16 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
 - **Everything published is cleaned and secret-scanned first.** A hit aborts before anything is written
   (`--redact` masks instead). The repo is public: no real session files or personal paths in test
   fixtures. (ADR-0005)
+- **Viewer dependencies:** third-party JS is vendored and pinned under `docs/assets/vendor/`, never loaded from a CDN.
+  Markdown uses `markdown.js` (loaded through the transcript), never `innerHTML`; dynamic styles use CSSOM properties
+  because all five viewer documents enforce a same-origin CSP. (ADR-0015)
 - **Keep it lean.** Stdlib-only CLI, no JS frameworks or bundler for the site (esbuild only packages model-made
   web pages, ADR-0013); the user checks for this. Prefer small
   functions and small diffs, and don't add dependencies without asking. (ADR-0002)
 - **Rankings are only written by `bench serve` on the user's machine** (`PUT api/rank`, which refuses cross-site
   writes). Never add a way for the published site to write data. (ADR-0010)
 - **Untrusted text** (model output, transcripts) goes through `textContent` or `renderMarkdown()`, which
-  escapes raw HTML and strips unsafe URLs. Never use innerHTML with run data. (ADR-0004)
+  builds DOM nodes from Markdown tokens and permits only HTTP(S) links. Never use innerHTML with run data. (ADR-0004)
 - Commit or push only when the user asks, or as part of a task they asked you to ship.
 
 ## Gotchas learned the hard way
@@ -110,7 +113,8 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   - Headless Chrome needs `--enable-unsafe-swiftshader --use-angle=swiftshader` for WebGL.
   - Godot removes `#status` from the page once the game has booted; that's the boot signal.
 - **Playwright:** poll with `page.wait_for_timeout`, not `time.sleep`; sleep starves Playwright's event
-  processing.
+  processing. Under the viewer CSP, pass `() => …` functions to `wait_for_function`; bare expression strings
+  trigger an `unsafe-eval` violation.
 - **pi:**
   - `--model provider/id:level` silently clamps unsupported levels, and it reports levels for an unknown
     model instead of failing. `bench run` checks both against `pi --list-models` and the RPC levels query
@@ -144,7 +148,7 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   throw null errors. Hard refresh first. A cache-busting fix was drafted in a git stash, but the stash was lost
   when the repo was moved (2026-09-28); the options are in ADR-0012.
 - **Compare groups by vendor:** `groupByVendor()`/`vendorName()`/`VENDOR_NAMES` (common.js); `#columns` holds `.vendor-group` sections, each with its own `.compare-columns` grid, not cards. Stars stay computed over all shown runs.
-- **Vendor tint:** table rows and compare cards get `data-vendor` + `--vh` from `vendorAttrs(model)` (common.js); CSS turns
+- **Vendor tint:** table rows and compare cards get `data-vendor` + `--vh` from `vendorOptions(model)` (common.js); CSS turns
   that into a faint tint and stripe. Color only, so it survives any sort. New vendors get a hashed hue unless added to `VENDOR_HUES`.
 - **Page width:** the runs table must fit without horizontal scroll at every width above 720px. The full table fits the
   1240px page; below that, columns hide by priority in the `@media (min-width: 721px) and (max-width: …)` blocks before the

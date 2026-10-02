@@ -1,6 +1,7 @@
 # 0002. Lean stack: stdlib-only CLI, vanilla JS, no build step
 
 - Status: Accepted
+- Amendment: CDN loading/fallback superseded by [0015](0015-viewer-csp-and-local-markdown.md).
 - Recorded: 2026-09-28 (written after the fact from SPEC.md, DESIGN.md and AGENTS.md)
 
 ## Context
