@@ -1,4 +1,6 @@
-import { el, getJSON, showMessage, modelParts, kindUi } from "./common.js";
+import { el, getJSON, showMessage } from "./dom.js";
+import { modelParts } from "./runs.js";
+import { kindUi } from "./output.js";
 
 const cards = document.getElementById("cards");
 

@@ -428,7 +428,7 @@ The page owner ranks runs in the browser; there is no CLI command for it. Only `
 
 ## Viewer (docs/)
 
-All four page views use `loadPage(slug)` in common.js: one fetch of `page.json`, which includes
+All four page views use `loadPage(slug)` in dom.js: one fetch of `page.json`, which includes
 `runs` sorted by started_at then effort order with ranks applied. `run.json` stays the rebuild source of truth;
 `bench list` reads `page.json.runs`. Rebuild removes legacy `results.json`. The loader owns missing-page
 parameters and fetch-error messages; run/play find their run by id in `page.runs`.
@@ -439,7 +439,7 @@ base-uri 'none'`. Dynamic styles use CSSOM properties. The transcript lazily loa
 and renders lexer tokens to DOM nodes with textContent, never innerHTML. Raw HTML stays visible text;
 links permit only HTTP(S), and remote Markdown images stay alt text to avoid outside requests.
 
-Shared conventions: runs are ordered by model, then effort from minimal to max (`EFFORTS` in common.js), not
+Shared conventions: runs are ordered by model, then effort from minimal to max (`EFFORTS` in runs.js), not
 alphabetically. Effort is shown as a pill whose text is just the level, with a 6-step meter. Model ids show the model
 name in bold and the provider prefix quietly (`modelLabel()`). Runs are grouped by vendor with a faint tint and a thin
 stripe in the vendor's hue on table rows (page.html) and compare cards (`vendorOf()`/`vendorAttrs()`: the first segment of the
@@ -455,7 +455,7 @@ sorts by rank by default, and the gallery and compare order ranked runs first (`
 (`saveRanks()`), with a status line next to the run count; a failed save reverts the select and shows the error. Data
 JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is never hidden by the browser cache.
 
-All output rendering goes through one function, `renderOutput(run, base, opts)` in common.js (the click-to-play frame, the
+All output rendering goes through one function, `renderOutput(run, base, opts)` in output.js (the click-to-play frame, the
 immediate sandboxed frame, the media gallery, or the "no output" message, with the kind step's own error above it) and
 one `KIND_UI` table (chip label, tab label, no-output text and failure badge per kind); page, run, compare and play all call
 them. Any output with an `entry` is shown in the sandbox, so a new kind needs no viewer code.

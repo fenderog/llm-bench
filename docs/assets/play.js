@@ -1,4 +1,6 @@
-import { qs, el, loadPage, showMessage, runDir, runUrl, renderOutput, modelLabel, effortPill, stateBadge, outputBadge } from "./common.js";
+import { qs, el, loadPage, showMessage } from "./dom.js";
+import { runDir, runUrl, modelLabel, effortPill, stateBadge } from "./runs.js";
+import { renderOutput, outputBadge } from "./output.js";
 
 // play.html?p=<slug>&r=<run id>: one run's output alone in a window, shown by renderOutput() like everywhere else
 // (games and pages sandboxed, never the raw entry URL: ADR-0004). It boots now: opening the window was the click.

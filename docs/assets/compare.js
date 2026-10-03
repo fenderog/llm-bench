@@ -1,8 +1,7 @@
-import {
-  qsList, qs, el, loadPage, fmtDuration, fmtCost, fmtNum, showMessage, runDir, harnessLabel, stateBadge, outputBadge, outputOk, renderOutput,
-  effortPill, modelLabel, runUrl, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorOptions, groupByVendor,
-  playUrl,
-} from "./common.js";
+import { qsList, qs, el, loadPage, showMessage } from "./dom.js";
+import { fmtDuration, fmtCost, fmtNum } from "./fmt.js";
+import { runDir, harnessLabel, stateBadge, effortPill, modelLabel, runUrl, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorOptions, groupByVendor, playUrl } from "./runs.js";
+import { outputBadge, outputOk, renderOutput } from "./output.js";
 
 // compare.html?p=<slug> shows every run of the page; &r=<id>,<id> limits it to those runs.
 const slug = qs("p");

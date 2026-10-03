@@ -1,7 +1,8 @@
 // Renders a session `conversation.json` array as a chat-like transcript,
 // pairing toolCall blocks with their toolResult by toolCallId (its `durationMs` is the tool's duration).
 
-import { el, fmtElapsed, fmtNum, fmtDuration, badge } from "./common.js";
+import { el, badge } from "./dom.js";
+import { fmtElapsed, fmtNum, fmtDuration } from "./fmt.js";
 import { renderMarkdown } from "./markdown.js";
 
 function roleLabel(role) {
@@ -121,7 +122,7 @@ function renderToolBlock(block, resultMsg) {
 }
 
 /** Builds toolbar (filters + show-thinking) and the transcript into `root`. */
-export async function renderTranscript(root, conversation) {
+export function renderTranscript(root, conversation) {
   root.replaceChildren();
   const toolbar = el("div", { class: "transcript-toolbar" });
   const list = el("div", { class: "transcript" });
@@ -176,7 +177,7 @@ export async function renderTranscript(root, conversation) {
           turn.append(el("div", { class: "thinking-block", text: block.thinking }));
         } else if (block.type === "text") {
           const div = el("div", { class: "content-md" });
-          await renderMarkdown(div, block.text);
+          renderMarkdown(div, block.text);
           turn.append(div);
         } else if (block.type === "toolCall") {
           hasTool = true;
@@ -190,6 +191,6 @@ export async function renderTranscript(root, conversation) {
     }
     list.append(turn);
   }
-  root.append(list); // all at once, after every message has rendered (markdown loads async)
+  root.append(list); // all at once, after every message has rendered
   return list;
 }

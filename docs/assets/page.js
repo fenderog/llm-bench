@@ -1,35 +1,24 @@
-import {
-  qs, el, loadPage, fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort, showMessage, badge, runDir, harnessLabel, stateBadge, outputBadge,
-  outputVerified, isPlayable, renderOutput, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER,
-  isComplete, rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorOptions, kindUi, playUrl,
-} from "./common.js";
+import { qs, el, loadPage, showMessage, badge } from "./dom.js";
+import { fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort } from "./fmt.js";
+import { runDir, harnessLabel, stateBadge, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorOptions, playUrl } from "./runs.js";
+import { COLUMN_HELP, rowHelp } from "./help.js";
+import { outputBadge, outputVerified, isPlayable, renderOutput, kindUi } from "./output.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
 
 const COLUMNS = [
-  { key: "rank", label: "Rank", get: (r) => r.rank ?? null, num: false,
-    help: "The page owner's own ranking of the runs (🥇🥈🥉, then #4, #5…; ties allowed). – means not ranked." },
-  { key: "model", label: "Model", get: (r) => r.model, num: false,
-    help: "The model that ran the task (provider/model)." },
-  { key: "effort", label: "Effort", get: (r) => r.effort, sortVal: (r) => effortIndex(r.effort), num: false,
-    help: "Reasoning effort the model was run at (minimal / low / medium / high / xhigh / max; the bars show the level). Higher effort lets it think longer before acting. Level names are the harness's; the same name can mean different budgets at different providers." },
-  { key: "harness", label: "Harness", get: (r) => harnessLabel(r), num: false,
-    help: "The agent program that ran the model and executed its tool calls (pi or claude-code), with its version. Every run is one direct agent with only file and shell tools." },
-  { key: "started_at", label: "Run at", get: (r) => r.started_at ?? null, num: false,
-    help: "When the agent session started, in your local time. Click to sort." },
-  { key: "verified", label: "Verified", get: (r) => outputVerified(r), num: false,
-    help: "Game pages: whether the exported web build booted in headless Chrome (a WebGL canvas rendered, two screenshots differed, no page errors). Web pages: whether the packaged page loaded offline in a sandboxed iframe with no page errors and no network requests. Media pages: whether every output file was a readable image or video within the limits. – means no check was recorded." },
-  { key: "duration_ms", label: "Duration", get: (r) => r.metrics.duration_ms, num: true, fmt: fmtDuration,
-    help: "Wall-clock time of the agent session, from start to finish. ★ marks the fastest completed run." },
-  { key: "tokens_total", label: "Tokens", get: (r) => r.metrics.tokens_total, num: true, fmt: fmtNum,
-    help: "Input + output tokens reported by the provider. Excludes input served from the prompt cache. ★ marks the completed run that used the fewest." },
-  { key: "tokens_reasoning", label: "Reasoning", get: (r) => r.metrics.tokens_reasoning, num: true, fmt: fmtNum,
-    help: "Tokens spent on hidden internal reasoning (thinking) before answering. Not shown in the transcript beyond short summaries, but billed as output." },
-  { key: "cost_usd", label: "Cost", get: (r) => r.metrics.cost_usd, num: true, fmt: fmtCost,
-    help: "Cost in USD for the whole session as reported by the provider, including cached input at its discounted rate. For Claude Code runs it's Claude Code's own estimate at API prices (also when run on a subscription). ★ marks the cheapest completed run." },
-  { key: "tool_calls", label: "Tool calls", get: (r) => r.metrics.tool_calls, num: true, fmt: fmtNum,
-    help: "Number of tools the agent invoked (bash, read, write, edit, ls, …)." },
+  { key: "rank", label: "Rank", get: (r) => r.rank ?? null, num: false },
+  { key: "model", label: "Model", get: (r) => r.model, num: false },
+  { key: "effort", label: "Effort", get: (r) => r.effort, sortVal: (r) => effortIndex(r.effort), num: false },
+  { key: "harness", label: "Harness", get: (r) => harnessLabel(r), num: false },
+  { key: "started_at", label: "Run at", get: (r) => r.started_at ?? null, num: false },
+  { key: "verified", label: "Verified", get: (r) => outputVerified(r), num: false },
+  { key: "duration_ms", label: "Duration", get: (r) => r.metrics.duration_ms, num: true, fmt: fmtDuration },
+  { key: "tokens_total", label: "Tokens", get: (r) => r.metrics.tokens_total, num: true, fmt: fmtNum },
+  { key: "tokens_reasoning", label: "Reasoning", get: (r) => r.metrics.tokens_reasoning, num: true, fmt: fmtNum },
+  { key: "cost_usd", label: "Cost", get: (r) => r.metrics.cost_usd, num: true, fmt: fmtCost },
+  { key: "tool_calls", label: "Tool calls", get: (r) => r.metrics.tool_calls, num: true, fmt: fmtNum },
 ];
 
 const page = await loadPage(slug);
@@ -75,10 +64,10 @@ function render(page, runs, editable) {
   }
 
   const headRow = el("tr", {}, [
-    el("th", { attrs: { "data-help": isMedia ? "Click a row to expand it and see that run's output files." : "Click a row to expand it and play that run's game inline." } }),
-    el("th", { attrs: { "data-key": "thumb", "data-help": isMedia ? "The run's first output (a video shows its poster frame). Click to open the run." : "Screenshot of the running game taken during verification. Click to open the run." } }),
+    el("th", { attrs: { "data-help": rowHelp(isMedia).expand } }),
+    el("th", { attrs: { "data-key": "thumb", "data-help": rowHelp(isMedia).thumb } }),
     ...COLUMNS.map((c) =>
-      el("th", { text: c.label, class: c.num ? "has-help is-num" : "has-help", attrs: { "data-key": c.key, "data-help": `${c.help}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
+      el("th", { text: c.label, class: c.num ? "has-help is-num" : "has-help", attrs: { "data-key": c.key, "data-help": `${COLUMN_HELP[c.key]}\n\nClick to sort.` }, on: { click: () => sortBy(c.key) } })
     ),
   ]);
   thead.append(headRow);

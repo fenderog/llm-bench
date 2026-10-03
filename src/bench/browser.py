@@ -4,7 +4,7 @@ import json
 import shutil
 
 # The sandboxed check shows the page the way the site does: in an iframe sandboxed like sandboxedGame()
-# in docs/assets/common.js (opaque origin, so storage APIs throw), with every request but the page blocked.
+# in docs/assets/output.js (opaque origin, so storage APIs throw), with every request but the page blocked.
 SANDBOX_FRAME = """<!doctype html><html><body style="margin:0">
 <iframe src="../index.html" sandbox="allow-scripts allow-pointer-lock" style="border:0;width:100vw;height:100vh;display:block"></iframe>
 </body></html>

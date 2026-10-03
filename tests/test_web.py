@@ -633,7 +633,7 @@ def test_group_by_vendor_orders_groups_by_best_rank(site, page):
     page.goto(f"{site}compare.html?p=demo")
     page.wait_for_selector(".compare-col")
     res = page.evaluate("""async () => {
-      const { groupByVendor } = await import("./assets/common.js");
+      const { groupByVendor } = await import("./assets/runs.js");
       const run = (id, model, rank) => ({ id, model, rank });
       const names = (rs) => groupByVendor(rs).map((g) => g.name + ":" + g.runs.map((r) => r.id).join(","));
       const plain = [run("a1", "anthropic/claude-x"), run("o1", "openai-codex/gpt-6"), run("a2", "anthropic/claude-x"), run("d1", "openrouter/deepseek/v4"), run("z1", "zeta/m")];
@@ -751,7 +751,7 @@ def test_run_title_has_no_stray_text_for_unranked_runs(site, page):
 def test_model_parts_split_off_a_pinned_openrouter_upstream(site, page):
     page.goto(f"{site}index.html")
     parts = page.evaluate("""async () => {
-      const { modelParts, modelLabel } = await import("./assets/common.js");
+      const { modelParts, modelLabel } = await import("./assets/runs.js");
       const label = modelLabel("openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8");
       return { routed: modelParts("openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8"), plain: modelParts("anthropic/claude-opus-5-5"),
                label: [...label.children].map((c) => c.className + ":" + c.textContent) };

@@ -1,6 +1,6 @@
 // Marked only tokenizes; untrusted Markdown becomes DOM nodes, never HTML.
 import { lexer } from "./vendor/marked.esm.js";
-import { el } from "./common.js";
+import { el } from "./dom.js";
 
 function text(value) {
   const entities = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: "\u00a0" };

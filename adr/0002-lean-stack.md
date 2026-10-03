@@ -33,5 +33,5 @@ changes for bloat and wants to be able to read the whole codebase.
 
 - Installing is `uv sync` and nothing else, and nothing in the stack can break from an upstream release.
 - Some things take more code by hand, like the `el()` DOM helper, sortable tables and the markdown sanitizing
-  in 0004. Keep those helpers small and in `common.js`.
+  in 0004. Keep those helpers small and in `dom.js` / `output.js` (the old `common.js`, split on 2026-10-02).
 - Bringing in a new library means revisiting this ADR, not just adding it.
