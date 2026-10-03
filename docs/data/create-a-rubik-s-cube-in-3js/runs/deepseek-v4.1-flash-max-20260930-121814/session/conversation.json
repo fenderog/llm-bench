@@ -248,7 +248,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801779208
+      "timestamp": 1790801779208,
+      "durationMs": 216
     }
   },
   {
@@ -267,7 +268,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801779209
+      "timestamp": 1790801779209,
+      "durationMs": 217
     }
   },
   {
@@ -333,7 +335,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801780990
+      "timestamp": 1790801780990,
+      "durationMs": 602
     }
   },
   {
@@ -408,7 +411,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801954855
+      "timestamp": 1790801954855,
+      "durationMs": 201
     }
   },
   {
@@ -427,7 +431,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801954856
+      "timestamp": 1790801954856,
+      "durationMs": 202
     }
   },
   {
@@ -493,7 +498,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801957092
+      "timestamp": 1790801957092,
+      "durationMs": 42
     }
   },
   {
@@ -568,7 +574,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801976893
+      "timestamp": 1790801976893,
+      "durationMs": 25
     }
   },
   {
@@ -587,7 +594,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801976893
+      "timestamp": 1790801976893,
+      "durationMs": 25
     }
   },
   {
@@ -653,7 +661,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801993267
+      "timestamp": 1790801993267,
+      "durationMs": 19
     }
   },
   {
@@ -723,7 +732,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802001062
+      "timestamp": 1790802001062,
+      "durationMs": 19
     }
   },
   {
@@ -789,7 +799,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802011571
+      "timestamp": 1790802011571,
+      "durationMs": 4
     }
   },
   {
@@ -887,7 +898,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802016347
+      "timestamp": 1790802016347,
+      "durationMs": 43
     }
   },
   {
@@ -911,7 +923,8 @@
         "firstChangedLine": 103
       },
       "isError": false,
-      "timestamp": 1790802016347
+      "timestamp": 1790802016347,
+      "durationMs": 43
     }
   },
   {
@@ -935,7 +948,8 @@
         "firstChangedLine": 61
       },
       "isError": false,
-      "timestamp": 1790802016347
+      "timestamp": 1790802016347,
+      "durationMs": 43
     }
   },
   {
@@ -1005,7 +1019,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802023152
+      "timestamp": 1790802023152,
+      "durationMs": 2
     }
   },
   {
@@ -1080,7 +1095,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802025448
+      "timestamp": 1790802025448,
+      "durationMs": 64
     }
   },
   {
@@ -1099,7 +1115,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802025449
+      "timestamp": 1790802025449,
+      "durationMs": 65
     }
   },
   {
@@ -1169,7 +1186,8 @@
         }
       ],
       "isError": true,
-      "timestamp": 1790802027095
+      "timestamp": 1790802027095,
+      "durationMs": 563
     }
   },
   {
@@ -1244,7 +1262,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802031514
+      "timestamp": 1790802031514,
+      "durationMs": 2573
     }
   },
   {
@@ -1263,7 +1282,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802031517
+      "timestamp": 1790802031517,
+      "durationMs": 2575
     }
   },
   {
@@ -1329,7 +1349,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802032572
+      "timestamp": 1790802032572,
+      "durationMs": 16
     }
   },
   {
@@ -1395,7 +1416,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802038064
+      "timestamp": 1790802038064,
+      "durationMs": 2
     }
   },
   {
@@ -1480,7 +1502,8 @@
         "firstChangedLine": 97
       },
       "isError": false,
-      "timestamp": 1790802059864
+      "timestamp": 1790802059864,
+      "durationMs": 20432
     }
   },
   {
@@ -1499,7 +1522,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802059865
+      "timestamp": 1790802059865,
+      "durationMs": 20433
     }
   },
   {
@@ -1574,7 +1598,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802068566
+      "timestamp": 1790802068566,
+      "durationMs": 6438
     }
   },
   {
@@ -1593,7 +1618,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802068566
+      "timestamp": 1790802068566,
+      "durationMs": 6438
     }
   },
   {
@@ -1663,7 +1689,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802070644
+      "timestamp": 1790802070644,
+      "durationMs": 117
     }
   },
   {
@@ -1725,7 +1752,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802081228
+      "timestamp": 1790802081228,
+      "durationMs": 9474
     }
   },
   {
@@ -1791,7 +1819,8 @@
         }
       ],
       "isError": true,
-      "timestamp": 1790802082925
+      "timestamp": 1790802082925,
+      "durationMs": 57
     }
   },
   {
@@ -1857,7 +1886,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802084294
+      "timestamp": 1790802084294,
+      "durationMs": 144
     }
   },
   {
@@ -1923,7 +1953,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802085567
+      "timestamp": 1790802085567,
+      "durationMs": 30
     }
   },
   {
@@ -1985,7 +2016,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802086244
+      "timestamp": 1790802086244,
+      "durationMs": 144
     }
   },
   {
@@ -2052,7 +2084,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802086886
+      "timestamp": 1790802086886,
+      "durationMs": 4
     }
   },
   {
@@ -2118,7 +2151,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802087409
+      "timestamp": 1790802087409,
+      "durationMs": 2
     }
   },
   {
@@ -2216,7 +2250,8 @@
         "firstChangedLine": 26
       },
       "isError": false,
-      "timestamp": 1790802089024
+      "timestamp": 1790802089024,
+      "durationMs": 6
     }
   },
   {
@@ -2240,7 +2275,8 @@
         "firstChangedLine": 7
       },
       "isError": false,
-      "timestamp": 1790802089025
+      "timestamp": 1790802089025,
+      "durationMs": 7
     }
   },
   {
@@ -2306,7 +2342,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802102613
+      "timestamp": 1790802102613,
+      "durationMs": 12477
     }
   },
   {
@@ -2376,7 +2413,8 @@
         }
       ],
       "isError": true,
-      "timestamp": 1790802108393
+      "timestamp": 1790802108393,
+      "durationMs": 159
     }
   },
   {
@@ -2442,7 +2480,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802110759
+      "timestamp": 1790802110759,
+      "durationMs": 124
     }
   },
   {
@@ -2508,7 +2547,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802113642
+      "timestamp": 1790802113642,
+      "durationMs": 22
     }
   },
   {
@@ -2571,7 +2611,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802115264
+      "timestamp": 1790802115264,
+      "durationMs": 8
     }
   },
   {
@@ -2637,7 +2678,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802121288
+      "timestamp": 1790802121288,
+      "durationMs": 218
     }
   },
   {
@@ -2703,7 +2745,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802124452
+      "timestamp": 1790802124452,
+      "durationMs": 254
     }
   },
   {
@@ -2769,7 +2812,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802127191
+      "timestamp": 1790802127191,
+      "durationMs": 266
     }
   },
   {
@@ -2835,7 +2879,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802130752
+      "timestamp": 1790802130752,
+      "durationMs": 179
     }
   },
   {
@@ -2901,7 +2946,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802132231
+      "timestamp": 1790802132231,
+      "durationMs": 31
     }
   },
   {
@@ -2977,7 +3023,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802133551
+      "timestamp": 1790802133551,
+      "durationMs": 79
     }
   },
   {
@@ -2996,7 +3043,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802133551
+      "timestamp": 1790802133551,
+      "durationMs": 79
     }
   },
   {
@@ -3066,7 +3114,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802135132
+      "timestamp": 1790802135132,
+      "durationMs": 7
     }
   },
   {
@@ -3154,7 +3203,8 @@
         "firstChangedLine": 145
       },
       "isError": false,
-      "timestamp": 1790802137073
+      "timestamp": 1790802137073,
+      "durationMs": 5
     }
   },
   {
@@ -3220,7 +3270,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802139437
+      "timestamp": 1790802139437,
+      "durationMs": 204
     }
   },
   {
@@ -3286,7 +3337,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802142983
+      "timestamp": 1790802142983,
+      "durationMs": 204
     }
   },
   {
@@ -3356,7 +3408,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802166155
+      "timestamp": 1790802166155,
+      "durationMs": 21341
     }
   },
   {
@@ -3438,7 +3491,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802166910
+      "timestamp": 1790802166910,
+      "durationMs": 63
     }
   },
   {
@@ -3462,7 +3516,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802166912
+      "timestamp": 1790802166912,
+      "durationMs": 65
     }
   },
   {
@@ -3550,7 +3605,8 @@
         "firstChangedLine": 293
       },
       "isError": false,
-      "timestamp": 1790802174147
+      "timestamp": 1790802174147,
+      "durationMs": 45
     }
   },
   {
@@ -3616,7 +3672,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802179121
+      "timestamp": 1790802179121,
+      "durationMs": 3
     }
   },
   {
@@ -3678,7 +3735,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802207302
+      "timestamp": 1790802207302,
+      "durationMs": 27328
     }
   },
   {
@@ -3758,7 +3816,8 @@
         "firstChangedLine": 194
       },
       "isError": false,
-      "timestamp": 1790802214792
+      "timestamp": 1790802214792,
+      "durationMs": 3
     }
   },
   {
@@ -3824,7 +3883,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802240793
+      "timestamp": 1790802240793,
+      "durationMs": 24791
     }
   },
   {
@@ -3898,7 +3958,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802256943
+      "timestamp": 1790802256943,
+      "durationMs": 15049
     }
   },
   {
@@ -3922,7 +3983,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802256943
+      "timestamp": 1790802256943,
+      "durationMs": 15050
     }
   },
   {
@@ -3991,7 +4053,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802268413
+      "timestamp": 1790802268413,
+      "durationMs": 2
     }
   },
   {
@@ -4067,7 +4130,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802272073
+      "timestamp": 1790802272073,
+      "durationMs": 65
     }
   },
   {
@@ -4086,7 +4150,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802272073
+      "timestamp": 1790802272073,
+      "durationMs": 65
     }
   },
   {
@@ -4162,7 +4227,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802274420
+      "timestamp": 1790802274420,
+      "durationMs": 46
     }
   },
   {
@@ -4181,7 +4247,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802274420
+      "timestamp": 1790802274420,
+      "durationMs": 46
     }
   },
   {
@@ -4247,7 +4314,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790802278191
+      "timestamp": 1790802278191,
+      "durationMs": 83
     }
   },
   {

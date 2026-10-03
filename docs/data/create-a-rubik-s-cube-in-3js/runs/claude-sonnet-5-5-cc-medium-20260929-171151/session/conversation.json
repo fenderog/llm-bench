@@ -62,7 +62,8 @@
           "text": "found 0 vulnerabilities\nnode_modules\npackage-lock.json\npackage.json"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 1375
     },
     "timestamp": "2026-09-30T00:12:01.554Z"
   },
@@ -102,7 +103,8 @@
           "text": "  ../../../../../../../dev/null  1.2mb \u26a0\ufe0f\n\n\u26a1 Done in 35ms"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 20655
     },
     "timestamp": "2026-09-30T00:12:28.808Z"
   },

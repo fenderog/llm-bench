@@ -234,7 +234,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790573539663
+      "timestamp": 1790573539663,
+      "durationMs": 56
     }
   },
   {
@@ -299,7 +300,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790573603608
+      "timestamp": 1790573603608,
+      "durationMs": 49
     }
   },
   {

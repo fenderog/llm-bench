@@ -62,7 +62,8 @@
           "text": "(Bash completed with no output)"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 31128
     },
     "timestamp": "2026-09-29T21:13:30.966Z"
   },

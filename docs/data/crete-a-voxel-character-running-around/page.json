@@ -42,7 +42,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -97,7 +96,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -157,7 +155,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -215,7 +212,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -279,7 +275,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -331,7 +326,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -397,7 +391,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -459,7 +452,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -515,7 +507,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -569,7 +560,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },
@@ -625,7 +615,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "stderr": "session/stderr.txt"
       },

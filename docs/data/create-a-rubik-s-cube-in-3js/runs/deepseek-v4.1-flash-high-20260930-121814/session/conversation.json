@@ -248,7 +248,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801768457
+      "timestamp": 1790801768457,
+      "durationMs": 401
     }
   },
   {
@@ -267,7 +268,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801768458
+      "timestamp": 1790801768458,
+      "durationMs": 402
     }
   },
   {
@@ -333,7 +335,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801769732
+      "timestamp": 1790801769732,
+      "durationMs": 769
     }
   },
   {
@@ -408,7 +411,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801786794
+      "timestamp": 1790801786794,
+      "durationMs": 4
     }
   },
   {
@@ -427,7 +431,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801786848
+      "timestamp": 1790801786848,
+      "durationMs": 58
     }
   },
   {
@@ -493,7 +498,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801798815
+      "timestamp": 1790801798815,
+      "durationMs": 8
     }
   },
   {
@@ -559,7 +565,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801804874
+      "timestamp": 1790801804874,
+      "durationMs": 82
     }
   },
   {
@@ -644,7 +651,8 @@
         "firstChangedLine": 543
       },
       "isError": false,
-      "timestamp": 1790801808536
+      "timestamp": 1790801808536,
+      "durationMs": 22
     }
   },
   {
@@ -663,7 +671,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801808558
+      "timestamp": 1790801808558,
+      "durationMs": 44
     }
   },
   {
@@ -739,7 +748,8 @@
         "firstChangedLine": 445
       },
       "isError": false,
-      "timestamp": 1790801811695
+      "timestamp": 1790801811695,
+      "durationMs": 10
     }
   },
   {
@@ -805,7 +815,8 @@
         }
       ],
       "isError": true,
-      "timestamp": 1790801815269
+      "timestamp": 1790801815269,
+      "durationMs": 129
     }
   },
   {
@@ -871,7 +882,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801816676
+      "timestamp": 1790801816676,
+      "durationMs": 82
     }
   },
   {
@@ -942,7 +954,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 1790801825466
+      "timestamp": 1790801825466,
+      "durationMs": 7
     }
   },
   {

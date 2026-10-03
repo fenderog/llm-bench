@@ -62,7 +62,8 @@
           "text": "total 0\ndrwxr-xr-x@ 2 fender  staff    64B Sep 29 17:11 .\ndrwxr-xr-x@ 8 fender  staff   256B Sep 29 17:11 ..\n\nfound 0 vulnerabilities"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 1286
     },
     "timestamp": "2026-09-30T00:12:01.689Z"
   },
@@ -102,7 +103,8 @@
           "text": "(Bash completed with no output)"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 9094
     },
     "timestamp": "2026-09-30T00:12:25.689Z"
   },
@@ -143,7 +145,8 @@
           "text": "File created successfully at: <vol>/dev/bench-runs/2026-09-29-171151-create-a-rubik-s-cube-in-3js/2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js/medium/main.js (file state is current in your context \u2014 no need to Read it back)"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 44570
     },
     "timestamp": "2026-09-30T00:13:11.581Z"
   },
@@ -183,7 +186,8 @@
           "text": "  ../../../../../../../dev/null  1.3mb \u26a0\ufe0f\n\n\u26a1 Done in 39ms"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 4811
     },
     "timestamp": "2026-09-30T00:13:23.592Z"
   },

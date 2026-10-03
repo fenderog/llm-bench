@@ -62,7 +62,8 @@
           "text": "total 0\ndrwxr-xr-x@ 2 fender  staff    64B Sep 29 17:11 .\ndrwxr-xr-x@ 8 fender  staff   256B Sep 29 17:11 ..\n\nfound 0 vulnerabilities\n/opt/homebrew/bin/esbuild\nArcballControls.js\nDragControls.js\nFirstPersonControls.js"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 1352
     },
     "timestamp": "2026-09-30T00:12:01.599Z"
   },
@@ -111,7 +112,8 @@
           "text": "(Bash completed with no output)"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 7654
     },
     "timestamp": "2026-09-30T00:12:45.933Z"
   },
@@ -126,7 +128,8 @@
           "text": "File created successfully at: <vol>/dev/bench-runs/2026-09-29-171151-create-a-rubik-s-cube-in-3js/2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js/high/main.js (file state is current in your context \u2014 no need to Read it back)"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 34706
     },
     "timestamp": "2026-09-30T00:13:12.985Z"
   },
@@ -166,7 +169,8 @@
           "text": "  ../../../../../../../dev/null  1.3mb \u26a0\ufe0f\n\n\u26a1 Done in 67ms"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 2387
     },
     "timestamp": "2026-09-30T00:13:20.495Z"
   },

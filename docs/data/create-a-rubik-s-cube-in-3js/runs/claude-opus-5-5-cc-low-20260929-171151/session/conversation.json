@@ -62,7 +62,8 @@
           "text": "found 0 vulnerabilities"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 1325
     },
     "timestamp": "2026-09-30T00:12:01.626Z"
   },
@@ -102,7 +103,8 @@
           "text": "\u26a1 Done in 46ms"
         }
       ],
-      "isError": false
+      "isError": false,
+      "durationMs": 19210
     },
     "timestamp": "2026-09-30T00:12:22.534Z"
   },
