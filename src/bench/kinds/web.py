@@ -1,4 +1,4 @@
-"""The `web` kind: package the page an agent wrote (<level>/index.html, its scripts and stylesheets,
+"""The `web` kind: package the page an agent wrote (work/index.html, its scripts and stylesheets,
 and the npm packages they import) into one self-contained index.html with esbuild.
 See SPEC.md "bench run" step 6 and ADR-0013."""
 
@@ -8,6 +8,9 @@ import re
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
+
+from ..browser import copy_thumb, verify_page
+from . import Kind, Staged
 
 SCRIPT_RE = re.compile(r"<script\b([^>]*)>(.*?)</script\s*>", re.I | re.S)
 LINK_RE = re.compile(r"<link\b([^>]*)>", re.I)
@@ -138,3 +141,26 @@ def package(project_dir, out_dir, esbuild_bin="esbuild"):
 def read_manifest(web_dir):
     path = Path(web_dir) / "package-manifest.json"
     return json.loads(path.read_text()) if path.is_file() else {}
+
+
+class Web(Kind):
+    name = "web"
+    tools = ("esbuild", "npm")
+    tools_hint = "brew install esbuild node"
+    activity = "packaging"
+
+    def finalize(self, work_dir, out_dir):
+        ok, _manifest, error = package(work_dir, out_dir)
+        return ok, error
+
+    def verify(self, out_dir):
+        """The page loaded offline inside the site's sandbox, with no page errors and no blocked requests."""
+        return verify_page(out_dir, "document.readyState === 'complete'",
+                           lambda r: r["booted"] and not r["pageErrors"] and not r["blockedRequests"], sandboxed=True)
+
+    def stage(self, out_dir, run_dir, ctx):
+        """The page is model-written code, so it's cleaned and secret-scanned like source."""
+        ctx.write_text(out_dir / ENTRY, run_dir / "game" / ENTRY)
+        manifest = read_manifest(out_dir)
+        fields = {"entry": f"game/{ENTRY}", "bytes": manifest.get("bytes"), "esbuild": manifest.get("esbuild")}
+        return Staged(fields, copy_thumb(out_dir, run_dir))

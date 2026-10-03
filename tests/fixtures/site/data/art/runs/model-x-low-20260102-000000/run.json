@@ -5,18 +5,32 @@
   "effort": "low",
   "kind": "media",
   "started_at": "2026-01-02T00:00:00Z",
-  "source_dir": "2026-01-02-000000-modelx-art",
-  "verified": false,
-  "harness": { "name": "pi", "version": "0.87.1" },
+  "batch": "2026-01-02-000000-modelx-art",
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
   "state": "complete",
-  "error": "no files in ./output/",
+  "error": null,
+  "route": null,
   "metrics": {
-    "duration_ms": 20000, "cost_usd": 0.004, "tool_calls": 1, "turns": 2,
-    "tokens_total": 900, "tokens_input": 800, "tokens_output": 100, "tokens_reasoning": 10, "tokens_cache_read": 0
+    "duration_ms": 20000,
+    "cost_usd": 0.004,
+    "tool_calls": 1,
+    "turns": 2,
+    "tokens_total": 900,
+    "tokens_input": 800,
+    "tokens_output": 100,
+    "tokens_reasoning": 10,
+    "tokens_cache_read": 0
   },
   "thumb": null,
-  "game": null,
-  "media": null,
+  "output": {
+    "kind": "media",
+    "ok": false,
+    "verified": null,
+    "error": "no files in ./output/"
+  },
   "session": null,
   "source": null
 }

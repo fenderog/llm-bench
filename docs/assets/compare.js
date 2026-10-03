@@ -1,6 +1,6 @@
 import {
-  qsList, qs, el, loadPage, fmtDuration, fmtCost, fmtNum, showMessage, runDir, buildGameFrame, harnessLabel, stateBadge, mediaGallery,
-  effortPill, modelLabel, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorOptions, groupByVendor,
+  qsList, qs, el, loadPage, fmtDuration, fmtCost, fmtNum, showMessage, runDir, harnessLabel, stateBadge, outputBadge, outputOk, renderOutput,
+  effortPill, modelLabel, runUrl, rankBy, LOWER_IS_BETTER, isComplete, byRankThenModel, rankChip, vendorOptions, groupByVendor,
   playUrl,
 } from "./common.js";
 
@@ -79,10 +79,10 @@ function metricsLine(r, best) {
 
 function column(r, best) {
   const base = runDir(slug, r.id);
-  const sb = stateBadge(r);
+  const sb = stateBadge(r) || outputBadge(r);
   // ↗ opens the run alone in a popup window, through the sandboxed play.html (never the raw entry URL)
   const url = playUrl(slug, r.id);
-  const pop = r.game || r.media ? el("a", {
+  const pop = outputOk(r) ? el("a", {
     class: "popout", text: "↗",
     attrs: { href: url, target: "_blank", rel: "noopener", title: "Open in its own window", "aria-label": `Open ${r.model} ${r.effort} in its own window` },
     on: { click: (e) => { e.preventDefault(); window.open(url, "_blank", "popup,noopener,width=1280,height=800"); } },
@@ -90,8 +90,6 @@ function column(r, best) {
   const heading = [el("a", { attrs: { href: runUrl(slug, r.id) } }, [modelLabel(r.model)]), el("span", {}, [rankChip(r.rank), r.rank != null ? " " : null, effortPill(r.effort), sb ? " " : null, sb, pop ? " " : null, pop])];
   const body = el("div", { class: "compare-body" });
   if (r.error) body.append(el("p", { class: "run-error", text: r.error }));
-  if (r.media) body.append(mediaGallery(r, base));
-  else if (r.game) body.append(buildGameFrame(base + r.game.entry, r.thumb ? base + r.thumb : null));
-  else body.append(el("p", { class: "msg", text: r.kind === "media" ? "No output files recorded." : "No game recorded." }));
+  body.append(...renderOutput(r, base));
   return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed", ...vendorOptions(r.model) }, [el("h3", {}, heading), metricsLine(r, best), body]);
 }

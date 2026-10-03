@@ -3,12 +3,16 @@
   "page": "demo",
   "model": "test-org/model-x",
   "effort": "low",
+  "kind": "godot",
   "started_at": "2026-01-01T00:00:00Z",
-  "source_dir": "2026-01-01-low-modelx-demo",
-  "verified": null,
-  "harness": { "name": "pi", "version": "0.87.1" },
+  "batch": "2026-01-01-low-modelx-demo",
+  "harness": {
+    "name": "pi",
+    "version": "0.87.1"
+  },
   "state": "failed",
   "error": "pi exited 1: rate limited",
+  "route": null,
   "metrics": {
     "duration_ms": 4200,
     "cost_usd": 0.0021,
@@ -21,7 +25,7 @@
     "tokens_cache_read": 0
   },
   "thumb": null,
-  "game": null,
+  "output": null,
   "session": null,
   "source": null
 }

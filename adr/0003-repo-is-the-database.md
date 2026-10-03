@@ -1,7 +1,8 @@
 # 0003. The repo is the database; `docs/data` is generated
 
 - Status: Accepted
-- Amendment: results.json aggregation superseded by [0016](0016-page-json-includes-runs.md).
+- Amendment: results.json aggregation superseded by [0016](0016-page-json-includes-runs.md); the effort-run input
+  superseded by [0017](0017-run-directory-is-the-unit-of-work.md).
 - Recorded: 2026-09-28 (written after the fact from SPEC.md, DESIGN.md and AGENTS.md)
 
 ## Context
@@ -13,8 +14,8 @@ backups and a way to undo mistakes.
 
 - Git is the store. Every published byte lives under `docs/data/` or `docs/engines/`, is committed, and
   is pushed.
-- **`bench import` is the only thing that writes run data.** Its input is an effort-run folder (`fe-model-effort-fanout/1`,
-  or `bench-run/1` from `bench run`), and it:
+- **`bench import` is the only thing that writes run data.** Its input is a run directory (a batch of them, from
+  `bench run`; originally an effort-run folder, see 0017), and it:
   - cleans and secret-scans the data (0005),
   - writes the run to a temp location first, then moves it into place,
   - is idempotent: importing the same run again replaces it.
@@ -24,7 +25,7 @@ backups and a way to undo mistakes.
   - `pages.json`
   - each run's `rank`
 - Nobody edits `docs/data` by hand. To fix a run, re-import it.
-- **Inputs are never modified**: `~/dev/effort-runs/` is read-only, and `bench run` writes to `~/dev/bench-runs/`.
+- **Inputs are never modified**: `~/dev/effort-runs/` (the original runs) is read-only, and `bench run` writes to `~/dev/bench-runs/`.
 - Git LFS isn't used, because Pages serves the LFS pointer instead of the file.
 
 ## Alternatives considered

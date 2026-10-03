@@ -5,8 +5,8 @@ import json
 from bench.cli import main
 
 
-def test_pages_and_page_json_shapes(bench_root, effort_run):
-    main(["import", str(effort_run), "--root", str(bench_root)])
+def test_pages_and_page_json_shapes(bench_root, batch_dir):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
 
     pages = json.loads((bench_root / "docs/data/pages.json").read_text())
     assert len(pages) == 1
@@ -31,8 +31,8 @@ def test_pages_and_page_json_shapes(bench_root, effort_run):
     original = json.loads((bench_root / "docs/data/voxel-horse/runs" / run["id"] / "run.json").read_text())
     assert "rank" not in original
     for key in (
-        "id", "page", "model", "effort", "started_at", "source_dir", "verified",
-        "metrics", "thumb", "game", "session", "source",
+        "id", "page", "model", "effort", "kind", "started_at", "batch", "harness", "state", "error", "route",
+        "metrics", "thumb", "output", "session", "source",
     ):
         assert key in run
     for key in (
@@ -47,40 +47,40 @@ def _high_id(bench_root):
     return next(r["id"] for r in results if r["effort"] == "high")
 
 
-def test_final_prompt_is_the_subagent_brief(bench_root, effort_run):
-    main(["import", str(effort_run), "--root", str(bench_root)])
+def test_final_prompt_is_the_agents_brief(bench_root, batch_dir):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
     page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
-    # first user message of the cleaned session, with the per-effort output dir normalized
-    assert page["final_prompt"] == "Task: draw a running horse in ~/effort-runs/x. Output directory: ./<effort>/."
+    # first user message of the cleaned transcript
+    assert page["final_prompt"] == "Task: draw a running horse in ~/effort-runs/x."
     main(["rebuild", "--root", str(bench_root)])
     page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
     assert page["final_prompt"].startswith("Task: draw a running horse")
 
 
-def test_prompt_md_is_cleaned_and_secret_scanned(bench_root, effort_run):
+def test_prompt_md_is_cleaned_and_secret_scanned(bench_root, batch_dir):
     from pathlib import Path
 
-    (effort_run / "prompt.md").write_text(f"draw a horse in {Path.home()}/x with key sk-abcdefghijklmnopqrstuvwxyz123456")
-    rc = main(["import", str(effort_run), "--root", str(bench_root)])
+    (batch_dir / "prompt.md").write_text(f"draw a horse in {Path.home()}/x with key sk-abcdefghijklmnopqrstuvwxyz123456")
+    rc = main(["import", str(batch_dir), "--root", str(bench_root)])
     assert rc != 0 and not (bench_root / "docs/data/voxel-horse").exists()  # aborted before writing
-    main(["import", str(effort_run), "--root", str(bench_root), "--redact"])
+    main(["import", str(batch_dir), "--root", str(bench_root), "--redact"])
     page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
     assert page["prompt"] == "draw a horse in ~/x with key [REDACTED]"
 
 
-def test_prompt_is_the_originating_prompt_md_and_refreshes(bench_root, effort_run):
-    # the page shows prompt.md (the originating prompt), not the subagent brief in the transcript
-    main(["import", str(effort_run), "--root", str(bench_root)])
+def test_prompt_is_the_originating_prompt_md_and_refreshes(bench_root, batch_dir):
+    # the page shows prompt.md (the originating prompt), not the agent's brief in the transcript
+    main(["import", str(batch_dir), "--root", str(bench_root)])
     page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
     assert page["prompt"] == "draw a running horse"
-    (effort_run / "prompt.md").write_text("draw a galloping horse\n")
-    main(["import", str(effort_run), "--root", str(bench_root)])
+    (batch_dir / "prompt.md").write_text("draw a galloping horse\n")
+    main(["import", str(batch_dir), "--root", str(bench_root)])
     page = json.loads((bench_root / "docs/data/voxel-horse/page.json").read_text())
     assert page["prompt"] == "draw a galloping horse"
 
 
-def test_rm_run_then_rm_page(bench_root, effort_run):
-    main(["import", str(effort_run), "--root", str(bench_root)])
+def test_rm_run_then_rm_page(bench_root, batch_dir):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
     high_id = _high_id(bench_root)
 
     rc = main(["rm", "voxel-horse", high_id, "--root", str(bench_root)])
@@ -99,25 +99,25 @@ def test_rm_run_then_rm_page(bench_root, effort_run):
     assert pages == []
 
 
-def test_rm_whole_page(bench_root, effort_run):
-    main(["import", str(effort_run), "--root", str(bench_root)])
+def test_rm_whole_page(bench_root, batch_dir):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
     rc = main(["rm", "voxel-horse", "--root", str(bench_root)])
     assert rc == 0
     assert not (bench_root / "docs/data/voxel-horse").exists()
 
 
-def test_rm_unknown_page_is_an_error(bench_root, effort_run, capsys):
-    main(["import", str(effort_run), "--root", str(bench_root)])
+def test_rm_unknown_page_is_an_error(bench_root, batch_dir, capsys):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
     rc = main(["rm", "no-such-page", "--root", str(bench_root)])
     assert rc != 0
     assert "no such page" in capsys.readouterr().err
 
 
-def test_rebuild_gcs_unreferenced_engines(bench_root, effort_run_factory):
-    run_a = effort_run_factory(folder_name="2026-09-26-001500-gpt6sol-page-a", levels=["low"])
-    run_b = effort_run_factory(folder_name="2026-09-26-001600-gpt6sol-page-b", levels=["low"])
+def test_rebuild_gcs_unreferenced_engines(bench_root, batch_factory):
+    run_a = batch_factory(slug="page-a", levels=["low"])
+    run_b = batch_factory(slug="page-b", levels=["low"])
     # give page-b a different (larger) fake engine so it dedupes into a second engine dir
-    (run_b / "wasm/low/index.wasm").write_bytes(b"DIFFERENT-WASM-BYTES")
+    (run_b / "gpt-6-sol-low-20260926-001158/output/index.wasm").write_bytes(b"DIFFERENT-WASM-BYTES")
 
     main(["import", str(run_a), "--root", str(bench_root)])
     main(["import", str(run_b), "--root", str(bench_root)])
@@ -128,11 +128,11 @@ def test_rebuild_gcs_unreferenced_engines(bench_root, effort_run_factory):
     assert len(remaining) == 1
 
     results_b = json.loads((bench_root / "docs/data/page-b/page.json").read_text())["runs"]
-    assert remaining[0].name == results_b[0]["game"]["engine"]
+    assert remaining[0].name == results_b[0]["output"]["engine"]
 
 
-def test_list_runs_without_error(bench_root, effort_run, capsys):
-    main(["import", str(effort_run), "--root", str(bench_root)])
+def test_list_runs_without_error(bench_root, batch_dir, capsys):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
     rc = main(["list", "--root", str(bench_root)])
     assert rc == 0
     out = capsys.readouterr().out
@@ -146,8 +146,8 @@ def test_list_on_empty_site(bench_root, capsys):
     assert "no pages" in capsys.readouterr().out
 
 
-def test_rebuild_removes_legacy_results(bench_root, effort_run):
-    main(["import", str(effort_run), "--root", str(bench_root)])
+def test_rebuild_removes_legacy_results(bench_root, batch_dir):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
     legacy = bench_root / "docs/data/voxel-horse/results.json"
     legacy.write_text("[]")
     main(["rebuild", "--root", str(bench_root)])

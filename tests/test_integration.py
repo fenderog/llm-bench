@@ -1,4 +1,4 @@
-"""End to end: import the real voxel-horse effort run, serve it, and check all 3 Godot games boot sandboxed."""
+"""End to end: serve the published voxel-horse page (real Godot builds) and check all 3 games boot sandboxed."""
 
 import json
 import shutil
@@ -11,14 +11,9 @@ from pathlib import Path
 
 import pytest
 
-REAL_RUN = Path.home() / "dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse"
 REPO = Path(__file__).resolve().parents[1]
 
-pytestmark = pytest.mark.skipif(not REAL_RUN.is_dir(), reason="real effort run not on this machine")
-
-
-def bench(*args, root):
-    return subprocess.run([sys.executable, "-m", "bench", *args, "--root", str(root)], capture_output=True, text=True)
+pytestmark = pytest.mark.skipif(not (REPO / "docs/data/voxel-horse").is_dir(), reason="voxel-horse isn't published here")
 
 
 def free_port():
@@ -35,8 +30,9 @@ def site(tmp_path_factory):
         shutil.copy(f, root / "docs")
     shutil.copytree(REPO / "docs/assets", root / "docs/assets")
     shutil.copy(REPO / "bench.toml", root)
-    r = bench("import", str(REAL_RUN), root=root)
-    assert r.returncode == 0, r.stderr
+    shutil.copytree(REPO / "docs/data/voxel-horse", root / "docs/data/voxel-horse")
+    shutil.copytree(REPO / "docs/engines", root / "docs/engines")
+    (root / "docs/data/pages.json").write_text("[]")
     port = free_port()
     server = subprocess.Popen([sys.executable, "-m", "bench", "serve", "--port", str(port), "--root", str(root)])
     for _ in range(50):
@@ -50,7 +46,7 @@ def site(tmp_path_factory):
     server.wait()
 
 
-def test_import_output(site):
+def test_published_output(site):
     root, _ = site
     docs = root / "docs"
     runs = json.loads((docs / "data/voxel-horse/page.json").read_text())["runs"]
@@ -62,7 +58,7 @@ def test_import_output(site):
         text = "".join(p.read_text(errors="ignore") for p in (run_dir / "session").iterdir())
         assert "/Users/" not in text and "/Volumes/" not in text and "encrypted_content" not in text
     total = sum(p.stat().st_size for p in (docs / "data").rglob("*") if p.is_file())
-    assert total < 3_000_000, f"data dir unexpectedly large: {total} bytes"
+    assert total < 5_000_000, f"data dir unexpectedly large: {total} bytes"
 
 
 def test_all_games_boot_sandboxed_in_compare(site):

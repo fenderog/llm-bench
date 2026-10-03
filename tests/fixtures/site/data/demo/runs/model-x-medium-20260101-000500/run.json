@@ -3,12 +3,16 @@
   "page": "demo",
   "model": "test-org/model-x",
   "effort": "medium",
+  "kind": "godot",
   "started_at": "2026-01-01T00:05:00Z",
-  "source_dir": "2026-01-01-medium-modelx-demo",
-  "verified": true,
-  "harness": { "name": "claude-code", "version": "2.1.284" },
+  "batch": "2026-01-01-medium-modelx-demo",
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.284"
+  },
   "state": "complete",
   "error": null,
+  "route": null,
   "metrics": {
     "duration_ms": 38250,
     "cost_usd": 0.0187,
@@ -21,7 +25,12 @@
     "tokens_cache_read": 300
   },
   "thumb": "thumb.png",
-  "game": null,
+  "output": {
+    "kind": "godot",
+    "ok": false,
+    "verified": null,
+    "error": "Godot export failed: no index.html produced"
+  },
   "session": {
     "conversation": "session/conversation.json",
     "status": "session/status.json",

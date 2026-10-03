@@ -11,8 +11,8 @@ model chooses, with permissions bypassed. They need Godot, python3, node, ffmpeg
 ## Decision
 
 - **Each agent is a subprocess on the owner's machine**:
-  - Its working directory is an empty `<model dir>/<level>/` under `~/dev/bench-runs/`.
-  - Its scratch files are in `.harness/<level>/`, outside the project, so it stays clean.
+  - Its working directory is an empty `<batch>/<run id>/work/` under `~/dev/bench-runs/`.
+  - Its scratch files are in `<run id>/harness/`, outside the project, so it stays clean (layout: see 0017).
 - `start_new_session=True` puts each agent in its own process group. The runner kills those groups itself on
   timeout and Ctrl-C (which doesn't reach them), and marks the runs `queued` for `--resume`.
 - Parallelism uses threads plus subprocesses (`-j`, default 8). Godot exports run one at a time.

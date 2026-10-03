@@ -11,8 +11,8 @@ tomllib, http.server, subprocess). The site is vanilla JS ES modules, with one p
 ## Vocabulary
 
 - **Page**: one prompt or task, such as `voxel-horse`.
-- **Run**: one model × effort level attempt at a page's task. One `bench import` of an effort-run folder
-  adds one run per effort level (usually low, medium, high).
+- **Run**: one model × effort level attempt at a page's task, kept in one directory (`<batch>/<run id>/`, see
+  "Run directory"). `bench import` publishes it to the site.
 - **Kind**: what a page's runs produce. `godot` = a Godot project, published as a playable web build;
   `media` = image and/or video files; `web` = a web page (HTML + ES modules + npm packages), published as one
   self-contained `index.html` packaged with esbuild. Every run of a page has the page's kind.
@@ -43,8 +43,7 @@ docs/
       media/<file>, media/<name>.poster.jpg                                              # media
       game/index.html             # web: the packaged page, one file (cleaned and secret-scanned like source)
       session/conversation.json   # cleaned (see Cleaning)
-      session/status.json         # cleaned
-      session/output.md
+      session/stderr.txt          # optional, cleaned
       source/...                  # project files the model wrote
 ```
 
@@ -62,7 +61,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
 ```json
 { "slug": "voxel-horse", "title": "Voxel horse", "kind": "godot",
   "prompt": "<contents of prompt.md, the originating prompt; refreshed on every import>",
-  "final_prompt": "<the full brief each run received: first user message of the cleaned session, ./<level>/ -> ./<effort>/; null if none>",
+  "final_prompt": "<the full brief each run received: first user message of the cleaned transcript; null if none>",
   "created": "2026-09-26T07:12:42Z", "updated": "2026-09-26T07:15:57Z",
   "runs": ["<Run with rank; see below>"] }
 ```
@@ -76,49 +75,51 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   "effort": "high",
   "kind": "godot",
   "started_at": "2026-09-26T07:12:42Z",
-  "source_dir": "2026-09-26-001158-gpt6sol-voxel-horse",
-  "verified": true,
+  "batch": "2026-09-26-001158-voxel-horse",
   "harness": { "name": "pi", "version": "0.87.1" },
   "state": "complete",
   "error": null,
+  "route": null,
   "metrics": {
     "duration_ms": 196192, "cost_usd": 0.146, "tool_calls": 16, "turns": 17,
     "tokens_total": 32732, "tokens_input": 25280, "tokens_output": 7452,
     "tokens_reasoning": 3073, "tokens_cache_read": 105984
   },
   "thumb": "thumb.png",
-  "game": { "kind": "godot", "entry": "game/index.html", "engine": "41560f8755ed",
-            "godot": "4.7.2.stable.official.ed1daf0bf", "threads": false },
-  "media": null,
-  "session": { "conversation": "session/conversation.json",
-               "status": "session/status.json", "output": "session/output.md" },
+  "output": { "kind": "godot", "entry": "game/index.html", "engine": "41560f8755ed",
+             "godot": "4.7.2.stable.official.ed1daf0bf", "threads": false,
+             "ok": true, "verified": true, "error": null },
+  "session": { "conversation": "session/conversation.json", "stderr": "session/stderr.txt" },
   "source": { "root": "source/", "files": ["README.md", "project.godot", "scenes/main.tscn", "scripts/main.gd"] }
 }
 ```
-- `game`, `media`, `session`, `source`, and `thumb` can each be `null` when the input doesn't have them.
+- `output`, `session`, `source` and `thumb` can each be `null`.
 - `rank` exists only in `page.json.runs` (never in `run.json`): the run's rank from `ranking.json`, or `null`.
-- `kind` = the model dir's `data.json` → `kind`, default `godot` (runs imported before kinds existed have no
-  `kind`; the viewer treats that as `godot`). Importing into a page of another kind is an error.
-- `media` (kind `media`) = the items of `media/<level>/manifest.json` (see "bench run" step 6), each
-  `{type: "image"|"video", path: "media/<file>", width, height, bytes}` plus, for a video,
-  `duration_s, poster: "media/<name>.poster.jpg", transcoded` and `trimmed: true` when it was cut to 10 s.
-  Width/height can be `null` for an SVG without a size. `thumb` = the first image's path or the first
-  video's poster. `verified` = the manifest's `ok`. SVGs are model-written text, so they are cleaned and
-  secret-scanned like source files. The run's `source` holds only text files of at most 512 KB, and never
-  `output/`.
-- `game` (kind `web`) = `{kind: "web", entry: "game/index.html", bytes, esbuild}` from `web/<level>/package-manifest.json`;
-  `thumb` = `thumb.png` (the verify step's first screenshot); `verified` = `web/<level>/verification/verify-report.json` → `.ok`.
-  The run's `source` never includes `node_modules/` (for any kind).
-- `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS from the folder name>`,
-  URL/filesystem-safe: a pinned OpenRouter route (`@…`, which can contain `/` itself) is split off first and
-  appended as `-via-<route>`, e.g. `…flash@deepinfra/fp8` → `deepseek-v4.1-flash-via-deepinfra-fp8-low-20261001-101500`;
-  anything else outside `[a-z0-9.-]` becomes `-`. Model dir tags likewise keep the model name plus the route.
-- `verified` = `wasm/<level>/verification/verify-report.json` → `.ok`, or `null` if that file is missing.
-- `harness` = `data.json` → `harness`; for an old `fe-model-effort-fanout/1` folder without it, `{"name": "pi", "version": null}`.
-- `state` = `runs.<level>.state` (`complete` | `failed` | `timeout`), default `complete`.
-- `error` = `runs.<level>.error` (a one-line reason: harness exit, timeout, or "Godot export failed: …"), default `null`.
-  A run with `state` ≠ `complete` is still imported (it usually has no game).
-- `route` = `runs.<level>.route` for a pi `openrouter/` run, else `null`:
+- `kind` is the page's kind (runs imported before kinds existed have none; the viewer treats that as `godot`). Importing
+  into a page of another kind is an error. `batch` = the batch directory's name (runs published before run
+  directories hold the old model directory's name).
+- **`state`, `output.ok`, `output.verified`: three questions, three places.** `state` is only what the agent did:
+  `queued | running | complete | failed | timeout`; `error` is the agent's error (harness exit, timeout, an assistant
+  `stopReason: error`, or a note that a pinned OpenRouter run was served outside its upstreams). `output.ok` /
+  `output.error` are what the kind step made of the work (Godot export, packaging, media normalization): a run
+  whose export failed is `state: complete` with `output: {kind, ok: false, error: "Godot export failed: …",
+  verified: null}`. `output.verified` is whether the check passed (booted, loaded offline, files readable), `null`
+  when it wasn't run. `output` is `null` only when the agent didn't complete (there was nothing to export).
+- `output` carries its own `kind` and the kind's fields (see Kinds): `godot` = `entry`, `engine`, `godot`, `threads`;
+  `web` = `entry`, `bytes`, `esbuild`; `media` = `items`, each `{type: "image"|"video", path: "media/<file>", width,
+  height, bytes}` plus, for a video, `duration_s, poster: "media/<name>.poster.jpg", transcoded` and `trimmed: true`
+  when it was cut to 10 s (width/height can be `null` for an SVG without a size). Paths are relative to the run
+  directory. `thumb` = `thumb.png` (the verify step's first screenshot) for godot and web, the first image's path or
+  the first video's poster for media. Model-written text (SVGs, the packaged page) is cleaned and secret-scanned like
+  source. The run's `source` never includes `node_modules/`; for media it holds only text files of at most 512 KB
+  and never `output/`.
+- `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS of the batch>`, with `-cc` after the
+  model for Claude Code runs; URL/filesystem-safe: a pinned OpenRouter route (`@…`, which can contain `/` itself) is split
+  off first and appended as `-via-<route>`, e.g. `…flash@deepinfra/fp8` → `deepseek-v4.1-flash-via-deepinfra-fp8-low-20261001-101500`;
+  anything else outside `[a-z0-9.-]` becomes `-`. It is also the run directory's name; two runs of a batch with one id
+  are refused before anything starts.
+- `harness` = the agent program and its version; `metrics` as in "Metrics".
+- `route` = what the harness reports about routing, for a pi `openrouter/` run, else `null`:
   `{"requested": {"only": [...], "allow_fallbacks": false}, "served": [...], "cost_usd": 0.00085, "pi_cost_usd": 0.00038}`.
   `requested` is `null` for an unpinned run (OpenRouter chose the upstream); the rest is recorded either way.
   `served` = the upstreams that served the run, in order, as OpenRouter names them ("DeepInfra", "AtlasCloud").
@@ -128,38 +129,33 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   reported one; `pi_cost_usd` = pi's own estimate. For an OpenRouter run `metrics.cost_usd` is `cost_usd` when present:
   pi prices every OpenRouter call at one catalog rate whatever upstream served it (≈ 2–7× too low on real runs).
 
-## Input: an effort-run folder (`fe-model-effort-fanout/1`)
-
-A real example (READ ONLY, never modify): `~/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse/`
+## Run directory (what `bench run` writes and `bench import` publishes)
 
 ```
-prompt.md                     # the originating prompt, shown on the page (the subagent brief lives in <level>/conversation.json)
-data.json                     # {"schema": "fe-model-effort-fanout/1", "runs": {"low": {...}, "medium": {...}, "high": {...}}, "totals": {...}}
-                              #   runs.<level>: model, thinkingLevel, startedAt (epoch ms), durationMs, costUsd, toolCalls, turns,
-                              #                 tokens: {input, output, total, reasoning, cacheRead, cacheWrite, ...}
-conversation.json, workflow-*.json   # orchestrator-level files: ignored
-<level>/                      # the Godot project the model wrote + its session
-  conversation.json           # the session: JSON array of entries (session.jsonl is an identical copy, skip it)
-  session.jsonl  events.jsonl  status.json  output.md  data.json
-  project.godot  README.md  scenes/  scripts/  export_presets.cfg
-  .godot/                     # editor cache: skip
-wasm/<level>/                 # Godot web export
-  index.html index.js index.wasm index.pck index.audio.worklet.js index.audio.position.worklet.js index.png index.icon.png index.apple-touch-icon.png
-  export-manifest.json        # {"godot": "...", "threads": false, "template": "..."}
-  verification/frame-1.png, frame-2.png, verify-report.json   # {"ok": true, ...}
-wasm/index.html               # ignored
+<run.dir>/<YYYY-MM-DD-HHMMSS>-<page slug>/      # a batch
+  batch.json  prompt.md                         # the batch's record (see Resume) and the originating prompt
+  <run id>/                                     # one run
+    run.json                                    # the run's record: the Run above, minus rank, thumb, session and source;
+                                                #   output = {kind, ok, error, verified} (null until the kind step ran)
+    work/                                       # the agent's working dir, empty at start; nothing else is ever written here
+    harness/                                    # session file(s), stdout (events.jsonl), stderr.txt, brief.md, route.jsonl,
+                                                #   conversation.json (the session in pi's format): never published except the
+                                                #   transcript and a non-empty stderr
+    output/                                     # what the kind made: Godot export (+ verification/), the packaged page
+                                                #   (+ verification/), or normalized media + manifest.json
 ```
-
-Page slug: from the folder name, strip the leading `YYYY-MM-DD-HHMMSS-` and then the next `-`-separated token
-(the model tag): `2026-09-26-001158-gpt6sol-voxel-horse` → `voxel-horse`. `--page <slug>` overrides this.
-Title = the slug with dashes turned into spaces and the first letter capitalized.
+`bench import` takes one run directory or a batch directory and publishes each run: cleans and secret-scans, copies
+`run.json` (adding `thumb`, `output`'s kind fields, `session` and `source`), `harness/conversation.json` as
+`session/conversation.json`, `work/` as `source/` and the kind's `output/`, then rebuilds. The page slug is the run's
+`page` (`--page` overrides it); the title = the slug with dashes turned into spaces and the first letter capitalized.
+The page's prompt is the batch directory's `prompt.md`. Effort-run folders (`fe-model-effort-fanout/1`) are no longer read.
 
 ## Godot engine dedupe (proven in `../spike/build.py`)
 
 1. The engine files are `index.wasm`, `index.js`, `index.audio.worklet.js`, `index.audio.position.worklet.js`.
    sha12 = the first 12 hex characters of sha256 over the four files' bytes, concatenated in that order.
 2. If `docs/engines/<sha12>/` doesn't exist, copy them there as `godot.wasm`, `godot.js`, `godot.audio.worklet.js`, `godot.audio.position.worklet.js`.
-3. Copy the other export files (except `export-manifest.json`, `verification/`, and the engine files) into `runs/<id>/game/`.
+3. Copy the other export files (except `export-manifest.json`, `verification/`, and the engine files) from `output/` into `runs/<id>/game/`.
 4. Rewrite `game/index.html`. `rel` = the relative path from the game dir to `docs/engines/<sha12>/godot`:
    - `<script src="index.js"></script>` → `<script src="{rel}.js"></script>`
    - in `const GODOT_CONFIG = {...};`: `executable` = rel, **`mainPack` = "index.pck"** (required), and rename the
@@ -168,7 +164,7 @@ Title = the slug with dashes turned into spaces and the first letter capitalized
    with a clear error, unless `--allow-threads` is given. With the flag, store `"threads": true`.
 6. `verification/frame-1.png` → `runs/<id>/thumb.png`.
 
-## Cleaning (always runs on session files before they are written to docs/)
+## Cleaning (always runs on text files before they are written to docs/)
 
 1. Remove every `thinkingSignature` key and every `encrypted_content` key, at any depth (a `thinkingSignature`
    value may be a JSON string that contains `encrypted_content`; dropping the whole key is enough).
@@ -178,7 +174,7 @@ Title = the slug with dashes turned into spaces and the first letter capitalized
    rewrite = { "/Volumes/M2SSD" = "<vol>" }
    ```
 3. Drop these keys at any depth: `pid`, `completionOwnerId`, `sessionId`, `sessionFile`, `sessionRoot`, `launchContractDigest`.
-4. Secret scan over the cleaned text of every published file (session files, output.md, and source files).
+4. Secret scan over the cleaned text of every published file (the transcript, stderr, source files, SVGs and the packaged page).
    Patterns: `sk-[A-Za-z0-9_-]{20,}`, `ghp_[A-Za-z0-9]{30,}`, `github_pat_[A-Za-z0-9_]{30,}`, `gho_[A-Za-z0-9]{30,}`,
    `AKIA[0-9A-Z]{16}`, `xox[baprs]-[A-Za-z0-9-]{10,}`, `-----BEGIN [A-Z ]*PRIVATE KEY-----`,
    `(?i)(api[_-]?key|secret|token|password)["'\s:=]+[A-Za-z0-9_\-/+]{24,}`.
@@ -187,12 +183,12 @@ Title = the slug with dashes turned into spaces and the first letter capitalized
 5. Image data (the base64 `data` of `{type: "image"}` blocks in session JSON) is set aside before steps 2 and 4 and
    put back after: it's binary, so rewrites could corrupt it and the scan finds random matches (`AKIA…`) in it.
    Data that isn't plain base64 stays in place and is scanned.
-6. JSONL files are cleaned line by line. `output.md` and source files get steps 2 and 4 only.
+6. JSONL files are cleaned line by line. Source files, stderr, SVGs and the packaged page get steps 2 and 4 only.
 
 ## CLI (`bench`, run from the repo root, or pass `-C/--root`)
 
 ```
-bench import <effort-run-dir> [-p/--page SLUG] [-t/--title TEXT] [-r/--redact] [-a/--allow-threads] [-n/--dry-run]
+bench import <run-dir | batch-dir> [-p/--page SLUG] [-t/--title TEXT] [-r/--redact] [-a/--allow-threads] [-n/--dry-run]
 bench list                      # pages and their runs
 bench rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuild
 bench rebuild                   # regenerate page.json + pages.json from runs/*/run.json; delete engines no run references
@@ -203,7 +199,7 @@ bench run ...                   # run agents locally, then import (see "Running 
 bench models [SEARCH] [-H/--harness pi|claude-code]   # models the harness can run; with SEARCH also their effort levels
 ```
 Every long option has a single-dash short form (shown as `-p/--page`); the short forms are listed with each command.
-- `import` is idempotent. Re-importing the same folder replaces runs with the same id.
+- `import` is idempotent. Re-importing the same directory replaces runs with the same id.
 - `import` prints a short summary per run: id, engine stored or reused, bytes written, paths rewritten, secret hits.
 - `--dry-run` does all the work, including the secret scan, in a temp dir and writes nothing to docs/.
 - Errors go to stderr with a non-zero exit code, and there are no tracebacks for expected errors.
@@ -211,7 +207,7 @@ Every long option has a single-dash short form (shown as `-p/--page`); the short
 ## Running benchmarks (`bench run`)
 
 Runs one prompt through one or more models × effort levels on this machine with a **harness** (the agent program;
-only `pi` for now), exports + verifies each Godot project, then imports everything into one page.
+pi or Claude Code), turns each run's work into its kind's output and verifies it, then imports everything into one page.
 
 ```
 bench run PROMPT | -f/--prompt-file FILE
@@ -246,7 +242,7 @@ supported levels (pi silently clamps unsupported levels, so this check is what k
 `bench.toml`:
 ```toml
 [run]
-dir = "~/dev/bench-runs"   # where batch folders go (never inside ~/dev/effort-runs)
+dir = "~/dev/bench-runs"   # where batch directories go (never inside ~/dev/effort-runs)
 parallel = 8
 timeout = "30m"
 tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", "ffprobe"]   # listed in the brief
@@ -266,85 +262,88 @@ plain error for every command.
 ### Flow
 1. **Plan**: resolve models + levels, print the harness (name + version), page (new/existing), prompt, the numbered
    model × effort list and the batch dir. Ask `Start? [y/N]` (stdin not a tty and no `--yes` → error). `--dry-run` stops after printing.
-2. **Batch dir**: `<run.dir>/<YYYY-MM-DD-HHMMSS>-<page slug>/` containing `batch.json`, `prompt.md`, and one
-   **model dir** per model named `<YYYY-MM-DD-HHMMSS>-<modeltag>-<page slug>` (modeltag = model id after the last "/",
-   lowercased, non-alphanumerics removed: `gpt6sol`). Each model dir has exactly the effort-run-folder layout that
-   `bench import` reads (its own copy of `prompt.md`, `data.json`, `<level>/`, `wasm/<level>/`), so import needs no special case.
-3. **Brief**: `src/bench/briefs/<kind>.md` with `{prompt}` replaced by the prompt verbatim and `{tools}` by the
+2. **Batch dir**: `<run.dir>/<YYYY-MM-DD-HHMMSS>-<page slug>/` with `batch.json`, `prompt.md` and one run directory per
+   model × effort (see "Run directory"). Run ids are assigned here from the batch's start time; each run's `state` in
+   `batch.json` starts `queued`.
+3. **Brief**: the kind's `src/bench/kinds/<kind>.md` with `{prompt}` replaced by the prompt verbatim and `{tools}` by the
    installed tools from `[run].tools` (each `"name note"`, e.g. `"python3 (standard library only)"`, listed as
    `name version note`; tools not on PATH are left out with a note). The same text for every run.
-   Saved as `.harness/<level>/brief.md`, never in the agent's working dir.
-4. **Agents** (threads + subprocess, at most `-j` at once). Working dir = `<model dir>/<level>/` (empty at start).
-   Harness scratch = `<model dir>/.harness/<level>/` (session dir, the raw stdout `events.jsonl`, `stderr.txt`; never published), kept outside the
-   level dir so the agent's project stays clean. Timeout → kill the process group, state `timeout`.
-5. **Collect** (per run, when its agent exits): copy the session file to `<level>/session.jsonl`, write
-   `<level>/conversation.json` (the session as a JSON array; each `toolResult` message carries `durationMs`, the
-   tool's duration: from the assistant entry that called it to the result entry for pi, from the `tool_use` event to the
-   `tool_result` event for Claude Code), `<level>/status.json`
-   (`{state, error, exit_code, argv, harness, startedAt, endedAt, durationMs}`), `<level>/data.json` (the run entry
-   below). The model dir's `data.json` = `{"schema": "bench-run/1", "harness": {...}, "runs": {"<level>": entry}}`,
-   rewritten after every run finishes. Entry: `model, thinkingLevel, startedAt, endedAt, durationMs, costUsd,
-   toolCalls, turns, tokens: {input, output, total, reasoning, cacheRead, cacheWrite}, state, error, route`
-   (`route` = `{"requested", "served"}` for a pinned OpenRouter run, else `null`).
-6. **Media** (kind `media`, only when state is `complete`, when `media/<level>/manifest.json` is missing):
-   check every file in `<level>/output/` (sorted, flattened as `a-b.png` for `a/b.png`, at most 8) into
-   `media/<level>/`. Images (`.png .jpg .jpeg .webp .gif`) must be readable by ffprobe; one over 2 MB is
-   re-encoded as JPEG (a GIF isn't). SVGs must parse as XML with an `<svg>` root (size from width/height or
-   viewBox) and be ≤ 2 MB. Videos (`.mp4 .webm .mov`) must have a duration; one that isn't H.264/yuv420p mp4,
-   is over 10 s or over 2 MB is re-encoded (`libx264`, `-t 10`, max 1280 wide, CRF 26 → 32 → 38 until it fits).
-   Each video gets a `.poster.jpg` at 30% of its length. Unsupported types, unreadable files and name clashes
-   are errors. `manifest.json` = `{ok, items, errors}` with `ok` = at least one item and no errors. Errors
-   keep the state and set `error` (joined with `; `, the first 200 characters). ffmpeg and ffprobe must be
-   on PATH before a media batch starts.
-
-   **Package** (kind `web`, only when state is `complete`, when `web/<level>/index.html` is missing): read
-   `<level>/index.html` and inline what it references (`web.bundle_html()`): each local `<script type="module">`
-   (with `src` or inline) is bundled by `esbuild --bundle --format=esm --minify` with everything it imports, npm
-   packages from `node_modules/` included, and imported assets (images, models, audio, fonts) become data: URLs; each
-   local `<link rel="stylesheet">` is bundled into a `<style>`; a classic `<script src>` is kept verbatim as a
-   `data:text/javascript` URL (bundling would turn its globals into locals). `</script`/`</style` inside inlined code
-   is escaped. Remote URLs, import maps and other script types are left alone for verify to catch. A `src`/`href` must
-   name a file inside the level dir. Write `web/<level>/index.html` (≤ 20 MB) and `package-manifest.json`
-   (`esbuild` version, `bytes`, `packagedAt`). Failure → keep state, set `error = "packaging failed: <reason>"`
-   (e.g. `esbuild: Could not resolve "./x.js"`), no web dir. `esbuild` and `npm` must be on PATH before a web batch starts.
-
-   **Export** (kind `godot`, only when state is `complete`; one export at a time, other agents keep running): write
-   `export_presets.cfg` (preset "Web", nothreads, `exclude_filter` listing the session files), run
-   `godot --headless --path <level> --export-release Web <abs wasm/<level>>/index.html`, then check `index.html`,
-   `index.js`, `index.wasm`, `index.pck` exist and are non-empty (Godot can exit 0 after failing). Write
-   `export-manifest.json` (`godot`, `threads: false`, `template`, `exportedAt`). Failure → keep state, set
-   `error = "Godot export failed: <last log line>"`, no wasm dir.
-7. **Verify** (optional dependency: Playwright, `pip install bench[verify]`; skipped with a note when missing):
-   serve the export dir, open it in Chrome with the swiftshader flags, wait for Godot to remove `#status` (≤ 30s), take
-   `verification/frame-1.png`, wait 1.2s, take `frame-2.png`; `verify-report.json` =
-   `{ok, booted, framesDiffer, consoleErrors, pageErrors}` with `ok = booted and framesDiffer and no pageErrors`.
-   Kind `web`: serve `web/<level>/`, load `index.html` inside `verification/frame.html`, an iframe sandboxed exactly
-   like the site's (`allow-scripts allow-pointer-lock`, so storage APIs throw), with every request except those two
-   pages aborted and recorded; wait for `document.readyState == "complete"` (≤ 30s) and 1.2s more, then take the two
-   frames. The report adds `blockedRequests`, and `ok = booted and no pageErrors and no blockedRequests` (a static
-   page is fine, so frames needn't differ).
-8. **Import**: `bench import` each model dir with `--page` (and `--title` for a new page), then print where to preview
-   (`bench serve`) and publish, or run `bench publish` with `--publish`.
+   Saved as `harness/brief.md`, never in the agent's working dir.
+4. **Agents** (threads + subprocess, at most `-j` at once). Working dir = `<run>/work/` (empty at start); the harness's
+   scratch is `<run>/harness/`, kept outside the working dir so the agent's project stays clean. Timeout → kill the
+   process group, state `timeout`.
+5. **Collect** (per run, when its agent exits): write `harness/conversation.json` (the session as a JSON array; each
+   `toolResult` message carries `durationMs`, the tool's duration: from the assistant entry that called it to the
+   result entry for pi, from the `tool_use` event to the `tool_result` event for Claude Code) and `run.json` (the
+   run's record with `output: null`; see Run). `batch.json`'s state for the run becomes the record's `state`.
+6. **Output** (per run, only when `state` is `complete`, and when `output` is missing or not `ok`): the kind's
+   `finalize(work, output/)` makes the publishable output, `verify(output/)` checks it (when `finalize` succeeded), and
+   `run.json`'s `output` becomes `{kind, ok, error, verified}`. A step that fails leaves `state` alone. See Kinds.
+7. **Import**: `bench import` the batch directory with `--page` (and `--title` for a new page), then print where to
+   preview (`bench serve`) and publish, or run `bench publish` with `--publish`.
 
 Progress: on a tty a table (model, effort, state, elapsed, turns, tokens, cost) redrawn every 2s, read from each
-session file as it grows; otherwise one line per state change. States: queued, running, exporting, packaging (web),
-verifying, processing (media), done, failed, timeout.
+session file as it grows; otherwise one line per state change. The states are the agent's (queued, running, complete,
+failed, timeout) plus transient labels of the output step (exporting, packaging, processing, verifying, then done, or
+"no output" when it failed); the labels are never written to `batch.json`.
+
+### Kinds (`src/bench/kinds/`)
+
+A kind is one class registered in `KINDS` (like `HARNESSES`); the runner and the importer never branch on a kind's name.
+```python
+class Kind:
+    name: str; tools: tuple; tools_hint: str; activity: str; serial: bool   # tools must be on PATH before a batch starts;
+                                                                            # serial: finalize runs one at a time
+    def brief(self) -> str                              # the template text (kinds/<name>.md)
+    def finalize(self, work_dir, out_dir) -> (bool, str | None)    # export / package / normalize -> (ok, error)
+    def verify(self, out_dir) -> dict | None            # {ok, ...} or None when it can't be checked here
+    def stage(self, out_dir, run_dir, ctx) -> Staged    # the output into the run's published dir; Staged(fields, thumb, engine)
+    def keep_source(self, rel, path) -> bool            # whether a work file is published as source
+```
+- **godot** (`Godot`): `finalize` = **Export**: write `export_presets.cfg` into the project (preset "Web", nothreads), run
+  `godot --headless --path <work> --export-release Web <abs output>/index.html`, then check `index.html`, `index.js`,
+  `index.wasm`, `index.pck` exist and are non-empty (Godot can exit 0 after failing), and write `export-manifest.json`
+  (`godot`, `threads: false`, `template`, `exportedAt`). Failure → `ok: false`, `error = "Godot export failed: <last log line>"`.
+  `verify` = serve the export, open it in Chrome with the swiftshader flags, wait for Godot to remove `#status` (≤ 30s), take
+  `verification/frame-1.png`, wait 1.2s, take `frame-2.png`; `verify-report.json` = `{ok, booted, framesDiffer,
+  consoleErrors, pageErrors}` with `ok = booted and framesDiffer and no pageErrors`. `stage` = the engine dedupe below.
+- **web** (`Web`; `esbuild` and `npm` on PATH): `finalize` = **Package**: read `work/index.html` and inline what it references
+  (`bundle_html()`): each local `<script type="module">` (with `src` or inline) is bundled by `esbuild --bundle
+  --format=esm --minify` with everything it imports, npm packages from `node_modules/` included, and imported assets
+  (images, models, audio, fonts) become data: URLs; each local `<link rel="stylesheet">` is bundled into a `<style>`; a
+  classic `<script src>` is kept verbatim as a `data:text/javascript` URL (bundling would turn its globals into
+  locals). `</script`/`</style` inside inlined code is escaped. Remote URLs, import maps and other script types are
+  left alone for verify to catch. A `src`/`href` must name a file inside the work dir. Write `output/index.html` (≤ 20 MB)
+  and `package-manifest.json` (`esbuild` version, `bytes`, `packagedAt`). Failure → `ok: false`, `error = "packaging
+  failed: <reason>"` (e.g. `esbuild: Could not resolve "./x.js"`). `verify` = serve `output/`, load `index.html` inside
+  `verification/frame.html`, an iframe sandboxed exactly like the site's (`allow-scripts allow-pointer-lock`, so storage
+  APIs throw), with every request except those two pages aborted and recorded; wait for `document.readyState ==
+  "complete"` (≤ 30s) and 1.2s more, then take the two frames. The report adds `blockedRequests`, and `ok = booted and no
+  pageErrors and no blockedRequests` (a static page is fine, so frames needn't differ). `stage` copies the page to
+  `game/index.html` (cleaned like source). Both Chrome checks are one helper (`browser.verify_page`); Playwright is an
+  optional dependency (`pip install bench[verify]`), and verification is skipped with a note when it's missing.
+- **media** (`Media`; `ffmpeg` and `ffprobe` on PATH): `finalize` checks every file in `work/output/` (sorted, flattened as
+  `a-b.png` for `a/b.png`, at most 8) into `output/`. Images (`.png .jpg .jpeg .webp .gif`) must be readable by ffprobe;
+  one over 2 MB is re-encoded as JPEG (a GIF isn't). SVGs must parse as XML with an `<svg>` root (size from width/height
+  or viewBox) and be ≤ 2 MB. Videos (`.mp4 .webm .mov`) must have a duration; one that isn't H.264/yuv420p mp4, is over
+  10 s or over 2 MB is re-encoded (`libx264`, `-t 10`, max 1280 wide, CRF 26 → 32 → 38 until it fits). Each video gets a
+  `.poster.jpg` at 30% of its length. Unsupported types, unreadable files and name clashes are errors. `manifest.json` =
+  `{ok, items, errors}` with `ok` = at least one item and no errors. `ok` of the step = at least one item was kept;
+  `error` = the manifest's errors (joined with `; `, the first 200 characters, the kept files are still published);
+  `verify` = the manifest's `ok`. `keep_source`: text files of at most 512 KB, never `output/`.
 
 ### Metrics (from the session log, the same numbers pi-subagents reported)
-Over assistant messages: `turns` = count; `toolCalls` = number of `toolCall` content blocks; `tokens.input/output/
-reasoning/cacheRead/cacheWrite` = sums of `usage.<field>`; `tokens.total = input + output`; `costUsd` = sum of
-`usage.cost.total`. `durationMs` = wall clock of the harness process. `thinkingLevel` = the session's
-`thinking_level_change` entry (what actually ran). `state = failed` when the process exits non-zero, there is no
+Over assistant messages: `turns` = count; `tool_calls` = number of `toolCall` content blocks; `tokens_input/output/
+reasoning/cache_read` = sums of `usage.<field>`; `tokens_total = input + output`; `cost_usd` = sum of
+`usage.cost.total`. `duration_ms` = wall clock of the harness process. `state = failed` when the process exits non-zero, there is no
 session file, or the last assistant message has `stopReason: "error"`; `error` = its `errorMessage` or the last
 non-empty stderr line (the first 200 characters).
 
 ### Harness interface (`src/bench/harness.py`)
 Harnesses: `pi` (the default) and `claude-code`. A `-m` spec picks one with a prefix: `claude-code:MODEL[:LEVELS]`
 (no prefix, or `pi:`, = pi), in `-m`, `--set` entries and set files alike, so one batch can mix harnesses. Each run
-records its harness; batch.json has `harnesses: {name: version}` and each run `{harness, model, model_arg, level,
-model_dir, state}` (`model` = what the site shows, `model_arg` = the harness's id; older batches without these are pi).
-Model dirs of non-pi harnesses end their model tag with the harness tag (`claudeopus55cc`), and their run ids put it
-after the model (`claude-opus-5-5-cc-high-20260928-154152`), so one model under two harnesses never collides.
+records its harness; batch.json has `harnesses: {name: version}`. The run ids of non-pi harnesses put the harness tag after
+the model (`claude-opus-5-5-cc-high-20260928-154152`), so one model under two harnesses never collides.
 ```python
 class Harness:           # one per agent program
     name: str; tag: str                                 # tag: "" for pi, "cc" for claude-code
@@ -357,7 +356,7 @@ class Harness:           # one per agent program
     def pinned(self, model, upstreams) -> str           # the model argument ("model@a,b"); only pi accepts upstreams
     def command(self, model, level, brief, session_dir) -> list[str]
     def env(self, model=None, harness_dir=None) -> dict | None  # the agent's environment (None = inherit)
-    def session_file(self, session_dir) -> Path | None  # the raw session (copied to <level>/session.jsonl, never published)
+    def session_file(self, session_dir) -> Path | None  # the raw session in harness/ (never published)
     def session_entries(self, session_dir, brief, level) -> list  # the session in pi's format -> conversation.json
     def metrics(self, session_dir, level) -> dict | None          # parse_session()'s shape; tolerates a growing file
     def finish(self, harness_dir, model, metrics) -> dict         # final touches from the scratch dir (pi: the OpenRouter route
@@ -366,7 +365,7 @@ class Harness:           # one per agent program
 Pi: `pi --version`; `pi --list-models` (parse the table); levels via `pi --mode rpc --no-session --model M -ne -ns -np -nc`
 sending `{"type":"get_available_thinking_levels"}` and reading the matching response;
 command = `pi -p --mode json --model M:LEVEL --session-dir DIR -ne -ns -np -nc BRIEF` (no user extensions, skills,
-prompt templates or AGENTS.md, so runs are reproducible); session file = the one `*.jsonl` in DIR.
+prompt templates or AGENTS.md, so runs are reproducible); session file = the `*.jsonl` in DIR that isn't pi's stdout (`events.jsonl`).
 Every `openrouter/` run adds `-e src/bench/pi_ext/openrouter_routing.ts` (explicit `-e` paths still load under
 `-ne`) and sets `BENCH_ROUTE_LOG=<harness dir>/route.jsonl` in that run's environment. A pinned run (`MODEL@slug`)
 passes the base id to `--model` and also sets `BENCH_OPENROUTER_ROUTING={"only": [...], "allow_fallbacks": false}`
@@ -398,17 +397,18 @@ calls = their `tool_use` blocks; tokens from the final `result.usage` (the strea
 taken before output is written and undercounts it; it's only summed while the run is still going), reasoning =
 `result.usage.output_tokens_details.thinking_tokens`; cost = `result.total_cost_usd` (Claude Code's estimate at API
 prices, also on a subscription); failed = `result.is_error` (error = `result.result`).
-Future harnesses and a VM runner plug in here and at "start one agent" in `runner.py`.
+Future harnesses and a VM runner plug in here and at "start one agent" in `runner.py`; a container executor mounts one run directory.
 
 ### Ctrl-C
 Kills every running agent's process group, marks those runs `queued` in batch.json, prints the `--resume` command, exits 130.
 
 ### Resume
-`batch.json` = `{prompt, kind, page, title, harness, brief, created, runs: [{model, level, model_dir, state}]}`, updated on
-every state change. `--resume DIR` reads it and, per run: `queued`/`running` → start the agent again (clear its level
-dir first); a finished agent is never rerun. Then export where `wasm/<level>` is missing, verify where
-`verify-report.json` is missing (media: process where `media/<level>/manifest.json` is missing; web: package where
-`web/<level>/index.html` is missing), and import. Failed and timed-out runs stay as they are.
+`batch.json` = `{prompt, kind, page, title, title_is_explicit, harnesses, brief, request, created, runs: [{id, harness, model,
+model_arg, level, state}]}`, updated on every state change (`model` = what the site shows, `model_arg` = the harness's id).
+`--resume DIR` reads it and, per run: `queued`/`running` → start the agent again (its run directory is emptied first); a
+finished agent is never rerun. Then the output step for a `complete` run whose `output` is missing or not `ok` (so a failed
+export is retried), and import. Failed and timed-out runs stay as they are. A batch written by a bench that grouped runs by
+model (no `id` in its runs) can't be resumed.
 
 ## Ranking
 
@@ -455,15 +455,22 @@ sorts by rank by default, and the gallery and compare order ranked runs first (`
 (`saveRanks()`), with a status line next to the run count; a failed save reverts the select and shows the error. Data
 JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is never hidden by the browser cache.
 
+All output rendering goes through one function, `renderOutput(run, base, opts)` in common.js (the click-to-play frame, the
+immediate sandboxed frame, the media gallery, or the "no output" message, with the kind step's own error above it) and
+one `KIND_UI` table (chip label, tab label, no-output text and failure badge per kind); page, run, compare and play all call
+them. Any output with an `entry` is shown in the sandbox, so a new kind needs no viewer code.
+
 - **index.html**: cards per page (thumb, a Game/Media chip, title, model names, n_runs, updated date) → page.html.
 - **page.html**: title, a meta line (kind, n runs, n models, last run), the Prompt (prompt.md) and a collapsed Final prompt,
   then **highlights**: the cheapest, fastest and fewest-tokens completed run (each links to it) plus verified count, failed
   count and total spend. Then a "Compare all" link → compare.html and a runs table (thumb, rank, model, effort, harness,
-  verified ✓/✗, run at (the run's `started_at`, local time, year on hover; in the phone cards a line under the metrics), duration, tokens total/reasoning, cost, tool calls). Harness shows "pi 0.87.1" (name only
+  verified ✓/✗ (`output.verified`), run at (the run's `started_at`, local time, year on hover; in the phone cards a line under the metrics), duration, tokens total/reasoning, cost, tool calls). Harness shows "pi 0.87.1" (name only
   when version is null, "–" when missing).
   A `media` page also has a **Gallery** above the table: one card per run (its thumb, effort, model, cost, duration,
   "N files" when more than one), linking to the run. Expanding a media row shows its outputs. A run whose `state` isn't `complete`
-  shows a red `failed`/`timeout` badge in the Verified cell (and a red edge on its row), and its expanded row shows `error`.
+  shows a red `failed`/`timeout` badge in the Verified cell (and a red edge on its row), and its expanded row shows `error`. A completed run
+  whose output step failed shows a red "export failed" / "packaging failed" / "output failed" badge there instead of a check mark, still counts
+  as completed in the highlights, and its expanded row shows `output.error` above "No playable build recorded for this run.".
   The table is sortable (default: model, then effort), numeric columns are right-aligned with a thin bar under the value
   scaled to the column max, the best completed value in duration / tokens / cost is starred, and every header has a help
   tooltip (shown after 0.5s). Clicking a row expands it and boots that run's game inline; clicking again removes it.
@@ -474,11 +481,12 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   (`.table-wrap` keeps `overflow-x: auto` as a safety net only.) Model names with a pinned upstream wrap inside their cell.
 - **run.html**: a header with model (provider above) and effort, a switcher with every run of the same page (grouped by
   model, current one marked), stat tiles (cost, duration, tokens, output tokens, tool calls, turns) each with the run's
-  rank among the page's completed runs ("cheapest of 6", "3rd of 6"), a line with verified, harness, started (plus the
-  failed/timeout badge), and `error`. Then tabs (the open tab is kept in the URL hash, e.g. `#transcript`; Transcript and
+  rank among the page's completed runs ("cheapest of 6", "3rd of 6"), a line with verified (`output.verified`), harness,
+  started (plus the failed/timeout badge for the agent and an "export failed" / "packaging failed" / "output failed"
+  badge when the output step failed), and the agent's `error`. Then tabs (the open tab is kept in the URL hash, e.g. `#transcript`; Transcript and
   Source show a count):
   - *Game*: click-to-play overlay (shows thumb). On click it inserts
-    `<iframe sandbox="allow-scripts allow-pointer-lock" allow="fullscreen; autoplay; gamepad">` pointing at `game.entry`.
+    `<iframe sandbox="allow-scripts allow-pointer-lock" allow="fullscreen; autoplay; gamepad">` pointing at `output.entry`.
     There's also an "Open full screen ↗" link (link to `play.html`, which boots it in the sandbox).
   - *Transcript*: renders `session.conversation`. System prompt collapsed. User text. For each assistant message:
     thinking (collapsed, toggle "show thinking"), text (markdown), and toolCall blocks paired with their toolResult by
@@ -488,14 +496,14 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
     An image in a tool result is shown as an `<img>` thumbnail (a data: URL, only for
     jpeg/png/gif/webp with plain base64 data, never SVG) captioned `[image: <type>, N KB]`, never as text.
     `isError` gets a ✗ badge. Show `+m:ss` since session start (the clock time on hover) and per-message token usage. A tool's duration is the `durationMs` on its `toolResult` message (when present). Filter buttons: all / tool calls / errors.
-  - *Output* (instead of Game, for a `media` run): every item as a captioned figure (file name, size, duration,
+  - *Output* (instead of Game, for a `media` run): every `output.items` entry as a captioned figure (file name, size, duration,
     bytes, a `download` link). Images, **SVGs included**, are only ever shown with `<img>` (which never runs an
     SVG's scripts), never inlined or put in an object/embed/iframe, and never linked for viewing on this origin.
     Videos use `<video controls preload="none">` with the poster, and never autoplay.
   - *Page* (instead of Game, for a `web` run): the packaged page with click-to-play, in the same sandboxed iframe as games.
   - *Source*: a file list, and clicking a file shows it in a `<pre>`. The first code file opens right away.
   - *Metrics*: all metrics as a table of raw values (with a readable form beside durations, costs and big counts,
-    including Harness, State and Error), plus links to download the raw session files.
+    including Harness, State, Error and the output's ok / verified / error), plus links to download the raw session files.
 - **compare.html**: one card per run (all runs of the page by default), laid out as a grid of ~380px columns that wraps
   into rows (3 across at desktop width, 1 on phones, never sideways scrolling), ordered by model then effort. Each card has
   the model, its effort pill (plus the failed/timeout badge), one line with harness, duration, tokens and cost (the best
@@ -519,7 +527,8 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
 
 ## Tests (`uv run pytest`)
 
-- CLI: unit tests plus an end-to-end import of a small synthetic effort-run fixture. The fixture uses tiny fake engine
+- CLI: unit tests plus an end-to-end import of a small synthetic batch directory (run directories with `run.json`,
+  `work/`, `harness/`, `output/`). The fixture uses tiny fake engine
   files and a real Godot `index.html` template, and covers dedupe, the html rewrite, cleaning, the secret abort and
   redaction, idempotency, rm, and rebuild.
 - Viewer: Playwright (Python, `channel="chrome"`, which uses the installed Google Chrome, so no browser download)
@@ -534,7 +543,7 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   hang, or exit non-zero. Covers level parsing (`all`, ranges, explicit lists, off excluded by default, unsupported
   level → error before anything starts), the plan/confirmation, `-j`, timeout, failed runs being imported, metrics
   against the real voxel-horse `high/session.jsonl` numbers (when present), and `--resume` not rerunning finished
-  agents. For a media brief the fake pi writes `./output/` (SVG, PNG and an ffmpeg-made mp4) plus a script and a
+  agents (and retrying a failed output step), a toy kind defined in a test running end to end, and the run directory layout. For a media brief the fake pi writes `./output/` (SVG, PNG and an ffmpeg-made mp4) plus a script and a
   leftover binary frame. `tests/test_media.py` checks the media step on ffmpeg-generated inputs (trim + re-encode,
   oversized image → JPEG, bad files, empty output, too many files, name clashes); media tests are skipped without
   ffmpeg. A slow test (skipped without `godot`) exports a tiny real project. No test calls a real model.
@@ -543,7 +552,7 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
   classic scripts, stylesheets, imported assets, `</script>` escaping, remote/importmap left alone, missing imports and
   paths outside the project), verifies offline in the sandbox (a remote fetch and localStorage both fail it), and runs
   a web batch end to end into the viewer (kind chip, Page tab, the bundled package running in the sandboxed iframe).
-- Integration (skipped when `~/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse` is missing): import the real run
-  into a temp site, serve it, and check that all 3 Godot games boot inside the sandboxed iframe in compare. Headless Chrome
+- Integration: serve the published voxel-horse page (real Godot builds) from a temp site, and check that all 3 games boot
+  inside the sandboxed iframe in compare. Headless Chrome
   needs `--enable-unsafe-swiftshader --use-angle=swiftshader` for WebGL. Godot removes `#status` from its document
   once the game has started, which is the boot signal.

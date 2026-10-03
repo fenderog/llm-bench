@@ -1,25 +1,27 @@
 {
   "slug": "demo",
   "title": "Demo",
+  "kind": "godot",
   "prompt": "build a tiny demo project that prints a friendly greeting",
-  "created": "2026-01-01T00:00:00Z",
-  "updated": "2026-01-01T00:10:00Z",
   "final_prompt": "Task: Goal: build a tiny demo project that prints a friendly greeting. Keep it self-contained. Output directory: ./<effort>/.",
+  "created": "2026-01-01T00:00:00Z",
+  "updated": "2026-01-01T00:13:16Z",
   "runs": [
     {
       "id": "model-x-low-20260101-000000",
       "page": "demo",
       "model": "test-org/model-x",
       "effort": "low",
+      "kind": "godot",
       "started_at": "2026-01-01T00:00:00Z",
-      "source_dir": "2026-01-01-low-modelx-demo",
-      "verified": null,
+      "batch": "2026-01-01-low-modelx-demo",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "failed",
       "error": "pi exited 1: rate limited",
+      "route": null,
       "metrics": {
         "duration_ms": 4200,
         "cost_usd": 0.0021,
@@ -32,24 +34,26 @@
         "tokens_cache_read": 0
       },
       "thumb": null,
-      "game": null,
+      "output": null,
       "session": null,
-      "source": null
+      "source": null,
+      "rank": null
     },
     {
       "id": "model-x-medium-20260101-000500",
       "page": "demo",
       "model": "test-org/model-x",
       "effort": "medium",
+      "kind": "godot",
       "started_at": "2026-01-01T00:05:00Z",
-      "source_dir": "2026-01-01-medium-modelx-demo",
-      "verified": true,
+      "batch": "2026-01-01-medium-modelx-demo",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 38250,
         "cost_usd": 0.0187,
@@ -62,7 +66,12 @@
         "tokens_cache_read": 300
       },
       "thumb": "thumb.png",
-      "game": null,
+      "output": {
+        "kind": "godot",
+        "ok": false,
+        "verified": null,
+        "error": "Godot export failed: no index.html produced"
+      },
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -74,22 +83,24 @@
           "README.md",
           "main.py"
         ]
-      }
+      },
+      "rank": null
     },
     {
       "id": "model-x-high-20260101-001000",
       "page": "demo",
       "model": "test-org/model-x",
       "effort": "high",
+      "kind": "godot",
       "started_at": "2026-01-01T00:10:00Z",
-      "source_dir": "2026-01-01-high-modelx-demo",
-      "verified": null,
+      "batch": "2026-01-01-high-modelx-demo",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 196192,
         "cost_usd": 0.146,
@@ -102,12 +113,15 @@
         "tokens_cache_read": 105984
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "custom",
         "entry": "game/index.html",
         "engine": null,
         "godot": null,
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
       "session": {
         "conversation": "session/conversation.json",
@@ -120,7 +134,8 @@
           "README.md",
           "main.py"
         ]
-      }
+      },
+      "rank": null
     }
   ]
 }

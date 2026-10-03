@@ -48,7 +48,7 @@ chunks that carry the serving upstream, and `-e <path>` extensions that still lo
   `-p --mode json`), as OpenRouter's display name ("DeepInfra", "AtlasCloud"), not the slug. It's matched to the
   requested slugs by normalized name (`upstream_key()`); the `/variant` of a slug (`/fp8`) can't be checked.
   If a future pi changes the chunk shape, routed runs will show an empty `served` and pi's cost.
-- Real slugs contain `/` (`deepinfra/fp8`), so run ids, model dir tags and the viewer split off the `@route`
+- Real slugs contain `/` (`deepinfra/fp8`), so run ids and the viewer split off the `@route`
   before taking the model name after the last `/`.
 - No new Python dependencies; the extension is plain TypeScript that pi loads itself, shipped in the
-  wheel like `briefs/*.md`.
+  wheel like the briefs (`kinds/*.md`).

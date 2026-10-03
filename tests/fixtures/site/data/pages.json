@@ -13,12 +13,12 @@
   {
     "slug": "demo",
     "title": "Demo",
+    "kind": "godot",
     "n_runs": 3,
     "models": [
       "test-org/model-x"
     ],
-    "updated": "2026-01-01T00:10:00Z",
-    "thumb": "data/demo/runs/model-x-high-20260101-001000/thumb.png",
-    "kind": "godot"
+    "updated": "2026-01-01T00:13:16Z",
+    "thumb": "data/demo/runs/model-x-high-20260101-001000/thumb.png"
   }
 ]

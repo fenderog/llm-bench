@@ -114,8 +114,17 @@ export function effortIndex(effort) {
   return i === -1 ? EFFORTS.length : i;
 }
 
-// Page kinds as the viewer names them.
-export const KIND_LABEL = { godot: "Game", media: "Media", web: "Web" };
+// What differs per kind in the UI: its name, the run page's output tab, what a run without output says,
+// and the badge for a kind step that failed. Anything else (kinds the viewer doesn't know) reads as a game.
+const KIND_UI = {
+  godot: { label: "Game", tab: "Game", none: "No playable build recorded for this run.", failed: "export failed" },
+  media: { label: "Media", tab: "Output", none: "No output files recorded for this run.", failed: "output failed" },
+  web: { label: "Web", tab: "Page", none: "No packaged page recorded for this run.", failed: "packaging failed" },
+};
+
+export function kindUi(kind) {
+  return KIND_UI[kind] ?? KIND_UI.godot;
+}
 
 // The effort level as a pill with a 6-step meter (minimal = 1 .. max = 6). Its text is just the level.
 export function effortPill(effort) {
@@ -198,12 +207,6 @@ export function playUrl(slug, id) {
   return `play.html?p=${encodeURIComponent(slug)}&r=${encodeURIComponent(id)}`;
 }
 
-// What to say when a run has no game / page / media to show.
-export function noOutputText(run) {
-  if (run.kind === "media") return "No output files recorded for this run.";
-  return run.kind === "web" ? "No packaged page recorded for this run." : "No game recorded for this run.";
-}
-
 // Default run order everywhere: by model, then effort from low to high.
 export function byModelThenEffort(a, b) {
   return String(a.model).localeCompare(String(b.model)) || effortIndex(a.effort) - effortIndex(b.effort) || String(a.id).localeCompare(String(b.id));
@@ -212,8 +215,24 @@ export function byModelThenEffort(a, b) {
 // Metrics where lower is better, used for "best" highlights. Only completed runs compete.
 export const LOWER_IS_BETTER = { duration_ms: "fastest", cost_usd: "cheapest", tokens_total: "fewest tokens" };
 
+// Two separate questions: isComplete() is about the agent (state), outputOk() about what the kind step made
+// of its work (a game that exported, a page that packaged, media files that were kept).
 export function isComplete(run) {
   return !run.state || run.state === "complete";
+}
+
+export function outputOk(run) {
+  return run.output?.ok === true;
+}
+
+// true / false once the output was checked (booted, loaded offline, files readable), null when it wasn't.
+export function outputVerified(run) {
+  return run.output?.verified ?? null;
+}
+
+// A badge for a run whose agent finished but whose output step failed ("export failed"), else null.
+export function outputBadge(run) {
+  return run.output && !run.output.ok ? badge(kindUi(run.kind).failed, "bad") : null;
 }
 
 // Ranks runs by a metric (ascending) among completed runs that have it: Map(run id → 1-based rank),
@@ -334,11 +353,11 @@ export function mediaElement(item, base) {
   return el("img", { attrs: { src: base + item.path, alt: "", loading: "lazy" } });
 }
 
-// A run's outputs as captioned figures (file name, size, duration) with download links.
+// A run's media items as captioned figures (file name, size, duration) with download links.
 // Downloads use the `download` attribute so an SVG is saved, never opened as a page here.
-export function mediaGallery(run, base) {
+export function mediaGallery(items, base) {
   const grid = el("div", { class: "media-grid" });
-  for (const item of run.media || []) {
+  for (const item of items || []) {
     const name = item.path.split("/").pop();
     const dims = item.width && item.height ? `${item.width}×${item.height}` : null;
     const dur = item.duration_s != null ? `${Number(item.duration_s).toFixed(1)}s` : null;
@@ -349,4 +368,22 @@ export function mediaGallery(run, base) {
     grid.append(el("figure", { class: "media-item" }, [el("div", { class: "media-box" }, [mediaElement(item, base)]), caption]));
   }
   return grid;
+}
+
+// A run's output wherever it is shown, as an array of nodes: the kind step's own error (if any), then
+// the media gallery, the game or page in the sandbox, or the "no output" message.
+// Games and pages start on a click (a thumbnail with a play button) unless `autoplay` (the click was
+// opening the row or the window); `frameClass` is the wrapper of an autoplaying frame.
+export function renderOutput(run, base, { autoplay = false, frameClass = "game-frame" } = {}) {
+  const out = run.output;
+  const nodes = out?.error ? [el("p", { class: "run-error", text: out.error })] : [];
+  if (!out?.ok) return [...nodes, el("p", { class: "msg", text: kindUi(run.kind).none })];
+  if (out.kind === "media") return [...nodes, mediaGallery(out.items, base)];
+  const entry = base + out.entry;
+  return [...nodes, autoplay ? el("div", { class: frameClass }, [sandboxedGame(entry)]) : buildGameFrame(entry, run.thumb ? base + run.thumb : null)];
+}
+
+// Whether a run's output is a game or page that has its own full-screen window (play.html).
+export function isPlayable(run) {
+  return outputOk(run) && run.output.kind !== "media";
 }

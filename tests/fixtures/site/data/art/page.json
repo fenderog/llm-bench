@@ -14,14 +14,14 @@
       "effort": "low",
       "kind": "media",
       "started_at": "2026-01-02T00:00:00Z",
-      "source_dir": "2026-01-02-000000-modelx-art",
-      "verified": false,
+      "batch": "2026-01-02-000000-modelx-art",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
-      "error": "no files in ./output/",
+      "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 20000,
         "cost_usd": 0.004,
@@ -34,8 +34,12 @@
         "tokens_cache_read": 0
       },
       "thumb": null,
-      "game": null,
-      "media": null,
+      "output": {
+        "kind": "media",
+        "ok": false,
+        "verified": null,
+        "error": "no files in ./output/"
+      },
       "session": null,
       "source": null,
       "rank": null
@@ -47,14 +51,14 @@
       "effort": "high",
       "kind": "media",
       "started_at": "2026-01-02T00:00:00Z",
-      "source_dir": "2026-01-02-000000-modelx-art",
-      "verified": true,
+      "batch": "2026-01-02-000000-modelx-art",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 61000,
         "cost_usd": 0.021,
@@ -67,33 +71,38 @@
         "tokens_cache_read": 400
       },
       "thumb": "media/circle.svg",
-      "game": null,
-      "media": [
-        {
-          "type": "image",
-          "path": "media/circle.svg",
-          "width": 120,
-          "height": 80,
-          "bytes": 160
-        },
-        {
-          "type": "video",
-          "path": "media/clip.mp4",
-          "width": 160,
-          "height": 120,
-          "duration_s": 1.0,
-          "bytes": 9000,
-          "poster": "media/clip.poster.jpg",
-          "transcoded": false
-        },
-        {
-          "type": "image",
-          "path": "media/dot.png",
-          "width": 64,
-          "height": 48,
-          "bytes": 442
-        }
-      ],
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "path": "media/circle.svg",
+            "width": 120,
+            "height": 80,
+            "bytes": 160
+          },
+          {
+            "type": "video",
+            "path": "media/clip.mp4",
+            "width": 160,
+            "height": 120,
+            "duration_s": 1.0,
+            "bytes": 9000,
+            "poster": "media/clip.poster.jpg",
+            "transcoded": false
+          },
+          {
+            "type": "image",
+            "path": "media/dot.png",
+            "width": 64,
+            "height": 48,
+            "bytes": 442
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
       "session": null,
       "source": null,
       "rank": 1

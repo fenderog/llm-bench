@@ -340,11 +340,34 @@ def test_run_game_tab_click_to_play(site, page):
     assert_no_errors(page)
 
 
-def test_run_game_tab_null_game(site, page):
+def test_run_whose_export_failed_is_a_finished_agent_run_without_a_build(site, page):
     page.goto(f"{site}run.html?p=demo&r={MEDIUM_ID}")
     page.wait_for_selector("#panel-game")
-    assert "No game" in page.locator("#panel-game").inner_text()
-    assert page.locator("[data-play]").count() == 0
+    panel = page.locator("#panel-game").inner_text()
+    assert "no index.html produced" in panel and "No playable build" in panel  # the output step's error, then the message
+    assert page.locator("[data-play]").count() == 0 and page.locator(".game-links").count() == 0
+    badges = page.locator("#metric-strip .badge-bad").all_inner_texts()
+    assert badges == ["export failed"]  # a distinct badge; the agent's state is complete, so no "failed" one
+    assert page.locator("#metric-strip .run-error").count() == 0  # and the agent has no error line
+    assert "not verified" in page.locator("#metric-strip .run-meta").inner_text()
+    page.locator('#tabs button[data-tab="metrics"]').click()
+    metrics = page.locator("#panel-metrics").inner_text()
+    assert "output.ok" in metrics and "output.error" in metrics
+    assert_no_errors(page)
+
+
+def test_page_shows_export_failed_as_a_badge_and_counts_the_run_as_completed(site, page):
+    page.goto(f"{site}page.html?p=demo")
+    page.wait_for_selector("table.runs tbody tr")
+    row = page.locator("tr.run-row").filter(has=page.locator("td", has_text="medium")).first
+    assert row.locator('td[data-col="verified"] .badge-bad').inner_text() == "export failed"
+    hl = page.locator("#highlights")
+    assert "medium" in hl.locator(".hl", has_text="Fastest").inner_text()  # it still competes: the agent completed
+    assert "1 failed" in hl.locator(".hl", has_text="Verified").inner_text()  # only the agent that failed counts as failed
+    row.locator('td[data-col="effort"]').click()
+    detail = page.locator("tr.run-detail")
+    assert "no index.html produced" in detail.locator(".run-error").inner_text()
+    assert "No playable build" in detail.inner_text()
     assert_no_errors(page)
 
 
@@ -463,7 +486,8 @@ def test_compare_shows_metrics_and_games_only(site, page):
     page.locator("[data-play]").click()
     assert page.locator("iframe").count() == 1
     assert "allow-same-origin" not in page.locator("iframe").get_attribute("sandbox")
-    assert page.locator(".compare-col", has_text="No game recorded").count() == 2
+    assert page.locator(".compare-col", has_text="No playable build recorded").count() == 2
+    assert page.locator(".compare-col", has_text="export failed").count() == 1
     assert_no_errors(page)
 
 

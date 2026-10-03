@@ -1,4 +1,5 @@
-"""bench import: turn an effort-run folder into one run per effort level on the site."""
+"""bench import: publish run directories (the runner's `<batch>/<run id>/`, see SPEC.md "Run directory")
+to the site: clean + secret-scan, copy, then rebuild."""
 
 import json
 import shutil
@@ -7,42 +8,17 @@ import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 
-from . import clean, godot, site, web
-from .harness import HARNESSES
-from .util import BenchError, iso_from_ms, make_run_id, mask, parse_folder
+from . import clean, site
+from .kinds import KINDS, StageContext
+from .util import BenchError, mask
 
-# level-dir file -> (path under the run dir, how to clean it)
-SESSION_FILES = {
-    "conversation.json": ("session/conversation.json", "json"),
-    "status.json": ("session/status.json", "json"),
-    "output.md": ("session/output.md", "text"),
-    "stderr.txt": ("session/stderr.txt", "text"),
-}
-# Files under <level>/ that are never part of the copied source (session files, plus editor
-# cache). export_presets.cfg is deliberately NOT here: it's one of the project's own files and
-# stays in source. brief.md lives under the model dir's .harness/<level>/ (never inside <level>/
-# itself), so it never needs skipping here.
-SOURCE_SKIP = {
-    "session.jsonl",
-    "conversation.json",
-    "events.jsonl",
-    "status.json",
-    "output.md",
-    "stderr.txt",
-    "data.json",
-    ".DS_Store",
-    ".godot",
-    "node_modules",  # web runs: npm packages (bundled into the packaged page, never published as source)
-}
-
-FALLBACK_HARNESS = {"name": "pi", "version": None}
-# A media run's source is the code that made the files: text only (rendered frames and the like are
-# skipped), each file at most this big. ./output/ itself is published as `media`, not as source.
-MEDIA_SOURCE_MAX_BYTES = 512 * 1024
+# Files under work/ that are never part of the copied source (editor cache, npm packages: bundled into a
+# packaged page, never published as source). export_presets.cfg is one of a Godot project's own files and stays.
+SOURCE_SKIP = {".DS_Store", ".godot", "node_modules"}
 
 
-def write_cleaned(src, dest, kind, rewrites, redact, batch):
-    """Clean src's text per `kind` and write it to dest, tracking rewrites/hits on `batch`."""
+def write_cleaned(src, dest, fmt, rewrites, redact, batch):
+    """Clean src's text per `fmt` (json / jsonl / text) and write it to dest, tracking rewrites/hits on `batch`."""
     try:
         raw = src.read_text(encoding="utf-8")
     except UnicodeDecodeError:
@@ -50,9 +26,9 @@ def write_cleaned(src, dest, kind, rewrites, redact, batch):
         shutil.copy(src, dest)
         return
     images = []  # image data, set aside from rewriting and the secret scan, restored before writing
-    if kind == "json":
+    if fmt == "json":
         text, n = clean.clean_json(raw, rewrites, images)
-    elif kind == "jsonl":
+    elif fmt == "jsonl":
         text, n = clean.clean_jsonl(raw, rewrites, images)
     else:
         text, n = clean.clean_plain(raw, rewrites)
@@ -68,9 +44,8 @@ def write_cleaned(src, dest, kind, rewrites, redact, batch):
     dest.write_text(clean.restore_images(text, images), encoding="utf-8")
 
 
-def final_prompt(run_dir, level):
-    """The brief the main agent sent this run: the cleaned session's first user message, with the
-    effort-specific output dir (./low/, ./high/, ...) normalized so all levels share one text."""
+def final_prompt(run_dir):
+    """The brief the agent was sent: the cleaned transcript's first user message."""
     convo = run_dir / "session" / "conversation.json"
     if not convo.is_file():
         return None
@@ -78,135 +53,62 @@ def final_prompt(run_dir, level):
         msg = entry.get("message") or {}
         if msg.get("role") == "user":
             content = msg.get("content") or ""
-            text = content if isinstance(content, str) else "".join(b.get("text", "") for b in content if b.get("type") == "text")
-            return text.replace(f"./{level}/", "./<effort>/")
+            return content if isinstance(content, str) else "".join(b.get("text", "") for b in content if b.get("type") == "text")
     return None
 
 
-def stage_session(level_dir, run_dir, rewrites, redact, batch):
-    if not level_dir.is_dir():
-        return None
+def stage_session(harness_dir, run_dir, rewrites, redact, batch):
+    """The transcript (and the harness's stderr, when it wrote any) -> runs/<id>/session/."""
     session = {}
-    for fname, (relpath, kind) in SESSION_FILES.items():
-        src = level_dir / fname
-        if not src.is_file():
-            continue
-        write_cleaned(src, run_dir / relpath, kind, rewrites, redact, batch)
-        key = relpath.split("/")[1].split(".")[0]  # "session/conversation.json" -> "conversation"
-        session[key] = relpath
+    for key, fname, fmt in (("conversation", "conversation.json", "json"), ("stderr", "stderr.txt", "text")):
+        src = harness_dir / fname
+        if src.is_file() and src.stat().st_size:
+            write_cleaned(src, run_dir / "session" / fname, fmt, rewrites, redact, batch)
+            session[key] = f"session/{fname}"
     return session or None
 
 
-def _is_text(path):
-    try:
-        path.read_text(encoding="utf-8")
-        return True
-    except UnicodeDecodeError:
-        return False
-
-
-def stage_source(level_dir, run_dir, rewrites, redact, batch, kind="godot"):
-    if not level_dir.is_dir():
+def stage_source(work_dir, run_dir, kind, rewrites, redact, batch):
+    """What the agent wrote -> runs/<id>/source/ (the kind may leave files out, e.g. rendered frames)."""
+    if not work_dir.is_dir():
         return None
     files = []
-    for src in sorted(level_dir.rglob("*")):
-        if src.is_dir():
-            continue
-        rel = src.relative_to(level_dir)
-        if rel.parts[0] in SOURCE_SKIP or src.name in SOURCE_SKIP:
-            continue
-        if kind == "media" and (rel.parts[0] == "output" or src.stat().st_size > MEDIA_SOURCE_MAX_BYTES or not _is_text(src)):
+    for src in sorted(work_dir.rglob("*")):
+        rel = src.relative_to(work_dir)
+        if src.is_dir() or rel.parts[0] in SOURCE_SKIP or src.name in SOURCE_SKIP or not kind.keep_source(rel, src):
             continue
         write_cleaned(src, run_dir / "source" / rel, "text", rewrites, redact, batch)
         files.append(rel.as_posix())
     return {"root": "source/", "files": sorted(files)} if files else None
 
 
-def stage_media(media_dir, run_dir, rewrites, redact, batch):
-    """media/<level>/ (written by media.finalize) -> runs/<id>/media/. SVGs are text written by the
-    model, so they're cleaned and secret-scanned like source. Returns (items, thumb, verified)."""
-    manifest = json.loads((media_dir / "manifest.json").read_text())
-    items = []
-    for item in manifest["items"]:
-        out = {k: v for k, v in item.items() if k not in ("file", "poster")}
-        out["path"] = f"media/{item['file']}"
-        if item["file"].lower().endswith(".svg"):
-            write_cleaned(media_dir / item["file"], run_dir / out["path"], "text", rewrites, redact, batch)
-        else:
-            (run_dir / "media").mkdir(parents=True, exist_ok=True)
-            shutil.copy(media_dir / item["file"], run_dir / out["path"])
-        if item.get("poster"):
-            out["poster"] = f"media/{item['poster']}"
-            shutil.copy(media_dir / item["poster"], run_dir / out["poster"])
-        items.append(out)
-    thumb = next((i.get("poster") or i["path"] for i in items if i["type"] == "image" or i.get("poster")), None)
-    return items or None, thumb, manifest["ok"]
-
-
-def stage_web(web_dir, run_dir, rewrites, redact, batch):
-    """web/<level>/ (written by web.package) -> runs/<id>/game/index.html. The page is model-written
-    code, so it's cleaned and secret-scanned like source. Returns (game, thumb, verified)."""
-    write_cleaned(web_dir / "index.html", run_dir / "game" / "index.html", "text", rewrites, redact, batch)
-    manifest = web.read_manifest(web_dir)
-    game = {"kind": "web", "entry": "game/index.html", "bytes": manifest.get("bytes"), "esbuild": manifest.get("esbuild")}
-    return game, godot.stage_thumb(web_dir, run_dir), godot.read_verified(web_dir)
-
-
-def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info, kind):
-    harness_cls = HARNESSES.get(harness_info.get("name"))
-    run_id = make_run_id(run_data["model"], level, effort_dir.name, harness_cls.tag if harness_cls else "")
+def stage_run(src, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines):
+    """One run directory -> a staged copy of runs/<id>/ under tmp_root (nothing is written to the site yet)."""
+    record = json.loads((src / "run.json").read_text())
+    kind = KINDS[record["kind"]]()
+    run_id = record["id"]
     run_dir = tmp_root / run_id
     run_dir.mkdir(parents=True)
     batch = SimpleNamespace(rewritten=0, redacted=0, hits=[], run_dir=run_dir, run_id=run_id)
 
-    level_dir = effort_dir / level
-    wasm_dir = effort_dir / "wasm" / level
-    media_dir = effort_dir / "media" / level
-    web_dir = effort_dir / "web" / level
+    ctx = StageContext(docs_root, slug, run_id, allow_threads, known_engines,
+                       write_text=lambda s, d: write_cleaned(s, d, "text", rewrites, redact, batch))
+    result = record["output"]
+    staged = kind.stage(src / "output", run_dir, ctx) if result and result["ok"] else None
+    output = None
+    if result:
+        output = {"kind": result["kind"], **(staged.fields if staged else {}),
+                  "ok": result["ok"], "verified": result["verified"], "error": result["error"]}
+    engine_sha, engine_files = staged.engine if staged and staged.engine else (None, None)
 
-    game = engine_sha = engine_files = thumb = verified = media_items = None
-    if (media_dir / "manifest.json").is_file():
-        media_items, thumb, verified = stage_media(media_dir, run_dir, rewrites, redact, batch)
-    elif (web_dir / "index.html").is_file():
-        game, thumb, verified = stage_web(web_dir, run_dir, rewrites, redact, batch)
-    elif wasm_dir.is_dir():
-        game, engine_sha, engine_files = godot.stage_game(
-            wasm_dir, run_dir / "game", docs_root, slug, run_id, allow_threads, known_engines
-        )
-        thumb = godot.stage_thumb(wasm_dir, run_dir)
-        verified = godot.read_verified(wasm_dir)
+    session = stage_session(src / "harness", run_dir, rewrites, redact, batch)
+    source = stage_source(src / "work", run_dir, kind, rewrites, redact, batch)
 
-    session = stage_session(level_dir, run_dir, rewrites, redact, batch)
-    source = stage_source(level_dir, run_dir, rewrites, redact, batch, kind)
-
-    tokens = run_data.get("tokens", {})
     run_json = {
-        "id": run_id,
+        **{k: v for k, v in record.items() if k != "output"},
         "page": slug,
-        "model": run_data["model"],
-        "effort": level,
-        "kind": kind,
-        "started_at": iso_from_ms(run_data["startedAt"]),
-        "source_dir": effort_dir.name,
-        "verified": verified,
-        "harness": harness_info,
-        "state": run_data.get("state", "complete"),
-        "error": run_data.get("error"),
-        "route": run_data.get("route"),
-        "metrics": {
-            "duration_ms": run_data.get("durationMs"),
-            "cost_usd": run_data.get("costUsd"),
-            "tool_calls": run_data.get("toolCalls"),
-            "turns": run_data.get("turns"),
-            "tokens_total": tokens.get("total"),
-            "tokens_input": tokens.get("input"),
-            "tokens_output": tokens.get("output"),
-            "tokens_reasoning": tokens.get("reasoning"),
-            "tokens_cache_read": tokens.get("cacheRead"),
-        },
-        "thumb": thumb,
-        "game": game,
-        "media": media_items,
+        "thumb": staged.thumb if staged else None,
+        "output": output,
         "session": session,
         "source": source,
     }
@@ -214,7 +116,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
     n_bytes = sum(p.stat().st_size for p in run_dir.rglob("*") if p.is_file())
     return SimpleNamespace(
         run_id=run_id,
-        level=level,
+        kind=record["kind"],
         run_dir=run_dir,
         engine_sha=engine_sha,
         engine_files=engine_files,
@@ -225,29 +127,37 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
     )
 
 
-def cmd_import(config, effort_dir, page=None, title=None, redact=False, allow_threads=False, dry_run=False):
-    effort_dir = Path(effort_dir).resolve()
-    if not effort_dir.is_dir():
-        raise BenchError(f"not a directory: {effort_dir}")
-    data_path = effort_dir / "data.json"
-    if not data_path.is_file():
-        raise BenchError(f"missing data.json: {effort_dir}")
-    data = json.loads(data_path.read_text())
-    harness_info = data.get("harness") or FALLBACK_HARNESS
-    kind = data.get("kind", "godot")
+def run_dirs_of(path):
+    """A run directory, or a batch directory (the run directories inside it, in name order)."""
+    if (path / "run.json").is_file():
+        return [path]
+    found = sorted(d for d in path.iterdir() if d.is_dir() and (d / "run.json").is_file())
+    if not found:
+        raise BenchError(f"no run.json in {path} or its subdirectories: expected a run directory or a batch directory")
+    return found
 
-    _, _, folder_slug = parse_folder(effort_dir.name)
-    slug = page or folder_slug
+
+def cmd_import(config, path, page=None, title=None, redact=False, allow_threads=False, dry_run=False):
+    path = Path(path).resolve()
+    if not path.is_dir():
+        raise BenchError(f"not a directory: {path}")
+    sources = run_dirs_of(path)
+    records = [json.loads((d / "run.json").read_text()) for d in sources]
+    kinds = {r["kind"] for r in records}
+    if len(kinds) > 1:
+        raise BenchError(f"{path} holds runs of different kinds ({', '.join(sorted(kinds))}); import them separately")
+    [kind] = kinds
+    slug = page or records[0]["page"]
     docs_root = config.root / "docs"
     page_path = docs_root / "data" / slug / "page.json"
     page_kind = json.loads(page_path.read_text()).get("kind", "godot") if page_path.is_file() else kind
     if page_kind != kind:
-        raise BenchError(f"page {slug!r} holds {page_kind} runs, this folder has {kind} runs; use another --page")
+        raise BenchError(f"page {slug!r} holds {page_kind} runs, this import has {kind} runs; use another --page")
     (docs_root / "data").mkdir(parents=True, exist_ok=True)
     (docs_root / "engines").mkdir(parents=True, exist_ok=True)
     rewrites = config.rewrites
-    # The originating prompt (not the brief given to subagents); cleaned and scanned like everything else.
-    prompt_path = effort_dir / "prompt.md"
+    # The originating prompt (not the brief given to the agents), in the batch directory; cleaned and scanned like everything else.
+    prompt_path = sources[0].parent / "prompt.md"
     prompt = clean.rewrite_text(prompt_path.read_text().strip(), rewrites)[0] if prompt_path.is_file() else None
     if prompt and redact:
         prompt = clean.redact_secrets(prompt)[0]
@@ -256,8 +166,8 @@ def cmd_import(config, effort_dir, page=None, title=None, redact=False, allow_th
         tmp_root = Path(tmp)
         results = []
         known_engines = set()
-        for level, run_data in data.get("runs", {}).items():
-            r = stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines, harness_info, kind)
+        for src in sources:
+            r = stage_run(src, slug, tmp_root, docs_root, rewrites, redact, allow_threads, known_engines)
             if r.engine_files is not None:
                 known_engines.add(r.engine_sha)
             results.append(r)
@@ -283,7 +193,7 @@ def cmd_import(config, effort_dir, page=None, title=None, redact=False, allow_th
         if dry_run:
             return 0
 
-        final = next((p for r in results if (p := final_prompt(r.run_dir, r.level))), None)
+        final = next((p for r in results if (p := final_prompt(r.run_dir))), None)
 
         for r in results:
             if r.engine_sha and r.engine_files is not None:

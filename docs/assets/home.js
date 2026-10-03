@@ -1,4 +1,4 @@
-import { el, getJSON, showMessage, modelParts, KIND_LABEL } from "./common.js";
+import { el, getJSON, showMessage, modelParts, kindUi } from "./common.js";
 
 const cards = document.getElementById("cards");
 
@@ -23,7 +23,7 @@ function renderCard(p) {
     ? el("span", { text: updated.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }), attrs: { title: `updated ${updated.toLocaleString()}` } })
     : null;
   return el("a", { class: "card", attrs: { href: `page.html?p=${encodeURIComponent(p.slug)}` } }, [
-    el("div", { class: "card-media" }, [thumb, KIND_LABEL[p.kind] ? el("span", { class: "kind-chip", text: KIND_LABEL[p.kind] }) : null]),
+    el("div", { class: "card-media" }, [thumb, el("span", { class: "kind-chip", text: kindUi(p.kind).label })]),
     el("div", { class: "card-body" }, [
       el("div", { class: "card-title", text: p.title }),
       el("div", { class: "model-chips" }, models.map((m) => el("span", { class: "model-chip", text: modelParts(m).short, attrs: { title: m } }))),

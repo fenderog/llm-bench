@@ -43,3 +43,5 @@ Copy `template.md` to `NNNN-short-title.md` using the next number, and add it to
 | [0014](0014-openrouter-upstream-routing.md) | Pin the OpenRouter upstream provider per run (`MODEL@upstream`) | Accepted |
 | [0015](0015-viewer-csp-and-local-markdown.md) | Local Markdown token rendering, CSP and sandboxed fullscreen | Accepted |
 | [0016](0016-page-json-includes-runs.md) | One page.json includes ranked runs | Accepted |
+| [0017](0017-run-directory-is-the-unit-of-work.md) | The run directory is the unit of work; the effort-run format is retired | Accepted |
+| [0018](0018-one-kind-interface-and-an-output-record.md) | One Kind interface; `state` is the agent's, `output` is the kind step's | Accepted |

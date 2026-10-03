@@ -1,4 +1,4 @@
-"""media.finalize: checking and normalizing the files a media run left in ./output/.
+"""media.normalize: checking and normalizing the files a media run left in ./output/.
 Inputs are generated with ffmpeg, so the module is skipped without it."""
 
 import json
@@ -7,7 +7,7 @@ import subprocess
 
 import pytest
 
-from bench import media
+from bench.kinds import media
 
 pytestmark = pytest.mark.skipif(not shutil.which("ffmpeg") or not shutil.which("ffprobe"), reason="needs ffmpeg")
 
@@ -23,7 +23,7 @@ def out(tmp_path):
 
 
 def finalize(out):
-    return media.finalize(out.parent, out.parent.parent / "media")
+    return media.normalize(out.parent, out.parent.parent / "media")
 
 
 def test_valid_image_svg_and_video(out):

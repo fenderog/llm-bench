@@ -58,9 +58,9 @@ def rebuild(root):
         apply_ranking(page_dir, runs)
         (page_dir / "results.json").unlink(missing_ok=True)
         for run in runs:
-            game = run.get("game")
-            if game and game.get("engine"):
-                referenced_engines.add(game["engine"])
+            output = run.get("output")
+            if output and output.get("engine"):
+                referenced_engines.add(output["engine"])
 
         slug = page_dir.name
         page_json_path = page_dir / "page.json"
@@ -126,6 +126,6 @@ def cmd_list(root):
         print(f"{p['slug']}\t{p['n_runs']} runs\tupdated {p['updated']}\t{', '.join(p['models'])}")
         results = json.loads((root / "docs" / "data" / p["slug"] / "page.json").read_text())["runs"]
         for r in results:
-            verified = {True: "yes", False: "no", None: "?"}[r["verified"]]
+            verified = {True: "yes", False: "no", None: "?"}[(r.get("output") or {}).get("verified")]
             print(f"  {r['id']}\t{r['effort']}\t{r['model']}\tverified={verified}")
     return 0

@@ -20,12 +20,12 @@ Anything pushed to the repo stays in git history, so a leaked secret can't be ta
   - strips `thinkingSignature`/`encrypted_content`,
   - rewrites paths (home → `~`, plus configured rewrites),
   - drops keys that are machine noise.
-- **The secret scan covers every published text file**: sessions, `output.md`, source files and SVGs.
+- **The secret scan covers every published text file**: transcripts, source files, the packaged page and SVGs.
   - It matches known token formats (`sk-`, `ghp_`, `AKIA`, `xox*-`, private keys...) and generic `key|secret|token|password = <long value>` patterns.
 - **A hit aborts before anything is written** (fail closed). The error prints file:line and a masked match.
   `--redact` replaces matches with `[REDACTED]`, and the owner must choose it for that import.
 - Raw harness output that carries account details isn't published at all: Claude Code's stream-json stays in
-  `.harness/`, and only the converted session is published (0007).
+  the run's `harness/`, and only the converted session is published (0007).
 - **Image data is exempt.** The base64 data of image blocks in session JSON is set aside before path rewrites and the scan,
   then put back. It's binary: rewrites could corrupt it, and the scan found random `AKIA…` matches in thumbnails.
   Only data that is plain base64 is exempt. A secret visible *in* a screenshot isn't caught, but a scan of base64 text

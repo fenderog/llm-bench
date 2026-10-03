@@ -1,7 +1,7 @@
 import {
-  qs, el, loadPage, fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort, showMessage, badge, runDir, sandboxedGame, harnessLabel, stateBadge,
-  mediaGallery, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete,
-  rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorOptions, KIND_LABEL, playUrl,
+  qs, el, loadPage, fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort, showMessage, badge, runDir, harnessLabel, stateBadge, outputBadge,
+  outputVerified, isPlayable, renderOutput, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER,
+  isComplete, rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorOptions, kindUi, playUrl,
 } from "./common.js";
 
 const slug = qs("p");
@@ -18,7 +18,7 @@ const COLUMNS = [
     help: "The agent program that ran the model and executed its tool calls (pi or claude-code), with its version. Every run is one direct agent with only file and shell tools." },
   { key: "started_at", label: "Run at", get: (r) => r.started_at ?? null, num: false,
     help: "When the agent session started, in your local time. Click to sort." },
-  { key: "verified", label: "Verified", get: (r) => r.verified, num: false,
+  { key: "verified", label: "Verified", get: (r) => outputVerified(r), num: false,
     help: "Game pages: whether the exported web build booted in headless Chrome (a WebGL canvas rendered, two screenshots differed, no page errors). Web pages: whether the packaged page loaded offline in a sandboxed iframe with no page errors and no network requests. Media pages: whether every output file was a readable image or video within the limits. – means no check was recorded." },
   { key: "duration_ms", label: "Duration", get: (r) => r.metrics.duration_ms, num: true, fmt: fmtDuration,
     help: "Wall-clock time of the agent session, from start to finish. ★ marks the fastest completed run." },
@@ -137,7 +137,7 @@ function render(page, runs, editable) {
         } else if (c.key === "started_at") {
           tds.push(el("td", { class: "started-cell", attrs: { ...attrs, title: fmtDate(v) } }, [fmtDateShort(v)]));
         } else if (c.key === "verified") {
-          const sb = stateBadge(r);
+          const sb = stateBadge(r) || outputBadge(r);
           tds.push(el("td", { attrs }, [sb || (v === true ? badge("✓", "good") : v === false ? badge("✗", "bad") : el("span", { class: "muted", text: "–" }))]));
         } else if (c.num) {
           const pct = Math.max(0, Math.min(100, ((v || 0) / maxes[c.key]) * 100));
@@ -209,17 +209,8 @@ function render(page, runs, editable) {
       el("a", { text: "Open run page →", attrs: { href: url } }),
     ]);
     const errorLine = r.error ? [el("p", { class: "run-error", text: r.error })] : [];
-    let body;
-    if (r.media) {
-      body = [...errorLine, mediaGallery(r, runDir(slug, r.id)), links];
-    } else if (r.game) {
-      const entry = runDir(slug, r.id) + r.game.entry;
-      links.append(el("a", { text: "Open full screen ↗", attrs: { href: playUrl(slug, r.id), target: "_blank", rel: "noopener noreferrer" } }));
-      body = [...errorLine, el("div", { class: "game-frame" }, [sandboxedGame(entry)]), links];
-    } else {
-      const none = isMedia ? "No output files recorded for this run." : "No playable build recorded for this run.";
-      body = [...errorLine, el("p", { class: "msg", text: none }), links];
-    }
+    if (isPlayable(r)) links.append(el("a", { text: "Open full screen ↗", attrs: { href: playUrl(slug, r.id), target: "_blank", rel: "noopener noreferrer" } }));
+    const body = [...errorLine, ...renderOutput(r, runDir(slug, r.id), { autoplay: true }), links];
     return el("tr", { class: "run-detail" }, [el("td", { attrs: { colspan: String(COLUMNS.length + 2) } }, [el("div", { class: "detail-inner" }, body)])]);
   }
   drawTable();
@@ -231,7 +222,7 @@ function renderMeta(page, runs) {
   const latest = runs.map((r) => r.started_at).filter(Boolean).sort().pop();
   const meta = document.getElementById("page-meta");
   meta.append(
-    el("span", { class: "kind-chip", text: KIND_LABEL[page.kind] ?? "Game" }),
+    el("span", { class: "kind-chip", text: kindUi(page.kind).label }),
     el("span", { text: `${runs.length} run${runs.length === 1 ? "" : "s"}` }),
     el("span", { text: `${models.size} model${models.size === 1 ? "" : "s"}` }),
   );
@@ -260,8 +251,8 @@ function renderHighlights(runs) {
     );
   }
   if (!tiles.length) return;
-  const checked = runs.filter((r) => r.verified != null);
-  const verified = runs.filter((r) => r.verified === true).length;
+  const checked = runs.filter((r) => outputVerified(r) != null);
+  const verified = runs.filter((r) => outputVerified(r) === true).length;
   const failed = runs.filter((r) => !isComplete(r)).length;
   const total = runs.reduce((s, r) => s + (r.metrics.cost_usd || 0), 0);
   tiles.push(
@@ -279,8 +270,8 @@ function renderHighlights(runs) {
 function renderGallery(runs) {
   const grid = el("div", { class: "card-grid gallery", attrs: { id: "gallery" } });
   for (const r of [...runs].sort(byRankThenModel)) {
-    const n = (r.media || []).length;
-    const sb = stateBadge(r);
+    const n = (r.output?.items || []).length;
+    const sb = stateBadge(r) || outputBadge(r);
     const thumb = r.thumb
       ? el("img", { class: "thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })
       : el("div", { class: "thumb-ph", text: "no output" });

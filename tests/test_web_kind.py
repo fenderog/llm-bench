@@ -9,7 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from bench import build, web
+from bench.kinds import web
+from bench.kinds.web import Web
 
 pytestmark = pytest.mark.skipif(shutil.which("esbuild") is None, reason="esbuild not on PATH")
 
@@ -89,7 +90,7 @@ def test_verify_runs_the_page_offline_in_a_sandbox(tmp_path):
         "(function f() { g.fillStyle = `hsl(${n++ * 7} 80% 50%)`; g.fillRect(0, 0, 64, 64); requestAnimationFrame(f); })();"
         "</script>"
     )
-    report = in_thread(build.verify_build, good, web=True)
+    report = in_thread(Web().verify, good)
     assert report["ok"] and report["booted"] and report["framesDiffer"] and report["blockedRequests"] == []
     assert (good / "verification/frame-1.png").is_file()
 
@@ -98,7 +99,7 @@ def test_verify_runs_the_page_offline_in_a_sandbox(tmp_path):
     (bad / "index.html").write_text(
         '<script type=module>fetch("https://cdn.example/three.js").catch(() => {}); localStorage.x = 1;</script>'
     )
-    report = in_thread(build.verify_build, bad, web=True)
+    report = in_thread(Web().verify, bad)
     assert not report["ok"]
     assert report["blockedRequests"] == ["https://cdn.example/three.js"]
     assert any("sandboxed" in e for e in report["pageErrors"])  # storage throws in the site's sandbox
@@ -120,7 +121,7 @@ def test_web_run_end_to_end_in_the_viewer(tmp_path, monkeypatch):
     (root / "bench.toml").write_text(f'[run]\ndir = "{tmp_path / "runs"}"\n')
     assert in_thread(main, ["run", "--yes", "--kind", "web", "a spinning horse", "-m", "openai-codex/gpt-6-sol:low", "--root", str(root)]) == 0
     [run] = json.loads((root / "docs/data/a-spinning-horse/page.json").read_text())["runs"]
-    assert run["verified"] is True and run["thumb"] == "thumb.png"
+    assert run["output"]["verified"] is True and run["thumb"] == "thumb.png"
 
     server = serve_in_thread(root / "docs")
     try:

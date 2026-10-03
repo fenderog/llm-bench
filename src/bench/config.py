@@ -10,7 +10,8 @@ import tomllib
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 
-from .util import KINDS, BenchError, parse_duration
+from .kinds import KINDS
+from .util import BenchError, parse_duration
 
 DEFAULT_TOOLS = ["python3", "node", "ffmpeg", "ffprobe"]
 

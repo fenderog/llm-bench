@@ -1,4 +1,4 @@
-"""The `media` kind: check and normalize the image/video files an agent saved in <level>/output/.
+"""The `media` kind: check and normalize the image/video files an agent saved in work/output/.
 See SPEC.md "bench run" step 6. Uses ffmpeg/ffprobe (checked for before a media batch starts)."""
 
 import json
@@ -6,6 +6,8 @@ import shutil
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
+
+from . import Kind, Staged
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 VIDEO_EXTS = {".mp4", ".webm", ".mov"}
@@ -142,14 +144,14 @@ def do_video(src, dest_dir, name):
     return item, None
 
 
-def finalize(level_dir, out_dir):
-    """Check every file in level_dir/output/ and write the publishable versions plus manifest.json
+def normalize(work_dir, out_dir):
+    """Check every file in work_dir/output/ and write the publishable versions plus manifest.json
     to out_dir. Returns the manifest: {ok, items: [...], errors: [...]}. ok = at least one item
     and no errors. Never raises for bad agent output: problems become `errors`."""
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
-    output = level_dir / "output"
+    output = work_dir / "output"
     files = sorted(p for p in output.rglob("*") if p.is_file() and not p.name.startswith(".")) if output.is_dir() else []
     items, errors = [], []
     if not files:
@@ -179,3 +181,52 @@ def finalize(level_dir, out_dir):
     manifest = {"ok": bool(items) and not errors, "items": items, "errors": errors}
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest
+
+
+# A media run's source is the code that made the files: text only (rendered frames and the like are
+# skipped), each file at most this big. work/output/ itself is published as the output, not as source.
+SOURCE_MAX_BYTES = 512 * 1024
+
+
+def _is_text(path):
+    try:
+        path.read_text(encoding="utf-8")
+        return True
+    except UnicodeDecodeError:
+        return False
+
+
+class Media(Kind):
+    name = "media"
+    tools = ("ffmpeg", "ffprobe")
+
+    def finalize(self, work_dir, out_dir):
+        """ok = at least one file was kept; problems with the others are the error (they're still published)."""
+        manifest = normalize(work_dir, out_dir)
+        return bool(manifest["items"]), "; ".join(manifest["errors"])[:200] or None
+
+    def verify(self, out_dir):
+        """Every file was a readable image or video within the limits."""
+        return {"ok": json.loads((out_dir / "manifest.json").read_text())["ok"]}
+
+    def keep_source(self, rel, path):
+        return rel.parts[0] != "output" and path.stat().st_size <= SOURCE_MAX_BYTES and _is_text(path)
+
+    def stage(self, out_dir, run_dir, ctx):
+        """SVGs are text written by the model, so they're cleaned and secret-scanned like source."""
+        manifest = json.loads((out_dir / "manifest.json").read_text())
+        items = []
+        for item in manifest["items"]:
+            out = {k: v for k, v in item.items() if k not in ("file", "poster")}
+            out["path"] = f"media/{item['file']}"
+            if item["file"].lower().endswith(".svg"):
+                ctx.write_text(out_dir / item["file"], run_dir / out["path"])
+            else:
+                (run_dir / "media").mkdir(parents=True, exist_ok=True)
+                shutil.copy(out_dir / item["file"], run_dir / out["path"])
+            if item.get("poster"):
+                out["poster"] = f"media/{item['poster']}"
+                shutil.copy(out_dir / item["poster"], run_dir / out["poster"])
+            items.append(out)
+        thumb = next((i.get("poster") or i["path"] for i in items if i["type"] == "image" or i.get("poster")), None)
+        return Staged({"items": items}, thumb)

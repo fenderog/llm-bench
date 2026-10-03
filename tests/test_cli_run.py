@@ -16,10 +16,19 @@ import pytest
 from bench.cli import main
 from bench.config import Config, RunRequest
 from bench.harness import Pi, convert_claude_stream
-from bench.runner import expand_levels, parse_duration, plan_runs
+from bench.runner import assign_run_ids, expand_levels, parse_duration, plan_runs
 from bench.util import BenchError
 
 FAKE_PI = Path(__file__).parent / "fixtures" / "fake_pi"
+
+
+def batch_runs(plan):
+    """The plan's runs as batch.json holds them (ids from a fixed start time)."""
+    from datetime import datetime
+
+    from bench.runner import Harnesses
+
+    return assign_run_ids(plan, Harnesses(), datetime(2026, 10, 2, 12, 0, 0))
 
 
 def plan_for(specs, effort=None):
@@ -55,8 +64,9 @@ def fake_pi_on_path(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def fake_build(monkeypatch):
-    monkeypatch.setattr("bench.runner.build.export_project", fake_export_project)
-    monkeypatch.setattr("bench.runner.build.verify_build", lambda out_dir, **kw: None)
+    monkeypatch.setattr("bench.kinds.godot.export_project", fake_export_project)
+    monkeypatch.setattr("bench.kinds.godot.Godot.verify", lambda self, out_dir: None)
+    monkeypatch.setattr("bench.kinds.web.Web.verify", lambda self, out_dir: None)
 
 
 @pytest.fixture
@@ -128,14 +138,19 @@ def test_plan_runs_handles_colons_inside_model_ids():
     assert plan_for([model + ":high"], None) == [("pi", model, "high")]
 
 
-def test_plan_runs_rejects_model_tag_collision(monkeypatch):
-    # Two distinct model ids that both reduce to the tag "limited".
-    monkeypatch.setattr(
-        "bench.runner.model_tag",
-        lambda model: "limited",
-    )
-    with pytest.raises(BenchError, match="limited"):
-        plan_for(["test/limited:low", "openai-codex/gpt-6-sol:low"], None)
+def test_run_ids_name_the_run_directories():
+    runs = batch_runs(plan_for(["openai-codex/gpt-6-sol:low,high", "claude-code:opus:high"], None))
+    assert [r["id"] for r in runs] == [
+        "gpt-6-sol-low-20261002-120000", "gpt-6-sol-high-20261002-120000", "claude-opus-5-5-cc-high-20261002-120000"]
+    assert runs[2] == {"id": runs[2]["id"], "harness": "claude-code", "model": "anthropic/claude-opus-5-5",
+                       "model_arg": "claude-opus-5-5", "level": "high", "state": "queued"}
+
+
+def test_two_runs_with_one_id_are_refused_before_anything_starts():
+    # Two distinct model ids that both reduce to the id "limited-low-...".
+    plan = [("pi", "test/limited", "low"), ("pi", "other/limited", "low")]
+    with pytest.raises(BenchError, match="both resolve to the run id 'limited-low-20261002-120000'"):
+        batch_runs(plan)
 
 
 def test_parse_duration():
@@ -171,7 +186,9 @@ def test_yes_skips_confirmation_and_runs(run_root):
     assert results[0]["effort"] == "low"
     assert results[0]["state"] == "complete"
     assert results[0]["harness"]["name"] == "pi"
-    assert results[0]["game"]["entry"] == "game/index.html"
+    assert results[0]["output"] == {"kind": "godot", "entry": "game/index.html", "engine": results[0]["output"]["engine"],
+                                    "godot": "4.7.2.fake", "threads": False, "ok": True, "verified": None, "error": None}
+    assert results[0]["batch"].endswith("-a-spinning-cube")
     page = json.loads((run_root / "docs/data/a-spinning-cube/page.json").read_text())
     assert page["prompt"] == "a spinning cube"
     assert page["final_prompt"].startswith("a spinning cube\n\nBuild this as a complete, playable Godot")
@@ -206,16 +223,29 @@ def test_timeout_kills_hung_agent(run_root, monkeypatch):
     assert results[0]["state"] == "timeout"
 
 
-def test_status_json_records_the_real_exit_code(run_root, monkeypatch, tmp_path):
+def test_a_run_is_one_directory_with_work_harness_and_output(run_root, tmp_path):
+    rc = main(["run", "--yes", "layout run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
+    assert rc == 0
+    [batch] = (tmp_path / "bench-runs").glob("*-layout-run")
+    [run_dir] = [d for d in batch.iterdir() if d.is_dir()]
+    assert run_dir.name.startswith("gpt-6-sol-low-")
+    assert sorted(p.name for p in run_dir.iterdir()) == ["harness", "output", "run.json", "work"]
+    assert (run_dir / "work/project.godot").is_file() and not list((run_dir / "work").glob("*.json"))  # nothing but the agent's files
+    assert {"brief.md", "events.jsonl", "conversation.json"} <= {p.name for p in (run_dir / "harness").iterdir()}
+    record = json.loads((run_dir / "run.json").read_text())
+    assert record["state"] == "complete" and record["output"] == {"kind": "godot", "ok": True, "error": None, "verified": None}
+    assert "exit" not in json.dumps(record) and record["batch"] == batch.name
+    batch_json = json.loads((batch / "batch.json").read_text())
+    assert [(r["id"], r["state"]) for r in batch_json["runs"]] == [(run_dir.name, "complete")]
+
+
+def test_a_crashed_harness_is_a_failed_run_with_its_stderr_published(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_PI_EXIT_CODE", "1")
     rc = main(["run", "--yes", "exit code run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    batches = list((tmp_path / "bench-runs").glob("*-exit-code-run"))
-    assert batches, "expected a batch dir for this run"
-    status_files = list(batches[0].rglob("status.json"))
-    assert status_files
-    status = json.loads(status_files[0].read_text())
-    assert status["exit_code"] == 1
+    [run] = json.loads((run_root / "docs/data/exit-code-run/page.json").read_text())["runs"]
+    assert (run["state"], run["error"], run["output"]) == ("failed", "fake pi: forced failure", None)
+    assert run["session"] == {"stderr": "session/stderr.txt"}  # no transcript: the agent never wrote a session
 
 
 def test_brief_is_not_written_into_the_agents_working_dir(run_root):
@@ -237,17 +267,17 @@ def test_tool_durations_are_stored_and_the_event_stream_is_not_published(run_roo
     assert result["durationMs"] == 2500  # from the assistant entry that called it to the result entry
 
 
-def test_export_failure_keeps_state_complete_and_only_sets_error(run_root, monkeypatch):
+def test_export_failure_is_the_outputs_error_not_the_agents(run_root, monkeypatch):
     def failing_export(godot_bin, project_dir, out_dir, timeout=600):
         return False, None, "Godot export failed: boom"
 
-    monkeypatch.setattr("bench.runner.build.export_project", failing_export)
+    monkeypatch.setattr("bench.kinds.godot.export_project", failing_export)
     rc = main(["run", "--yes", "export fails run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
     results = json.loads((run_root / "docs/data/export-fails-run/page.json").read_text())["runs"]
-    assert results[0]["state"] == "complete"
-    assert "boom" in results[0]["error"]
-    assert results[0]["game"] is None
+    assert results[0]["state"] == "complete" and results[0]["error"] is None  # the agent did finish
+    assert results[0]["output"] == {"kind": "godot", "ok": False, "verified": None, "error": "Godot export failed: boom"}
+    assert results[0]["thumb"] is None
 
 
 # --- parallelism -------------------------------------------------------------------------------
@@ -271,67 +301,78 @@ def test_multiple_models_and_levels_all_run(run_root):
 
 
 def test_resume_does_not_rerun_finished_agents(run_root, monkeypatch, tmp_path):
-    # Build a batch by hand: one run already "complete" (with its own session/project already
-    # on disk), one still "queued". Resume must only (re)run the queued one.
+    # Build a batch by hand: one run already "complete" (its work, run.json and output already on
+    # disk), one still "queued". Resume must only (re)run the queued one.
     from bench.runner import write_batch_json
 
-    runs_dir = tmp_path / "bench-runs"
-    batch_dir = runs_dir / "2026-09-27-000000-resume-me"
-    model_dir = batch_dir / "2026-09-27-000000-gpt6sol-resume-me"
-    (model_dir / "low").mkdir(parents=True)
-    (model_dir / "low" / "project.godot").write_text("config_version=5\n")
-    (model_dir / "wasm" / "low").mkdir(parents=True)
-    for name in ("index.html", "index.js", "index.wasm", "index.pck", "index.audio.worklet.js", "index.audio.position.worklet.js"):
-        (model_dir / "wasm" / "low" / name).write_bytes(b"x")
-    (model_dir / "wasm" / "low" / "index.html").write_text(
-        '<html><script src="index.js"></script><script>const GODOT_CONFIG = {"executable":"index",'
-        '"mainPack":"index.pck","fileSizes":{"index.wasm":1}};</script></html>'
-    )
-    (model_dir / "low" / "data.json").write_text(json.dumps({
-        "model": "openai-codex/gpt-6-sol", "thinkingLevel": "low", "startedAt": 1, "endedAt": 2, "durationMs": 1,
-        "costUsd": 0.01, "toolCalls": 1, "turns": 1, "tokens": {"input": 1, "output": 1, "total": 2, "reasoning": 0, "cacheRead": 0, "cacheWrite": 0},
-        "state": "complete", "error": None,
+    batch_dir = tmp_path / "bench-runs" / "2026-09-27-000000-resume-me"
+    low = batch_dir / "gpt-6-sol-low-20260927-000000"
+    (low / "work").mkdir(parents=True)
+    (low / "work" / "project.godot").write_text("config_version=5\n")
+    fake_export_project(None, low / "work", low / "output")
+    (low / "run.json").write_text(json.dumps({
+        "id": low.name, "page": "resume-me", "model": "openai-codex/gpt-6-sol", "effort": "low", "kind": "godot",
+        "started_at": "2026-09-27T00:00:00Z", "batch": batch_dir.name, "harness": {"name": "pi", "version": "0.1.0-fake"},
+        "state": "complete", "error": None, "route": None,
+        "metrics": {"duration_ms": 1, "cost_usd": 0.01, "tool_calls": 1, "turns": 1, "tokens_total": 2, "tokens_input": 1,
+                    "tokens_output": 1, "tokens_reasoning": 0, "tokens_cache_read": 0},
+        "output": {"kind": "godot", "ok": True, "error": None, "verified": None},
     }))
-    (model_dir / "data.json").write_text(json.dumps({
-        "schema": "bench-run/1", "harness": {"name": "pi", "version": "0.1.0-fake"},
-        "runs": {"low": json.loads((model_dir / "low" / "data.json").read_text())},
-    }))
-
+    (batch_dir / "prompt.md").write_text("resume me")
     runs = [
-        {"model": "openai-codex/gpt-6-sol", "level": "low", "model_dir": model_dir, "state": "complete"},
-        {"model": "openai-codex/gpt-6-sol", "level": "medium", "model_dir": model_dir, "state": "queued"},
+        {"id": low.name, "harness": "pi", "model": "openai-codex/gpt-6-sol", "model_arg": "openai-codex/gpt-6-sol", "level": "low", "state": "complete"},
+        {"id": "gpt-6-sol-medium-20260927-000000", "harness": "pi", "model": "openai-codex/gpt-6-sol",
+         "model_arg": "openai-codex/gpt-6-sol", "level": "medium", "state": "queued"},
     ]
-    batch_dir.mkdir(parents=True, exist_ok=True)
-    batch = {
-        "prompt": "resume me", "page": "resume-me", "title": "Resume me", "title_is_explicit": False,
-        "harness": {"name": "pi", "version": "0.1.0-fake"}, "brief": "do the thing",
-        "created": "2026-09-27T00:00:00Z", "runs": runs,
-    }
-    write_batch_json(batch_dir, batch)
+    write_batch_json(batch_dir, {
+        "prompt": "resume me", "kind": "godot", "page": "resume-me", "title": "Resume me", "title_is_explicit": False,
+        "harnesses": {"pi": "0.1.0-fake"}, "brief": "do the thing", "created": "2026-09-27T00:00:00Z", "runs": runs,
+    })
 
-    marker = tmp_path / "ran.txt"
-    real_export = fake_export_project
+    exported = []
 
     def counting_export(godot_bin, project_dir, out_dir, timeout=600):
-        with open(marker, "a") as f:
-            f.write(str(project_dir) + "\n")
-        return real_export(godot_bin, project_dir, out_dir, timeout)
+        exported.append(project_dir.parent.name)
+        return fake_export_project(godot_bin, project_dir, out_dir, timeout)
 
-    monkeypatch.setattr("bench.runner.build.export_project", counting_export)
+    monkeypatch.setattr("bench.kinds.godot.export_project", counting_export)
 
     rc = main(["run", "--resume", str(batch_dir), "--root", str(run_root)])
     assert rc == 0
 
-    # The already-complete "low" level must not have been re-run (its hand-written project file
-    # is untouched: the fake pi always overwrites project.godot with its own fixed content).
-    assert (model_dir / "low" / "project.godot").read_text() == "config_version=5\n"
-    # The queued "medium" level must have been run.
-    assert (model_dir / "medium" / "data.json").is_file()
-    medium_entry = json.loads((model_dir / "medium" / "data.json").read_text())
-    assert medium_entry["state"] == "complete"
+    # The already-complete "low" run must not have been re-run (its hand-written project file is
+    # untouched: the fake pi always overwrites project.godot with its own fixed content), nor re-exported.
+    assert (low / "work" / "project.godot").read_text() == "config_version=5\n"
+    assert exported == ["gpt-6-sol-medium-20260927-000000"]
+    medium = json.loads((batch_dir / "gpt-6-sol-medium-20260927-000000" / "run.json").read_text())
+    assert medium["state"] == "complete" and medium["output"]["ok"] is True
+    assert [r["state"] for r in json.loads((batch_dir / "batch.json").read_text())["runs"]] == ["complete", "complete"]
 
     results = json.loads((run_root / "docs/data/resume-me/page.json").read_text())["runs"]
     assert sorted(r["effort"] for r in results) == ["low", "medium"]
+
+
+def test_resume_retries_a_failed_output_step_without_rerunning_the_agent(run_root, monkeypatch, tmp_path):
+    attempts = []
+
+    def flaky_export(godot_bin, project_dir, out_dir, timeout=600):
+        attempts.append(1)
+        if len(attempts) == 1:
+            return False, None, "Godot export failed: first try"
+        return fake_export_project(godot_bin, project_dir, out_dir, timeout)
+
+    monkeypatch.setattr("bench.kinds.godot.export_project", flaky_export)
+    assert main(["run", "--yes", "retry output", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
+    [run] = json.loads((run_root / "docs/data/retry-output/page.json").read_text())["runs"]
+    assert run["output"]["ok"] is False
+    [batch] = (tmp_path / "bench-runs").glob("*-retry-output")
+    work = batch / run["id"] / "work"
+    (work / "marker.txt").write_text("the agent must not run again")
+
+    assert main(["run", "--resume", str(batch), "--root", str(run_root)]) == 0
+    assert (work / "marker.txt").is_file() and len(attempts) == 2
+    [run] = json.loads((run_root / "docs/data/retry-output/page.json").read_text())["runs"]
+    assert run["output"]["ok"] is True and run["state"] == "complete"
 
 
 # --- Ctrl-C -----------------------------------------------------------------------------------
@@ -355,7 +396,7 @@ def test_ctrl_c_kills_the_agent_and_marks_it_queued_for_resume(run_root, monkeyp
 
     def interrupt_once_agent_started():  # Ctrl-C only after the fake pi is really running
         deadline = time.time() + 10
-        while time.time() < deadline and not list(run_root.parent.glob("bench-runs/*-interrupt-me/*/low/fake_pi.pid")):
+        while time.time() < deadline and not list(run_root.parent.glob("bench-runs/*-interrupt-me/*/work/fake_pi.pid")):
             time.sleep(0.05)
         os.kill(os.getpid(), signal.SIGINT)
 
@@ -376,7 +417,7 @@ def test_ctrl_c_kills_the_agent_and_marks_it_queued_for_resume(run_root, monkeyp
     assert batch["runs"][0]["state"] == "queued"
 
     # The fake pi's process (and its process group) must actually be gone, not just abandoned.
-    pid = int(next(batches[0].glob("*/low/fake_pi.pid")).read_text())
+    pid = int(next(batches[0].glob("*/work/fake_pi.pid")).read_text())
     deadline = time.time() + 5
     while time.time() < deadline:
         try:
@@ -425,7 +466,8 @@ def test_web_run_publishes_one_packaged_page(run_root):
     assert json.loads((run_root / "docs/data/a-spinning-horse/page.json").read_text())["kind"] == "web"
     [run] = json.loads((run_root / "docs/data/a-spinning-horse/page.json").read_text())["runs"]
     assert run["kind"] == "web" and run["state"] == "complete" and run["error"] is None
-    assert run["game"]["kind"] == "web" and run["game"]["entry"] == "game/index.html" and run["game"]["esbuild"]
+    out = run["output"]
+    assert (out["kind"], out["entry"], out["ok"]) == ("web", "game/index.html", True) and out["esbuild"] and out["bytes"]
     run_dir = run_root / "docs/data/a-spinning-horse/runs" / run["id"]
     assert [p.name for p in (run_dir / "game").iterdir()] == ["index.html"]  # one file
     html = (run_dir / "game/index.html").read_text()
@@ -436,18 +478,19 @@ def test_web_run_publishes_one_packaged_page(run_root):
 
 
 @needs_esbuild
-def test_web_run_that_fails_to_package_keeps_state_and_sets_error(run_root, monkeypatch):
+def test_web_run_that_fails_to_package_has_an_output_error_not_an_agent_error(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_PI_BAD_WEB", "1")
     rc = main(["run", "--yes", "--kind", "web", "broken page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
     [run] = json.loads((run_root / "docs/data/broken-page/page.json").read_text())["runs"]
-    assert run["state"] == "complete" and run["game"] is None
-    assert run["error"].startswith("packaging failed: esbuild:") and "missing.js" in run["error"]
+    assert run["state"] == "complete" and run["error"] is None
+    assert run["output"]["ok"] is False and run["output"]["verified"] is None and "entry" not in run["output"]
+    assert run["output"]["error"].startswith("packaging failed: esbuild:") and "missing.js" in run["output"]["error"]
     assert "main.js" in run["source"]["files"]  # the source is still published
 
 
 def test_web_run_needs_esbuild(run_root, monkeypatch):
-    monkeypatch.setattr("bench.runner.shutil.which", lambda name: None if name == "esbuild" else "/bin/" + name)
+    monkeypatch.setattr("bench.kinds.shutil.which", lambda name: None if name == "esbuild" else "/bin/" + name)
     with pytest.raises(BenchError, match="needs esbuild"):
         from bench.runner import cmd_run
 
@@ -467,9 +510,9 @@ def test_media_run_publishes_output_files(run_root):
     assert page["kind"] == "media"
     assert "./output/" in page["final_prompt"] and "Tools available on this machine: " in page["final_prompt"]
     [run] = json.loads((run_root / "docs/data/a-red-circle/page.json").read_text())["runs"]
-    assert run["kind"] == "media" and run["game"] is None
-    assert run["verified"] is True and run["error"] is None
-    by_path = {m["path"]: m for m in run["media"]}
+    assert run["kind"] == "media" and run["error"] is None
+    assert (run["output"]["ok"], run["output"]["verified"], run["output"]["error"]) == (True, True, None)
+    by_path = {m["path"]: m for m in run["output"]["items"]}
     assert set(by_path) == {"media/clip.mp4", "media/dot.png", "media/drawing.svg"}
     assert by_path["media/drawing.svg"]["width"] == 120
     assert by_path["media/clip.mp4"]["poster"] == "media/clip.poster.jpg"
@@ -486,20 +529,55 @@ def test_media_run_publishes_output_files(run_root):
 
 
 @needs_ffmpeg
-def test_media_run_with_bad_output_keeps_state_and_sets_error(run_root, monkeypatch):
+def test_media_run_with_bad_output_is_ok_but_not_verified_with_an_output_error(run_root, monkeypatch):
     monkeypatch.setenv("FAKE_PI_BAD_OUTPUT", "1")
     rc = main(["run", "--yes", "--kind", "media", "bad media", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
     [run] = json.loads((run_root / "docs/data/bad-media/page.json").read_text())["runs"]
-    assert run["state"] == "complete" and run["verified"] is False
-    assert "notes.txt: unsupported file type" in run["error"]
-    assert len(run["media"]) == 3  # the good files are still published
+    assert run["state"] == "complete" and run["error"] is None
+    assert (run["output"]["ok"], run["output"]["verified"]) == (True, False)
+    assert "notes.txt: unsupported file type" in run["output"]["error"]
+    assert len(run["output"]["items"]) == 3  # the good files are still published
 
 
 def test_kind_must_match_the_existing_page(run_root):
     assert main(["run", "--yes", "mixed page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
     rc = main(["run", "--yes", "--kind", "media", "mixed page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 1
+
+
+# --- a new kind -----------------------------------------------------------------------------------
+
+
+def test_a_new_kind_is_only_a_kind_class(run_root, monkeypatch):
+    """A toy kind (a brief and a finalize that makes one file) runs end to end with the fake pi: the
+    runner and the importer have no `if kind ==` for it. The viewer shows any output with an `entry`
+    in the sandbox (the demo fixture's "custom" kind is covered in test_web.py)."""
+    from bench.kinds import KINDS, Kind, Staged
+
+    class Toy(Kind):
+        name = "toy"
+
+        def brief(self):
+            return "{prompt}\n\nWrite a README.md."
+
+        def finalize(self, work_dir, out_dir):
+            out_dir.mkdir(parents=True)
+            (out_dir / "index.html").write_text(f"<h1>{(work_dir / 'README.md').read_text()}</h1>")
+            return True, None
+
+        def stage(self, out_dir, run_dir, ctx):
+            ctx.write_text(out_dir / "index.html", run_dir / "game" / "index.html")
+            return Staged({"entry": "game/index.html"})
+
+    monkeypatch.setitem(KINDS, "toy", Toy)
+    assert main(["run", "--yes", "--kind", "toy", "a toy", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
+    page = json.loads((run_root / "docs/data/a-toy/page.json").read_text())
+    [run] = page["runs"]
+    assert page["kind"] == "toy" and page["final_prompt"] == "a toy\n\nWrite a README.md."
+    assert run["output"] == {"kind": "toy", "entry": "game/index.html", "ok": True, "verified": None, "error": None}
+    assert "fake project" in (run_root / "docs/data/a-toy/runs" / run["id"] / "game/index.html").read_text()
+    assert "README.md" in run["source"]["files"]
 
 
 # --- model sets ------------------------------------------------------------------------------------

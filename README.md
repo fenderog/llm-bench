@@ -51,8 +51,8 @@ everything is imported into one page. Nothing is pushed until you run `bench pub
 - Ctrl-C stops every running agent. `bench run --resume <batch dir>` finishes the batch without rerunning
   agents that already completed.
 
-Each agent gets your prompt verbatim plus a fixed brief for the kind of task (`src/bench/briefs/`), and
-works in an empty folder under `[run].dir` (default `~/dev/bench-runs`, set in `bench.toml`).
+Each agent gets your prompt verbatim plus a fixed brief for the kind of task (`src/bench/kinds/<kind>.md`), and
+works in an empty folder (`<run id>/work/`) under `[run].dir` (default `~/dev/bench-runs`, set in `bench.toml`).
 
 ### Claude Code as the harness
 
@@ -170,21 +170,25 @@ it online, where it's read-only: ranked runs sort first and show 🥇🥈🥉 (t
 gallery, compare and run pages. The published site can't change rankings; only `bench serve` on your
 machine accepts them.
 
-## Importing existing runs
+## Importing runs
+
+`bench run` imports its batch when it finishes. To publish a run (or a whole batch) again, for example after
+`bench rm`:
 
 ```sh
-uv run bench import ~/dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse   # one run per effort level
+uv run bench import ~/dev/bench-runs/2026-09-29-171151-create-a-rubik-s-cube-in-3js   # a batch: one run per directory
+uv run bench import ~/dev/bench-runs/<batch>/<run id>                                  # or a single run
 uv run bench serve                  # preview at http://localhost:8000 (served like GitHub Pages)
 uv run bench publish -m "voxel horse: gpt-6-sol"   # git add docs && commit && push
 ```
 
 `import` options:
-- `--page SLUG` sets the page instead of deriving it from the folder name; `--title` sets its title.
+- `--page SLUG` sets the page instead of the one recorded in the run; `--title` sets its title.
 - `--dry-run` shows what would be written without writing it.
 - `--redact` masks secrets instead of aborting.
 - `--allow-threads` accepts threaded Godot exports, which only play in full screen.
 
-Every import (including the one at the end of `bench run`) cleans the session files first: encrypted
+Every import (including the one at the end of `bench run`) cleans the transcript and every other published text file first: encrypted
 reasoning blobs and machine-specific keys are removed, and home and volume paths are rewritten (see
 `[clean]` in `bench.toml`). Then everything is secret-scanned, and any hit aborts before anything is
 written.
@@ -219,4 +223,4 @@ uv run pytest    # ~40s: CLI (bench run uses a fake pi, no model calls), media c
                  # viewer (Playwright on installed Chrome), ranking, Godot export + boot
 ```
 
-The integration test imports the real voxel-horse run and is skipped when that folder isn't present.
+The integration test serves the published voxel-horse page and checks its real Godot builds boot in the sandbox.

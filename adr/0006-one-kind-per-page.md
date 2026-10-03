@@ -20,8 +20,8 @@ The first design (DESIGN.md) was generic: a run could hold any mix of artifacts 
   - `web`: a web page, packaged into one `index.html` (added later, see 0013).
   
   Importing a run of another kind is an error.
-- Each kind has its own brief template (`src/bench/briefs/<kind>.md`), post-processing step (export + verify, or
-  media normalization) and viewer (Game tab or Output tab).
+- Each kind has its own brief template (`src/bench/kinds/<kind>.md`), post-processing step (export + verify, or
+  media normalization) and viewer (Game tab or Output tab); one class per kind since 0018.
 - The metrics are fixed (duration, tokens, cost, tool calls, turns), not configured per page.
 
 ## Alternatives considered

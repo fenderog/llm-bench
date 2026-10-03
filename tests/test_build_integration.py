@@ -5,7 +5,7 @@ import shutil
 
 import pytest
 
-from bench import build
+from bench.kinds.godot import export_project
 
 GODOT_BIN = shutil.which("godot")
 pytestmark = pytest.mark.skipif(GODOT_BIN is None, reason="godot not on PATH")
@@ -49,7 +49,7 @@ def tiny_project(tmp_path):
 
 def test_export_tiny_project_to_web(tiny_project, tmp_path):
     out_dir = tmp_path / "wasm"
-    ok, manifest, error = build.export_project(GODOT_BIN, tiny_project, out_dir, timeout=180)
+    ok, manifest, error = export_project(GODOT_BIN, tiny_project, out_dir, timeout=180)
     assert ok, error
     assert manifest["threads"] is False
     assert manifest["godot"]

@@ -1,7 +1,7 @@
-import { qs, el, loadPage, showMessage, runDir, runUrl, sandboxedGame, mediaGallery, modelLabel, effortPill, stateBadge, noOutputText } from "./common.js";
+import { qs, el, loadPage, showMessage, runDir, runUrl, renderOutput, modelLabel, effortPill, stateBadge, outputBadge } from "./common.js";
 
-// play.html?p=<slug>&r=<run id>: one run's output alone in a window. Games and web pages go through
-// sandboxedGame() and media through mediaGallery(), exactly as elsewhere (ADR-0004), never the raw entry URL.
+// play.html?p=<slug>&r=<run id>: one run's output alone in a window, shown by renderOutput() like everywhere else
+// (games and pages sandboxed, never the raw entry URL: ADR-0004). It boots now: opening the window was the click.
 const slug = qs("p");
 const id = qs("r");
 const main = document.getElementById("play");
@@ -16,12 +16,6 @@ if (page) {
 
 function render(r) {
   document.title = `${r.model} · ${r.effort} – llm-bench`;
-  document.getElementById("play-bar").append(...[modelLabel(r.model), effortPill(r.effort), stateBadge(r), el("a", { text: "Run page →", attrs: { href: runUrl(slug, id) } })].filter(Boolean));
-  const base = runDir(slug, id);
-  const out = [];
-  if (r.error) out.push(el("p", { class: "run-error", text: r.error }));
-  if (r.media) out.push(mediaGallery(r, base));
-  else if (r.game) out.push(el("div", { class: "play-frame" }, [sandboxedGame(base + r.game.entry)])); // boots now: opening the window was the click
-  else out.push(el("p", { class: "msg", text: noOutputText(r) }));
-  main.replaceChildren(...out);
+  document.getElementById("play-bar").append(...[modelLabel(r.model), effortPill(r.effort), stateBadge(r), outputBadge(r), el("a", { text: "Run page →", attrs: { href: runUrl(slug, id) } })].filter(Boolean));
+  main.replaceChildren(...[r.error ? el("p", { class: "run-error", text: r.error }) : null, ...renderOutput(r, runDir(slug, id), { autoplay: true, frameClass: "play-frame" })].filter(Boolean));
 }

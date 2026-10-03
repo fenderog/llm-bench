@@ -2,6 +2,7 @@
 
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,7 @@ from bench.harness import split_model_route, split_route
 from bench.runner import plan_runs
 from bench.util import BenchError, make_run_id
 
+STARTED = datetime(2026, 10, 1, 10, 15, 0)
 FAKE_PI = Path(__file__).parent / "fixtures" / "fake_pi"
 
 
@@ -44,8 +46,8 @@ def fake_build(monkeypatch):
         (out_dir / "export-manifest.json").write_text(json.dumps(manifest) + "\n")
         return True, manifest, None
 
-    monkeypatch.setattr("bench.runner.build.export_project", fake_export_project)
-    monkeypatch.setattr("bench.runner.build.verify_build", lambda out_dir, **kw: None)
+    monkeypatch.setattr("bench.kinds.godot.export_project", fake_export_project)
+    monkeypatch.setattr("bench.kinds.godot.Godot.verify", lambda self, out_dir: None)
 
 
 @pytest.fixture
@@ -130,20 +132,18 @@ def test_set_entry_with_route(tmp_path, run_root, capsys):
 
 def test_make_run_id_sanitizes_at():
     run_id = make_run_id("openrouter/deepseek/deepseek-v4.1-flash@deepinfra", "low",
-                         "2026-10-01-101500-gpt6sol-x")
+                         STARTED)
     assert run_id == "deepseek-v4.1-flash-via-deepinfra-low-20261001-101500"
 
 
 def test_route_with_a_slash_keeps_the_model_name():
     """Real OpenRouter slugs carry a variant after "/" ("deepinfra/fp8"); it must not be taken
     for the model name in run ids or model dir tags."""
-    from bench.runner import model_tag
-
     assert split_route("openrouter/x/y@deepinfra/fp8,atlas-cloud/fp8:low") == ("openrouter/x/y:low", ["deepinfra/fp8", "atlas-cloud/fp8"])
     model = "openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8"
-    assert make_run_id(model, "low", "2026-10-01-101500-x-slug") == "deepseek-v4.1-flash-via-deepinfra-fp8-low-20261001-101500"
-    assert model_tag(model) == "deepseekv41flashdeepinfrafp8"
-    assert model_tag("openrouter/deepseek/deepseek-v4.1-flash@deepinfra/turbo") != model_tag("openrouter/other/model@deepinfra/turbo")
+    assert make_run_id(model, "low", STARTED) == "deepseek-v4.1-flash-via-deepinfra-fp8-low-20261001-101500"
+    other = make_run_id("openrouter/deepseek/deepseek-v4.1-flash@deepinfra/turbo", "low", STARTED)
+    assert other != make_run_id(model, "low", STARTED) and other.startswith("deepseek-v4.1-flash-via-deepinfra-turbo-")
 
 
 def test_upstream_key_matches_slugs_to_display_names():

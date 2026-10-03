@@ -1,6 +1,6 @@
 import {
-  qs, el, loadPage, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, buildGameFrame, harnessLabel, stateBadge,
-  mediaGallery, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, noOutputText, playUrl,
+  qs, el, loadPage, getJSON, getText, fmtNum, fmtDuration, fmtCost, fmtDate, showMessage, badge, runDir, harnessLabel, stateBadge, outputBadge, outputVerified,
+  isPlayable, renderOutput, kindUi, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, playUrl,
 } from "./common.js";
 
 const slug = qs("p");
@@ -59,11 +59,12 @@ function render(run, base, siblings) {
     tile("Tool calls", "tool_calls", fmtNum(m.tool_calls)),
     tile("Turns", "turns", fmtNum(m.turns)),
   ]);
+  const verified = outputVerified(run);
   const verifiedBadge =
-    run.verified === true ? badge("✓ verified", "good") : run.verified === false ? badge("✗ not verified", "bad") : el("span", { class: "muted", text: "not verified" });
-  const sb = stateBadge(run);
+    verified === true ? badge("✓ verified", "good") : verified === false ? badge("✗ not verified", "bad") : el("span", { class: "muted", text: "not verified" });
   const meta = el("div", { class: "run-meta" }, [
-    sb,
+    stateBadge(run),
+    outputBadge(run),
     verifiedBadge,
     el("span", {}, [el("span", { class: "k", text: "harness" }), el("span", { text: harnessLabel(run) })]),
     el("span", {}, [el("span", { class: "k", text: "started" }), el("span", { text: fmtDate(run.started_at) })]),
@@ -131,25 +132,15 @@ function setupTabs() {
 
 function renderGame(run, base) {
   const panel = document.getElementById("panel-game");
-  if (run.kind === "media") {
-    document.querySelector('#tabs button[data-tab="game"]').textContent = "Output";
-    if (run.media) panel.append(mediaGallery(run, base));
-    else showMessage(panel, noOutputText(run));
-    return;
+  document.querySelector('#tabs button[data-tab="game"]').textContent = kindUi(run.kind).tab;
+  panel.append(...renderOutput(run, base));
+  if (isPlayable(run)) {
+    panel.append(
+      el("div", { class: "game-links" }, [
+        el("a", { text: "Open full screen ↗", attrs: { href: playUrl(slug, run.id), target: "_blank", rel: "noopener noreferrer" } }),
+      ])
+    );
   }
-  if (run.kind === "web") document.querySelector('#tabs button[data-tab="game"]').textContent = "Page";
-  if (!run.game) {
-    showMessage(panel, noOutputText(run));
-    return;
-  }
-  const entryUrl = base + run.game.entry;
-  const thumbUrl = run.thumb ? base + run.thumb : null;
-  panel.append(buildGameFrame(entryUrl, thumbUrl));
-  panel.append(
-    el("div", { class: "game-links" }, [
-      el("a", { text: "Open full screen ↗", attrs: { href: playUrl(slug, run.id), target: "_blank", rel: "noopener noreferrer" } }),
-    ])
-  );
 }
 
 async function renderTranscriptTab(run, base) {
@@ -213,9 +204,11 @@ function renderMetrics(run, base) {
     ["kind", run.kind ?? "godot"],
     ["harness", harnessLabel(run)],
     ["started_at", run.started_at],
-    ["verified", run.verified == null ? "–" : String(run.verified)],
     ["state", run.state ?? "–"],
     ["error", run.error ?? "–"],
+    ["output.ok", run.output ? String(run.output.ok) : "–"],
+    ["output.verified", outputVerified(run) == null ? "–" : String(outputVerified(run))],
+    ["output.error", run.output?.error ?? "–"],
     ...(route ? [["route.requested", route.requested ? JSON.stringify(route.requested) : "– (OpenRouter's choice)"], ["route.served", (route.served || []).join(", ") || "–"], ["route.cost_usd", route.cost_usd], ["route.pi_cost_usd", route.pi_cost_usd]] : []),
     ...Object.entries(run.metrics || {}),
   ];

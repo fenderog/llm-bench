@@ -15,7 +15,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
-from .media import thumbnail
+from .kinds.media import thumbnail
 from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError
 
 # Bench-shipped pi extension for OpenRouter runs (see pi_ext/openrouter_routing.ts): it records
@@ -274,7 +274,7 @@ class Pi(Harness):
         return env
 
     def session_file(self, session_dir):
-        matches = sorted(Path(session_dir).glob("*.jsonl"))
+        matches = sorted(p for p in Path(session_dir).glob("*.jsonl") if p.name != "events.jsonl")  # events.jsonl = pi's stdout
         return matches[0] if matches else None
 
 

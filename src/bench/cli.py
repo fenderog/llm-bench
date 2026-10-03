@@ -1,4 +1,4 @@
-"""bench: argparse wiring for import/list/rm/rebuild/serve/publish."""
+"""bench: argparse wiring for import/list/rm/rebuild/serve/publish/run/models."""
 
 import argparse
 import subprocess
@@ -8,6 +8,7 @@ from pathlib import Path
 from .config import Config, RunRequest
 from .harness import HARNESSES
 from .importer import cmd_import
+from .kinds import KINDS
 from .runner import cmd_models, cmd_run
 from .serve import serve_forever
 from .site import cmd_list, cmd_rm, rebuild
@@ -21,8 +22,8 @@ def build_parser():
     parser = argparse.ArgumentParser(prog="bench")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    imp = sub.add_parser("import", parents=[common], help="import an effort-run folder")
-    imp.add_argument("effort_dir")
+    imp = sub.add_parser("import", parents=[common], help="publish a run directory, or every run of a batch directory")
+    imp.add_argument("run_dir", help="<batch>/<run id> or <batch> (as `bench run` writes them)")
     imp.add_argument("-p", "--page", help="override the page slug")
     imp.add_argument("-t", "--title", help="override the page title")
     imp.add_argument("-r", "--redact", action="store_true", help="redact secret hits instead of aborting")
@@ -49,7 +50,7 @@ def build_parser():
     run.add_argument("-m", "--model", dest="models", action="append", default=[], help="[claude-code:]MODEL[:LEVELS], repeatable (no prefix = pi)")
     run.add_argument("-s", "--set", dest="sets", action="append", default=[], help="a model set: a NAME from bench.toml [sets], or a FILE with one MODEL[:LEVELS] per line; repeatable, combines with -m")
     run.add_argument("-e", "--effort", help="default LEVELS for every model without a suffix")
-    run.add_argument("-k", "--kind", choices=["godot", "media", "web"], help="what the agents produce (default: the page's kind, else godot)")
+    run.add_argument("-k", "--kind", choices=list(KINDS), help="what the agents produce (default: the page's kind, else godot)")
     run.add_argument("-p", "--page", help="page slug (default: from the prompt); an existing page with no PROMPT reuses its prompt")
     run.add_argument("-c", "--change-prompt", action="store_true", help="allow a different prompt for an existing page (replaces it for the whole page)")
     run.add_argument("-t", "--title", help="page title (default: from slug)")
@@ -93,7 +94,7 @@ def main(argv=None):
         if args.command == "import":
             return cmd_import(
                 config,
-                args.effort_dir,
+                args.run_dir,
                 page=args.page,
                 title=args.title,
                 redact=args.redact,
