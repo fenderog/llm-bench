@@ -125,8 +125,8 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   - Model ids can contain `:`, so levels are read from after the last colon.
   - bench keeps no list of pi models (Codex included): they come live from `pi --list-models`. New ones show up
     after `pi update --models` refreshes pi's catalog.
-  - `--mode json` stdout is ~1 MB of `message_update` streaming snapshots; they're dropped from the
-    published `events.jsonl`.
+  - `--mode json` stdout (kept in `.harness/`, never published) is ~1 MB of `message_update` streaming snapshots and
+    carries no timestamps, so tool durations come from the session entries' timestamps (`add_tool_durations`).
 - **Claude Code's stream-json:** per-message `usage` is a snapshot taken before the output is written (output
   tokens ~1-5), so metrics come from the final `result` event; thinking text is empty in print mode; one
   assistant event per content block, all repeating the message's usage (merge by message id). Without

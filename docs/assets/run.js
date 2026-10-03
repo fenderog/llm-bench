@@ -160,12 +160,9 @@ async function renderTranscriptTab(run, base) {
     return;
   }
   try {
-    const [conversation, eventsText] = await Promise.all([
-      getJSON(base + session.conversation),
-      session.events ? getText(base + session.events).catch(() => null) : Promise.resolve(null),
-    ]);
+    const conversation = await getJSON(base + session.conversation);
     const { renderTranscript } = await import("./transcript.js");
-    await renderTranscript(panel, conversation, eventsText);
+    await renderTranscript(panel, conversation);
   } catch (err) {
     showMessage(panel, `Could not load transcript: ${err.message}`, "error");
   }

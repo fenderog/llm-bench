@@ -155,11 +155,12 @@ def cmd_run():
         {"type": "thinking_level_change", "thinkingLevel": level},
         {"type": "message", "message": {"role": "system", "content": ""}},
         {"type": "message", "message": {"role": "user", "content": [{"type": "text", "text": brief}]}},
-        {"type": "message", "message": {
+        {"type": "message", "timestamp": "2026-09-27T00:00:01.000Z", "message": {
             "role": "assistant", "usage": usage1, "stopReason": "toolUse",
-            "content": [{"type": "text", "text": "Writing the project."}, {"type": "toolCall", "toolCallId": "t1", "name": "write"}],
+            "content": [{"type": "text", "text": "Writing the project."}, {"type": "toolCall", "id": "t1", "name": "write"}],
         }},
-        {"type": "message", "message": {"role": "toolResult", "toolCallId": "t1", "content": "wrote project.godot"}},
+        {"type": "message", "timestamp": "2026-09-27T00:00:03.500Z",
+         "message": {"role": "toolResult", "toolCallId": "t1", "content": "wrote project.godot"}},
         {"type": "message", "message": {
             "role": "assistant", "usage": usage2,
             "stopReason": "error" if error_stop else "stop",

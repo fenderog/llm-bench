@@ -53,7 +53,7 @@ progressive_web_app/background_color=Color(0, 0, 0, 1)
 
 EXPORT_FILES = ["index.html", "index.js", "index.wasm", "index.pck"]
 # The session files a run's level dir may contain: never part of the exported package.
-SESSION_EXCLUDES = ["conversation.json", "data.json", "status.json", "session.jsonl", "events.jsonl", "output.md", "stderr.txt"]
+SESSION_EXCLUDES = ["conversation.json", "data.json", "status.json", "session.jsonl", "output.md", "stderr.txt"]
 
 
 def export_project(godot_bin, project_dir, out_dir, timeout=600):

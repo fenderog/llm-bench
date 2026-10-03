@@ -355,6 +355,7 @@ def test_run_transcript_tool_calls_and_filters(site, page):
 
     assert page.locator(".tool-block").count() == 5  # bash, ls, write, edit, read
     assert page.locator(".badge-error").count() == 1  # the bash call errors
+    assert page.locator(".tool-duration").first.inner_text() == "480ms"  # durationMs on the toolResult
 
     # a long write is collapsed behind "File (N lines)" and opens on click
     file_toggle = page.locator("details.out-collapse summary", has_text="File (31 lines)")

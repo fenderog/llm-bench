@@ -11,6 +11,7 @@ import json
 import os
 import subprocess
 import threading
+from datetime import datetime
 from pathlib import Path
 
 from .media import thumbnail
@@ -77,10 +78,6 @@ class Harness:
         session that's still being written (live progress)."""
         path = self.session_file(session_dir)
         return parse_session(path) if path and path.is_file() else None
-
-    def publishes_events(self):
-        """Whether the raw stdout event stream is published as session/events.jsonl."""
-        return True
 
 
 class Pi(Harness):
@@ -329,8 +326,37 @@ class ClaudeCode(Harness):
         path = self.session_file(session_dir)
         return claude_metrics(read_jsonl(path), level) if path else None
 
-    def publishes_events(self):
-        return False  # the raw stream carries account/session details; conversation.json has the session
+
+def add_tool_durations(entries):
+    """Set `durationMs` on each toolResult message that lacks one: its entry's timestamp minus the
+    timestamp of the assistant entry that made the call (pi stamps entries when they're finished).
+    Tools called together share a start, so parallel ones are exact and sequential ones cumulative.
+    The Claude Code conversion sets exact ones itself. Entries without usable timestamps are left
+    alone. Returns `entries`."""
+    called = {}
+    for entry in entries or []:
+        msg = entry.get("message") or {}
+        if msg.get("role") == "assistant":
+            for block in msg.get("content") or []:
+                if isinstance(block, dict) and block.get("type") == "toolCall":
+                    called[block.get("id")] = entry.get("timestamp")
+        elif msg.get("role") == "toolResult":
+            if "durationMs" not in msg:
+                _set_duration(msg, called.get(msg.get("toolCallId")), entry.get("timestamp"))
+    return entries
+
+
+def _set_duration(result, start_iso, end_iso):
+    start, end = _ms(start_iso), _ms(end_iso)
+    if start is not None and end is not None:
+        result["durationMs"] = max(0, round(end - start))
+
+
+def _ms(iso):
+    try:
+        return datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp() * 1000
+    except (AttributeError, ValueError):
+        return None
 
 
 def read_jsonl(path):
@@ -439,10 +465,14 @@ def convert_claude_stream(events, brief, level):
         {"type": "message", "message": {"role": "user", "content": [{"type": "text", "text": brief}]}, **start},
     ]
     pending = list(_claude_messages(events))  # merged, in stream order: emitted at their first event
+    called = {}  # tool_use id -> the timestamp of the event that carried it
     for e in events:
         if e.get("parent_tool_use_id"):
             continue
         if e.get("type") == "assistant":
+            for b in (e.get("message") or {}).get("content") or []:
+                if b.get("type") == "tool_use":
+                    called[b.get("id")] = e.get("timestamp")
             if not pending or (pending[0].get("id") and pending[0]["id"] != (e.get("message") or {}).get("id")):
                 continue  # a later event of a message already emitted
             msg = pending.pop(0)
@@ -465,6 +495,7 @@ def convert_claude_stream(events, brief, level):
                         "role": "toolResult", "toolCallId": b.get("tool_use_id"),
                         "content": _tool_content(b.get("content")), "isError": bool(b.get("is_error")),
                     }}, e.get("timestamp")))
+                    _set_duration(entries[-1]["message"], called.get(b.get("tool_use_id")), e.get("timestamp"))
     result = next((e for e in reversed(events) if e.get("type") == "result"), None)
     if result and result.get("is_error"):
         entries.append({"type": "message", "message": {

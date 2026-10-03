@@ -226,13 +226,15 @@ def test_brief_is_not_written_into_the_agents_working_dir(run_root):
     assert "brief.md" not in files
 
 
-def test_published_events_drop_streaming_snapshots(run_root):
+def test_tool_durations_are_stored_and_the_event_stream_is_not_published(run_root):
     rc = main(["run", "--yes", "events run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    run_id = json.loads((run_root / "docs/data/events-run/page.json").read_text())["runs"][0]["id"]
-    events = (run_root / f"docs/data/events-run/runs/{run_id}/session/events.jsonl").read_text().splitlines()
-    types = [json.loads(line)["type"] for line in events]
-    assert "message_start" in types and "message_update" not in types
+    run = json.loads((run_root / "docs/data/events-run/page.json").read_text())["runs"][0]
+    run_dir = run_root / f"docs/data/events-run/runs/{run['id']}"
+    assert "events" not in run["session"] and not (run_dir / "session/events.jsonl").exists()
+    convo = json.loads((run_dir / "session/conversation.json").read_text())
+    [result] = [e["message"] for e in convo if e.get("message", {}).get("role") == "toolResult"]
+    assert result["durationMs"] == 2500  # from the assistant entry that called it to the result entry
 
 
 def test_export_failure_keeps_state_complete_and_only_sets_error(run_root, monkeypatch):
@@ -655,6 +657,7 @@ def test_mixed_harness_batch_records_each_runs_harness_and_session(run_root, mon
     run_dir = run_root / "docs/data/mixed-harness/runs" / cc["id"]
     assert "events" not in cc["session"] and not (run_dir / "session/events.jsonl").exists()
     convo = json.loads((run_dir / "session/conversation.json").read_text())
+    assert [e["message"]["durationMs"] for e in convo if e.get("message", {}).get("role") == "toolResult"] == [5000, 5000]  # tool_use event -> tool_result event
     text = json.dumps(convo)
     assert "signature" not in text and "sess-fake" not in text
     msgs = [e["message"] for e in convo if e["type"] == "message"]

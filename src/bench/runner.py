@@ -20,7 +20,7 @@ from pathlib import Path
 
 from . import build, clean, media, web
 from .config import RunRequest
-from .harness import HARNESSES, split_harness, split_model_route
+from .harness import HARNESSES, add_tool_durations, split_harness, split_model_route
 from .importer import cmd_import
 from .util import KINDS, LEVEL_INDEX, LEVEL_ORDER, BenchError, parse_duration, title_from_slug
 
@@ -427,19 +427,13 @@ def read_route(harness_dir, model):
 
 def collect(level_dir, harness_dir, session_path, cmd, harness, version, started, ended, exit_code, state, error, model, metrics, brief, level):
     """Write <level>/session.jsonl (the harness's raw session, never published), conversation.json
-    (the session in pi's format, which the viewer renders), events.jsonl (when the harness publishes
-    its event stream), status.json, stderr.txt, data.json. Returns the run entry (also used for the
-    model dir's data.json)."""
+    (the session in pi's format, which the viewer renders, with each tool's duration), status.json,
+    stderr.txt, data.json. The raw event stream stays in .harness/. Returns the run entry (also
+    used for the model dir's data.json)."""
     if session_path and session_path.is_file():
         shutil.copy(session_path, level_dir / "session.jsonl")
-        entries = harness.session_entries(harness_dir, brief, level)
+        entries = add_tool_durations(harness.session_entries(harness_dir, brief, level))
         (level_dir / "conversation.json").write_text(json.dumps(entries, indent=2) + "\n")
-    events_src = harness_dir / "events.jsonl"
-    if harness.publishes_events() and events_src.is_file() and events_src.stat().st_size:
-        # Drop streaming snapshots (each repeats the whole partial message; the session has the final one).
-        # The raw file stays in .harness/.
-        lines = events_src.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)
-        (level_dir / "events.jsonl").write_text("".join(line for line in lines if not _is_stream_update(line)))
     stderr_src = harness_dir / "stderr.txt"
     if stderr_src.is_file() and stderr_src.stat().st_size:
         shutil.copy(stderr_src, level_dir / "stderr.txt")
@@ -483,13 +477,6 @@ def collect(level_dir, harness_dir, session_path, cmd, harness, version, started
     }
     (level_dir / "data.json").write_text(json.dumps(entry, indent=2) + "\n")
     return entry
-
-
-def _is_stream_update(line):
-    try:
-        return json.loads(line).get("type") == "message_update"
-    except (ValueError, AttributeError):
-        return False
 
 
 def write_model_data_json(model_dir, harness, version, entries, kind):

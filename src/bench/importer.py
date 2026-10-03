@@ -14,7 +14,6 @@ from .util import BenchError, iso_from_ms, make_run_id, mask, parse_folder
 # level-dir file -> (path under the run dir, how to clean it)
 SESSION_FILES = {
     "conversation.json": ("session/conversation.json", "json"),
-    "events.jsonl": ("session/events.jsonl", "jsonl"),
     "status.json": ("session/status.json", "json"),
     "output.md": ("session/output.md", "text"),
     "stderr.txt": ("session/stderr.txt", "text"),

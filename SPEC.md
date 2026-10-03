@@ -43,7 +43,6 @@ docs/
       media/<file>, media/<name>.poster.jpg                                              # media
       game/index.html             # web: the packaged page, one file (cleaned and secret-scanned like source)
       session/conversation.json   # cleaned (see Cleaning)
-      session/events.jsonl        # cleaned
       session/status.json         # cleaned
       session/output.md
       source/...                  # project files the model wrote
@@ -91,7 +90,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   "game": { "kind": "godot", "entry": "game/index.html", "engine": "41560f8755ed",
             "godot": "4.7.2.stable.official.ed1daf0bf", "threads": false },
   "media": null,
-  "session": { "conversation": "session/conversation.json", "events": "session/events.jsonl",
+  "session": { "conversation": "session/conversation.json",
                "status": "session/status.json", "output": "session/output.md" },
   "source": { "root": "source/", "files": ["README.md", "project.godot", "scenes/main.tscn", "scripts/main.gd"] }
 }
@@ -276,11 +275,12 @@ plain error for every command.
    `name version note`; tools not on PATH are left out with a note). The same text for every run.
    Saved as `.harness/<level>/brief.md`, never in the agent's working dir.
 4. **Agents** (threads + subprocess, at most `-j` at once). Working dir = `<model dir>/<level>/` (empty at start).
-   Harness scratch = `<model dir>/.harness/<level>/` (session dir, `events.jsonl`, `stderr.txt`), kept outside the
+   Harness scratch = `<model dir>/.harness/<level>/` (session dir, the raw stdout `events.jsonl`, `stderr.txt`; never published), kept outside the
    level dir so the agent's project stays clean. Timeout → kill the process group, state `timeout`.
 5. **Collect** (per run, when its agent exits): copy the session file to `<level>/session.jsonl`, write
-   `<level>/conversation.json` (the session as a JSON array), `<level>/events.jsonl` (without the `message_update`
-   streaming snapshots, which only repeat the partial message; the raw file stays in `.harness/`), `<level>/status.json`
+   `<level>/conversation.json` (the session as a JSON array; each `toolResult` message carries `durationMs`, the
+   tool's duration: from the assistant entry that called it to the result entry for pi, from the `tool_use` event to the
+   `tool_result` event for Claude Code), `<level>/status.json`
    (`{state, error, exit_code, argv, harness, startedAt, endedAt, durationMs}`), `<level>/data.json` (the run entry
    below). The model dir's `data.json` = `{"schema": "bench-run/1", "harness": {...}, "runs": {"<level>": entry}}`,
    rewritten after every run finishes. Entry: `model, thinkingLevel, startedAt, endedAt, durationMs, costUsd,
@@ -358,7 +358,6 @@ class Harness:           # one per agent program
     def session_file(self, session_dir) -> Path | None  # the raw session (copied to <level>/session.jsonl, never published)
     def session_entries(self, session_dir, brief, level) -> list  # the session in pi's format -> conversation.json
     def metrics(self, session_dir, level) -> dict | None          # parse_session()'s shape; tolerates a growing file
-    def publishes_events(self) -> bool                  # whether stdout is published as session/events.jsonl
 ```
 Pi: `pi --version`; `pi --list-models` (parse the table); levels via `pi --mode rpc --no-session --model M -ne -ns -np -nc`
 sending `{"type":"get_available_thinking_levels"}` and reading the matching response;
@@ -381,7 +380,7 @@ low, medium, high, xhigh, max (no minimal/off), plus the aliases fable/opus/sonn
 tools (like pi: no sub-agents, web, scheduling, messaging or skills), none of the user's CLAUDE.md, memory, plugins,
 hooks or MCP servers (login still works), and nothing saved to the user's session history. `CLAUDECODE` and
 `CLAUDE_CODE_*` are removed from its environment (bench may itself run inside Claude Code). The stdout stream-json is
-the session; its raw events carry account/session details, so they're not published. Conversion to pi's format:
+the session; its raw events carry account/session details, so they're not published (for any harness). Conversion to pi's format:
 assistant events are merged by message id (the stream emits one per content block, each repeating the usage) and
 become assistant messages (text; thinking only when non-empty, print mode usually omits it; `tool_use` → `toolCall`
 with Bash/Write/Edit/MultiEdit/Read mapped to pi's bash/write/edit/read names and argument shapes, file paths made
@@ -484,8 +483,7 @@ JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is 
     a written file ("File (N lines)"), an edit's diff, other tools' arguments, and a bash command (its first line shown).
     An image in a tool result is shown as an `<img>` thumbnail (a data: URL, only for
     jpeg/png/gif/webp with plain base64 data, never SVG) captioned `[image: <type>, N KB]`, never as text.
-    `isError` gets a ✗ badge. Show `+m:ss` since session start (the clock time on hover) and per-message token usage. Durations come from `events.jsonl` `tool_execution_start`/`_end`
-    (matched by `toolCallId`) when present. Filter buttons: all / tool calls / errors.
+    `isError` gets a ✗ badge. Show `+m:ss` since session start (the clock time on hover) and per-message token usage. A tool's duration is the `durationMs` on its `toolResult` message (when present). Filter buttons: all / tool calls / errors.
   - *Output* (instead of Game, for a `media` run): every item as a captioned figure (file name, size, duration,
     bytes, a `download` link). Images, **SVGs included**, are only ever shown with `<img>` (which never runs an
     SVG's scripts), never inlined or put in an object/embed/iframe, and never linked for viewing on this origin.

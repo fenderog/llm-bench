@@ -88,7 +88,8 @@
         }
       ],
       "isError": true,
-      "timestamp": 601400
+      "timestamp": 601400,
+      "durationMs": 480
     }
   },
   {
@@ -141,7 +142,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 602100
+      "timestamp": 602100,
+      "durationMs": 50
     }
   },
   {
@@ -195,7 +197,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 603000
+      "timestamp": 603000,
+      "durationMs": 160
     }
   },
   {
@@ -254,7 +257,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 603900
+      "timestamp": 603900,
+      "durationMs": 140
     }
   },
   {
@@ -312,7 +316,8 @@
         }
       ],
       "isError": false,
-      "timestamp": 604700
+      "timestamp": 604700,
+      "durationMs": 70
     }
   },
   {

@@ -65,7 +65,6 @@
       "game": null,
       "session": {
         "conversation": "session/conversation.json",
-        "events": null,
         "status": "session/status.json",
         "output": "session/output.md"
       },
@@ -112,7 +111,6 @@
       },
       "session": {
         "conversation": "session/conversation.json",
-        "events": "session/events.jsonl",
         "status": "session/status.json",
         "output": "session/output.md"
       },

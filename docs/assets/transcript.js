@@ -1,30 +1,8 @@
 // Renders a session `conversation.json` array as a chat-like transcript,
-// pairing toolCall blocks with their toolResult by toolCallId, and (when
-// available) tool durations from `events.jsonl`.
+// pairing toolCall blocks with their toolResult by toolCallId (its `durationMs` is the tool's duration).
 
 import { el, fmtElapsed, fmtNum, fmtDuration, badge } from "./common.js";
 import { renderMarkdown } from "./markdown.js";
-
-export function parseEvents(text) {
-  const starts = new Map();
-  const spans = new Map();
-  if (!text) return spans;
-  for (const line of text.split("\n")) {
-    if (!line.trim()) continue;
-    let e;
-    try {
-      e = JSON.parse(line);
-    } catch {
-      continue;
-    }
-    if (e.type === "tool_execution_start" && e.toolCallId) {
-      starts.set(e.toolCallId, e.observedAt);
-    } else if (e.type === "tool_execution_end" && e.toolCallId && starts.has(e.toolCallId)) {
-      spans.set(e.toolCallId, { startMs: starts.get(e.toolCallId), endMs: e.observedAt });
-    }
-  }
-  return spans;
-}
 
 function roleLabel(role) {
   return { system: "System", user: "User", assistant: "Assistant" }[role] || role;
@@ -99,10 +77,10 @@ function resultImages(resultMsg) {
   return content.filter((c) => c && c.type === "image").map(renderImage);
 }
 
-function renderToolBlock(block, resultMsg, span) {
+function renderToolBlock(block, resultMsg) {
   const isError = !!(resultMsg && resultMsg.isError);
   const head = el("div", { class: "tool-head" }, [el("span", { class: "tool-name", text: block.name })]);
-  if (span) head.append(el("span", { class: "tool-duration", text: fmtDuration(Math.max(0, span.endMs - span.startMs)) }));
+  if (resultMsg?.durationMs != null) head.append(el("span", { class: "tool-duration", text: fmtDuration(resultMsg.durationMs) }));
   if (isError) head.append(badge("✗ error", "error"));
   const wrap = el("div", { class: "tool-block" }, [head]);
   const args = block.arguments || {};
@@ -143,7 +121,7 @@ function renderToolBlock(block, resultMsg, span) {
 }
 
 /** Builds toolbar (filters + show-thinking) and the transcript into `root`. */
-export async function renderTranscript(root, conversation, eventsText) {
+export async function renderTranscript(root, conversation) {
   root.replaceChildren();
   const toolbar = el("div", { class: "transcript-toolbar" });
   const list = el("div", { class: "transcript" });
@@ -171,7 +149,6 @@ export async function renderTranscript(root, conversation, eventsText) {
   const messages = conversation.filter((e) => e.type === "message");
   const toolResults = new Map();
   for (const m of messages) if (m.message.role === "toolResult") toolResults.set(m.message.toolCallId, m.message);
-  const events = parseEvents(eventsText);
   const sessionStartMs = Date.parse(conversation[0]?.timestamp ?? messages[0]?.timestamp);
 
   for (const m of messages) {
@@ -205,7 +182,7 @@ export async function renderTranscript(root, conversation, eventsText) {
           hasTool = true;
           const resultMsg = toolResults.get(block.id);
           if (resultMsg && resultMsg.isError) hasError = true;
-          turn.append(renderToolBlock(block, resultMsg, events.get(block.id)));
+          turn.append(renderToolBlock(block, resultMsg));
         }
       }
       if (hasTool) turn.dataset.hasTool = "1";
