@@ -139,7 +139,7 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   `models.json`, which would affect every pi session on the machine).
 - **OpenRouter upstreams:** slugs contain `/` (`deepinfra/fp8`), so anything that takes "the model name after the
   last `/"` must split off `@route` first (`make_run_id`, `model_tag`, `modelParts()`). Responses name the upstream
-  by display name ("AtlasCloud"), not slug: compare with `upstream_key()`. pi's cost for OpenRouter calls is a
+  by display name ("AtlasCloud"), not slug: compare with `upstream_key()` (harness.py, where the whole route lives: `Pi.finish` reads `route.jsonl`). pi's cost for OpenRouter calls is a
   catalog estimate (2–7× too low on the first real routed runs); every OpenRouter run uses OpenRouter's `usage.cost` instead.
 - **`replaceChildren()`/`append()` print `null` as text**; `el()` skips null children, so pass optional nodes
   through `el()` or `.filter(Boolean)`.

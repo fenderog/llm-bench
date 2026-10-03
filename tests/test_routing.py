@@ -8,8 +8,8 @@ import pytest
 
 from bench.cli import main
 from bench.config import Config, RunRequest
-from bench.harness import split_model_route
-from bench.runner import plan_runs, split_route
+from bench.harness import split_model_route, split_route
+from bench.runner import plan_runs
 from bench.util import BenchError, make_run_id
 
 FAKE_PI = Path(__file__).parent / "fixtures" / "fake_pi"
@@ -147,7 +147,7 @@ def test_route_with_a_slash_keeps_the_model_name():
 
 
 def test_upstream_key_matches_slugs_to_display_names():
-    from bench.runner import upstream_key
+    from bench.harness import upstream_key
 
     # (slug, what OpenRouter reports) pairs seen on real endpoints
     for slug, name in [("deepinfra/fp8", "DeepInfra"), ("atlas-cloud/fp8", "AtlasCloud"), ("io-net/fp8", "Io Net"),
@@ -242,7 +242,7 @@ def test_routed_run_served_elsewhere_sets_error(run_root, monkeypatch):
 
 
 def test_read_route_parses_the_log(tmp_path):
-    from bench.runner import read_route
+    from bench.harness import read_route
 
     log = tmp_path / "route.jsonl"
     log.write_text('{"id": "g1", "provider": "DeepInfra"}\nnot json\n[1]\n')
@@ -270,3 +270,16 @@ def test_unpinned_openrouter_run_records_upstream_and_real_cost(run_root, monkey
     assert run["model"] == "openrouter/test/model" and "-via-" not in run["id"]
     assert run["route"] == {"requested": None, "served": ["Fireworks"], "cost_usd": 0.0042, "pi_cost_usd": 0.0025}
     assert run["metrics"]["cost_usd"] == 0.0042 and run["error"] is None
+
+
+def test_finish_hook_is_identity_except_for_pi_openrouter_runs(tmp_path):
+    from bench.harness import ClaudeCode, Pi
+
+    metrics = {"cost_usd": 0.5}
+    assert ClaudeCode().finish(tmp_path, "anthropic/claude-opus-5-5", metrics) == metrics
+    assert Pi().finish(tmp_path, "openai-codex/gpt-6-sol", metrics) == metrics
+    (tmp_path / "route.jsonl").write_text('{"id": "g1", "provider": "Fireworks"}\n{"id": "g1", "cost": 0.01}\n')
+    done = Pi().finish(tmp_path, "openrouter/x/y@deepinfra", metrics)
+    assert done["cost_usd"] == 0.01 and done["extra"]["route"]["pi_cost_usd"] == 0.5
+    assert done["notes"] == ["served upstream outside requested only: Fireworks"]
+    assert metrics == {"cost_usd": 0.5}  # the input isn't modified

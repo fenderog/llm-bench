@@ -9,6 +9,7 @@ import base64
 import binascii
 import json
 import os
+import re
 import subprocess
 import threading
 from datetime import datetime
@@ -23,6 +24,22 @@ from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError
 ROUTING_EXTENSION = Path(__file__).parent / "pi_ext" / "openrouter_routing.ts"
 
 
+SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9._/-]*$")
+
+
+def split_route(rest):
+    """'openrouter/x/y@a,b:low' -> ('openrouter/x/y:low', ['a', 'b']); no '@' -> (rest, None).
+    The part after '@' is SLUGS[:LEVELS], so the levels suffix stays attached to the spec."""
+    base, sep, tail = rest.partition("@")
+    if not sep:
+        return rest, None
+    upstreams, _, levels = tail.partition(":")
+    slugs = [s.strip().lower() for s in upstreams.split(",") if s.strip()]
+    if not slugs or any(not SLUG_RE.match(s) for s in slugs):
+        raise BenchError(f"bad @UPSTREAM in {rest!r}: expected @slug[,slug...] (each matching {SLUG_RE.pattern!r})")
+    return base + (f":{levels}" if levels else ""), slugs
+
+
 def split_model_route(model_arg):
     """'openrouter/x/y@a,b' -> ('openrouter/x/y', ['a', 'b']); no '@' -> (model_arg, None)."""
     base, sep, tail = model_arg.partition("@")
@@ -30,6 +47,41 @@ def split_model_route(model_arg):
         return model_arg, None
     slugs = [s.strip().lower() for s in tail.split(",") if s.strip()]
     return base, slugs
+
+
+def upstream_key(name):
+    """An OpenRouter upstream as a comparable key: slug "atlas-cloud/fp8" and the display name
+    "AtlasCloud" (what responses report) both -> "atlascloud". The "/variant" can't be checked."""
+    return re.sub(r"[^a-z0-9]", "", name.split("/", 1)[0].lower())
+
+
+def read_route(harness_dir, model):
+    """The OpenRouter route for a run: {requested, served: [...], cost_usd}. requested =
+    {only, allow_fallbacks} for a pinned run (`MODEL@slug`), None when OpenRouter picked the upstream.
+    From route.jsonl, written by the pi routing extension: `{id, provider}` and `{id, cost}` lines
+    per response. served = the distinct upstream names; cost_usd = what OpenRouter charged, summed
+    over responses (the last cost per id), or None when no response reported one. None for runs
+    that aren't OpenRouter runs."""
+    base, slugs = split_model_route(model)
+    if not base.startswith("openrouter/"):
+        return None
+    path = Path(harness_dir) / "route.jsonl"
+    served, costs = [], {}
+    if path.is_file():
+        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(rec, dict):
+                continue
+            if rec.get("provider") and rec["provider"] not in served:
+                served.append(rec["provider"])
+            if isinstance(rec.get("cost"), (int, float)):
+                costs[rec.get("id")] = rec["cost"]
+    requested = {"only": slugs, "allow_fallbacks": False} if slugs else None
+    return {"requested": requested, "served": served,
+            "cost_usd": sum(costs.values()) if costs else None}
 
 
 class Harness:
@@ -55,6 +107,17 @@ class Harness:
         """The model name recorded for a run (what the site shows)."""
         return model
 
+    def split_spec(self, rest):
+        """'MODEL[@UPSTREAMS][:LEVELS]' -> ('MODEL[:LEVELS]', upstreams or None). Only pi runs can
+        pin an OpenRouter upstream (see `pinned`)."""
+        return split_route(rest)
+
+    def pinned(self, model, upstreams):
+        """The model argument for a run: `model`, or `model@a,b` when upstreams are pinned."""
+        if upstreams:
+            raise BenchError(f"{model}: @UPSTREAM only works for pi openrouter/ models")
+        return model
+
     def command(self, model, level, brief, session_dir):
         raise NotImplementedError
 
@@ -78,6 +141,12 @@ class Harness:
         session that's still being written (live progress)."""
         path = self.session_file(session_dir)
         return parse_session(path) if path and path.is_file() else None
+
+    def finish(self, harness_dir, model, metrics):
+        """Final touches on a finished run's metrics (a dict, empty when the agent never wrote a
+        session) from what the harness left in its scratch dir. `metrics["notes"]` are appended
+        to the run's error and `metrics["extra"]` fields are added to the run. Identity by default."""
+        return metrics
 
 
 class Pi(Harness):
@@ -149,6 +218,26 @@ class Pi(Harness):
                 proc.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 proc.kill()
+
+    def pinned(self, model, upstreams):
+        if upstreams and not model.startswith("openrouter/"):
+            raise BenchError(f"{model}: @UPSTREAM only works for pi openrouter/ models")
+        return f"{model}@{','.join(upstreams)}" if upstreams else model
+
+    def finish(self, harness_dir, model, metrics):
+        """An OpenRouter run: record the route (`metrics["extra"]["route"]`) and swap pi's catalog-price
+        cost for what OpenRouter charged (pi's figure stays as `route.pi_cost_usd`; pi prices the
+        calls at one rate whatever upstream served them). A pinned run served outside its `only`
+        list gets a note."""
+        route = read_route(harness_dir, model)
+        if not route:
+            return metrics
+        only = {upstream_key(s) for s in route["requested"]["only"]} if route["requested"] else None
+        outside = [s for s in route["served"] if upstream_key(s) not in only] if only else []
+        notes = [f"served upstream outside requested only: {', '.join(outside)}"] if outside else []
+        route["pi_cost_usd"] = metrics.get("cost_usd", 0.0)
+        cost = route["cost_usd"] if route["cost_usd"] is not None else route["pi_cost_usd"]
+        return {**metrics, "extra": {"route": route}, "cost_usd": cost, "notes": notes}
 
     def command(self, model, level, brief, session_dir):
         base, slugs = split_model_route(model)

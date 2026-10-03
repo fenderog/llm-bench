@@ -353,11 +353,15 @@ class Harness:           # one per agent program
     def resolve(self, model) -> str                     # alias -> id (identity by default)
     def levels(self, model) -> list[str]                # supported effort levels, in LEVEL_ORDER
     def display_model(self, model) -> str               # the model name recorded for the run
+    def split_spec(self, rest) -> (str, list | None)    # "MODEL@UPSTREAMS:LEVELS" -> ("MODEL:LEVELS", upstreams)
+    def pinned(self, model, upstreams) -> str           # the model argument ("model@a,b"); only pi accepts upstreams
     def command(self, model, level, brief, session_dir) -> list[str]
     def env(self, model=None, harness_dir=None) -> dict | None  # the agent's environment (None = inherit)
     def session_file(self, session_dir) -> Path | None  # the raw session (copied to <level>/session.jsonl, never published)
     def session_entries(self, session_dir, brief, level) -> list  # the session in pi's format -> conversation.json
     def metrics(self, session_dir, level) -> dict | None          # parse_session()'s shape; tolerates a growing file
+    def finish(self, harness_dir, model, metrics) -> dict         # final touches from the scratch dir (pi: the OpenRouter route
+                                                                  # and cost); `notes` join the run's error, `extra` fields join the run
 ```
 Pi: `pi --version`; `pi --list-models` (parse the table); levels via `pi --mode rpc --no-session --model M -ne -ns -np -nc`
 sending `{"type":"get_available_thinking_levels"}` and reading the matching response;

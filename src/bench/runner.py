@@ -20,7 +20,7 @@ from pathlib import Path
 
 from . import build, clean, media, web
 from .config import RunRequest
-from .harness import HARNESSES, add_tool_durations, split_harness, split_model_route
+from .harness import HARNESSES, add_tool_durations, split_harness
 from .importer import cmd_import
 from .util import KINDS, LEVEL_INDEX, LEVEL_ORDER, BenchError, parse_duration, title_from_slug
 
@@ -78,30 +78,8 @@ def expand_sets(config, set_args):
 
 
 def model_tag(model):
-    base, _, route = model.partition("@")  # an OpenRouter route may contain "/" ("deepinfra/fp8")
-    return re.sub(r"[^a-z0-9]", "", (base.rsplit("/", 1)[-1] + route).lower())
-
-
-def upstream_key(name):
-    """An OpenRouter upstream as a comparable key: slug "atlas-cloud/fp8" and the display name
-    "AtlasCloud" (what responses report) both -> "atlascloud". The "/variant" can't be checked."""
-    return re.sub(r"[^a-z0-9]", "", name.split("/", 1)[0].lower())
-
-
-SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9._/-]*$")
-
-
-def split_route(rest):
-    """'openrouter/x/y@a,b:low' -> ('openrouter/x/y:low', ['a', 'b']); no '@' -> (rest, None).
-    The part after '@' is SLUGS[:LEVELS], so the levels suffix stays attached to the spec."""
-    base, sep, tail = rest.partition("@")
-    if not sep:
-        return rest, None
-    route, _, levels = tail.partition(":")
-    slugs = [s.strip().lower() for s in route.split(",") if s.strip()]
-    if not slugs or any(not SLUG_RE.match(s) for s in slugs):
-        raise BenchError(f"bad @UPSTREAM in {rest!r}: expected @slug[,slug...] (each matching {SLUG_RE.pattern!r})")
-    return base + (f":{levels}" if levels else ""), slugs
+    base, _, upstream = model.partition("@")  # an OpenRouter upstream may contain "/" ("deepinfra/fp8")
+    return re.sub(r"[^a-z0-9]", "", (base.rsplit("/", 1)[-1] + upstream).lower())
 
 
 def slug_from_prompt(prompt):
@@ -176,17 +154,15 @@ def plan_runs(config, request, harnesses=None):
     known, levels_by_model = {}, {}
     for spec in model_specs:
         name, rest = split_harness(spec)
-        rest, route = split_route(rest)
         harness = harnesses[name]
+        rest, upstreams = harness.split_spec(rest)
         if name not in known:
             known[name] = set(harness.models())
         model, levels_text = parse_model_spec(rest, known[name])
         model = harness.resolve(model)
-        if route and (name != "pi" or not model.startswith("openrouter/")):
-            raise BenchError(f"{spec}: @UPSTREAM only works for pi openrouter/ models")
         supported = harness.levels(model)
         levels = expand_levels(levels_text or effort_default or "all", supported, model)
-        model_arg = f"{model}@{','.join(route)}" if route else model
+        model_arg = harness.pinned(model, upstreams)
         levels_by_model.setdefault((name, model_arg), {}).update(dict.fromkeys(levels))
 
     tag_owner = {}
@@ -396,35 +372,6 @@ def run_agent(harness, run, version, brief, timeout_s, progress, live, live_lock
     return entry
 
 
-def read_route(harness_dir, model):
-    """The OpenRouter route for a run: {requested, served: [...], cost_usd}. requested =
-    {only, allow_fallbacks} for a pinned run (`MODEL@slug`), None when OpenRouter picked the upstream.
-    From route.jsonl, written by the pi routing extension: `{id, provider}` and `{id, cost}` lines
-    per response. served = the distinct upstream names; cost_usd = what OpenRouter charged, summed
-    over responses (the last cost per id), or None when no response reported one. None for runs
-    that aren't OpenRouter runs."""
-    base, slugs = split_model_route(model)
-    if not base.startswith("openrouter/"):
-        return None
-    path = Path(harness_dir) / "route.jsonl"
-    served, costs = [], {}
-    if path.is_file():
-        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
-            try:
-                rec = json.loads(line)
-            except ValueError:
-                continue
-            if not isinstance(rec, dict):
-                continue
-            if rec.get("provider") and rec["provider"] not in served:
-                served.append(rec["provider"])
-            if isinstance(rec.get("cost"), (int, float)):
-                costs[rec.get("id")] = rec["cost"]
-    requested = {"only": slugs, "allow_fallbacks": False} if slugs else None
-    return {"requested": requested, "served": served,
-            "cost_usd": sum(costs.values()) if costs else None}
-
-
 def collect(level_dir, harness_dir, session_path, cmd, harness, version, started, ended, exit_code, state, error, model, metrics, brief, level):
     """Write <level>/session.jsonl (the harness's raw session, never published), conversation.json
     (the session in pi's format, which the viewer renders, with each tool's duration), status.json,
@@ -447,33 +394,23 @@ def collect(level_dir, harness_dir, session_path, cmd, harness, version, started
     }
     (level_dir / "status.json").write_text(json.dumps(status, indent=2) + "\n")
 
-    tokens = (metrics or {}).get("tokens") or {"input": 0, "output": 0, "total": 0, "reasoning": 0, "cacheRead": 0, "cacheWrite": 0}
-    cost_usd = (metrics or {}).get("cost_usd", 0.0)
-    route = read_route(harness_dir, model)
-    if route:
-        only = {upstream_key(s) for s in route["requested"]["only"]} if route["requested"] else None
-        outside = [s for s in route["served"] if upstream_key(s) not in only] if only else []
-        if outside:
-            note = f"served upstream outside requested only: {', '.join(outside)}"
-            error = f"{error}; {note}" if error else note
-        # pi prices OpenRouter calls at one catalog rate whatever upstream served them; what
-        # OpenRouter reports is the real charge. Keep pi's figure alongside for comparison.
-        route["pi_cost_usd"] = cost_usd
-        if route["cost_usd"] is not None:
-            cost_usd = route["cost_usd"]
+    metrics = harness.finish(harness_dir, model, dict(metrics or {}))
+    for note in metrics.get("notes", ()):
+        error = f"{error}; {note}" if error else note
+    tokens = metrics.get("tokens") or {"input": 0, "output": 0, "total": 0, "reasoning": 0, "cacheRead": 0, "cacheWrite": 0}
     entry = {
         "model": model,
-        "thinkingLevel": (metrics or {}).get("thinking_level"),
+        "thinkingLevel": metrics.get("thinking_level"),
         "startedAt": int(started.timestamp() * 1000),
         "endedAt": int(ended.timestamp() * 1000),
         "durationMs": duration_ms,
-        "costUsd": cost_usd,
-        "toolCalls": (metrics or {}).get("tool_calls", 0),
-        "turns": (metrics or {}).get("turns", 0),
+        "costUsd": metrics.get("cost_usd", 0.0),
+        "toolCalls": metrics.get("tool_calls", 0),
+        "turns": metrics.get("turns", 0),
         "tokens": tokens,
         "state": state,
         "error": error,
-        "route": route,
+        **metrics.get("extra", {}),  # whatever the harness adds to the run (pi: the OpenRouter route)
     }
     (level_dir / "data.json").write_text(json.dumps(entry, indent=2) + "\n")
     return entry
