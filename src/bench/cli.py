@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from .config import Config, RunRequest
 from .harness import HARNESSES
 from .importer import cmd_import
 from .runner import cmd_models, cmd_run
@@ -88,9 +89,10 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
     try:
+        config = Config.load(root)
         if args.command == "import":
             return cmd_import(
-                root,
+                config,
                 args.effort_dir,
                 page=args.page,
                 title=args.title,
@@ -111,24 +113,26 @@ def main(argv=None):
         if args.command == "publish":
             return cmd_publish(root, args.message)
         if args.command == "run":
-            return cmd_run(
-                root,
-                prompt=args.prompt,
-                prompt_file=args.prompt_file,
+            request = RunRequest(
+                prompt=args.prompt_file.read_text().strip() if args.prompt_file else (args.prompt or ""),
+                kind=args.kind,
+                page=args.page,
+                title=args.title,
                 model_specs=args.models,
                 model_sets=args.sets,
                 effort=args.effort,
-                page=args.page,
-                title=args.title,
-                brief_file=args.brief,
+                brief=args.brief.read_text() if args.brief else None,
                 parallel=args.parallel,
                 timeout=args.timeout,
+                publish=args.publish,
+                change_prompt=args.change_prompt,
+            )
+            return cmd_run(
+                config,
+                request,
                 yes=args.yes,
                 dry_run=args.dry_run,
-                publish=args.publish,
                 resume=args.resume,
-                kind=args.kind,
-                change_prompt=args.change_prompt,
             )
         if args.command == "models":
             return cmd_models(HARNESSES[args.harness](), args.search)

@@ -15,6 +15,19 @@ FOLDER_RE = re.compile(r"^(\d{4}-\d{2}-\d{2}-\d{6})-([^-]+)-(.+)$")
 LEVEL_ORDER = ["off", "minimal", "low", "medium", "high", "xhigh", "max"]
 LEVEL_INDEX = {level: i for i, level in enumerate(LEVEL_ORDER)}
 
+# What a run produces. godot: a project, exported + verified; media: image/video files in ./output/;
+# web: a page (index.html + ES modules + npm packages), packaged into one file with esbuild + verified.
+KINDS = ("godot", "media", "web")
+
+
+def parse_duration(text):
+    """'30m' / '90s' / '1h' -> seconds."""
+    m = re.fullmatch(r"(\d+(?:\.\d+)?)([smh])", str(text).strip())
+    if not m:
+        raise BenchError(f"bad duration: {text!r} (expected e.g. 30m, 90s, 1h)")
+    n, unit = float(m.group(1)), m.group(2)
+    return n * {"s": 1, "m": 60, "h": 3600}[unit]
+
 
 def parse_folder(name):
     m = FOLDER_RE.match(name)

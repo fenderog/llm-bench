@@ -256,6 +256,14 @@ tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", 
 cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4.1-flash:low..high"]
 ```
 
+`bench.toml` is parsed in one place: `bench.config.Config.load(root)` in `cli.main` exposes `.rewrites` (`[clean]`),
+`.run` (dir, parallel, timeout, tools) and `.sets`, and is passed to the importer and runner. One run's inputs
+are a `bench.config.RunRequest` (prompt, kind, page, title, model specs/sets, effort, brief, parallel, timeout,
+publish, change_prompt); it round-trips through JSON and is stored in `batch.json`, so a `--resume` (or, later, a
+website-started run) replays the same fields. It is validated when built (kind, parallel >= 1, a parseable timeout),
+so bad input fails before a batch dir exists; `from_dict` ignores unknown keys. A malformed `bench.toml` is a
+plain error for every command.
+
 ### Flow
 1. **Plan**: resolve models + levels, print the harness (name + version), page (new/existing), prompt, the numbered
    model × effort list and the batch dir. Ask `Start? [y/N]` (stdin not a tty and no `--yes` → error). `--dry-run` stops after printing.

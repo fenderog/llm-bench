@@ -14,38 +14,22 @@ import subprocess
 import sys
 import threading
 import time
-import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
 from . import build, clean, media, web
+from .config import RunRequest
 from .harness import HARNESSES, split_harness, split_model_route
 from .importer import cmd_import
-from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError, title_from_slug
+from .util import KINDS, LEVEL_INDEX, LEVEL_ORDER, BenchError, parse_duration, title_from_slug
 
 # batch.json run states that mean "this agent hasn't produced a finished result yet".
 UNFINISHED = ("queued", "running")
-# What a run produces. godot: a project, exported + verified; media: image/video files in ./output/;
-# web: a page (index.html + ES modules + npm packages), packaged into one file with esbuild + verified.
-KINDS = ("godot", "media", "web")
-DEFAULT_TOOLS = ["python3", "node", "ffmpeg", "ffprobe"]
 
 
 def default_brief_text(kind="godot"):
     return importlib.resources.files("bench").joinpath(f"briefs/{kind}.md").read_text()
-
-
-def load_run_config(root):
-    cfg = {"dir": Path.home() / "dev" / "bench-runs", "parallel": 8, "timeout": "30m", "tools": DEFAULT_TOOLS}
-    cfg_path = root / "bench.toml"
-    if cfg_path.is_file():
-        run_cfg = tomllib.loads(cfg_path.read_text()).get("run", {})
-        if "dir" in run_cfg:
-            cfg["dir"] = Path(run_cfg["dir"]).expanduser()
-        for key in ("parallel", "timeout", "tools"):
-            cfg[key] = run_cfg.get(key, cfg[key])
-    return cfg
 
 
 def tool_version(name):
@@ -76,29 +60,10 @@ def describe_tools(entries):
     return ", ".join(listed) or "none beyond the shell"
 
 
-def parse_duration(text):
-    """'30m' / '90s' / '1h' -> seconds."""
-    m = re.fullmatch(r"(\d+(?:\.\d+)?)([smh])", text.strip())
-    if not m:
-        raise BenchError(f"bad duration: {text!r} (expected e.g. 30m, 90s, 1h)")
-    n, unit = float(m.group(1)), m.group(2)
-    return n * {"s": 1, "m": 60, "h": 3600}[unit]
-
-
-def load_sets(root):
-    """[sets] in bench.toml: {name: ["model[:levels]", ...]}."""
-    cfg_path = root / "bench.toml"
-    sets = tomllib.loads(cfg_path.read_text()).get("sets", {}) if cfg_path.is_file() else {}
-    for name, specs in sets.items():
-        if not isinstance(specs, list) or not all(isinstance(s, str) for s in specs):
-            raise BenchError(f"bench.toml [sets].{name} must be a list of \"model[:levels]\" strings")
-    return sets
-
-
-def expand_sets(root, set_args):
+def expand_sets(config, set_args):
     """--set NAME (from bench.toml [sets]) or --set FILE (one model[:levels] per line, # comments)
     -> the model specs, in order, exactly as if each had been given with -m."""
-    sets = load_sets(root) if set_args else {}
+    sets = config.sets if set_args else {}
     specs = []
     for arg in set_args:
         if arg in sets:
@@ -197,13 +162,17 @@ class Harnesses(dict):
         return self[name]
 
 
-def plan_runs(model_specs, effort_default, harnesses=None):
-    """Resolve every -m [HARNESS:]MODEL[@UPSTREAMS][:LEVELS] against its harness (pi when there's
-    no prefix) before anything starts. Returns [(harness name, model_arg, level), ...] with the
-    harness's own model id (`model_arg` keeps the `@slugs` suffix; the base id is what pi gets).
+def plan_runs(config, request, harnesses=None):
+    """Resolve every -m [HARNESS:]MODEL[@UPSTREAMS][:LEVELS] (and --set entry) against its harness
+    (pi when there's no prefix) before anything starts. Returns [(harness name, model_arg, level), ...]
+    with the harness's own model id (`model_arg` keeps the `@slugs` suffix; the base id is what pi gets).
     The same model+upstream given twice has its levels merged; two models that resolve to the same
     model-dir tag are an error."""
     harnesses = harnesses if harnesses is not None else Harnesses()
+    model_specs = [*expand_sets(config, request.model_sets), *request.model_specs]
+    if not model_specs:
+        raise BenchError("at least one -m MODEL or --set is required")
+    effort_default = request.effort
     known, levels_by_model = {}, {}
     for spec in model_specs:
         name, rest = split_harness(spec)
@@ -245,15 +214,13 @@ def page_json(root, slug):
     return json.loads(path.read_text()) if path.is_file() else None
 
 
-def clean_prompt(root, prompt):
+def clean_prompt(config, prompt):
     """The prompt as import stores it on the page (path rewrites applied), for comparing."""
-    from .importer import load_rewrites
-
-    return clean.rewrite_text(prompt.strip(), load_rewrites(root))[0]
+    return clean.rewrite_text(prompt.strip(), config.rewrites)[0]
 
 
-def render_brief(brief_file, prompt, kind="godot", tool_entries=()):
-    template = Path(brief_file).read_text() if brief_file else default_brief_text(kind)
+def render_brief(brief_text, prompt, kind="godot", tool_entries=()):
+    template = brief_text if brief_text else default_brief_text(kind)
     tools = describe_tools(tool_entries) if "{tools}" in template else ""
     return template.format(prompt=prompt, tools=tools)
 
@@ -610,9 +577,20 @@ def batch_versions(batch):
     return {h["name"]: h.get("version")}
 
 
-def execute(root, batch_dir, batch, harnesses, parallel, timeout_s, godot_bin, verify, publish):
+def read_batch(batch_dir):
+    """batch.json with each run's model_dir back as a Path."""
+    batch = json.loads((Path(batch_dir) / "batch.json").read_text())
+    for r in batch["runs"]:
+        r["model_dir"] = Path(r["model_dir"])
+    return batch
+
+
+def execute(config, request, batch_dir, harnesses, godot_bin="godot", verify=True):
     """Run every unfinished agent, export+verify everything that needs it, then import.
     Drives both a fresh batch and a `--resume`d one (see module docstring)."""
+    batch = read_batch(batch_dir)
+    parallel = request.parallel or config.run.parallel
+    timeout_s = parse_duration(request.timeout or config.run.timeout)
     runs = batch["runs"]
     versions = batch_versions(batch)
     kind = batch.get("kind", "godot")
@@ -686,38 +664,34 @@ def execute(root, batch_dir, batch, harnesses, parallel, timeout_s, godot_bin, v
     progress.stop()
 
     model_dirs = sorted({r["model_dir"] for r in runs})
-    page_exists = (root / "docs" / "data" / slug / "page.json").is_file()
+    page_exists = (config.root / "docs" / "data" / slug / "page.json").is_file()
     import_title = title if (title_is_explicit or not page_exists) else None
-    return _import_and_publish(root, model_dirs, slug, import_title, publish)
+    return _import_and_publish(config, model_dirs, slug, import_title, request.publish)
 
 
-def cmd_run(
-    root, prompt=None, prompt_file=None, model_specs=(), model_sets=(), effort=None, page=None, title=None,
-    brief_file=None, parallel=None, timeout=None, yes=False, dry_run=False, publish=False,
-    resume=None, godot_bin="godot", verify=True, kind=None, change_prompt=False, harnesses=None,
-):
+def cmd_run(config, request, *, yes=False, dry_run=False, resume=None, godot_bin="godot", verify=True, harnesses=None):
     harnesses = harnesses if harnesses is not None else Harnesses()
-    cfg = load_run_config(root)
+    root = config.root
 
     if resume:
         batch_dir = Path(resume)
-        batch = json.loads((batch_dir / "batch.json").read_text())
-        for r in batch["runs"]:
-            r["model_dir"] = Path(r["model_dir"])
-        parallel = parallel or cfg["parallel"]
-        timeout_s = parse_duration(timeout or cfg["timeout"])
-        return execute(root, batch_dir, batch, harnesses, parallel, timeout_s, godot_bin, verify, publish)
+        stored = read_batch(batch_dir).get("request")
+        if stored:  # replay what the batch recorded; explicit CLI flags override it
+            merged = RunRequest.from_dict(stored)
+            merged.parallel = request.parallel or merged.parallel
+            merged.timeout = request.timeout or merged.timeout
+            merged.publish = request.publish or merged.publish
+            request = merged
+        return execute(config, request, batch_dir, harnesses, godot_bin, verify)
 
-    if prompt_file:
-        prompt = Path(prompt_file).read_text().strip()
+    prompt, kind, page, title = request.prompt, request.kind, request.page, request.title
     # Adding runs to an existing page: --page alone reuses its prompt and kind.
     existing = page_json(root, page) if page else None
     if not prompt and existing:
         prompt = existing.get("prompt") or ""
     if not prompt:
         raise BenchError("PROMPT or --prompt-file is required (or --page with an existing page, to reuse its prompt)")
-    model_specs = [*expand_sets(root, model_sets), *model_specs]
-    if not model_specs:
+    if not request.model_specs and not request.model_sets:
         raise BenchError("at least one -m MODEL or --set is required")
     slug = page or slug_from_prompt(prompt)
     existing = page_json(root, slug)
@@ -727,7 +701,7 @@ def cmd_run(
     if page_exists and page_kind != kind:
         raise BenchError(f"page {slug!r} holds {page_kind} runs; use --kind {page_kind} or another --page")
     # Every import replaces the page's prompt, so a different one would silently relabel the existing runs.
-    if page_exists and not change_prompt and existing.get("prompt") and clean_prompt(root, prompt) != existing["prompt"]:
+    if page_exists and not request.change_prompt and existing.get("prompt") and clean_prompt(config, prompt) != existing["prompt"]:
         raise BenchError(
             f"page {slug!r} was run with a different prompt:\n  {existing['prompt']}\n"
             "Leave the prompt out to reuse it, use another --page, or pass --change-prompt to replace it for the whole page."
@@ -743,19 +717,17 @@ def cmd_run(
         if missing:
             raise BenchError(f"--kind web needs {' and '.join(missing)} on PATH (brew install esbuild node)")
 
-    plan = plan_runs(model_specs, effort, harnesses)
+    plan = plan_runs(config, request, harnesses)
     versions = {name: harnesses[name].version() for name in dict.fromkeys(name for name, _, _ in plan)}
     title_is_explicit = bool(title)
     if not title:
         title = (existing.get("title") if page_exists else None) or title_from_slug(slug)
-    parallel = parallel or cfg["parallel"]
-    timeout_s = parse_duration(timeout or cfg["timeout"])
 
     ts = datetime.now().strftime("%Y-%m-%d-%H%M%S")
-    while (cfg["dir"] / f"{ts}-{slug}").exists():  # two batches for one page in the same second
+    while (config.run.dir / f"{ts}-{slug}").exists():  # two batches for one page in the same second
         time.sleep(0.2)
         ts = datetime.now().strftime("%Y-%m-%d-%H%M%S")
-    batch_dir = cfg["dir"] / f"{ts}-{slug}"
+    batch_dir = config.run.dir / f"{ts}-{slug}"
 
     print("harness: " + ", ".join(f"{name} {version}" for name, version in versions.items()))
     print(f"kind: {kind}")
@@ -778,7 +750,7 @@ def cmd_run(
 
     batch_dir.mkdir(parents=True)
     (batch_dir / "prompt.md").write_text(prompt)
-    brief = render_brief(brief_file, prompt, kind, cfg["tools"])
+    brief = render_brief(request.brief, prompt, kind, config.run.tools)
 
     runs, model_dirs = [], {}
     for name, model, level in plan:
@@ -793,23 +765,23 @@ def cmd_run(
                      "model_dir": model_dirs[(name, model)], "state": "queued"})
     batch = {
         "prompt": prompt, "kind": kind, "page": slug, "title": title, "title_is_explicit": title_is_explicit,
-        "harnesses": versions, "brief": brief,
+        "harnesses": versions, "brief": brief, "request": request.to_dict(),
         "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "runs": runs,
     }
     write_batch_json(batch_dir, batch)
 
-    return execute(root, batch_dir, batch, harnesses, parallel, timeout_s, godot_bin, verify, publish)
+    return execute(config, request, batch_dir, harnesses, godot_bin, verify)
 
 
-def _import_and_publish(root, model_dirs, slug, title, publish):
+def _import_and_publish(config, model_dirs, slug, title, publish):
     for model_dir in model_dirs:
-        cmd_import(root, model_dir, page=slug, title=title)
+        cmd_import(config, model_dir, page=slug, title=title)
     print(f"imported into page {slug!r}. Preview with: bench serve")
     if publish:
         from .cli import cmd_publish
 
-        return cmd_publish(root, f"bench run: {slug}")
+        return cmd_publish(config.root, f"bench run: {slug}")
     print("publish with: bench publish")
     return 0
 

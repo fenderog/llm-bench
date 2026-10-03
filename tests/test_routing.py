@@ -7,11 +7,17 @@ from pathlib import Path
 import pytest
 
 from bench.cli import main
+from bench.config import Config, RunRequest
 from bench.harness import split_model_route
 from bench.runner import plan_runs, split_route
 from bench.util import BenchError, make_run_id
 
 FAKE_PI = Path(__file__).parent / "fixtures" / "fake_pi"
+
+
+def plan_for(specs, effort=None):
+    """plan_runs for a request with no bench.toml (no model sets)."""
+    return plan_runs(Config.load(Path("/nonexistent")), RunRequest(prompt="p", model_specs=specs, effort=effort))
 
 
 @pytest.fixture(autouse=True)
@@ -76,12 +82,12 @@ def test_split_model_route():
 
 
 def test_plan_routed_model_arg_and_level():
-    assert plan_runs(["openrouter/test/model@deepinfra:low"], None) == [
+    assert plan_for(["openrouter/test/model@deepinfra:low"], None) == [
         ("pi", "openrouter/test/model@deepinfra", "low")]
 
 
 def test_plan_two_upstreams_are_separate_models_with_merged_levels():
-    plan = plan_runs(
+    plan = plan_for(
         ["openrouter/test/model@deepinfra:low", "openrouter/test/model@fireworks:low",
          "openrouter/test/model@deepinfra:high"], None)
     assert sorted(plan) == [
@@ -93,21 +99,21 @@ def test_plan_two_upstreams_are_separate_models_with_merged_levels():
 
 def test_plan_route_on_non_openrouter_is_an_error():
     with pytest.raises(BenchError, match="@UPSTREAM only works for pi openrouter/"):
-        plan_runs(["openai-codex/gpt-6-sol@deepinfra:low"], None)
+        plan_for(["openai-codex/gpt-6-sol@deepinfra:low"], None)
 
 
 def test_plan_route_on_claude_code_is_an_error():
     with pytest.raises(BenchError, match="@UPSTREAM only works for pi openrouter/"):
-        plan_runs(["claude-code:opus@deepinfra:low"], None)
+        plan_for(["claude-code:opus@deepinfra:low"], None)
 
 
 def test_plan_route_levels_checked_against_base_model():
     with pytest.raises(BenchError, match="not supported"):
-        plan_runs(["openrouter/test/model@deepinfra:bogus"], None)
+        plan_for(["openrouter/test/model@deepinfra:bogus"], None)
 
 
 def test_plan_routed_and_unrouted_same_model_share_no_levels():
-    plan = plan_runs(["openrouter/test/model:low", "openrouter/test/model@deepinfra:high"], None)
+    plan = plan_for(["openrouter/test/model:low", "openrouter/test/model@deepinfra:high"], None)
     assert sorted(plan) == [
         ("pi", "openrouter/test/model", "low"),
         ("pi", "openrouter/test/model@deepinfra", "high"),
@@ -201,7 +207,7 @@ def test_unrouted_run_passes_no_extension_or_env(run_root, monkeypatch, tmp_path
 
 
 def test_resume_reruns_routed_with_same_argv_env(run_root, monkeypatch, tmp_path):
-    from bench.runner import load_run_config
+    from bench.config import Config
 
     argv_file = tmp_path / "pi-argv.json"
     monkeypatch.setenv("FAKE_PI_ARGV", str(argv_file))
@@ -210,8 +216,8 @@ def test_resume_reruns_routed_with_same_argv_env(run_root, monkeypatch, tmp_path
     first = json.loads(argv_file.read_text())
 
     # interrupt-style: mark the run queued again, then resume
-    cfg = load_run_config(run_root)
-    [batch_dir] = list(cfg["dir"].glob("*-resume-routed"))
+    cfg = Config.load(run_root)
+    [batch_dir] = list(cfg.run.dir.glob("*-resume-routed"))
     batch = json.loads((batch_dir / "batch.json").read_text())
     assert batch["runs"][0]["model_arg"] == "openrouter/test/model@deepinfra"
     batch["runs"][0]["state"] = "queued"

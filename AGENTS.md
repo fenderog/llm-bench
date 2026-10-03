@@ -31,6 +31,7 @@ transcript with every tool call, and metrics (tokens, cost, duration).
 ```
 src/bench/          CLI, standard library only (argparse, json, subprocess, tomllib, http.server)
   cli.py            argparse wiring: import, list, rm, rebuild, serve, publish, run, models
+  config.py         bench.toml parsed once (`Config.load`) + `RunRequest` (the inputs of one `bench run`)
   importer.py       effort-run folder -> docs/data/<page>/runs/<id>/ (clean, secret scan, then move)
   godot.py          engine dedupe + index.html rewrite for Godot web exports
   clean.py          session cleaning, path rewrites, secret scan/redact

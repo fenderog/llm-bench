@@ -14,11 +14,17 @@ from pathlib import Path
 import pytest
 
 from bench.cli import main
+from bench.config import Config, RunRequest
 from bench.harness import Pi, convert_claude_stream
 from bench.runner import expand_levels, parse_duration, plan_runs
 from bench.util import BenchError
 
 FAKE_PI = Path(__file__).parent / "fixtures" / "fake_pi"
+
+
+def plan_for(specs, effort=None):
+    """plan_runs for a request with no bench.toml (no model sets)."""
+    return plan_runs(Config.load(Path("/nonexistent")), RunRequest(prompt="p", model_specs=specs, effort=effort))
 
 
 def fake_export_project(godot_bin, project_dir, out_dir, timeout=600):
@@ -92,7 +98,7 @@ def test_expand_levels_unsupported_raises_naming_supported():
 
 
 def test_plan_runs_checks_before_anything_starts():
-    plan = plan_runs(["openai-codex/gpt-6-sol", "test/limited:low..high"], None)
+    plan = plan_for(["openai-codex/gpt-6-sol", "test/limited:low..high"], None)
     assert ("pi", "openai-codex/gpt-6-sol", "low") in plan
     assert ("pi", "test/limited", "high") in plan
     assert ("pi", "test/limited", "off") not in plan
@@ -100,26 +106,26 @@ def test_plan_runs_checks_before_anything_starts():
 
 def test_plan_runs_unsupported_level_errors_for_whole_batch():
     with pytest.raises(BenchError):
-        plan_runs(["test/limited:xhigh"], None)
+        plan_for(["test/limited:xhigh"], None)
 
 
 def test_plan_runs_dedupes_same_model_merging_levels():
-    plan = plan_runs(["openai-codex/gpt-6-sol:low", "openai-codex/gpt-6-sol:high"], None)
+    plan = plan_for(["openai-codex/gpt-6-sol:low", "openai-codex/gpt-6-sol:high"], None)
     assert sorted(l for _, m, l in plan) == ["high", "low"]
     assert len(plan) == 2
 
 
 def test_plan_runs_rejects_unknown_model_with_suggestions():
     with pytest.raises(BenchError, match=r"unknown model 'openai-codex/gpt-6-sool'.*gpt-6-sol"):
-        plan_runs(["openai-codex/gpt-6-sool:low"], None)
+        plan_for(["openai-codex/gpt-6-sool:low"], None)
     with pytest.raises(BenchError, match="unknown model 'nope/nothing'"):
-        plan_runs(["nope/nothing"], None)
+        plan_for(["nope/nothing"], None)
 
 
 def test_plan_runs_handles_colons_inside_model_ids():
     model = "openrouter/openai/gpt-6-sol:batch"
-    assert plan_runs([model], None) == [("pi", model, l) for l in ["low", "medium", "high", "xhigh", "max"]]
-    assert plan_runs([model + ":high"], None) == [("pi", model, "high")]
+    assert plan_for([model], None) == [("pi", model, l) for l in ["low", "medium", "high", "xhigh", "max"]]
+    assert plan_for([model + ":high"], None) == [("pi", model, "high")]
 
 
 def test_plan_runs_rejects_model_tag_collision(monkeypatch):
@@ -129,7 +135,7 @@ def test_plan_runs_rejects_model_tag_collision(monkeypatch):
         lambda model: "limited",
     )
     with pytest.raises(BenchError, match="limited"):
-        plan_runs(["test/limited:low", "openai-codex/gpt-6-sol:low"], None)
+        plan_for(["test/limited:low", "openai-codex/gpt-6-sol:low"], None)
 
 
 def test_parse_duration():
@@ -359,10 +365,10 @@ def test_ctrl_c_kills_the_agent_and_marks_it_queued_for_resume(run_root, monkeyp
 
     assert not (run_root / "docs" / "data").exists() or not list((run_root / "docs" / "data").iterdir())
 
-    from bench.runner import load_run_config
+    from bench.config import Config
 
-    cfg = load_run_config(run_root)
-    batches = list(cfg["dir"].glob("*-interrupt-me"))
+    cfg = Config.load(run_root)
+    batches = list(cfg.run.dir.glob("*-interrupt-me"))
     assert len(batches) == 1
     batch = json.loads((batches[0] / "batch.json").read_text())
     assert batch["runs"][0]["state"] == "queued"
@@ -443,7 +449,7 @@ def test_web_run_needs_esbuild(run_root, monkeypatch):
     with pytest.raises(BenchError, match="needs esbuild"):
         from bench.runner import cmd_run
 
-        cmd_run(run_root, prompt="x", model_specs=["openai-codex/gpt-6-sol:low"], kind="web", dry_run=True)
+        cmd_run(Config.load(run_root), RunRequest(prompt="x", model_specs=["openai-codex/gpt-6-sol:low"], kind="web"), dry_run=True)
 
 
 # --- media kind ----------------------------------------------------------------------------------
@@ -582,13 +588,13 @@ def test_page_without_prompt_must_exist(run_root, capsys):
 
 
 def test_claude_code_prefix_resolves_aliases_and_levels():
-    assert plan_runs(["claude-code:opus:high"], None) == [("claude-code", "claude-opus-5-5", "high")]
-    assert plan_runs(["claude-code:sonnet:high"], None) == [("claude-code", "claude-sonnet-5-5", "high")]
-    assert [l for _, _, l in plan_runs(["claude-code:claude-sonnet-5"], None)] == ["low", "medium", "high", "xhigh", "max"]
+    assert plan_for(["claude-code:opus:high"], None) == [("claude-code", "claude-opus-5-5", "high")]
+    assert plan_for(["claude-code:sonnet:high"], None) == [("claude-code", "claude-sonnet-5-5", "high")]
+    assert [l for _, _, l in plan_for(["claude-code:claude-sonnet-5"], None)] == ["low", "medium", "high", "xhigh", "max"]
     with pytest.raises(BenchError, match="minimal.*not supported"):
-        plan_runs(["claude-code:claude-opus-5-5:minimal"], None)
+        plan_for(["claude-code:claude-opus-5-5:minimal"], None)
     with pytest.raises(BenchError, match="unknown model 'claude-opus-9'.*claude-opus-5-5"):
-        plan_runs(["claude-code:claude-opus-9:high"], None)
+        plan_for(["claude-code:claude-opus-9:high"], None)
 
 
 def _claude_image_result(data):
@@ -702,3 +708,14 @@ def test_every_long_option_has_a_short_form():
     args = build_parser().parse_args(["run", "-n", "-y", "-k", "web", "-p", "pg", "-t", "T", "-T", "5m", "-b", "b.md", "-c", "-P", "-C", "/tmp", "x"])
     assert (args.dry_run, args.yes, args.kind, args.page, args.title, args.timeout, str(args.brief), args.change_prompt, args.publish) == \
         (True, True, "web", "pg", "T", "5m", "b.md", True, True)
+
+
+def test_bad_run_inputs_fail_before_a_batch_dir_exists(run_root, tmp_path, capsys):
+    runs_dir = Config.load(run_root).run.dir
+    assert main(["run", "--yes", "--timeout", "banana", "x", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) != 0
+    assert "bad duration" in capsys.readouterr().err
+    empty_set = tmp_path / "empty.txt"
+    empty_set.write_text("# nothing here\n")
+    assert main(["run", "--yes", "x", "--set", str(empty_set), "--root", str(run_root)]) != 0
+    assert "at least one -m" in capsys.readouterr().err
+    assert not runs_dir.exists() or not list(runs_dir.iterdir())

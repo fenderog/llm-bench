@@ -4,7 +4,6 @@ import json
 import shutil
 import sys
 import tempfile
-import tomllib
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -41,16 +40,6 @@ FALLBACK_HARNESS = {"name": "pi", "version": None}
 # A media run's source is the code that made the files: text only (rendered frames and the like are
 # skipped), each file at most this big. ./output/ itself is published as `media`, not as source.
 MEDIA_SOURCE_MAX_BYTES = 512 * 1024
-
-
-def load_rewrites(root):
-    """Home dir -> '~', plus any extra [clean].rewrite entries from <root>/bench.toml."""
-    rewrites = [(str(Path.home()), "~")]
-    cfg_path = root / "bench.toml"
-    if cfg_path.is_file():
-        cfg = tomllib.loads(cfg_path.read_text())
-        rewrites += list(cfg.get("clean", {}).get("rewrite", {}).items())
-    return sorted(rewrites, key=lambda kv: -len(kv[0]))
 
 
 def write_cleaned(src, dest, kind, rewrites, redact, batch):
@@ -237,7 +226,7 @@ def stage_run(effort_dir, level, run_data, slug, tmp_root, docs_root, rewrites, 
     )
 
 
-def cmd_import(root, effort_dir, page=None, title=None, redact=False, allow_threads=False, dry_run=False):
+def cmd_import(config, effort_dir, page=None, title=None, redact=False, allow_threads=False, dry_run=False):
     effort_dir = Path(effort_dir).resolve()
     if not effort_dir.is_dir():
         raise BenchError(f"not a directory: {effort_dir}")
@@ -250,14 +239,14 @@ def cmd_import(root, effort_dir, page=None, title=None, redact=False, allow_thre
 
     _, _, folder_slug = parse_folder(effort_dir.name)
     slug = page or folder_slug
-    docs_root = root / "docs"
+    docs_root = config.root / "docs"
     page_path = docs_root / "data" / slug / "page.json"
     page_kind = json.loads(page_path.read_text()).get("kind", "godot") if page_path.is_file() else kind
     if page_kind != kind:
         raise BenchError(f"page {slug!r} holds {page_kind} runs, this folder has {kind} runs; use another --page")
     (docs_root / "data").mkdir(parents=True, exist_ok=True)
     (docs_root / "engines").mkdir(parents=True, exist_ok=True)
-    rewrites = load_rewrites(root)
+    rewrites = config.rewrites
     # The originating prompt (not the brief given to subagents); cleaned and scanned like everything else.
     prompt_path = effort_dir / "prompt.md"
     prompt = clean.rewrite_text(prompt_path.read_text().strip(), rewrites)[0] if prompt_path.is_file() else None
@@ -320,5 +309,5 @@ def cmd_import(root, effort_dir, page=None, title=None, redact=False, allow_thre
             page_json["final_prompt"] = final
         page_path.write_text(json.dumps(page_json, indent=2) + "\n")
 
-        site.rebuild(root)
+        site.rebuild(config.root)
     return 0
