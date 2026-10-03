@@ -14,14 +14,14 @@
       "effort": "minimal",
       "kind": "media",
       "started_at": "2026-09-28T05:41:39Z",
-      "source_dir": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
-      "verified": true,
+      "batch": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 70757,
         "cost_usd": 0.0439024,
@@ -34,16 +34,21 @@
         "tokens_cache_read": 2432
       },
       "thumb": "media/chair-with-a-gun.svg",
-      "game": null,
-      "media": [
-        {
-          "type": "image",
-          "width": 1200,
-          "height": 1200,
-          "bytes": 7797,
-          "path": "media/chair-with-a-gun.svg"
-        }
-      ],
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 1200,
+            "height": 1200,
+            "bytes": 7797,
+            "path": "media/chair-with-a-gun.svg"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -59,14 +64,14 @@
       "effort": "low",
       "kind": "media",
       "started_at": "2026-09-28T05:41:39Z",
-      "source_dir": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
-      "verified": true,
+      "batch": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 78429,
         "cost_usd": 0.04388840000000001,
@@ -79,16 +84,21 @@
         "tokens_cache_read": 1152
       },
       "thumb": "media/chair-with-a-gun.svg",
-      "game": null,
-      "media": [
-        {
-          "type": "image",
-          "width": 1200,
-          "height": 900,
-          "bytes": 7326,
-          "path": "media/chair-with-a-gun.svg"
-        }
-      ],
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 1200,
+            "height": 900,
+            "bytes": 7326,
+            "path": "media/chair-with-a-gun.svg"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -104,14 +114,14 @@
       "effort": "medium",
       "kind": "media",
       "started_at": "2026-09-28T05:41:39Z",
-      "source_dir": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
-      "verified": true,
+      "batch": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 156361,
         "cost_usd": 0.08664200000000001,
@@ -124,16 +134,21 @@
         "tokens_cache_read": 14080
       },
       "thumb": "media/armed_and_seated.svg",
-      "game": null,
-      "media": [
-        {
-          "type": "image",
-          "width": 1200,
-          "height": 1200,
-          "bytes": 9874,
-          "path": "media/armed_and_seated.svg"
-        }
-      ],
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 1200,
+            "height": 1200,
+            "bytes": 9874,
+            "path": "media/armed_and_seated.svg"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -149,14 +164,14 @@
       "effort": "high",
       "kind": "media",
       "started_at": "2026-09-28T05:41:39Z",
-      "source_dir": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
-      "verified": true,
+      "batch": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 169074,
         "cost_usd": 0.1145536,
@@ -169,16 +184,21 @@
         "tokens_cache_read": 44288
       },
       "thumb": "media/sit_tight.svg",
-      "game": null,
-      "media": [
-        {
-          "type": "image",
-          "width": 1200,
-          "height": 1400,
-          "bytes": 12746,
-          "path": "media/sit_tight.svg"
-        }
-      ],
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 1200,
+            "height": 1400,
+            "bytes": 12746,
+            "path": "media/sit_tight.svg"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -194,14 +214,14 @@
       "effort": "xhigh",
       "kind": "media",
       "started_at": "2026-09-28T05:41:39Z",
-      "source_dir": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
-      "verified": true,
+      "batch": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 298141,
         "cost_usd": 0.195828,
@@ -214,16 +234,21 @@
         "tokens_cache_read": 126080
       },
       "thumb": "media/armed-chair.svg",
-      "game": null,
-      "media": [
-        {
-          "type": "image",
-          "width": 1200,
-          "height": 1200,
-          "bytes": 14482,
-          "path": "media/armed-chair.svg"
-        }
-      ],
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 1200,
+            "height": 1200,
+            "bytes": 14482,
+            "path": "media/armed-chair.svg"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -239,14 +264,14 @@
       "effort": "max",
       "kind": "media",
       "started_at": "2026-09-28T05:41:39Z",
-      "source_dir": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
-      "verified": true,
+      "batch": "2026-09-27-224135-gpt6sol-an-svg-of-a-chair-holding",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 453347,
         "cost_usd": 0.290708,
@@ -259,16 +284,21 @@
         "tokens_cache_read": 187520
       },
       "thumb": "media/sit-tight.svg",
-      "game": null,
-      "media": [
-        {
-          "type": "image",
-          "width": 1200,
-          "height": 1500,
-          "bytes": 14849,
-          "path": "media/sit-tight.svg"
-        }
-      ],
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 1200,
+            "height": 1500,
+            "bytes": 14849,
+            "path": "media/sit-tight.svg"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",

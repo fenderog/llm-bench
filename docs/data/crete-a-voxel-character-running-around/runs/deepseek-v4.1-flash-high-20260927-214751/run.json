@@ -3,15 +3,16 @@
   "page": "crete-a-voxel-character-running-around",
   "model": "openrouter/deepseek/deepseek-v4.1-flash",
   "effort": "high",
+  "kind": "godot",
   "started_at": "2026-09-28T04:49:57Z",
-  "source_dir": "2026-09-27-214751-deepseekv41flash-crete-a-voxel-character-running-around",
-  "verified": true,
+  "batch": "2026-09-27-214751-deepseekv41flash-crete-a-voxel-character-running-around",
   "harness": {
     "name": "pi",
     "version": "0.87.1"
   },
   "state": "complete",
   "error": null,
+  "route": null,
   "metrics": {
     "duration_ms": 68950,
     "cost_usd": 0.008851524000000001,
@@ -24,12 +25,15 @@
     "tokens_cache_read": 158208
   },
   "thumb": "thumb.png",
-  "game": {
+  "output": {
     "kind": "godot",
     "entry": "game/index.html",
     "engine": "dd54ab29f8a9",
     "godot": "4.7.2.stable.official.ed1daf0bf",
-    "threads": false
+    "threads": false,
+    "ok": true,
+    "verified": true,
+    "error": null
   },
   "session": {
     "conversation": "session/conversation.json",

@@ -5,14 +5,14 @@
   "effort": "high",
   "kind": "web",
   "started_at": "2026-09-30T00:11:57Z",
-  "source_dir": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
-  "verified": true,
+  "batch": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
   "harness": {
     "name": "claude-code",
     "version": "2.1.284"
   },
   "state": "complete",
   "error": null,
+  "route": null,
   "metrics": {
     "duration_ms": 318405,
     "cost_usd": 0.9840336000000001,
@@ -25,13 +25,15 @@
     "tokens_cache_read": 273628
   },
   "thumb": "thumb.png",
-  "game": {
+  "output": {
     "kind": "web",
     "entry": "game/index.html",
     "bytes": 609397,
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "ok": true,
+    "verified": true,
+    "error": null
   },
-  "media": null,
   "session": {
     "conversation": "session/conversation.json",
     "status": "session/status.json"

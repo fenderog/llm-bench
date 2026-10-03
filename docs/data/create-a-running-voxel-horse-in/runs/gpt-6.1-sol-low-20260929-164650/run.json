@@ -5,14 +5,14 @@
   "effort": "low",
   "kind": "godot",
   "started_at": "2026-09-29T23:46:52Z",
-  "source_dir": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
-  "verified": true,
+  "batch": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
   "harness": {
     "name": "pi",
     "version": "0.87.1"
   },
   "state": "complete",
   "error": null,
+  "route": null,
   "metrics": {
     "duration_ms": 166243,
     "cost_usd": 0.07669600000000001,
@@ -25,14 +25,16 @@
     "tokens_cache_read": 16000
   },
   "thumb": "thumb.png",
-  "game": {
+  "output": {
     "kind": "godot",
     "entry": "game/index.html",
     "engine": "dd54ab29f8a9",
     "godot": "4.7.2.stable.official.ed1daf0bf",
-    "threads": false
+    "threads": false,
+    "ok": true,
+    "verified": true,
+    "error": null
   },
-  "media": null,
   "session": {
     "conversation": "session/conversation.json",
     "status": "session/status.json",

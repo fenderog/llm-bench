@@ -5,14 +5,14 @@
   "effort": "max",
   "kind": "web",
   "started_at": "2026-09-30T20:56:05Z",
-  "source_dir": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
-  "verified": true,
+  "batch": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
   "harness": {
     "name": "pi",
     "version": "0.99.1"
   },
   "state": "complete",
   "error": null,
+  "route": null,
   "metrics": {
     "duration_ms": 515149,
     "cost_usd": 0.03666238872,
@@ -25,13 +25,15 @@
     "tokens_cache_read": 2984192
   },
   "thumb": "thumb.png",
-  "game": {
+  "output": {
     "kind": "web",
     "entry": "game/index.html",
     "bytes": 613963,
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "ok": true,
+    "verified": true,
+    "error": null
   },
-  "media": null,
   "session": {
     "conversation": "session/conversation.json",
     "status": "session/status.json",

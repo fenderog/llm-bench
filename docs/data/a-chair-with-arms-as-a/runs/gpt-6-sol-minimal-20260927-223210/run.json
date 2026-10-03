@@ -5,14 +5,14 @@
   "effort": "minimal",
   "kind": "media",
   "started_at": "2026-09-28T05:32:16Z",
-  "source_dir": "2026-09-27-223210-gpt6sol-a-chair-with-arms-as-a",
-  "verified": true,
+  "batch": "2026-09-27-223210-gpt6sol-a-chair-with-arms-as-a",
   "harness": {
     "name": "pi",
     "version": "0.87.1"
   },
   "state": "complete",
   "error": null,
+  "route": null,
   "metrics": {
     "duration_ms": 72190,
     "cost_usd": 0.0439664,
@@ -25,16 +25,21 @@
     "tokens_cache_read": 1152
   },
   "thumb": "media/armchair.svg",
-  "game": null,
-  "media": [
-    {
-      "type": "image",
-      "width": 900,
-      "height": 900,
-      "bytes": 7266,
-      "path": "media/armchair.svg"
-    }
-  ],
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 900,
+        "height": 900,
+        "bytes": 7266,
+        "path": "media/armchair.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
   "session": {
     "conversation": "session/conversation.json",
     "status": "session/status.json",

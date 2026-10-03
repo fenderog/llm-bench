@@ -14,14 +14,14 @@
       "effort": "low",
       "kind": "web",
       "started_at": "2026-09-30T00:11:57Z",
-      "source_dir": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 28695,
         "cost_usd": 0.1136188,
@@ -34,13 +34,15 @@
         "tokens_cache_read": 18094
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 562061,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -64,14 +66,14 @@
       "effort": "low",
       "kind": "web",
       "started_at": "2026-09-30T00:11:57Z",
-      "source_dir": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 31769,
         "cost_usd": 0.0732572,
@@ -84,13 +86,15 @@
         "tokens_cache_read": 17866
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 563488,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -114,14 +118,14 @@
       "effort": "medium",
       "kind": "web",
       "started_at": "2026-09-30T00:11:57Z",
-      "source_dir": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 93013,
         "cost_usd": 0.35442720000000005,
@@ -134,13 +138,15 @@
         "tokens_cache_read": 44516
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 597318,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -165,14 +171,14 @@
       "effort": "medium",
       "kind": "web",
       "started_at": "2026-09-30T00:11:57Z",
-      "source_dir": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 34095,
         "cost_usd": 0.08412139999999999,
@@ -185,13 +191,15 @@
         "tokens_cache_read": 17887
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 564344,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -215,14 +223,14 @@
       "effort": "high",
       "kind": "web",
       "started_at": "2026-09-30T00:11:57Z",
-      "source_dir": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 318405,
         "cost_usd": 0.9840336000000001,
@@ -235,13 +243,15 @@
         "tokens_cache_read": 273628
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 609397,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -265,14 +275,14 @@
       "effort": "high",
       "kind": "web",
       "started_at": "2026-09-30T00:11:57Z",
-      "source_dir": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 86862,
         "cost_usd": 0.20657920000000002,
@@ -285,13 +295,15 @@
         "tokens_cache_read": 37106
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 605575,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -316,14 +328,14 @@
       "effort": "xhigh",
       "kind": "web",
       "started_at": "2026-09-30T00:11:57Z",
-      "source_dir": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-claudeopus55cc-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 995797,
         "cost_usd": 3.8219886,
@@ -336,13 +348,15 @@
         "tokens_cache_read": 2862903
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 620805,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -371,14 +385,14 @@
       "effort": "xhigh",
       "kind": "web",
       "started_at": "2026-09-30T00:11:57Z",
-      "source_dir": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-claudesonnet55cc-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 946516,
         "cost_usd": 2.652111799999999,
@@ -391,13 +405,15 @@
         "tokens_cache_read": 4804199
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 623727,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -427,14 +443,14 @@
       "effort": "low",
       "kind": "web",
       "started_at": "2026-09-30T00:12:32Z",
-      "source_dir": "2026-09-29-171151-gpt61sol-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-gpt61sol-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "pi",
         "version": "0.99.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 181048,
         "cost_usd": 0.09390200000000003,
@@ -447,13 +463,15 @@
         "tokens_cache_read": 30720
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 592548,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -479,14 +497,14 @@
       "effort": "medium",
       "kind": "web",
       "started_at": "2026-09-30T00:12:35Z",
-      "source_dir": "2026-09-29-171151-gpt61sol-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-gpt61sol-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "pi",
         "version": "0.99.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 280684,
         "cost_usd": 0.12560280000000001,
@@ -499,13 +517,15 @@
         "tokens_cache_read": 48128
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 578399,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -531,14 +551,14 @@
       "effort": "high",
       "kind": "web",
       "started_at": "2026-09-30T00:12:37Z",
-      "source_dir": "2026-09-29-171151-gpt61sol-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-29-171151-gpt61sol-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "pi",
         "version": "0.99.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 606608,
         "cost_usd": 0.23885680000000004,
@@ -551,13 +571,15 @@
         "tokens_cache_read": 210048
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 628411,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -584,14 +606,14 @@
       "effort": "low",
       "kind": "web",
       "started_at": "2026-09-30T20:56:05Z",
-      "source_dir": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "pi",
         "version": "0.99.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 335079,
         "cost_usd": 0.018366656519999996,
@@ -604,13 +626,15 @@
         "tokens_cache_read": 1253632
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 601632,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -636,14 +660,14 @@
       "effort": "high",
       "kind": "web",
       "started_at": "2026-09-30T20:56:05Z",
-      "source_dir": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "pi",
         "version": "0.99.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 61745,
         "cost_usd": 0.007347647519999999,
@@ -656,13 +680,15 @@
         "tokens_cache_read": 127872
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 539057,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -688,14 +714,14 @@
       "effort": "max",
       "kind": "web",
       "started_at": "2026-09-30T20:56:05Z",
-      "source_dir": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
-      "verified": true,
+      "batch": "2026-09-30-121814-deepseekv41flash-create-a-rubik-s-cube-in-3js",
       "harness": {
         "name": "pi",
         "version": "0.99.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 515149,
         "cost_usd": 0.03666238872,
@@ -708,13 +734,15 @@
         "tokens_cache_read": 2984192
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "web",
         "entry": "game/index.html",
         "bytes": 613963,
-        "esbuild": "0.28.2"
+        "esbuild": "0.28.2",
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",

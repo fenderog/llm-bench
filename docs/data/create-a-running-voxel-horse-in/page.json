@@ -14,14 +14,14 @@
       "effort": "low",
       "kind": "godot",
       "started_at": "2026-09-29T02:18:01Z",
-      "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 27314,
         "cost_usd": 0.062021200000000005,
@@ -34,14 +34,16 @@
         "tokens_cache_read": 18436
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -66,14 +68,14 @@
       "effort": "medium",
       "kind": "godot",
       "started_at": "2026-09-29T02:18:01Z",
-      "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 60503,
         "cost_usd": 0.130385,
@@ -86,14 +88,16 @@
         "tokens_cache_read": 32815
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -118,14 +122,14 @@
       "effort": "high",
       "kind": "godot",
       "started_at": "2026-09-29T02:18:01Z",
-      "source_dir": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 580555,
         "cost_usd": 1.2396045999999998,
@@ -138,14 +142,16 @@
         "tokens_cache_read": 1171203
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -180,14 +186,14 @@
       "effort": "xhigh",
       "kind": "godot",
       "started_at": "2026-09-29T06:20:40Z",
-      "source_dir": "2026-09-28-232039-claudesonnet55cc-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-28-232039-claudesonnet55cc-create-a-running-voxel-horse-in",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 1465504,
         "cost_usd": 4.4347612,
@@ -200,14 +206,16 @@
         "tokens_cache_read": 8611666
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -243,14 +251,14 @@
       "effort": "low",
       "kind": "godot",
       "started_at": "2026-09-29T21:12:55Z",
-      "source_dir": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 42200,
         "cost_usd": 0.14323299999999997,
@@ -263,14 +271,16 @@
         "tokens_cache_read": 11085
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -295,14 +305,14 @@
       "effort": "medium",
       "kind": "godot",
       "started_at": "2026-09-29T21:12:55Z",
-      "source_dir": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 324110,
         "cost_usd": 1.1058806,
@@ -315,14 +325,16 @@
         "tokens_cache_read": 607583
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -349,14 +361,14 @@
       "effort": "high",
       "kind": "godot",
       "started_at": "2026-09-29T21:12:55Z",
-      "source_dir": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 969190,
         "cost_usd": 3.8306005999999995,
@@ -369,14 +381,16 @@
         "tokens_cache_read": 3814003
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -407,14 +421,14 @@
       "effort": "xhigh",
       "kind": "godot",
       "started_at": "2026-09-29T21:12:55Z",
-      "source_dir": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-29-141252-claudeopus55cc-create-a-running-voxel-horse-in",
       "harness": {
         "name": "claude-code",
         "version": "2.1.284"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 2490774,
         "cost_usd": 7.509477599999999,
@@ -427,14 +441,16 @@
         "tokens_cache_read": 5376048
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json"
@@ -478,14 +494,14 @@
       "effort": "low",
       "kind": "godot",
       "started_at": "2026-09-29T23:46:52Z",
-      "source_dir": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 166243,
         "cost_usd": 0.07669600000000001,
@@ -498,14 +514,16 @@
         "tokens_cache_read": 16000
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -531,14 +549,14 @@
       "effort": "medium",
       "kind": "godot",
       "started_at": "2026-09-29T23:46:52Z",
-      "source_dir": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 354506,
         "cost_usd": 0.14743,
@@ -551,14 +569,16 @@
         "tokens_cache_read": 61440
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -586,14 +606,14 @@
       "effort": "high",
       "kind": "godot",
       "started_at": "2026-09-29T23:46:52Z",
-      "source_dir": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 744111,
         "cost_usd": 0.3377332000000002,
@@ -606,14 +626,16 @@
         "tokens_cache_read": 620672
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
@@ -646,14 +668,14 @@
       "effort": "xhigh",
       "kind": "godot",
       "started_at": "2026-09-29T23:46:52Z",
-      "source_dir": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
-      "verified": true,
+      "batch": "2026-09-29-164650-gpt61sol-create-a-running-voxel-horse-in",
       "harness": {
         "name": "pi",
         "version": "0.87.1"
       },
       "state": "complete",
       "error": null,
+      "route": null,
       "metrics": {
         "duration_ms": 1523297,
         "cost_usd": 0.6774627999999998,
@@ -666,14 +688,16 @@
         "tokens_cache_read": 1459328
       },
       "thumb": "thumb.png",
-      "game": {
+      "output": {
         "kind": "godot",
         "entry": "game/index.html",
         "engine": "dd54ab29f8a9",
         "godot": "4.7.2.stable.official.ed1daf0bf",
-        "threads": false
+        "threads": false,
+        "ok": true,
+        "verified": true,
+        "error": null
       },
-      "media": null,
       "session": {
         "conversation": "session/conversation.json",
         "status": "session/status.json",
