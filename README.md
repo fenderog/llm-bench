@@ -1,8 +1,8 @@
 # llm-bench
 
 Run one prompt through several LLMs at every reasoning-effort level, on your own machine, and publish the
-results side by side as a static site: what each model made (a playable Godot game, or images and
-videos), its full agent transcript, the source it wrote, and what it cost.
+results side by side as a static site: what each model made (a playable Godot game, images/videos,
+or a packaged web page), its full agent transcript, the source it wrote, and what it cost.
 
 **Site:** https://fenderog.github.io/llm-bench/
 
@@ -13,15 +13,15 @@ is the starting point for coding agents working on this repo.
 
 ## The site
 
-- **Home:** one card per prompt (a *page*), marked Game or Media, with its models and run count.
+- **Home:** one card per prompt (a *page*), marked Game, Media or Web, with its models and run count.
 - **Page:** the prompt and the full brief the agents got, a summary row (the cheapest, fastest and
   fewest-tokens run, how many were verified, total spend), a gallery for image/video pages, and a sortable
   runs table: effort shown as a meter, the best values starred, your ranking (🥇🥈🥉) first. Click a row
   to play its game or see its files inline. On phones the table becomes a list of cards.
-- **Run:** the output (game or files), a switcher to jump between the prompt's other runs, stat tiles
+- **Run:** the output (game, files or web page), a switcher to jump between the prompt's other runs, stat tiles
   ranked against the other runs ("cheapest of 11"), and tabs for the transcript (every tool call, with
   errors and edits highlighted), the source files and all metrics. Tabs can be linked (`#transcript`).
-- **Compare:** every run of a prompt in a grid, with its game or files, key metrics and the best starred.
+- **Compare:** every run of a prompt in a grid, with its game, files or web page, key metrics and the best starred.
 
 Games play in a sandboxed iframe (`allow-scripts` without `allow-same-origin`) and only after a click.
 Fullscreen links open the same sandbox in `play.html`. Model-made SVGs are only ever shown as images,
@@ -34,17 +34,17 @@ and enforces a same-origin Content Security Policy. Light and dark mode.
 uv run bench run "a spinning low-poly windmill in a small field" -m openai-codex/gpt-6-sol:low..high
 ```
 
-This runs one agent per model × effort level, in parallel, on this machine. Each result is checked, and
-everything is imported into one page. Nothing is pushed until you run `bench publish` (or pass
-`--publish`); preview first with `bench serve`.
+This runs one agent per model × effort level, in parallel, on this machine. Completed agents' output
+is finalized and, when verification is available, checked; failed and timed-out attempts are imported too.
+Nothing is pushed until you run `bench publish` (or pass `--publish`); preview first with `bench serve`.
 
 - `-m MODEL[:LEVELS]` can be repeated. LEVELS can be `low,high`, `low..max`, `all`, or `off`. With no
   suffix, it runs every level the model supports except `off`. `-e LEVELS` sets the default for every
   model without a suffix.
 - Every model and level is checked against the harness before anything starts (so a typo or an
   unsupported level fails up front). `bench models [SEARCH]` lists models and their levels.
-- It shows the planned runs and asks for confirmation. `-n/--dry-run` only shows the plan; `-y/--yes`
-  skips the question.
+- It shows the planned runs and asks for confirmation on a terminal. `-n/--dry-run` only shows the
+  plan; `-y/--yes` skips the question (required for unattended/non-interactive runs).
 - `-p/--page`, `-t/--title`, `-j N` (maximum agents at once), `-T/--timeout 30m`, and `-b/--brief FILE` (your
   own brief template, with `{prompt}` replaced by the prompt). Every long option has a single-dash short form;
   `bench run -h` lists them.
@@ -95,15 +95,22 @@ the reported cost is only OpenRouter's fee.
 
 ### Adding runs to an existing page
 
-Name the page and leave out the prompt; its prompt and kind are reused:
+Find the page slug in its URL (or with `uv run bench list`), check the new model's ID and levels,
+then name the page and leave out the prompt; its prompt and kind are reused:
 
 ```sh
-uv run bench run --page an-svg-of-a-chair-holding -m openrouter/deepseek/deepseek-v4.1-flash:low,high
+uv run bench models deepseek                         # lists matching model IDs and supported levels
+uv run bench run --dry-run --page an-svg-of-a-chair-holding -m openrouter/deepseek/deepseek-v4.1-flash:low
+uv run bench run --page an-svg-of-a-chair-holding -m openrouter/deepseek/deepseek-v4.1-flash:low
+uv run bench serve                                   # preview at http://localhost:8000
+uv run bench publish -m "Add DeepSeek run to chair page"  # commit docs/ and push, if you have write access
 ```
 
-Existing runs, the title and your ranking stay as they are; the new runs are added (unranked). Because a
-page shows one prompt for all its runs, giving a *different* prompt for an existing page is refused;
-pass `--change-prompt` if you really mean to replace it for the whole page.
+The actual `bench run` costs money; `--dry-run` does not. Without `:LEVELS`, `-m` runs every
+supported level except `off`, not just one. Existing runs, the title and your ranking stay as they are;
+new runs are added unranked. Re-importing the same run ID replaces that run. Because a page shows one
+prompt for all its runs, giving a *different* prompt for an existing page is refused; pass
+`--change-prompt` if you really mean to replace it for the whole page.
 
 ### Model sets
 
@@ -135,12 +142,14 @@ by every run, so a run adds only a few hundred KB.
 uv run bench run --kind media "a pelican riding a bicycle, as a hand-written SVG" -m openai-codex/gpt-6-sol
 ```
 
-The agent saves its result in `./output/`: one or more images (`.png .jpg .webp .gif .svg`) and/or videos
-(`.mp4 .webm`), at most 8 files of up to 2 MB each, and videos of at most 10 seconds. How it makes them is
-up to your prompt ("hand-written SVG", "use Python", ...). The brief lists the tools installed on this
-machine, from `[run].tools` in `bench.toml`, with their versions. Afterwards every file is checked with
-ffprobe; videos are trimmed to 10 s and re-encoded to H.264 mp4 when needed and get a poster frame, and
-oversized images become JPEG. Problems are shown on the run, not fatal.
+The agent saves its result in `./output/`: one or more images (`.png .jpg .jpeg .webp .gif .svg`) and/or
+videos (`.mp4 .webm .mov`). Up to 8 files are kept, each at most 2 MB after processing; videos are
+limited to 10 seconds. How it makes them is up to your prompt ("hand-written SVG", "use Python", ...).
+The brief lists the tools installed on this machine, from `[run].tools` in `bench.toml`, with their
+versions. Afterwards raster images and videos are checked with ffprobe, while SVGs are parsed as XML;
+videos are trimmed to 10 s and re-encoded to H.264 mp4 when needed and get a poster frame. Oversized
+non-GIF raster images become JPEG. Valid files are still published if others fail; problems are shown
+on the run and verification fails if any file has an error.
 
 **Web pages** (`--kind web`):
 
@@ -149,10 +158,11 @@ uv run bench run --kind web "a running voxel horse with three.js" -m openai-code
 ```
 
 The agent writes `index.html` plus ES modules and may `npm install` packages (three.js, ...) and import them by
-name. Afterwards esbuild bundles every script and stylesheet the page references, with everything they import,
-into one self-contained `index.html` (typically a few hundred KB with three.js). That file is then loaded in
-headless Chrome inside the same sandboxed iframe the site uses, with the network blocked: a page that fetches
-anything from outside, or needs localStorage, fails verification. `node_modules/` is never published.
+name. Afterwards esbuild bundles local module scripts and local stylesheets with their imports, and local
+classic script files are inlined as data URLs (preserving their globals). The result is one packaged
+`index.html` (limit 20 MB). Remote URLs and import maps are left in place, but the headless-Chrome check
+loads the page offline inside the same sandboxed iframe the site uses: a page that fetches anything from
+outside, or needs localStorage, fails verification. `node_modules/` is never published.
 
 A page holds one kind: a media prompt can't be added to a Godot page.
 
@@ -213,8 +223,9 @@ gets a permission error; to contribute runs they'd fork the repo and open a pull
 - `godot` on PATH with the matching web export templates (game runs).
 - `ffmpeg` and `ffprobe` on PATH (media runs).
 - `esbuild` and `npm` on PATH (web runs): `brew install esbuild node`.
-- Google Chrome and Playwright for checking game builds and for the viewer tests (`pip install
-  bench[verify]`; already in the dev dependencies).
+- Google Chrome and Playwright for browser verification of Godot and web runs, and for the viewer tests
+  (`pip install bench[verify]`; already in the dev dependencies). Without Playwright, browser verification
+  is skipped and the run's `output.verified` is null, not false.
 
 ## Tests
 
