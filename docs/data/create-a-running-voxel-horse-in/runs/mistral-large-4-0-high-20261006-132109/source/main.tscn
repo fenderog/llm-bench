@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://main.gd" id="1_main"]
+[ext_resource type="Script" path="res://horse.gd" id="2_horse"]
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+
+[node name="Ground" type="Node3D" parent="."]
+
+[node name="Horse" type="Node3D" parent="."]
+script = ExtResource("2_horse")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="ControlsLabel" type="Label" parent="HUD"]

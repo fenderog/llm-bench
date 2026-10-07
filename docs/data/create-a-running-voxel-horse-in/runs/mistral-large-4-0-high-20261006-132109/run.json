@@ -1,0 +1,48 @@
+{
+  "id": "mistral-large-4-0-high-20261006-132109",
+  "page": "create-a-running-voxel-horse-in",
+  "model": "openrouter/mistralai/mistral-large-4-0",
+  "effort": "high",
+  "kind": "godot",
+  "started_at": "2026-10-06T20:21:23Z",
+  "batch": "2026-10-06-132109-create-a-running-voxel-horse-in",
+  "harness": {
+    "name": "pi",
+    "version": "1.0.4"
+  },
+  "state": "timeout",
+  "error": "timed out after 2700s",
+  "route": {
+    "requested": null,
+    "served": [
+      "Mistral"
+    ],
+    "cost_usd": 0.41508664,
+    "pi_cost_usd": 0.41508664000000006
+  },
+  "metrics": {
+    "duration_ms": 2700045,
+    "cost_usd": 0.41508664,
+    "tool_calls": 11,
+    "turns": 7,
+    "tokens_total": 354689,
+    "tokens_input": 242109,
+    "tokens_output": 112580,
+    "tokens_reasoning": 91236,
+    "tokens_cache_read": 216576
+  },
+  "thumb": null,
+  "output": null,
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "main.tscn",
+      "project.godot",
+      "voxel_builder.gd"
+    ]
+  }
+}

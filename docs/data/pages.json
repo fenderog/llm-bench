@@ -1,5 +1,19 @@
 [
   {
+    "slug": "create-a-running-voxel-horse-in",
+    "title": "Create a running voxel horse in",
+    "kind": "godot",
+    "n_runs": 13,
+    "models": [
+      "anthropic/claude-opus-5-5",
+      "anthropic/claude-sonnet-5-5",
+      "openai-codex/gpt-6.1-sol",
+      "openrouter/mistralai/mistral-large-4-0"
+    ],
+    "updated": "2026-10-06T21:06:23Z",
+    "thumb": "data/create-a-running-voxel-horse-in/runs/gpt-6.1-sol-xhigh-20260929-164650/thumb.png"
+  },
+  {
     "slug": "create-a-rubik-s-cube-in-3js",
     "title": "Rubiks Cube Model",
     "kind": "web",
@@ -12,19 +26,6 @@
     ],
     "updated": "2026-09-30T21:04:40Z",
     "thumb": "data/create-a-rubik-s-cube-in-3js/runs/deepseek-v4.1-flash-max-20260930-121814/thumb.png"
-  },
-  {
-    "slug": "create-a-running-voxel-horse-in",
-    "title": "Create a running voxel horse in",
-    "kind": "godot",
-    "n_runs": 12,
-    "models": [
-      "anthropic/claude-opus-5-5",
-      "anthropic/claude-sonnet-5-5",
-      "openai-codex/gpt-6.1-sol"
-    ],
-    "updated": "2026-09-30T00:12:15Z",
-    "thumb": "data/create-a-running-voxel-horse-in/runs/gpt-6.1-sol-xhigh-20260929-164650/thumb.png"
   },
   {
     "slug": "an-svg-of-a-chair-holding",
