@@ -3,14 +3,14 @@
     "slug": "create-a-running-voxel-horse-in",
     "title": "Create a running voxel horse in",
     "kind": "godot",
-    "n_runs": 13,
+    "n_runs": 15,
     "models": [
       "anthropic/claude-opus-5-5",
       "anthropic/claude-sonnet-5-5",
       "openai-codex/gpt-6.1-sol",
       "openrouter/mistralai/mistral-large-4-0"
     ],
-    "updated": "2026-10-06T21:06:23Z",
+    "updated": "2026-10-07T06:30:19Z",
     "thumb": "data/create-a-running-voxel-horse-in/runs/gpt-6.1-sol-xhigh-20260929-164650/thumb.png"
   },
   {
