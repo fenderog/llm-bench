@@ -375,9 +375,13 @@ passes the base id to `--model` and also sets `BENCH_OPENROUTER_ROUTING={"only":
 (`openrouter/…/flash@deepinfra`), so two upstreams are separate rows; run ids use `-via-`.
 
 Claude Code (`claude`): version = first word of `claude --version`. Models come from a table in the harness (there's no
-listing command): `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-sonnet-5`, `claude-haiku-4-5`, each with levels
-low, medium, high, xhigh, max (no minimal/off), plus the aliases fable/opus/sonnet/haiku (each the newest of its family, `sonnet` = `claude-sonnet-5-5`); runs are recorded as
-`anthropic/<id>`. Command = `claude -p --model ID --effort LEVEL --output-format stream-json --verbose --safe-mode
+listing command), mirroring the CLI's own alias table: `claude-fable-5-1`, `claude-opus-5-5`, `claude-opus-5`,
+`claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-5-5`, `claude-sonnet-5`, `claude-sonnet-4-6`,
+`claude-haiku-5-5`, plus the aliases fable/opus/sonnet/haiku (each the newest of its family, `sonnet` = `claude-sonnet-5-5`);
+runs are recorded as `anthropic/<id>`. Levels are low, medium, high, xhigh, max (no minimal/off), but only the ones the
+model actually takes: the CLI silently clamps a level it doesn't accept (measured: `--effort xhigh` on the two `*-4-6`
+models sends `effort=high`), so those are listed without xhigh, and a model that ignores effort entirely (e.g.
+`claude-haiku-4-5`) isn't listed at all. Command = `claude -p --model ID --effort LEVEL --output-format stream-json --verbose --safe-mode
 --permission-mode bypassPermissions --no-session-persistence --tools=Bash,Read,Write,Edit,Glob,Grep
 --disallowed-tools=Agent,Task --disable-slash-commands -- BRIEF`: one direct agent with only the core file and shell
 tools (like pi: no sub-agents, web, scheduling, messaging or skills), none of the user's CLAUDE.md, memory, plugins,

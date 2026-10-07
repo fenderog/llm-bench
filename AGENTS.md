@@ -142,7 +142,13 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   `--tools=...` it offers ~25 tools (web, cron, push notifications, SendMessage...); keep the core-tools list.
   Variadic flags (`--tools`, `--disallowed-tools`) must use the `=` form and the brief goes after `--`, or
   the brief gets swallowed as a tool name.
-- **Model ids of Claude Code aren't listed by any command:** update `ClaudeCode.MODELS` when models change.
+- **Model ids and levels of Claude Code aren't listed by any command:** the table lives in `ClaudeCode.MODELS`/
+  `ALIASES` (harness.py), mirroring the CLI's own alias map; update it when models change. Levels are per model: the CLI
+  silently clamps what a model doesn't take, and the recorded `thinking_level` is the *requested* one, so only list
+  levels that really pass through. `*-4-6` drops `xhigh` (sends `high`); `claude-haiku-4-5` ignores `--effort` entirely.
+  Check without paying for a call: point `ANTHROPIC_BASE_URL` at a local server that 400s and read
+  `output_config.effort` out of the request body (the model catalog + the CLI's `xhigh_effort`/`max_effort` capability
+  rules in its binary agree with this).
 - **`-ne` still loads explicit `-e` extensions.** Per-run OpenRouter routing goes through the bench-shipped
   `pi_ext/openrouter_routing.ts` plus `BENCH_OPENROUTER_ROUTING`/`BENCH_ROUTE_LOG` env vars (never the global
   `models.json`, which would affect every pi session on the machine).

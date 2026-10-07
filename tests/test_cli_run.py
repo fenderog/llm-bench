@@ -670,11 +670,19 @@ def test_page_without_prompt_must_exist(run_root, capsys):
 def test_claude_code_prefix_resolves_aliases_and_levels():
     assert plan_for(["claude-code:opus:high"], None) == [("claude-code", "claude-opus-5-5", "high")]
     assert plan_for(["claude-code:sonnet:high"], None) == [("claude-code", "claude-sonnet-5-5", "high")]
+    assert plan_for(["claude-code:haiku:low"], None) == [("claude-code", "claude-haiku-5-5", "low")]
     assert [l for _, _, l in plan_for(["claude-code:claude-sonnet-5"], None)] == ["low", "medium", "high", "xhigh", "max"]
     with pytest.raises(BenchError, match="minimal.*not supported"):
         plan_for(["claude-code:claude-opus-5-5:minimal"], None)
     with pytest.raises(BenchError, match="unknown model 'claude-opus-9'.*claude-opus-5-5"):
         plan_for(["claude-code:claude-opus-9:high"], None)
+    # A level the CLI would silently clamp isn't offered, so a run never claims it.
+    assert [l for _, _, l in plan_for(["claude-code:claude-opus-4-6"], None)] == ["low", "medium", "high", "max"]
+    assert [l for _, _, l in plan_for(["claude-code:claude-sonnet-4-6"], None)] == ["low", "medium", "high", "max"]
+    with pytest.raises(BenchError, match="xhigh not supported"):
+        plan_for(["claude-code:claude-opus-4-6:xhigh"], None)
+    with pytest.raises(BenchError, match="unknown model 'claude-haiku-4-5'"):
+        plan_for(["claude-code:claude-haiku-4-5:low"], None)
 
 
 def _claude_image_result(data):

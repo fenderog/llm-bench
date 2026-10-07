@@ -346,15 +346,25 @@ class ClaudeCode(Harness):
 
     name = "claude-code"
     tag = "cc"
-    # Models and effort levels (Claude Code has no command that lists them). Aliases resolve to these.
+    # Models and effort levels (Claude Code has no command that lists them, so this mirrors the CLI's
+    # own alias table + model catalog and has to be updated when they change). Aliases resolve to
+    # these. A level the model doesn't take is silently clamped by the CLI (measured: `--effort xhigh`
+    # on *-4-6 sends effort=high; on claude-haiku-4-5 --effort is ignored entirely, so it's not listed),
+    # hence the trimmed lists. Levels from the catalog's capabilities, checked against the requests the
+    # CLI actually sends.
     MODELS = {
         "claude-fable-5-1": ["low", "medium", "high", "xhigh", "max"],
         "claude-opus-5-5": ["low", "medium", "high", "xhigh", "max"],
+        "claude-opus-5": ["low", "medium", "high", "xhigh", "max"],
+        "claude-opus-4-8": ["low", "medium", "high", "xhigh", "max"],
+        "claude-opus-4-7": ["low", "medium", "high", "xhigh", "max"],
+        "claude-opus-4-6": ["low", "medium", "high", "max"],
         "claude-sonnet-5-5": ["low", "medium", "high", "xhigh", "max"],
         "claude-sonnet-5": ["low", "medium", "high", "xhigh", "max"],
-        "claude-haiku-4-5": ["low", "medium", "high", "xhigh", "max"],
+        "claude-sonnet-4-6": ["low", "medium", "high", "max"],
+        "claude-haiku-5-5": ["low", "medium", "high", "xhigh", "max"],
     }
-    ALIASES = {"fable": "claude-fable-5-1", "opus": "claude-opus-5-5", "sonnet": "claude-sonnet-5-5", "haiku": "claude-haiku-4-5"}
+    ALIASES = {"fable": "claude-fable-5-1", "opus": "claude-opus-5-5", "sonnet": "claude-sonnet-5-5", "haiku": "claude-haiku-5-5"}
     # Only the core file and shell tools, like pi: no web, scheduling, messaging or skills, and no
     # sub-agents (each model x effort is one direct run).
     TOOLS = "Bash,Read,Write,Edit,Glob,Grep"
