@@ -3,15 +3,16 @@
     "slug": "create-a-running-voxel-horse-in",
     "title": "Create a running voxel horse in",
     "kind": "godot",
-    "n_runs": 15,
+    "n_runs": 20,
     "models": [
+      "anthropic/claude-haiku-5-5",
       "anthropic/claude-opus-5-5",
       "anthropic/claude-sonnet-5-5",
       "openai-codex/gpt-6.1-sol",
       "openrouter/mistralai/mistral-large-4-0"
     ],
-    "updated": "2026-10-07T06:30:19Z",
-    "thumb": "data/create-a-running-voxel-horse-in/runs/gpt-6.1-sol-xhigh-20260929-164650/thumb.png"
+    "updated": "2026-10-07T22:10:07Z",
+    "thumb": "data/create-a-running-voxel-horse-in/runs/claude-haiku-5-5-cc-max-20261007-144942/thumb.png"
   },
   {
     "slug": "create-a-rubik-s-cube-in-3js",

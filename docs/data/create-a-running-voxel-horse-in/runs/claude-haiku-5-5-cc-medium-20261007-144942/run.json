@@ -1,0 +1,52 @@
+{
+  "id": "claude-haiku-5-5-cc-medium-20261007-144942",
+  "page": "create-a-running-voxel-horse-in",
+  "model": "anthropic/claude-haiku-5-5",
+  "effort": "medium",
+  "kind": "godot",
+  "started_at": "2026-10-07T21:49:43Z",
+  "batch": "2026-10-07-144942-create-a-running-voxel-horse-in",
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.293"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 231631,
+    "cost_usd": 0.042744069999999995,
+    "tool_calls": 8,
+    "turns": 6,
+    "tokens_total": 57096,
+    "tokens_input": 12,
+    "tokens_output": 57084,
+    "tokens_reasoning": 46352,
+    "tokens_cache_read": 208627
+  },
+  "thumb": "thumb.png",
+  "output": {
+    "kind": "godot",
+    "entry": "game/index.html",
+    "engine": "dd54ab29f8a9",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "threads": false,
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "export_presets.cfg",
+      "main.gd",
+      "main.gd.uid",
+      "main.tscn",
+      "project.godot"
+    ]
+  }
+}
