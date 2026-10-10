@@ -17,5 +17,5 @@ tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", 
 # upstreams = ["openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8:low", "openrouter/deepseek/deepseek-v4.1-flash@atlas-cloud/fp8:low"]
 # Opus 5.5, Sonnet 5.5 (Claude Code) and GPT-6.1 Sol (pi) at low, medium and high: 9 runs. Levels in an entry override -e.
 frontier = ["claude-code:opus:low..xhigh", "claude-code:claude-sonnet-5-5:low..xhigh", "openai-codex/gpt-6.1-sol:low..high", "openai-codex/gpt-6-astra:low..max", "claude-code:claude-haiku-5-5:low..xhigh", "meta/muse-spark-1.3-contributor"]
-oss-frontier = ["openrouter/z-ai/glm-5.3", "openrouter/z-ai/glm-5.3-prime", "openrouter/z-ai/glm-5.3-flashx", "openrouter/moonshotai/kimi-k3", "openrouter/deepseek/deepseek-v4.1-flash", "openrouter/qwen/qwen3.8-max-prime"]
+oss-frontier = ["openrouter/z-ai/glm-5.3", "openrouter/z-ai/glm-5.3-prime", "openrouter/z-ai/glm-5.3-flashx", "openrouter/moonshotai/kimi-k3", "openrouter/deepseek/deepseek-v4.1-flash", "openrouter/qwen/qwen3.8-max-prime", "openrouter/xiaomi/mimo-v2.6-pro", "openrouter/stepfun/step-5-preview"]
 
