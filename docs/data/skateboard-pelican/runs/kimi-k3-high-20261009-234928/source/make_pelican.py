@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+"""Generate an SVG illustration of a pelican riding a skateboard."""
+
+SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ec8e3"/>
+      <stop offset="0.7" stop-color="#c8ecf5"/>
+      <stop offset="1" stop-color="#eaf9fd"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2703a"/>
+      <stop offset="1" stop-color="#c2551f"/>
+    </linearGradient>
+    <linearGradient id="beak" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f9a03f"/>
+      <stop offset="1" stop-color="#f97f2e"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff3b0"/>
+      <stop offset="0.6" stop-color="#ffd93b"/>
+      <stop offset="1" stop-color="#ffc400"/>
+    </radialGradient>
+  </defs>
+
+  <!-- sky -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+
+  <!-- sun -->
+  <g stroke="#ffd93b" stroke-width="6" stroke-linecap="round">
+    <line x1="140" y1="30" x2="140" y2="55"/>
+    <line x1="140" y1="165" x2="140" y2="190"/>
+    <line x1="60" y1="110" x2="85" y2="110"/>
+    <line x1="195" y1="110" x2="220" y2="110"/>
+    <line x1="84" y1="54" x2="102" y2="72"/>
+    <line x1="178" y1="148" x2="196" y2="166"/>
+    <line x1="84" y1="166" x2="102" y2="148"/>
+    <line x1="178" y1="72" x2="196" y2="54"/>
+  </g>
+  <circle cx="140" cy="110" r="45" fill="url(#sun)"/>
+
+  <!-- clouds -->
+  <g fill="#ffffff" opacity="0.95">
+    <ellipse cx="620" cy="90" rx="55" ry="22"/>
+    <ellipse cx="660" cy="75" rx="40" ry="18"/>
+    <ellipse cx="585" cy="78" rx="32" ry="15"/>
+    <ellipse cx="330" cy="70" rx="40" ry="16"/>
+    <ellipse cx="360" cy="58" rx="28" ry="13"/>
+  </g>
+
+  <!-- distant water -->
+  <rect x="0" y="360" width="800" height="60" fill="#4aa8c7"/>
+  <path d="M0 362 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" fill="none" stroke="#7fd4ea" stroke-width="3"/>
+
+  <!-- ground / road -->
+  <rect x="0" y="420" width="800" height="180" fill="#8d9aa5"/>
+  <rect x="0" y="420" width="800" height="14" fill="#6f7d88"/>
+  <g stroke="#f4d35e" stroke-width="7" stroke-dasharray="55 40">
+    <line x1="0" y1="545" x2="800" y2="545"/>
+  </g>
+
+  <!-- speed lines -->
+  <g stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.8">
+    <line x1="60" y1="300" x2="180" y2="300"/>
+    <line x1="30" y1="360" x2="170" y2="360"/>
+    <line x1="90" y1="420" x2="200" y2="420"/>
+    <line x1="120" y1="250" x2="200" y2="250"/>
+  </g>
+
+  <!-- ===================== SKATEBOARD ===================== -->
+  <g>
+    <!-- wheels -->
+    <circle cx="330" cy="508" r="24" fill="#2b2b2b"/>
+    <circle cx="330" cy="508" r="10" fill="#f4d35e"/>
+    <circle cx="330" cy="508" r="4" fill="#2b2b2b"/>
+    <circle cx="510" cy="508" r="24" fill="#2b2b2b"/>
+    <circle cx="510" cy="508" r="10" fill="#f4d35e"/>
+    <circle cx="510" cy="508" r="4" fill="#2b2b2b"/>
+    <!-- trucks -->
+    <rect x="318" y="472" width="24" height="16" rx="4" fill="#9aa7b0"/>
+    <rect x="498" y="472" width="24" height="16" rx="4" fill="#9aa7b0"/>
+    <!-- deck with kick tails -->
+    <path d="M 262 452 Q 250 452 246 440 Q 244 432 254 432 L 268 436 L 578 436 Q 596 436 600 448 Q 602 458 590 460 L 292 462 Q 270 462 262 452 Z" fill="url(#deck)" stroke="#8f3a12" stroke-width="4"/>
+    <!-- grip tape stripe -->
+    <path d="M 268 436 L 578 436 Q 590 436 594 442 L 272 444 Z" fill="#3a3a3a" opacity="0.85"/>
+  </g>
+
+  <!-- ===================== PELICAN ===================== -->
+  <g stroke-linejoin="round">
+    <!-- back leg (far side) -->
+    <path d="M 430 430 L 428 452" stroke="#d97b28" stroke-width="12" stroke-linecap="round"/>
+    <path d="M 428 452 q -18 6 -20 14 q 16 6 34 0 q 4 -10 -14 -14 Z" fill="#e8893a" stroke="#b35c17" stroke-width="3"/>
+
+    <!-- tail feathers -->
+    <path d="M 322 330 Q 250 300 216 262 Q 262 268 296 292 Q 258 258 238 224 Q 286 246 316 286 Q 330 306 336 320 Z" fill="#efe7d6" stroke="#cbbfa8" stroke-width="4"/>
+
+    <!-- raised wing -->
+    <path d="M 372 318
+             Q 330 240 262 176
+             Q 250 166 258 156 Q 300 168 336 196
+             Q 322 168 306 142 Q 352 168 384 210
+             Q 404 240 410 282
+             Q 412 306 396 320 Z"
+          fill="#f7f2e6" stroke="#cbbfa8" stroke-width="4"/>
+    <path d="M 258 156 Q 300 168 336 196" fill="none" stroke="#cbbfa8" stroke-width="3"/>
+    <path d="M 306 142 Q 352 168 384 210" fill="none" stroke="#cbbfa8" stroke-width="3"/>
+
+    <!-- body -->
+    <path d="M 320 340
+             Q 306 400 348 430
+             Q 400 458 458 434
+             Q 502 414 500 366
+             Q 498 322 460 300
+             Q 420 280 376 296
+             Q 332 312 320 340 Z"
+          fill="#faf6ec" stroke="#cbbfa8" stroke-width="4"/>
+
+    <!-- folded wing hint on body -->
+    <path d="M 360 350 Q 400 330 450 344 Q 452 388 416 408 Q 376 414 356 388 Q 348 366 360 350 Z" fill="#efe7d6" stroke="#cbbfa8" stroke-width="3"/>
+
+    <!-- front leg (near side) -->
+    <path d="M 462 436 L 466 452" stroke="#e8893a" stroke-width="13" stroke-linecap="round"/>
+    <path d="M 466 452 q -20 6 -22 15 q 18 7 38 0 q 5 -11 -16 -15 Z" fill="#f0953f" stroke="#b35c17" stroke-width="3"/>
+
+    <!-- neck (S-curve up from body to head) -->
+    <path d="M 452 308
+             Q 486 280 488 240
+             Q 489 206 468 190
+             L 496 172
+             Q 522 196 520 236
+             Q 517 292 486 326
+             Q 470 342 452 342 Z"
+          fill="#faf6ec" stroke="#cbbfa8" stroke-width="4"/>
+
+    <!-- head -->
+    <circle cx="492" cy="168" r="34" fill="#faf6ec" stroke="#cbbfa8" stroke-width="4"/>
+    <!-- crest feathers -->
+    <path d="M 470 140 Q 452 120 438 116 Q 456 112 472 124 Q 466 106 458 96 Q 478 104 488 128 Z" fill="#f4e9d4" stroke="#cbbfa8" stroke-width="3"/>
+
+    <!-- beak pouch (under) -->
+    <path d="M 506 182
+             Q 560 196 622 200
+             Q 640 202 636 214
+             Q 620 252 566 246
+             Q 522 240 502 210
+             Q 494 194 506 182 Z"
+          fill="#f6c453" stroke="#d99a2b" stroke-width="4"/>
+
+    <!-- upper beak -->
+    <path d="M 500 158
+             L 668 190
+             Q 676 193 670 198
+             L 508 186
+             Q 496 172 500 158 Z"
+          fill="url(#beak)" stroke="#d96a1b" stroke-width="4"/>
+    <path d="M 508 186 L 668 190" fill="none" stroke="#d96a1b" stroke-width="2" opacity="0.6"/>
+    <!-- nostril -->
+    <line x1="520" y1="166" x2="560" y2="173" stroke="#b3541a" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- eye: cool, focused -->
+    <circle cx="500" cy="160" r="9" fill="#ffffff" stroke="#8a7a5c" stroke-width="2.5"/>
+    <circle cx="503" cy="161" r="4.5" fill="#222222"/>
+    <circle cx="504.5" cy="159.5" r="1.5" fill="#ffffff"/>
+  </g>
+
+  <!-- wind swirls -->
+  <g fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.75">
+    <path d="M 700 300 q 30 -18 58 -4 q -20 2 -28 14"/>
+    <path d="M 640 260 q 24 -14 46 -4"/>
+  </g>
+
+  <!-- motion shadow under board -->
+  <ellipse cx="420" cy="528" rx="180" ry="12" fill="#000000" opacity="0.12"/>
+</svg>
+"""
+
+
+def main():
+    with open("output/pelican-skateboard.svg", "w") as f:
+        f.write(SVG)
+    print("wrote output/pelican-skateboard.svg")
+
+
+if __name__ == "__main__":
+    main()

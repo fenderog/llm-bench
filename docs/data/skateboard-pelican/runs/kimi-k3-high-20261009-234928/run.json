@@ -1,0 +1,67 @@
+{
+  "id": "kimi-k3-high-20261009-234928",
+  "page": "skateboard-pelican",
+  "model": "openrouter/moonshotai/kimi-k3",
+  "effort": "high",
+  "kind": "media",
+  "started_at": "2026-10-10T06:50:03Z",
+  "batch": "2026-10-09-234928-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": {
+    "requested": null,
+    "served": [
+      "Wafer"
+    ],
+    "cost_usd": 0.10477194,
+    "pi_cost_usd": 0.08818010000000001
+  },
+  "metrics": {
+    "duration_ms": 167617,
+    "cost_usd": 0.10477194,
+    "tool_calls": 8,
+    "turns": 9,
+    "tokens_total": 11975,
+    "tokens_input": 6277,
+    "tokens_output": 5698,
+    "tokens_reasoning": 1616,
+    "tokens_cache_read": 55552
+  },
+  "thumb": "media/pelican-skateboard.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 1200,
+        "height": 1200,
+        "bytes": 261660,
+        "path": "media/pelican-skateboard.png"
+      },
+      {
+        "type": "image",
+        "width": 800,
+        "height": 600,
+        "bytes": 7225,
+        "path": "media/pelican-skateboard.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "make_pelican.py"
+    ]
+  }
+}

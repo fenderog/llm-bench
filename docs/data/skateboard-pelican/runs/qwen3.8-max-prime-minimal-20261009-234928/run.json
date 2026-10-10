@@ -1,0 +1,78 @@
+{
+  "id": "qwen3.8-max-prime-minimal-20261009-234928",
+  "page": "skateboard-pelican",
+  "model": "openrouter/qwen/qwen3.8-max-prime",
+  "effort": "minimal",
+  "kind": "media",
+  "started_at": "2026-10-10T06:54:19Z",
+  "batch": "2026-10-09-234928-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": {
+    "requested": null,
+    "served": [
+      "Alibaba"
+    ],
+    "cost_usd": 1.18406,
+    "pi_cost_usd": 1.1840600000000003
+  },
+  "metrics": {
+    "duration_ms": 289631,
+    "cost_usd": 1.18406,
+    "tool_calls": 21,
+    "turns": 22,
+    "tokens_total": 263541,
+    "tokens_input": 248648,
+    "tokens_output": 14893,
+    "tokens_reasoning": 4448,
+    "tokens_cache_read": 21504
+  },
+  "thumb": "media/pelican_skateboard.poster.jpg",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "video",
+        "width": 800,
+        "height": 600,
+        "duration_s": 3.0,
+        "bytes": 196963,
+        "transcoded": false,
+        "path": "media/pelican_skateboard.mp4",
+        "poster": "media/pelican_skateboard.poster.jpg"
+      },
+      {
+        "type": "image",
+        "width": 800,
+        "height": 600,
+        "bytes": 114435,
+        "path": "media/pelican_skateboard.png"
+      },
+      {
+        "type": "image",
+        "width": 800,
+        "height": 600,
+        "bytes": 7465,
+        "path": "media/pelican_skateboard.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "make_svg.py",
+      "render_anim.py"
+    ]
+  }
+}

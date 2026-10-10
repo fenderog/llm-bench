@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ed8f8"/>
+      <stop offset="1" stop-color="#e8f7ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="680" cy="90" r="45" fill="#ffd75e"/>
+  <circle cx="680" cy="90" r="60" fill="#ffd75e" opacity="0.3"/>
+
+  <!-- Clouds drifting -->
+  <g fill="#ffffff" opacity="0.9">
+    <g>
+      <ellipse cx="150" cy="100" rx="55" ry="22"/>
+      <ellipse cx="200" cy="88" rx="40" ry="18"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 830 0" dur="18s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <ellipse cx="520" cy="150" rx="45" ry="18"/>
+      <ellipse cx="560" cy="140" rx="32" ry="14"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 830 0" dur="26s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <!-- Distant hills -->
+  <path d="M0 430 Q 120 350 260 420 Q 380 360 520 430 Q 650 370 800 430 L800 600 L0 600 Z" fill="#9fd6a0"/>
+  <path d="M0 470 Q 160 410 340 465 Q 520 415 800 470 L800 600 L0 600 Z" fill="#7cc27e"/>
+
+  <!-- Road -->
+  <rect x="0" y="480" width="800" height="120" fill="#5a6472"/>
+  <line x1="-140" y1="545" x2="660" y2="545" stroke="#f4f4f4" stroke-width="6" stroke-dasharray="40 30" opacity="0.85">
+    <animate attributeName="x1" values="-140;40" dur="0.5s" repeatCount="indefinite"/>
+    <animate attributeName="x2" values="660;840" dur="0.5s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Motion lines -->
+  <g stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.7">
+    <line x1="60" y1="440" x2="140" y2="440">
+      <animate attributeName="opacity" values="0.7;0.1;0.7" dur="0.6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="40" y1="470" x2="110" y2="470">
+      <animate attributeName="opacity" values="0.1;0.7;0.1" dur="0.6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="80" y1="500" x2="160" y2="500">
+      <animate attributeName="opacity" values="0.7;0.1;0.7" dur="0.6s" repeatCount="indefinite"/>
+    </line>
+  </g>
+
+  <!-- Pelican + skateboard group: gentle bounce -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -8; 0 0" dur="0.5s" repeatCount="indefinite"/>
+
+    <!-- Skateboard -->
+    <g>
+      <path d="M235 470 Q 240 455 260 455 L 540 455 Q 560 455 565 470 Q 560 478 545 476 L 255 476 Q 240 478 235 470 Z" fill="#e6512e"/>
+      <rect x="245" y="452" width="310" height="10" rx="5" fill="#ff7043"/>
+      <rect x="300" y="474" width="10" height="18" fill="#37474f"/>
+      <rect x="490" y="474" width="10" height="18" fill="#37474f"/>
+      <!-- Spinning wheels -->
+      <g>
+        <circle cx="305" cy="500" r="20" fill="#fdd835" stroke="#8d6e00" stroke-width="3"/>
+        <g stroke="#8d6e00" stroke-width="3">
+          <line x1="305" y1="484" x2="305" y2="516"/>
+          <line x1="289" y1="500" x2="321" y2="500"/>
+          <animateTransform attributeName="transform" type="rotate" from="0 305 500" to="360 305 500" dur="0.4s" repeatCount="indefinite"/>
+        </g>
+        <circle cx="305" cy="500" r="6" fill="#8d6e00"/>
+      </g>
+      <g>
+        <circle cx="495" cy="500" r="20" fill="#fdd835" stroke="#8d6e00" stroke-width="3"/>
+        <g stroke="#8d6e00" stroke-width="3">
+          <line x1="495" y1="484" x2="495" y2="516"/>
+          <line x1="479" y1="500" x2="511" y2="500"/>
+          <animateTransform attributeName="transform" type="rotate" from="0 495 500" to="360 495 500" dur="0.4s" repeatCount="indefinite"/>
+        </g>
+        <circle cx="495" cy="500" r="6" fill="#8d6e00"/>
+      </g>
+    </g>
+
+    <!-- Pelican -->
+    <g>
+      <!-- Back leg -->
+      <path d="M430 400 Q 425 440 415 470" stroke="#e8862b" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <path d="M415 470 L 395 480 M415 470 L 415 485 M415 470 L 435 480" stroke="#f9a825" stroke-width="6" stroke-linecap="round"/>
+
+      <!-- Tail -->
+      <path d="M470 300 Q 540 280 560 320 Q 520 330 480 330 Z" fill="#f5f5f5" stroke="#c9c9c9" stroke-width="3"/>
+
+      <!-- Body -->
+      <ellipse cx="420" cy="330" rx="95" ry="70" fill="#ffffff" stroke="#d0d0d0" stroke-width="3"/>
+      <path d="M345 345 Q 420 420 500 340 Q 470 400 420 400 Q 370 395 345 345 Z" fill="#e9ecef"/>
+
+      <!-- Wing flapping -->
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="0 400 320; -18 400 320; 0 400 320" dur="0.9s" repeatCount="indefinite"/>
+        <path d="M380 315 Q 300 330 320 380 Q 360 400 430 375 Q 400 340 380 315 Z" fill="#e0e0e0" stroke="#bdbdbd" stroke-width="3"/>
+        <path d="M350 355 Q 380 375 420 372" stroke="#bdbdbd" stroke-width="3" fill="none"/>
+      </g>
+
+      <!-- Front leg -->
+      <path d="M380 390 Q 375 435 370 468" stroke="#e8862b" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <path d="M370 468 L 350 478 M370 468 L 370 483 M370 468 L 390 478" stroke="#f9a825" stroke-width="6" stroke-linecap="round"/>
+
+      <!-- Neck + head nodding -->
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="0 380 290; 4 380 290; 0 380 290" dur="1.2s" repeatCount="indefinite"/>
+        <path d="M360 300 Q 320 250 340 190 Q 350 150 395 145 L 415 200 Q 400 250 400 300 Z" fill="#ffffff" stroke="#d0d0d0" stroke-width="3"/>
+        <circle cx="400" cy="140" r="42" fill="#ffffff" stroke="#d0d0d0" stroke-width="3"/>
+        <!-- Beak + pouch -->
+        <path d="M420 120 Q 500 110 540 140 Q 500 165 425 160 Q 408 140 420 120 Z" fill="#ffb74d" stroke="#e65100" stroke-width="3"/>
+        <path d="M425 158 Q 500 165 540 140 Q 505 190 455 185 Q 428 178 425 158 Z" fill="#ffcc80" stroke="#e65100" stroke-width="3"/>
+        <circle cx="528" cy="138" r="3.5" fill="#e65100"/>
+        <!-- Eye -->
+        <circle cx="398" cy="128" r="9" fill="#ffffff" stroke="#9e9e9e" stroke-width="2"/>
+        <circle cx="400" cy="128" r="4.5" fill="#263238"/>
+        <circle cx="402" cy="126" r="1.5" fill="#ffffff"/>
+        <!-- Tuft -->
+        <path d="M385 102 Q 378 88 390 84 M398 100 Q 396 86 408 84" stroke="#c9c9c9" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Cap -->
+        <path d="M370 110 A 42 42 0 0 1 430 108 L 445 104 L 443 116 L 370 122 Z" fill="#29b6f6" stroke="#0277bd" stroke-width="3"/>
+      </g>
+    </g>
+  </g>
+</svg>

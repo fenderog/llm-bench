@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Sky -->
+  <rect width="800" height="600" fill="#87CEEB"/>
+  <circle cx="680" cy="90" r="45" fill="#FFD93B"/>
+  <ellipse cx="200" cy="110" rx="70" ry="25" fill="#ffffff" opacity="0.9"/>
+  <ellipse cx="260" cy="100" rx="55" ry="22" fill="#ffffff" opacity="0.9"/>
+  <ellipse cx="520" cy="150" rx="60" ry="20" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Ground -->
+  <rect y="470" width="800" height="130" fill="#C9B27A"/>
+  <rect y="470" width="800" height="10" fill="#B09B63"/>
+  <line x1="0" y1="560" x2="800" y2="560" stroke="#FFFFFF" stroke-width="6" stroke-dasharray="40 30" opacity="0.8"/>
+
+  <!-- Skatepark ramp shadow -->
+  <ellipse cx="380" cy="520" rx="220" ry="18" fill="#00000022"/>
+
+  <!-- Skateboard -->
+  <g>
+    <path d="M 200 470 Q 230 448 290 450 L 470 450 Q 530 448 560 470 L 540 470 Q 520 462 470 462 L 290 462 Q 240 462 220 470 Z" fill="#E85D3A" stroke="#A63A22" stroke-width="3"/>
+    <path d="M 200 470 Q 230 448 290 450 L 470 450 Q 530 448 560 470 L 545 474 Q 520 458 465 458 L 295 458 Q 245 458 215 474 Z" fill="#F97A55"/>
+    <!-- Wheels -->
+    <circle cx="260" cy="492" r="17" fill="#333" stroke="#111" stroke-width="3"/>
+    <circle cx="260" cy="492" r="6" fill="#FFD93B"/>
+    <circle cx="500" cy="492" r="17" fill="#333" stroke="#111" stroke-width="3"/>
+    <circle cx="500" cy="492" r="6" fill="#FFD93B"/>
+    <path d="M 250 478 L 250 458 M 510 478 L 510 458" stroke="#888" stroke-width="6"/>
+  </g>
+
+  <!-- Pelican -->
+  <g>
+    <!-- Far leg -->
+    <path d="M 390 430 Q 385 455 378 468" stroke="#E8942A" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M 378 468 L 345 476 M 378 468 L 350 486" stroke="#E8942A" stroke-width="8" stroke-linecap="round"/>
+    <!-- Body -->
+    <ellipse cx="380" cy="370" rx="105" ry="80" fill="#F7F3EA" stroke="#D9D2C5" stroke-width="3"/>
+    <!-- Belly shade -->
+    <path d="M 300 400 Q 380 460 460 395 Q 440 445 380 448 Q 320 445 300 400 Z" fill="#E8E1D2"/>
+    <!-- Wing -->
+    <path d="M 330 340 Q 380 300 460 330 Q 470 375 430 405 Q 370 420 330 380 Q 310 355 330 340 Z" fill="#EFE9DC" stroke="#D9D2C5" stroke-width="3"/>
+    <path d="M 350 355 Q 400 345 445 355 M 345 375 Q 395 368 450 380 M 355 395 Q 400 390 445 400" stroke="#CFC6B4" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Tail -->
+    <path d="M 300 335 Q 250 310 230 285 Q 240 320 265 345 Z" fill="#EFE9DC" stroke="#D9D2C5" stroke-width="3"/>
+    <!-- Neck -->
+    <path d="M 440 300 Q 470 250 465 200 Q 460 160 470 135 L 505 150 Q 495 190 500 230 Q 505 275 490 305 Z" fill="#F7F3EA" stroke="#D9D2C5" stroke-width="3"/>
+    <!-- Head -->
+    <circle cx="482" cy="140" r="42" fill="#F7F3EA" stroke="#D9D2C5" stroke-width="3"/>
+    <!-- Head crest -->
+    <path d="M 455 108 Q 470 92 495 100 Q 478 100 468 115 Z" fill="#E8942A"/>
+    <!-- Eye -->
+    <circle cx="498" cy="128" r="7" fill="#222"/>
+    <circle cx="500" cy="126" r="2.5" fill="#fff"/>
+    <!-- Big pelican beak -->
+    <path d="M 505 130 L 660 158 Q 665 166 655 172 L 505 168 Z" fill="#F5B33B" stroke="#C98A1E" stroke-width="3"/>
+    <path d="M 505 168 L 600 172 Q 570 190 540 188 Q 515 185 505 172 Z" fill="#E8942A" stroke="#C98A1E" stroke-width="3"/>
+    <!-- Pouch -->
+    <path d="M 540 170 Q 560 205 595 171 Q 575 195 545 188 Z" fill="#F0952F"/>
+    <!-- Smile line -->
+    <path d="M 560 158 Q 585 152 605 160" stroke="#B9761B" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Near leg (pushing stance) -->
+    <path d="M 420 425 Q 440 450 455 465" stroke="#F5A32B" stroke-width="13" fill="none" stroke-linecap="round"/>
+    <path d="M 455 465 L 420 474 M 455 465 L 425 482" stroke="#F5A32B" stroke-width="9" stroke-linecap="round"/>
+    <!-- Flipper arm waving -->
+    <path d="M 440 310 Q 490 270 520 275 Q 530 285 515 295 Q 480 305 460 330 Z" fill="#EFE9DC" stroke="#D9D2C5" stroke-width="3"/>
+  </g>
+
+  <!-- Motion swooshes -->
+  <path d="M 120 380 Q 180 370 230 380" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.7"/>
+  <path d="M 90 410 Q 160 400 210 410" stroke="#FFFFFF" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.5"/>
+</svg>

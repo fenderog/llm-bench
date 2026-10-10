@@ -1,5 +1,27 @@
 [
   {
+    "slug": "skateboard-pelican",
+    "title": "Skateboard pelican",
+    "kind": "media",
+    "n_runs": 43,
+    "models": [
+      "anthropic/claude-haiku-5-5",
+      "anthropic/claude-opus-5-5",
+      "anthropic/claude-sonnet-5-5",
+      "meta/muse-spark-1.3-contributor",
+      "openai-codex/gpt-6-astra",
+      "openai-codex/gpt-6.1-sol",
+      "openrouter/deepseek/deepseek-v4.1-flash",
+      "openrouter/moonshotai/kimi-k3",
+      "openrouter/qwen/qwen3.8-max-prime",
+      "openrouter/z-ai/glm-5.3",
+      "openrouter/z-ai/glm-5.3-flashx",
+      "openrouter/z-ai/glm-5.3-prime"
+    ],
+    "updated": "2026-10-10T07:11:00Z",
+    "thumb": "data/skateboard-pelican/runs/qwen3.8-max-prime-medium-20261009-234928/media/pelican_skateboard.svg"
+  },
+  {
     "slug": "pixel-eiffel",
     "title": "Pixel eiffel",
     "kind": "media",
@@ -14,22 +36,6 @@
     ],
     "updated": "2026-10-10T06:28:13Z",
     "thumb": "data/pixel-eiffel/runs/muse-spark-1.3-contributor-xhigh-20261009-231530/media/eiffel-tower-16bit.jpg"
-  },
-  {
-    "slug": "skateboard-pelican",
-    "title": "Skateboard pelican",
-    "kind": "media",
-    "n_runs": 25,
-    "models": [
-      "anthropic/claude-haiku-5-5",
-      "anthropic/claude-opus-5-5",
-      "anthropic/claude-sonnet-5-5",
-      "meta/muse-spark-1.3-contributor",
-      "openai-codex/gpt-6-astra",
-      "openai-codex/gpt-6.1-sol"
-    ],
-    "updated": "2026-10-10T06:05:46Z",
-    "thumb": "data/skateboard-pelican/runs/muse-spark-1.3-contributor-xhigh-20261009-225107/media/pelican-skateboard.poster.jpg"
   },
   {
     "slug": "voxel-horse",

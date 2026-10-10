@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="A pelican riding a skateboard">
+  <title>Pelican Riding a Skateboard</title>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ec8f7"/>
+      <stop offset="1" stop-color="#dff3ff"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9aa7b0"/>
+      <stop offset="1" stop-color="#6d7a84"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8562a"/>
+      <stop offset="1" stop-color="#b93a17"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e3e8ee"/>
+    </linearGradient>
+    <linearGradient id="beak" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc24d"/>
+      <stop offset="1" stop-color="#f29a1f"/>
+    </linearGradient>
+    <linearGradient id="pouch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb877"/>
+      <stop offset="1" stop-color="#f79a4e"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff6c9"/>
+      <stop offset="0.7" stop-color="#ffe27a"/>
+      <stop offset="1" stop-color="#ffe27a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+
+  <!-- Sun -->
+  <circle cx="665" cy="105" r="85" fill="url(#sun)"/>
+  <circle cx="665" cy="105" r="42" fill="#ffe27a"/>
+
+  <!-- Clouds (scrolling left for motion) -->
+  <g fill="#ffffff" opacity="0.9">
+    <g>
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="-900 0" dur="9s" repeatCount="indefinite"/>
+      <g id="cloudset">
+        <path d="M120 120 q10 -28 40 -24 q12 -30 46 -22 q30 -8 40 20 q32 -2 32 26 z"/>
+        <path d="M520 90 q8 -22 34 -19 q10 -25 38 -18 q26 -6 34 16 q27 -2 27 21 z"/>
+      </g>
+      <use href="#cloudset" x="900"/>
+    </g>
+  </g>
+
+  <!-- Distant hills -->
+  <path d="M0 430 Q 130 360 280 425 T 560 420 T 800 430 L 800 520 L 0 520 Z" fill="#8fbf9f" opacity="0.55"/>
+
+  <!-- Ground -->
+  <rect x="0" y="510" width="800" height="90" fill="url(#ground)"/>
+  <rect x="0" y="510" width="800" height="8" fill="#55616a"/>
+
+  <!-- Ground dashes scrolling (speed) -->
+  <g stroke="#c8d2d8" stroke-width="5" stroke-linecap="round" opacity="0.9">
+    <g>
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="-260 0" dur="0.7s" repeatCount="indefinite"/>
+      <line x1="40"  y1="545" x2="120" y2="545"/>
+      <line x1="300" y1="545" x2="380" y2="545"/>
+      <line x1="560" y1="545" x2="640" y2="545"/>
+      <line x1="820" y1="545" x2="900" y2="545"/>
+      <line x1="170" y1="575" x2="230" y2="575"/>
+      <line x1="430" y1="575" x2="490" y2="575"/>
+      <line x1="690" y1="575" x2="750" y2="575"/>
+      <line x1="950" y1="575" x2="1010" y2="575"/>
+    </g>
+  </g>
+
+  <!-- Speed lines behind the rider -->
+  <g stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.85">
+    <g>
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="-160 0" dur="0.45s" repeatCount="indefinite"/>
+      <line x1="150" y1="330" x2="230" y2="330"/>
+      <line x1="120" y1="375" x2="215" y2="375"/>
+      <line x1="165" y1="420" x2="240" y2="420"/>
+      <line x1="310" y1="330" x2="390" y2="330"/>
+      <line x1="280" y1="375" x2="375" y2="375"/>
+      <line x1="325" y1="420" x2="400" y2="420"/>
+      <line x1="470" y1="330" x2="550" y2="330"/>
+      <line x1="440" y1="375" x2="535" y2="375"/>
+      <line x1="485" y1="420" x2="560" y2="420"/>
+    </g>
+  </g>
+
+  <!-- ===== Rider + board (bobbing) ===== -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -7; 0 0" dur="0.9s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
+
+    <!-- Shadow -->
+    <ellipse cx="410" cy="522" rx="180" ry="14" fill="#3d4852" opacity="0.35">
+      <animate attributeName="rx" values="180;168;180" dur="0.9s" repeatCount="indefinite"/>
+    </ellipse>
+
+    <!-- ===== Skateboard ===== -->
+    <g>
+      <!-- Trucks -->
+      <rect x="286" y="462" width="26" height="18" rx="5" fill="#8d99a3"/>
+      <rect x="508" y="462" width="26" height="18" rx="5" fill="#8d99a3"/>
+      <!-- Deck -->
+      <path d="M225 448
+               Q 210 448 212 438 Q 214 428 232 430
+               L 590 430
+               Q 612 428 614 438 Q 616 450 598 450
+               L 240 462 Q 226 462 225 448 Z" fill="url(#deck)"/>
+      <!-- Grip tape stripe -->
+      <path d="M244 434 L 592 434 L 590 442 L 242 444 Z" fill="#2f3237" opacity="0.85"/>
+      <!-- Deck art: little fish -->
+      <g fill="#ffd766">
+        <path d="M330 452 q10 -7 20 0 q-10 7 -20 0 z"/>
+        <path d="M350 452 l7 -4 l0 8 z"/>
+        <circle cx="335" cy="451" r="1.4" fill="#2f3237"/>
+      </g>
+      <!-- Wheels (spinning) -->
+      <g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0 299 489" to="360 299 489" dur="0.5s" repeatCount="indefinite"/>
+          <circle cx="299" cy="489" r="21" fill="#2f3237"/>
+          <circle cx="299" cy="489" r="9" fill="#ffd766"/>
+          <rect x="296.5" y="470" width="5" height="38" rx="2.5" fill="#4a4e55"/>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0 521 489" to="360 521 489" dur="0.5s" repeatCount="indefinite"/>
+          <circle cx="521" cy="489" r="21" fill="#2f3237"/>
+          <circle cx="521" cy="489" r="9" fill="#ffd766"/>
+          <rect x="518.5" y="470" width="5" height="38" rx="2.5" fill="#4a4e55"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- ===== Pelican ===== -->
+    <g>
+      <!-- Back leg -->
+      <path d="M372 400 L 366 428" stroke="#f29a1f" stroke-width="11" stroke-linecap="round" fill="none"/>
+      <path d="M352 430 q14 -8 28 -2 q-8 8 -28 2 z" fill="#f29a1f"/>
+      <!-- Front leg (bent, pushing pose) -->
+      <path d="M430 400 L 440 428" stroke="#f79a1f" stroke-width="11" stroke-linecap="round" fill="none"/>
+      <path d="M426 430 q16 -8 30 -2 q-9 8 -30 2 z" fill="#f79a1f"/>
+
+      <!-- Tail feathers -->
+      <path d="M318 350 q-38 -6 -52 14 q26 12 54 6 z" fill="#dfe5ec"/>
+      <path d="M322 362 q-36 2 -46 20 q26 8 50 -4 z" fill="#cfd7e0"/>
+
+      <!-- Body -->
+      <path d="M400 288
+               q 66 0 84 52
+               q 14 42 -14 64
+               q -30 24 -84 20
+               q -66 -4 -84 -44
+               q -16 -38 10 -66
+               q 26 -26 88 -26 z" fill="url(#body)" stroke="#c9d2db" stroke-width="2"/>
+
+      <!-- Wing (outstretched for balance) -->
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="0 390 330; -9 390 330; 0 390 330" dur="1.4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
+        <path d="M392 318
+                 q -60 -34 -128 -22
+                 q -30 6 -40 20
+                 q 40 4 62 16
+                 q -34 2 -52 14
+                 q 46 10 78 8
+                 q 56 -4 80 -36 z" fill="#f0f3f7" stroke="#c9d2db" stroke-width="2"/>
+        <path d="M300 322 q -26 2 -44 12 q 30 4 50 0 z" fill="#dfe5ec"/>
+      </g>
+
+      <!-- Neck -->
+      <path d="M452 306 q 8 -46 40 -62 q 26 -12 44 -4 l -10 40 q -22 -6 -38 8 q -16 14 -16 34 z" fill="url(#body)" stroke="#c9d2db" stroke-width="2"/>
+
+      <!-- Head -->
+      <circle cx="510" cy="238" r="36" fill="url(#body)" stroke="#c9d2db" stroke-width="2"/>
+
+      <!-- Little skate cap -->
+      <path d="M482 216 q 14 -30 46 -26 q 26 4 30 26 q -20 -8 -38 -6 q -22 2 -38 6 z" fill="#e8562a"/>
+      <path d="M478 218 q 40 -12 82 0 q -40 10 -82 0 z" fill="#b93a17"/>
+      <circle cx="520" cy="192" r="6" fill="#ffd766"/>
+
+      <!-- Eye -->
+      <circle cx="524" cy="232" r="7.5" fill="#ffffff" stroke="#2f3237" stroke-width="2"/>
+      <circle cx="526.5" cy="232" r="3.6" fill="#2f3237"/>
+      <circle cx="528" cy="230.5" r="1.2" fill="#ffffff"/>
+
+      <!-- Upper beak -->
+      <path d="M538 232
+               q 60 -6 116 6
+               q 22 6 24 14
+               q -4 8 -26 8
+               q -60 -2 -112 -12 z" fill="url(#beak)" stroke="#d9861a" stroke-width="1.5"/>
+      <!-- Beak hook tip -->
+      <path d="M672 248 q 12 0 12 8 q -2 6 -14 6 z" fill="#e58d17"/>
+
+      <!-- Throat pouch -->
+      <path d="M540 248
+               q 56 12 108 12
+               q -18 44 -74 44
+               q -44 0 -54 -34
+               q -4 -14 20 -22 z" fill="url(#pouch)" stroke="#e07f36" stroke-width="1.5"/>
+
+      <!-- Pouch bulge: a fish sticking out! -->
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0; 0 3; 0 0" dur="1.4s" repeatCount="indefinite"/>
+        <path d="M588 286 q 16 -10 30 0 q -16 10 -30 0 z" fill="#6fb7e8"/>
+        <path d="M618 286 l 10 -7 l 0 14 z" fill="#6fb7e8"/>
+        <circle cx="595" cy="284.5" r="1.6" fill="#20405c"/>
+      </g>
+
+      <!-- Nostril -->
+      <ellipse cx="566" cy="238" rx="3" ry="1.8" fill="#b06a10"/>
+
+      <!-- Sunglasses-ish cheek blush -->
+      <circle cx="500" cy="252" r="6" fill="#ffc9c0" opacity="0.7"/>
+    </g>
+  </g>
+
+  <!-- Foreground pebbles -->
+  <g fill="#5c6871" opacity="0.7">
+    <ellipse cx="90" cy="536" rx="9" ry="4"/>
+    <ellipse cx="720" cy="556" rx="11" ry="5"/>
+    <ellipse cx="480" cy="586" rx="8" ry="4"/>
+  </g>
+</svg>

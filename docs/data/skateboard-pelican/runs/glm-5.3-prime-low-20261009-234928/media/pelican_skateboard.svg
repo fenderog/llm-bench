@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480">
+  <!-- Sky background -->
+  <rect width="640" height="480" fill="#aee7f2"/>
+  <!-- Sun -->
+  <circle cx="560" cy="70" r="36" fill="#ffd75e"/>
+  <!-- Clouds -->
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="120" cy="80" rx="50" ry="18"/>
+    <ellipse cx="160" cy="70" rx="40" ry="16"/>
+    <ellipse cx="420" cy="120" rx="45" ry="15"/>
+  </g>
+  <!-- Ground -->
+  <rect y="380" width="640" height="100" fill="#e8c88a"/>
+  <line x1="0" y1="381" x2="640" y2="381" stroke="#b89a5e" stroke-width="3"/>
+
+  <!-- Skateboard -->
+  <g>
+    <path d="M120 405 Q 90 405 70 392 L 60 385 L 105 385 L 160 385 L 320 385 L 480 385 L 560 392 Q 550 405 520 405 L 160 405 Z"
+          fill="#e2603f" stroke="#a83a22" stroke-width="3"/>
+    <path d="M60 385 L105 385 L320 385 L480 385 L560 392" fill="none" stroke="#a83a22" stroke-width="3"/>
+    <!-- wheels -->
+    <circle cx="170" cy="415" r="16" fill="#333" stroke="#111" stroke-width="2"/>
+    <circle cx="170" cy="415" r="5" fill="#999"/>
+    <circle cx="460" cy="415" r="16" fill="#333" stroke="#111" stroke-width="2"/>
+    <circle cx="460" cy="415" r="5" fill="#999"/>
+    <!-- motion lines -->
+    <g stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.8">
+      <line x1="30" y1="400" x2="70" y2="400"/>
+      <line x1="20" y1="425" x2="55" y2="425"/>
+    </g>
+  </g>
+
+  <!-- Pelican -->
+  <g>
+    <!-- legs -->
+    <path d="M260 330 Q 250 360 240 380" stroke="#f2a63b" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M310 330 Q 315 360 320 380" stroke="#f2a63b" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <!-- webbed feet on the board -->
+    <path d="M225 380 Q 240 372 262 380 L 268 388 L 218 388 Z" fill="#f2a63b" stroke="#c97f18" stroke-width="2"/>
+    <path d="M300 380 Q 316 372 338 380 L 344 388 L 296 388 Z" fill="#f2a63b" stroke="#c97f18" stroke-width="2"/>
+
+    <!-- body -->
+    <ellipse cx="290" cy="270" rx="95" ry="70" fill="#f7f3ea" stroke="#cfc6b5" stroke-width="3"/>
+    <!-- tail feathers -->
+    <path d="M198 250 Q 160 235 150 205 Q 185 215 205 230 Z" fill="#e7e0d2" stroke="#cfc6b5" stroke-width="2"/>
+    <path d="M200 265 Q 158 260 142 240 Q 180 248 204 258 Z" fill="#e7e0d2" stroke="#cfc6b5" stroke-width="2"/>
+
+    <!-- wing -->
+    <path d="M255 240 Q 350 215 380 265 Q 340 300 260 290 Q 230 265 255 240 Z"
+          fill="#ddd4c2" stroke="#b7ac95" stroke-width="3"/>
+    <path d="M300 250 Q 350 255 370 270 M290 268 Q 340 272 360 282" fill="none" stroke="#b7ac95" stroke-width="2"/>
+
+    <!-- neck -->
+    <path d="M345 235 Q 380 200 385 150 L 415 150 Q 415 215 375 255 Z"
+          fill="#f7f3ea" stroke="#cfc6b5" stroke-width="3"/>
+
+    <!-- head -->
+    <circle cx="405" cy="130" r="42" fill="#f7f3ea" stroke="#cfc6b5" stroke-width="3"/>
+    <!-- crest -->
+    <path d="M370 105 Q 375 85 395 90 Q 390 100 378 108 Z" fill="#e7e0d2" stroke="#cfc6b5" stroke-width="2"/>
+
+    <!-- eye -->
+    <circle cx="418" cy="115" r="7" fill="#222"/>
+    <circle cx="420" cy="113" r="2.5" fill="#fff"/>
+
+    <!-- big beak -->
+    <g>
+      <!-- upper mandible -->
+      <path d="M432 118 Q 500 120 545 138 Q 552 142 548 148 Q 500 145 440 140 Z"
+            fill="#ffb347" stroke="#c97f18" stroke-width="3"/>
+      <!-- pouch -->
+      <path d="M438 138 Q 480 200 540 150 Q 520 185 490 190 Q 455 185 438 145 Z"
+            fill="#f2953b" stroke="#c97f18" stroke-width="3"/>
+      <!-- smile line -->
+      <path d="M440 140 Q 495 152 540 147" fill="none" stroke="#c97f18" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

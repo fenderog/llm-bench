@@ -1,0 +1,86 @@
+{
+  "id": "glm-5.3-prime-max-20261009-234928",
+  "page": "skateboard-pelican",
+  "model": "openrouter/z-ai/glm-5.3-prime",
+  "effort": "max",
+  "kind": "media",
+  "started_at": "2026-10-10T06:49:36Z",
+  "batch": "2026-10-09-234928-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": {
+    "requested": null,
+    "served": [
+      "Alibaba"
+    ],
+    "cost_usd": 2.57985296,
+    "pi_cost_usd": 2.57985296
+  },
+  "metrics": {
+    "duration_ms": 960469,
+    "cost_usd": 2.57985296,
+    "tool_calls": 44,
+    "turns": 45,
+    "tokens_total": 185976,
+    "tokens_input": 101578,
+    "tokens_output": 84398,
+    "tokens_reasoning": 61484,
+    "tokens_cache_read": 2772736
+  },
+  "thumb": "media/pelican_skateboard.gif",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 512,
+        "height": 512,
+        "bytes": 1280287,
+        "path": "media/pelican_skateboard.gif"
+      },
+      {
+        "type": "video",
+        "width": 1024,
+        "height": 1024,
+        "duration_s": 8.0,
+        "bytes": 509916,
+        "transcoded": false,
+        "path": "media/pelican_skateboard.mp4",
+        "poster": "media/pelican_skateboard.poster.jpg"
+      },
+      {
+        "type": "image",
+        "width": 2048,
+        "height": 2048,
+        "bytes": 837787,
+        "path": "media/pelican_skateboard.png"
+      },
+      {
+        "type": "image",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 13663,
+        "path": "media/pelican_skateboard.svg"
+      }
+    ],
+    "ok": true,
+    "verified": false,
+    "error": "pelican_skateboard.webm: skipped, another output is already named pelican_skateboard.mp4"
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "build.sh",
+      "make_pelican.py",
+      "png_probe.py"
+    ]
+  }
+}

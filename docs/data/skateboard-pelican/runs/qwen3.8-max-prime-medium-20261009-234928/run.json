@@ -1,0 +1,55 @@
+{
+  "id": "qwen3.8-max-prime-medium-20261009-234928",
+  "page": "skateboard-pelican",
+  "model": "openrouter/qwen/qwen3.8-max-prime",
+  "effort": "medium",
+  "kind": "media",
+  "started_at": "2026-10-10T06:54:59Z",
+  "batch": "2026-10-09-234928-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": {
+    "requested": null,
+    "served": [
+      "Alibaba"
+    ],
+    "cost_usd": 0.10919999999999999,
+    "pi_cost_usd": 0.1092
+  },
+  "metrics": {
+    "duration_ms": 61684,
+    "cost_usd": 0.10919999999999999,
+    "tool_calls": 3,
+    "turns": 4,
+    "tokens_total": 14596,
+    "tokens_input": 8884,
+    "tokens_output": 5712,
+    "tokens_reasoning": 775,
+    "tokens_cache_read": 10240
+  },
+  "thumb": "media/pelican_skateboard.svg",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 800,
+        "height": 600,
+        "bytes": 9666,
+        "path": "media/pelican_skateboard.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": null
+}

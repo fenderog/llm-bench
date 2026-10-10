@@ -1,0 +1,85 @@
+{
+  "id": "deepseek-v4.1-flash-max-20261009-234928",
+  "page": "skateboard-pelican",
+  "model": "openrouter/deepseek/deepseek-v4.1-flash",
+  "effort": "max",
+  "kind": "media",
+  "started_at": "2026-10-10T06:54:04Z",
+  "batch": "2026-10-09-234928-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": {
+    "requested": null,
+    "served": [
+      "Relace",
+      "Morph"
+    ],
+    "cost_usd": 0.0597421255,
+    "pi_cost_usd": 0.08817651600000002
+  },
+  "metrics": {
+    "duration_ms": 562270,
+    "cost_usd": 0.0597421255,
+    "tool_calls": 49,
+    "turns": 50,
+    "tokens_total": 128343,
+    "tokens_input": 84659,
+    "tokens_output": 43684,
+    "tokens_reasoning": 20526,
+    "tokens_cache_read": 1726336
+  },
+  "thumb": "media/pelican-skateboard.gif",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 560,
+        "height": 315,
+        "bytes": 1635746,
+        "path": "media/pelican-skateboard.gif"
+      },
+      {
+        "type": "video",
+        "width": 1280,
+        "height": 720,
+        "duration_s": 8.0,
+        "bytes": 756277,
+        "transcoded": false,
+        "path": "media/pelican-skateboard.mp4",
+        "poster": "media/pelican-skateboard.poster.jpg"
+      },
+      {
+        "type": "image",
+        "width": 1920,
+        "height": 1080,
+        "bytes": 814754,
+        "path": "media/pelican-skateboard.png"
+      },
+      {
+        "type": "image",
+        "width": 1280,
+        "height": 720,
+        "bytes": 18768,
+        "path": "media/pelican-skateboard.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "make_pelican.py"
+    ]
+  }
+}

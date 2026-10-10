@@ -1,0 +1,76 @@
+{
+  "id": "kimi-k3-max-20261009-234928",
+  "page": "skateboard-pelican",
+  "model": "openrouter/moonshotai/kimi-k3",
+  "effort": "max",
+  "kind": "media",
+  "started_at": "2026-10-10T06:50:17Z",
+  "batch": "2026-10-09-234928-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": {
+    "requested": null,
+    "served": [
+      "Wafer",
+      "Morph"
+    ],
+    "cost_usd": 0.705212356,
+    "pi_cost_usd": 0.6297216999999998
+  },
+  "metrics": {
+    "duration_ms": 693831,
+    "cost_usd": 0.705212356,
+    "tool_calls": 28,
+    "turns": 27,
+    "tokens_total": 98091,
+    "tokens_input": 67901,
+    "tokens_output": 30190,
+    "tokens_reasoning": 20234,
+    "tokens_cache_read": 778304
+  },
+  "thumb": "media/pelican_skateboard.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 1501,
+        "height": 1096,
+        "bytes": 239750,
+        "path": "media/pelican_skateboard.png"
+      },
+      {
+        "type": "image",
+        "width": 900,
+        "height": 650,
+        "bytes": 10177,
+        "path": "media/pelican_skateboard.svg"
+      },
+      {
+        "type": "image",
+        "width": 900,
+        "height": 650,
+        "bytes": 11791,
+        "path": "media/pelican_skateboard_animated.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "make_animated.py",
+      "make_png.py"
+    ]
+  }
+}
