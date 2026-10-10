@@ -29,28 +29,6 @@
     "thumb": "data/create-a-rubik-s-cube-in-3js/runs/deepseek-v4.1-flash-max-20260930-121814/thumb.png"
   },
   {
-    "slug": "an-svg-of-a-chair-holding",
-    "title": "An svg of a chair holding",
-    "kind": "media",
-    "n_runs": 6,
-    "models": [
-      "openai-codex/gpt-6-sol"
-    ],
-    "updated": "2026-09-28T05:49:12Z",
-    "thumb": "data/an-svg-of-a-chair-holding/runs/gpt-6-sol-max-20260927-224135/media/sit-tight.svg"
-  },
-  {
-    "slug": "a-chair-with-arms-as-a",
-    "title": "A chair with arms as a",
-    "kind": "media",
-    "n_runs": 6,
-    "models": [
-      "openai-codex/gpt-6-sol"
-    ],
-    "updated": "2026-09-28T05:39:31Z",
-    "thumb": "data/a-chair-with-arms-as-a/runs/gpt-6-sol-max-20260927-223210/media/armchair.svg"
-  },
-  {
     "slug": "crete-a-voxel-character-running-around",
     "title": "Crete a voxel character running around",
     "kind": "godot",
