@@ -84,6 +84,6 @@ export function runCard(slug, r, best, selection = null) {
   ];
   const body = el("div", { class: "compare-body" });
   if (r.error) body.append(el("p", { class: "run-error", text: r.error }));
-  body.append(...renderOutput(r, base, { compact: true }));
+  body.append(...renderOutput(r, base, { compact: true, href: runUrl(slug, r.id) }));
   return el("div", { class: isComplete(r) ? "compare-col" : "compare-col is-failed", ...vendorOptions(r.model) }, [el("h3", {}, heading), metricsLine(r, best), body]);
 }

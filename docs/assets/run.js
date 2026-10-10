@@ -133,7 +133,7 @@ function setupTabs() {
 function renderGame(run, base) {
   const panel = document.getElementById("panel-game");
   document.querySelector('#tabs button[data-tab="game"]').textContent = kindUi(run.kind).tab;
-  panel.append(...renderOutput(run, base));
+  panel.append(...renderOutput(run, base, { full: true }));
   if (isPlayable(run)) {
     panel.append(
       el("div", { class: "game-links" }, [

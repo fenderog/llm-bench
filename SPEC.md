@@ -509,7 +509,7 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
     jpeg/png/gif/webp with plain base64 data, never SVG) captioned `[image: <type>, N KB]`, never as text.
     `isError` gets a ✗ badge. Show `+m:ss` since session start (the clock time on hover) and per-message token usage. A tool's duration is the `durationMs` on its `toolResult` message (when present). Filter buttons: all / tool calls / errors.
   - *Output* (instead of Game, for a `media` run): every `output.items` entry as a captioned figure (file name, size, duration,
-    bytes, a `download` link). Images, **SVGs included**, are only ever shown with `<img>` (which never runs an
+    bytes, a `download` link), one per row at its recorded `width`×`height` (never wider than the page). Images, **SVGs included**, are only ever shown with `<img>` (which never runs an
     SVG's scripts), never inlined or put in an object/embed/iframe, and never linked for viewing on this origin.
     Videos use `<video controls preload="none">` with the poster, and never autoplay.
   - *Page* (instead of Game, for a `web` run): the packaged page with click-to-play, in the same sandboxed iframe as games.
@@ -520,7 +520,9 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
   into rows (3 across at desktop width, 1 on phones, never sideways scrolling), ordered by model then effort. Each card has
   the model, its effort pill (plus the failed/timeout badge), one line with harness, duration, tokens and cost (the best
   among the shown runs starred), and its game with click-to-play (each column boots independently, never automatically),
-  or for a `media` run its outputs stacked (the Play all button is hidden when there are no games).
+  or for a `media` run one output as the hero with a strip of thumbnails that swap it (the Play all button is hidden when there
+  are no games). An image hero links to the run page (`a.media-link`); a video hero doesn't, so a click plays it. page.html's
+  Grid view draws the same cards (`renderRunGrid()`).
   Cards are subgrids spanning three grid rows (heading, metrics, output), so those line up across a row even when a metrics line wraps.
   Cards are grouped by vendor (`groupByVendor()`, `vendorOf()`): a section per vendor with a quiet header (name from
   `VENDOR_NAMES`/`vendorName()`, run count, thin rule in the vendor's hue), always shown, even with a single vendor. Within a

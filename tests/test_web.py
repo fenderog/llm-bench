@@ -732,12 +732,13 @@ def test_media_card_has_badge_hero_and_swappable_strip(site, page):
     assert card.locator(".media-count").is_visible()
     hero = card.locator(".media-box > video")
     assert hero.get_attribute("preload") == "none" and hero.get_attribute("poster").endswith("/media/clip.poster.jpg")
+    assert card.locator(".media-link").count() == 0  # a video hero isn't a link: a click plays it
     box_before = card.locator(".media-box").bounding_box()
     strip = card.locator(".media-strip .media-thumb")
     assert strip.count() == 3 and strip.nth(1).get_attribute("aria-current") == "true"
     strip.nth(0).click()  # circle.svg: shown through <img> only
     assert card.locator(".media-box > video").count() == 0
-    assert card.locator(".media-box > img").get_attribute("src").endswith("/media/circle.svg")
+    assert card.locator(".media-box > a.media-link > img").get_attribute("src").endswith("/media/circle.svg")
     assert card.locator(".media-count").inner_text() == "3 files · 1 video"
     assert strip.nth(0).get_attribute("aria-current") == "true"
     assert card.locator(".media-box").bounding_box() == box_before  # same card height
@@ -745,6 +746,10 @@ def test_media_card_has_badge_hero_and_swappable_strip(site, page):
     assert card.locator("svg, object, embed, iframe").count() == 0
     # a run without output has no badge or strip
     assert page.locator(".compare-col").filter(has_text="low").locator(".media-count, .media-strip").count() == 0
+    # clicking an image hero opens the run page
+    card.locator(".media-link").click()
+    page.wait_for_url(f"**/run.html?p=art&r={ART_HIGH_ID}")
+    page.wait_for_selector(".media-grid")
     assert_no_errors(page)
 
 
@@ -755,6 +760,12 @@ def test_media_run_output_tab_shows_images_and_video(site, page):
     imgs = page.locator(".media-grid img")
     assert imgs.count() == 2
     page.wait_for_function("() => [...document.querySelectorAll('.media-grid img')].every(i => i.complete && i.naturalWidth > 0)")
+    # full size: one output per row, each at its recorded size (circle.svg 120×80, dot.png 64×48), not a 4:3 box
+    assert page.locator(".media-grid.is-full .media-box").count() == 0
+    sizes = [(round(b["width"]), round(b["height"])) for b in (imgs.nth(i).bounding_box() for i in range(2))]
+    assert sizes == [(120, 80), (64, 48)]
+    figs = [page.locator(".media-item").nth(i).bounding_box() for i in range(3)]
+    assert figs[0]["y"] < figs[1]["y"] < figs[2]["y"]
     video = page.locator(".media-grid video")
     assert video.get_attribute("poster").endswith("/media/clip.poster.jpg")
     assert video.get_attribute("autoplay") is None and video.evaluate("v => v.paused")

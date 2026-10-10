@@ -59,20 +59,23 @@ export function buildGameFrame(entryUrl, thumbUrl) {
 
 // One media output (run.media item). Model-made SVGs may contain scripts, so every image,
 // SVG included, is shown through <img> (which never runs them) and never inlined or framed.
-// Videos never autoplay: like games, they start on an explicit click.
+// Videos never autoplay: like games, they start on an explicit click. The recorded size goes on as width/height, so
+// a full-size gallery reserves the space and an SVG without its own size isn't drawn at the default 300×150.
 export function mediaElement(item, base) {
+  const size = { width: item.width ?? null, height: item.height ?? null };
   if (item.type === "video") {
     return el("video", {
-      attrs: { src: base + item.path, poster: item.poster ? base + item.poster : null, controls: "", preload: "none", playsinline: "", loop: "" },
+      attrs: { src: base + item.path, poster: item.poster ? base + item.poster : null, controls: "", preload: "none", playsinline: "", loop: "", ...size },
     });
   }
-  return el("img", { attrs: { src: base + item.path, alt: "", loading: "lazy" } });
+  return el("img", { attrs: { src: base + item.path, alt: "", loading: "lazy", ...size } });
 }
 
 // A run's media items as captioned figures (file name, size, duration) with download links.
-// Downloads use the `download` attribute so an SVG is saved, never opened as a page here.
-export function mediaGallery(items, base) {
-  const grid = el("div", { class: "media-grid" });
+// Downloads use the `download` attribute so an SVG is saved, never opened as a page here. `full` (the run page) shows
+// them one below the other at their own size (never wider than the page) instead of in fixed 4:3 boxes.
+export function mediaGallery(items, base, { full = false } = {}) {
+  const grid = el("div", { class: full ? "media-grid is-full" : "media-grid" });
   for (const item of items || []) {
     const name = item.path.split("/").pop();
     const dims = item.width && item.height ? `${item.width}×${item.height}` : null;
@@ -81,7 +84,7 @@ export function mediaGallery(items, base) {
       el("span", { text: [name, dims, dur, fmtBytes(item.bytes)].filter(Boolean).join(" · ") }),
       el("a", { text: "download", attrs: { href: base + item.path, download: name } }),
     ]);
-    grid.append(el("figure", { class: "media-item" }, [el("div", { class: "media-box" }, [mediaElement(item, base)]), caption]));
+    grid.append(el("figure", { class: "media-item" }, [el("div", { class: full ? "media-full" : "media-box" }, [mediaElement(item, base)]), caption]));
   }
   return grid;
 }
@@ -94,8 +97,9 @@ export function mediaCount(items) {
 
 // A media run on a card, at a fixed height: one output as the hero (a video if there is one; it still starts on a
 // click), a corner badge counting the outputs, and a strip of small thumbnails that swap the hero in place.
-// Everything is shown through mediaElement(), so model-made SVGs stay <img> (ADR-0004).
-export function mediaCard(items, base) {
+// Everything is shown through mediaElement(), so model-made SVGs stay <img> (ADR-0004). With `href` (the run page), an
+// image hero is a link there; a video hero isn't, so a click still plays it.
+export function mediaCard(items, base, href = null) {
   const box = el("div", { class: "media-box" });
   const thumbs = items.length > 1 ? items.map((item, i) => {
     const src = item.type === "video" ? item.poster : item.path;
@@ -107,7 +111,9 @@ export function mediaCard(items, base) {
     }, [src ? el("img", { attrs: { src: base + src, alt: "", loading: "lazy" } }) : null]);
   }) : [];
   const show = (i) => {
-    box.replaceChildren(...[mediaElement(items[i], base), items.length > 1 ? el("span", { class: "media-count", text: mediaCount(items) }) : null].filter(Boolean));
+    const media = mediaElement(items[i], base);
+    const hero = href && items[i].type !== "video" ? el("a", { class: "media-link", attrs: { href, title: "Open the run" } }, [media]) : media;
+    box.replaceChildren(...[hero, items.length > 1 ? el("span", { class: "media-count", text: mediaCount(items) }) : null].filter(Boolean));
     thumbs.forEach((t, j) => t.setAttribute("aria-current", String(j === i)));
   };
   if (items.length) show(Math.max(0, items.findIndex((i) => i.type === "video")));
@@ -118,12 +124,13 @@ export function mediaCard(items, base) {
 // the media gallery, the game or page in the sandbox, or the "no output" message.
 // Games and pages start on a click (a thumbnail with a play button) unless `autoplay` (the click was
 // opening the row or the window); `frameClass` is the wrapper of an autoplaying frame. `compact` (cards)
-// shows media as one hero with a thumbnail strip instead of the full captioned gallery.
-export function renderOutput(run, base, { autoplay = false, frameClass = "game-frame", compact = false } = {}) {
+// shows media as one hero with a thumbnail strip instead of the full captioned gallery, its image linking to `href`;
+// `full` (the run page) shows the gallery at full size.
+export function renderOutput(run, base, { autoplay = false, frameClass = "game-frame", compact = false, href = null, full = false } = {}) {
   const out = run.output;
   const nodes = out?.error ? [el("p", { class: "run-error", text: out.error })] : [];
   if (!out?.ok) return [...nodes, el("p", { class: "msg", text: kindUi(run.kind).none })];
-  if (out.kind === "media") return [...nodes, (compact ? mediaCard : mediaGallery)(out.items || [], base)];
+  if (out.kind === "media") return [...nodes, compact ? mediaCard(out.items || [], base, href) : mediaGallery(out.items || [], base, { full })];
   const entry = base + out.entry;
   return [...nodes, autoplay ? el("div", { class: frameClass }, [sandboxedGame(entry)]) : buildGameFrame(entry, run.thumb ? base + run.thumb : null)];
 }
