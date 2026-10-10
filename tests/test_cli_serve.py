@@ -19,6 +19,7 @@ def test_serve_headers(tmp_path):
 
     server = serve_in_thread(docs, 0)
     try:
+        assert server.request_queue_size >= 32  # browser imports many ES modules at once
         port = server.server_address[1]
         base = f"http://127.0.0.1:{port}/"
 

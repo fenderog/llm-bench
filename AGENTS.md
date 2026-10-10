@@ -194,7 +194,9 @@ gh api repos/fenderog/art-crit/pages/builds/latest --jq .status   # deploy statu
 - **Tests address table cells by `data-col`**, not position: adding a column (like Rank) shifted `nth()` indexes.
 - **Web kind packaging:** a classic `<script src>` is inlined as a `data:` URL, not bundled: esbuild's IIFE output turns
   its top-level `var`s (globals other scripts use) into locals. Only module scripts are bundled.
-- **Viewer end-to-end test can time out intermittently:** rerun it alone before diagnosing a regression.
+- **Local server backlog:** the stdlib HTTP server's default accept queue is only 5. Chrome fetches many
+  ES modules in parallel; overflow resets a module request (`net::ERR_CONNECTION_RESET`) and leaves the page
+  on Loading… with no JS error. `serve._Server.request_queue_size` is 64; keep it above the module fanout.
   Published `docs/data/` is not a fixed test fixture; avoid tests asserting its run count or requiring
   live published games to remain unchanged.
 - **Sync Playwright can't nest:** `test_web.py` keeps a session-wide browser open, so other tests that start Playwright

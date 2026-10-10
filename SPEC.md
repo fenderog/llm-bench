@@ -194,7 +194,7 @@ art-crit rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuil
 art-crit rename <slug> <new> [-t/--title TEXT]   # move a page to a new slug (rewrites each run.json `page`), then rebuild
 art-crit rebuild                   # regenerate page.json + pages.json from runs/*/run.json; delete engines no run references
 art-crit serve [-p/--port 8000]    # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
-                                #   plus the local-only ranking API (see Ranking)
+                                #   plus the local-only ranking API (see Ranking); accept queue 64 for concurrent ES modules
 art-crit publish [-m MSG]          # git add docs && git commit && git push
 art-crit run ...                   # run agents locally, then import (see "Running benchmarks")
 art-crit models [SEARCH] [-H/--harness pi|claude-code|agy|grok-build]   # models the harness can run; with SEARCH also their effort levels

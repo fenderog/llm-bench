@@ -97,9 +97,15 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
         pass  # keep test/CLI output quiet
 
 
+class _Server(http.server.ThreadingHTTPServer):
+    # A page loads many ES modules concurrently. The stdlib default backlog of 5 can reset
+    # some connections before handler threads accept them, leaving the viewer stuck at Loading….
+    request_queue_size = 64
+
+
 def build_server(docs_root, port=0):
     handler = functools.partial(_Handler, directory=str(docs_root))
-    return http.server.ThreadingHTTPServer(("127.0.0.1", port), handler)
+    return _Server(("127.0.0.1", port), handler)
 
 
 def serve_in_thread(docs_root, port=0):

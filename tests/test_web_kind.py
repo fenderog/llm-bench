@@ -135,10 +135,17 @@ def check_viewer(sync_api, base, run_id):
     with sync_api.sync_playwright() as p:
         browser = p.chromium.launch(channel="chrome")
         pg = browser.new_page()
-        errors = []
+        errors, failed_requests = [], []
         pg.on("pageerror", lambda e: errors.append(str(e)))
+        pg.on("requestfailed", lambda r: failed_requests.append((r.url, r.failure)))
         pg.goto(f"{base}page.html?p=a-spinning-horse&view=table")
-        pg.wait_for_selector("table.runs tbody tr.run-row")
+        try:
+            pg.wait_for_selector("table.runs tbody tr.run-row")
+        except Exception:
+            print("viewer debug:", {"url": pg.url, "errors": errors, "failed_requests": failed_requests,
+                                    "rows": pg.locator("tr.run-row").count(),
+                                    "body": pg.locator("body").inner_text()[:1500]})
+            raise
         assert pg.locator(".page-meta .kind-chip").text_content() == "Web"
         pg.locator("tr.run-row").click()
         frame = pg.locator("tr.run-detail iframe")
