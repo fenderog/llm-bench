@@ -233,17 +233,19 @@ details.final-prompt .prompt-text {
   border-radius: var(--r); background: var(--surface-2); font-size: 13.5px; color: var(--ink-2);
 }
 
-/* ---- highlights (page summary) ---- */
-.highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; margin-top: 28px; }
+/* ---- highlights (page summary): one line of small chips ---- */
+.highlights { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 18px; }
 .highlights[hidden] { display: none; }
 .hl {
-  display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: var(--r); background: var(--surface);
-  border: 1px solid var(--line); text-decoration: none; color: var(--ink); min-width: 0; transition: border-color 0.15s;
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: var(--surface);
+  border: 1px solid var(--line); text-decoration: none; color: var(--ink); font-size: 12.5px; min-width: 0; max-width: 100%;
+  transition: border-color 0.15s;
 }
 a.hl:hover { border-color: var(--line-strong); }
-.hl-label { font-size: 12px; font-weight: 600; color: var(--ink-3); letter-spacing: 0.02em; }
-.hl-value { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.25; }
-.hl-sub { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); min-width: 0; flex-wrap: wrap; }
+.hl-label { font-weight: 600; color: var(--ink-3); }
+.hl-value { font-weight: 700; font-variant-numeric: tabular-nums; }
+.hl-sub { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); min-width: 0; }
+.hl-sub .effort { font-size: 11.5px; }
 .hl-sub .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .hl-good .hl-value { color: var(--good); }
 
@@ -618,9 +620,6 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
   .prompt-box .prompt-text { font-size: 1.02rem; }
   .source-layout { grid-template-columns: minmax(0, 1fr); }
   .source-files { position: static; max-height: 200px; }
-  .highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .hl { padding: 10px 12px; }
-  .hl-value { font-size: 1.15rem; }
   .stat-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .stat { padding: 9px 10px; }
   .stat-value { font-size: 1.08rem; }
