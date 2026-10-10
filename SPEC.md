@@ -191,6 +191,7 @@ The page's prompt is the batch directory's `prompt.md`. Effort-run folders (`fe-
 bench import <run-dir | batch-dir> [-p/--page SLUG] [-t/--title TEXT] [-r/--redact] [-a/--allow-threads] [-n/--dry-run]
 bench list                      # pages and their runs
 bench rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuild
+bench rename <slug> <new> [-t/--title TEXT]   # move a page to a new slug (rewrites each run.json `page`), then rebuild
 bench rebuild                   # regenerate page.json + pages.json from runs/*/run.json; delete engines no run references
 bench serve [-p/--port 8000]    # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
                                 #   plus the local-only ranking API (see Ranking)

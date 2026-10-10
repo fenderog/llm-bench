@@ -102,7 +102,7 @@ def test_game_boots_when_a_row_is_expanded(site):
         page = browser.new_page(viewport={"width": 1400, "height": 1000})
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
-        page.goto(f"{base}page.html?p=voxel-horse")
+        page.goto(f"{base}page.html?p=voxel-horse&view=table")
         row = page.locator("tr.run-row").filter(has=page.locator("td", has_text="high")).first
         row.locator('td[data-col="effort"]').click()
         deadline = time.time() + 60

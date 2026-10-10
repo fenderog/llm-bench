@@ -2,6 +2,7 @@
 engines. Also `rm` and `list`, which both end by calling rebuild()."""
 
 import json
+import re
 import shutil
 from datetime import datetime, timedelta, timezone
 
@@ -114,6 +115,32 @@ def cmd_rm(root, slug, run_id=None):
         shutil.rmtree(run_dir)
         print(f"removed run {slug}/{run_id}")
     rebuild(root)
+    return 0
+
+
+def cmd_rename(root, old, new, title=None):
+    """Move a page to a new slug. The slug is also each run.json's `page`; a title that was
+    only derived from the old slug follows it, any other title stays unless `title` is given."""
+    data_dir = root / "docs" / "data"
+    old_dir, new_dir = data_dir / old, data_dir / new
+    if not old_dir.is_dir():
+        raise BenchError(f"no such page: {old}")
+    if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", new):
+        raise BenchError(f"bad slug {new!r}: use lowercase letters, digits and single hyphens")
+    if new_dir.exists():
+        raise BenchError(f"page already exists: {new}")
+    old_dir.rename(new_dir)
+    for rj in new_dir.glob("runs/*/run.json"):
+        run = json.loads(rj.read_text())
+        run["page"] = new
+        rj.write_text(json.dumps(run, indent=2) + "\n")
+    page_path = new_dir / "page.json"
+    page = json.loads(page_path.read_text()) if page_path.is_file() else {}
+    if title or page.get("title") in (None, title_from_slug(old)):
+        page["title"] = title or title_from_slug(new)
+    page_path.write_text(json.dumps({**page, "slug": new}, indent=2) + "\n")
+    rebuild(root)
+    print(f"renamed page {old} -> {new}")
     return 0
 
 

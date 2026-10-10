@@ -1,4 +1,4 @@
-"""bench: argparse wiring for import/list/rm/rebuild/serve/publish/run/models."""
+"""bench: argparse wiring for import/list/rm/rename/rebuild/serve/publish/run/models."""
 
 import argparse
 import subprocess
@@ -11,7 +11,7 @@ from .importer import cmd_import
 from .kinds import KINDS
 from .runner import cmd_models, cmd_run
 from .serve import serve_forever
-from .site import cmd_list, cmd_rm, rebuild
+from .site import cmd_list, cmd_rename, cmd_rm, rebuild
 from .util import BenchError
 
 
@@ -35,6 +35,11 @@ def build_parser():
     rm = sub.add_parser("rm", parents=[common], help="remove a run, or a whole page")
     rm.add_argument("slug")
     rm.add_argument("run_id", nargs="?")
+
+    rn = sub.add_parser("rename", parents=[common], help="give a page a new slug (and optionally a title)")
+    rn.add_argument("slug")
+    rn.add_argument("new_slug")
+    rn.add_argument("-t", "--title", help="also set the page title (default: follows the slug if it was derived from it)")
 
     sub.add_parser("rebuild", parents=[common], help="regenerate page.json + pages.json")
 
@@ -105,6 +110,8 @@ def main(argv=None):
             return cmd_list(root)
         if args.command == "rm":
             return cmd_rm(root, args.slug, args.run_id)
+        if args.command == "rename":
+            return cmd_rename(root, args.slug, args.new_slug, args.title)
         if args.command == "rebuild":
             rebuild(root)
             return 0

@@ -137,7 +137,7 @@ def check_viewer(sync_api, base, run_id):
         pg = browser.new_page()
         errors = []
         pg.on("pageerror", lambda e: errors.append(str(e)))
-        pg.goto(f"{base}page.html?p=a-spinning-horse")
+        pg.goto(f"{base}page.html?p=a-spinning-horse&view=table")
         pg.wait_for_selector("table.runs tbody tr.run-row")
         assert pg.locator(".page-meta .kind-chip").text_content() == "Web"
         pg.locator("tr.run-row").click()

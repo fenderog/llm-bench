@@ -153,3 +153,33 @@ def test_rebuild_removes_legacy_results(bench_root, batch_dir):
     main(["rebuild", "--root", str(bench_root)])
     assert not legacy.exists()
     assert len(json.loads(legacy.with_name("page.json").read_text())["runs"]) == 2
+
+
+def test_rename_moves_page_and_rewrites_slug(bench_root, batch_dir):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
+    rc = main(["rename", "voxel-horse", "horse", "--root", str(bench_root)])
+    assert rc == 0
+    data = bench_root / "docs/data"
+    assert not (data / "voxel-horse").exists()
+    page = json.loads((data / "horse/page.json").read_text())
+    assert page["slug"] == "horse"
+    assert page["title"] == "Horse"  # a title derived from the old slug follows it
+    assert all(r["page"] == "horse" for r in page["runs"])
+    pages = json.loads((data / "pages.json").read_text())
+    assert [p["slug"] for p in pages] == ["horse"]
+    assert pages[0]["thumb"].startswith("data/horse/runs/")
+
+    main(["rename", "horse", "stallion", "-t", "Big Stallion", "--root", str(bench_root)])
+    assert json.loads((data / "stallion/page.json").read_text())["title"] == "Big Stallion"
+
+    main(["rename", "stallion", "pony", "--root", str(bench_root)])
+    assert json.loads((data / "pony/page.json").read_text())["title"] == "Big Stallion"  # a custom title stays
+
+
+def test_rename_refuses_bad_targets(bench_root, batch_dir):
+    main(["import", str(batch_dir), "--root", str(bench_root)])
+    root = str(bench_root)
+    assert main(["rename", "nope", "x", "--root", root]) != 0
+    assert main(["rename", "voxel-horse", "Bad Slug", "--root", root]) != 0
+    assert main(["rename", "voxel-horse", "voxel-horse", "--root", root]) != 0
+    assert (bench_root / "docs/data/voxel-horse").is_dir()
