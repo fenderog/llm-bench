@@ -123,6 +123,29 @@ export function rankBy(runs, key) {
   return ranks;
 }
 
+// Which runs hold the best (lowest) value of each LOWER_IS_BETTER metric among `runs`: { metric: Set(run id) }.
+export function bestSets(runs) {
+  const best = {};
+  for (const key of Object.keys(LOWER_IS_BETTER)) {
+    const ranks = rankBy(runs, key);
+    best[key] = new Set([...ranks].filter(([, rank]) => rank === 1).map(([id]) => id));
+  }
+  return best;
+}
+
+// A run with nothing to look at: the agent didn't complete, or the kind step made no usable output.
+export function isFailed(run) {
+  return !isComplete(run) || run.output?.ok !== true;
+}
+
+// The page's filter bar: `f` = { vendors, efforts, models } (arrays, empty = any) and { verified, hideFailed } (booleans).
+export function filterRuns(runs, f) {
+  const any = (list, value) => !list?.length || list.includes(value);
+  return runs.filter((r) =>
+    any(f.vendors, vendorOf(r.model)) && any(f.efforts, r.effort) && any(f.models, r.model) &&
+    (!f.verified || r.output?.verified === true) && (!f.hideFailed || !isFailed(r)));
+}
+
 // Ranked runs first (by rank), then everything else by model and effort.
 export function byRankThenModel(a, b) {
   const ra = a.rank ?? Infinity, rb = b.rank ?? Infinity;

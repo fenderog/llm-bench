@@ -33,9 +33,16 @@
       <h2>Runs</h2>
       <span class="count" id="runs-count"></span>
       <span class="spacer"></span>
+      <div class="view-toggle" role="group" aria-label="View">
+        <button type="button" class="chip" data-view="grid">Grid</button>
+        <button type="button" class="chip" data-view="table">Table</button>
+      </div>
+      <button id="play-all" class="btn" type="button" hidden title="Each game runs in its own sandbox and downloads its own copy of the engine (about 38 MB for Godot), so starting many at once downloads a lot.">&#9654; Play all</button>
       <a id="compare-all" class="btn" href="#">Compare all</a>
     </div>
-    <div class="table-wrap">
+    <div class="filters" id="filters" role="group" aria-label="Filter runs" hidden></div>
+    <div id="grid" class="run-grid" hidden></div>
+    <div class="table-wrap" id="table-wrap">
       <table class="runs" id="runs-table">
         <thead></thead>
         <tbody></tbody>
@@ -43,6 +50,11 @@
     </div>
   </section>
 </main>
+<div class="select-bar" id="select-bar" role="region" aria-label="Selected runs" hidden>
+  <span id="select-count"></span>
+  <a id="compare-selected" class="btn" href="#">Compare</a>
+  <button id="select-clear" class="btn btn-secondary" type="button">Clear</button>
+</div>
 <script type="module" src="assets/page.js"></script>
 </body>
 </html>

@@ -506,9 +506,22 @@ table.metrics .hint { color: var(--ink-3); margin-left: 8px; }
 .compare-body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .compare-col[data-vendor] { background: color-mix(in srgb, var(--vendor) 4%, var(--surface)); box-shadow: inset 0 3px 0 color-mix(in srgb, var(--vendor) 50%, transparent), var(--shadow); }
 .compare-col.is-failed { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
-.compare-col h3 { margin: 0; font-size: 1rem; display: flex; align-items: flex-start; gap: 8px 12px; flex-wrap: wrap; justify-content: space-between; }
-.compare-col h3 > a { min-width: 0; }
-.compare-col h3 .effort { margin-top: 2px; }
+.compare-col h3 { margin: 0; font-size: 1rem; display: flex; align-items: flex-start; gap: 6px 12px; flex-wrap: wrap; justify-content: space-between; }
+.card-title { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+.card-title > a { min-width: 0; }
+.card-tags { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.card-tags .effort { margin-top: 0; }
+.compare-col .rank-chip { font-size: 1.25rem; }
+input.run-select { width: 16px; height: 16px; margin: 3px 0 0; flex: none; accent-color: var(--accent); cursor: pointer; }
+/* Few runs (compare, up to 4): equal columns filling the page, two across on mid widths, one on phones. */
+.compare-columns.is-few { grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); }
+@media (max-width: 1000px) { .compare-columns.is-few { grid-template-columns: repeat(var(--cols-mid), minmax(0, 1fr)); } }
+@media (max-width: 640px) { .compare-columns.is-few { grid-template-columns: minmax(0, 1fr); } }
+/* page.html's grid: denser cards, the harness dropped from the metrics line (it is on the run page and in the table). */
+.compare-columns.is-dense { grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+.is-dense .compare-col { padding: 12px; }
+.is-dense .compare-metrics .harness-label, .is-dense .compare-metrics .harness-label + .sep { display: none; }
+.is-dense .compare-metrics { font-size: 12.5px; }
 .compare-col .run-error, .compare-col .msg { margin: 0; }
 .compare-metrics { font-size: 13px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 2px 0; font-variant-numeric: tabular-nums; }
 .compare-metrics b { color: var(--ink); font-weight: 650; }
@@ -527,13 +540,51 @@ table.metrics .hint { color: var(--ink-3); margin-left: 8px; }
 .media-box img, .media-box video { display: block; width: 100%; height: 100%; object-fit: contain; }
 .media-item figcaption { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; overflow-wrap: anywhere; display: flex; gap: 10px; justify-content: space-between; font-variant-numeric: tabular-nums; }
 .media-item figcaption a { flex: none; }
-.compare-col .media-grid { grid-template-columns: 1fr; }
+.media-box { position: relative; }
 .compare-col .media-box { border-radius: var(--r-sm); }
-.gallery .card .thumb { object-fit: contain; aspect-ratio: 1 / 1; background: repeating-conic-gradient(var(--checker-a) 0 25%, var(--checker-b) 0 50%) 0 0 / 14px 14px; }
-.gallery .thumb-ph { aspect-ratio: 1 / 1; }
-.gallery .card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.gallery .card-more { font-size: 12px; color: var(--ink-3); }
-.gallery.card-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 14px; }
+/* "3 files · 1 video" (cards) / "×3" (table thumbnail): in the corner of the media, readable on any image. */
+.media-count {
+  position: absolute; top: 6px; right: 6px; z-index: 1; padding: 1px 8px; border-radius: 999px; pointer-events: none;
+  background: rgba(14, 14, 12, 0.72); color: #fff; font: 600 12px/1.6 var(--font); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+/* A media card: the hero (fixed 4:3 box) and below it one fixed-height strip of thumbnails that swap the hero. */
+.media-card { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.media-strip { display: flex; gap: 6px; height: 46px; overflow-x: auto; scrollbar-width: thin; }
+.media-thumb {
+  position: relative; flex: none; width: 60px; height: 100%; padding: 0; overflow: hidden; cursor: pointer;
+  border: 2px solid var(--line); border-radius: var(--r-sm); background: repeating-conic-gradient(var(--checker-a) 0 25%, var(--checker-b) 0 50%) 0 0 / 10px 10px;
+}
+.media-thumb:hover { border-color: var(--line-strong); }
+.media-thumb[aria-current="true"] { border-color: var(--accent); }
+.media-thumb img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.media-thumb.is-video::after {
+  content: "\25B6"; position: absolute; right: 2px; bottom: 2px; font-size: 8px; line-height: 1; color: #fff;
+  background: rgba(14, 14, 12, 0.72); padding: 2px 3px 2px 4px; border-radius: 3px;
+}
+
+/* ---- runs: view toggle, filter bar, selection ---- */
+.view-toggle { display: inline-flex; gap: 4px; }
+.view-toggle .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.run-grid[hidden] { display: none; }
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; margin: 0 0 16px; }
+.filters[hidden] { display: none; }
+.filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.filter-label { font-size: 12px; font-weight: 600; color: var(--ink-3); margin-right: 2px; }
+.filter-chip { padding: 2px 10px; font-size: 12.5px; }
+.filter-chip[data-vendor] { border-color: color-mix(in srgb, var(--vendor) 45%, var(--line-strong)); background: color-mix(in srgb, var(--vendor) 7%, var(--surface)); }
+.filter-chip.chip-active[data-vendor] { background: var(--vendor); border-color: var(--vendor); color: #fff; }
+.filter-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.filter-clear { background: none; border: 0; padding: 2px 4px; color: var(--accent); font: 500 13px var(--font); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.select-bar {
+  position: fixed; left: 50%; bottom: 18px; z-index: 30; transform: translateX(-50%); display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px 8px 18px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 999px;
+  box-shadow: var(--shadow-lift); font-size: 14px; font-weight: 600; white-space: nowrap; max-width: calc(100vw - 24px);
+}
+.select-bar[hidden] { display: none; }
+td.select-cell { white-space: nowrap; }
+td.select-cell input.run-select { vertical-align: middle; margin: 0 6px 0 0; }
+.thumb-box { position: relative; }
+.thumb-box .media-count { top: 4px; right: 4px; padding: 0 6px; font-size: 11px; }
 
 /* ---- phones ---- */
 /* ---- your ranking ---- */
@@ -558,6 +609,8 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
 }
 @media (min-width: 721px) and (max-width: 799px) {
   table.runs th[data-key="thumb"], table.runs td[data-col="thumb"] { display: none; }
+  tr.run-row .caret { display: none; }
+  tr.run-row td:first-child { padding-left: 8px; }
 }
 
 @media (max-width: 720px) {
@@ -576,8 +629,8 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
   .stat { padding: 9px 10px; }
   .stat-value { font-size: 1.08rem; }
   .turn { padding-left: 16px; }
-  .gallery.card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .gallery .card .card-body { padding: 10px; }
+  .select-bar { bottom: 10px; padding-left: 14px; gap: 8px; }
+  .filters { gap: 10px; }
 
   .tabs button { padding: 10px 10px 9px; }
   .run-switcher { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
@@ -602,7 +655,11 @@ td.rank-cell .rank { font-size: 1.35rem; font-variant-numeric: tabular-nums; fon
   table.runs tr.run-row[data-vendor] td:first-child { box-shadow: none; }
   table.runs tr.run-row.is-failed { box-shadow: inset 3px 0 0 var(--bad), var(--shadow); }
   table.runs td { display: block; padding: 0; border: 0; min-width: 0; white-space: normal; text-align: left !important; }
-  tr.run-row td:first-child { display: none; }
+  table.runs tr.run-row { position: relative; }
+  table.runs td.select-cell { position: absolute; top: 12px; right: 12px; padding: 0; }
+  td.select-cell input.run-select { width: 20px; height: 20px; margin: 0; }
+  td.select-cell .caret { display: none; }
+  table.runs td[data-col="model"] { padding-right: 28px; }
   table.runs td.thumb-cell { grid-row: 1 / span 2; grid-column: 1; width: auto; padding: 0; }
   img.row-thumb, .thumb-none { width: 100%; height: auto; aspect-ratio: 16 / 10; }
   table.runs td[data-col="model"] { grid-column: 2 / -1; }

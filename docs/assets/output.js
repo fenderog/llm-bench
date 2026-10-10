@@ -86,15 +86,44 @@ export function mediaGallery(items, base) {
   return grid;
 }
 
+// "3 files · 1 video": how many outputs a media run has, for the corner badge on its card and table thumbnail.
+export function mediaCount(items) {
+  const videos = items.filter((i) => i.type === "video").length;
+  return `${items.length} files${videos ? ` · ${videos} video${videos === 1 ? "" : "s"}` : ""}`;
+}
+
+// A media run on a card, at a fixed height: one output as the hero (a video if there is one; it still starts on a
+// click), a corner badge counting the outputs, and a strip of small thumbnails that swap the hero in place.
+// Everything is shown through mediaElement(), so model-made SVGs stay <img> (ADR-0004).
+export function mediaCard(items, base) {
+  const box = el("div", { class: "media-box" });
+  const thumbs = items.length > 1 ? items.map((item, i) => {
+    const src = item.type === "video" ? item.poster : item.path;
+    const label = item.path.split("/").pop();
+    return el("button", {
+      class: item.type === "video" ? "media-thumb is-video" : "media-thumb",
+      attrs: { type: "button", title: label, "aria-label": `Show ${label}` },
+      on: { click: () => show(i) },
+    }, [src ? el("img", { attrs: { src: base + src, alt: "", loading: "lazy" } }) : null]);
+  }) : [];
+  const show = (i) => {
+    box.replaceChildren(...[mediaElement(items[i], base), items.length > 1 ? el("span", { class: "media-count", text: mediaCount(items) }) : null].filter(Boolean));
+    thumbs.forEach((t, j) => t.setAttribute("aria-current", String(j === i)));
+  };
+  if (items.length) show(Math.max(0, items.findIndex((i) => i.type === "video")));
+  return el("div", { class: "media-card" }, [box, thumbs.length ? el("div", { class: "media-strip" }, thumbs) : null]);
+}
+
 // A run's output wherever it is shown, as an array of nodes: the kind step's own error (if any), then
 // the media gallery, the game or page in the sandbox, or the "no output" message.
 // Games and pages start on a click (a thumbnail with a play button) unless `autoplay` (the click was
-// opening the row or the window); `frameClass` is the wrapper of an autoplaying frame.
-export function renderOutput(run, base, { autoplay = false, frameClass = "game-frame" } = {}) {
+// opening the row or the window); `frameClass` is the wrapper of an autoplaying frame. `compact` (cards)
+// shows media as one hero with a thumbnail strip instead of the full captioned gallery.
+export function renderOutput(run, base, { autoplay = false, frameClass = "game-frame", compact = false } = {}) {
   const out = run.output;
   const nodes = out?.error ? [el("p", { class: "run-error", text: out.error })] : [];
   if (!out?.ok) return [...nodes, el("p", { class: "msg", text: kindUi(run.kind).none })];
-  if (out.kind === "media") return [...nodes, mediaGallery(out.items, base)];
+  if (out.kind === "media") return [...nodes, (compact ? mediaCard : mediaGallery)(out.items || [], base)];
   const entry = base + out.entry;
   return [...nodes, autoplay ? el("div", { class: frameClass }, [sandboxedGame(entry)]) : buildGameFrame(entry, run.thumb ? base + run.thumb : null)];
 }

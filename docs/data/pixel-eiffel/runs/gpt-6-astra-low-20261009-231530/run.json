@@ -1,0 +1,53 @@
+{
+  "id": "gpt-6-astra-low-20261009-231530",
+  "page": "pixel-eiffel",
+  "model": "openai-codex/gpt-6-astra",
+  "effort": "low",
+  "kind": "media",
+  "started_at": "2026-10-10T06:16:16Z",
+  "batch": "2026-10-09-231530-pixel-eiffel",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 96613,
+    "cost_usd": 0.21606,
+    "tool_calls": 4,
+    "turns": 5,
+    "tokens_total": 8226,
+    "tokens_input": 5089,
+    "tokens_output": 3137,
+    "tokens_reasoning": 74,
+    "tokens_cache_read": 8320
+  },
+  "thumb": "media/eiffel-pixel.jpg",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 960,
+        "height": 1200,
+        "bytes": 246976,
+        "path": "media/eiffel-pixel.jpg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "make_art.py"
+    ]
+  }
+}

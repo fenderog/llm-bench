@@ -1,11 +1,28 @@
-import { qs, el, loadPage, showMessage, badge } from "./dom.js";
+import { qs, el, loadPage, showMessage, badge, setQuery } from "./dom.js";
 import { fmtNum, fmtDuration, fmtCost, fmtDate, fmtDateShort } from "./fmt.js";
-import { runDir, harnessLabel, stateBadge, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, LOWER_IS_BETTER, isComplete, rankLabel, canEditRanks, saveRanks, byRankThenModel, rankChip, vendorOptions, playUrl } from "./runs.js";
+import { runDir, harnessLabel, stateBadge, effortPill, effortIndex, modelLabel, modelParts, runUrl, byModelThenEffort, rankBy, bestSets, filterRuns, LOWER_IS_BETTER, isComplete, rankLabel, canEditRanks, saveRanks, vendorOptions, playUrl } from "./runs.js";
 import { COLUMN_HELP, rowHelp } from "./help.js";
-import { outputBadge, outputVerified, isPlayable, renderOutput, kindUi } from "./output.js";
+import { outputBadge, outputVerified, isPlayable, renderOutput, kindUi, mediaCount } from "./output.js";
+import { renderRunGrid, setupPlayAll } from "./card.js";
+import { createSelection, selectBox } from "./selection.js";
+import { readFilters, renderFilterBar } from "./filters.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
+const VIEW_KEY = "bench.view"; // "grid" (default) or "table", remembered in localStorage; ?view= wins
+const GROUP_FROM = 15; // fewer runs than this are one flat grid; more are grouped by vendor
+
+function initialView() {
+  const views = ["grid", "table"];
+  if (views.includes(qs("view"))) return qs("view");
+  try {
+    const saved = localStorage.getItem(VIEW_KEY);
+    if (views.includes(saved)) return saved;
+  } catch {} // storage blocked
+  return "grid";
+}
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 const COLUMNS = [
   { key: "rank", label: "Rank", get: (r) => r.rank ?? null, num: false },
@@ -40,10 +57,49 @@ function render(page, runs, editable) {
   renderHighlights(runs);
 
   document.getElementById("compare-all").href = `compare.html?p=${encodeURIComponent(slug)}`;
-  document.getElementById("runs-count").textContent = `${runs.length} run${runs.length === 1 ? "" : "s"}`;
-  if (isMedia) {
-    main.classList.add("media-page");
-    renderGallery(runs);
+  if (isMedia) main.classList.add("media-page");
+
+  // What is shown: the runs left by the filter bar, as a grid of cards (default) or the table. Both views share the
+  // filters (in the URL) and the ticked runs (selection.js).
+  const filters = readFilters();
+  const selection = createSelection(slug, runs.map((r) => r.id));
+  const grid = document.getElementById("grid");
+  const tableWrap = document.getElementById("table-wrap");
+  const updatePlayAll = setupPlayAll(document.getElementById("play-all"), grid);
+  let view = initialView();
+  let shown = runs;
+  selection.onChange = syncSelection;
+  renderFilterBar(document.getElementById("filters"), runs, filters, draw);
+  for (const btn of document.querySelectorAll("[data-view]")) {
+    btn.addEventListener("click", () => {
+      view = btn.dataset.view;
+      try { localStorage.setItem(VIEW_KEY, view); } catch {}
+      setQuery({ view });
+      draw();
+    });
+  }
+  document.getElementById("select-clear").addEventListener("click", () => selection.clear());
+
+  function draw() {
+    shown = filterRuns(runs, filters);
+    document.getElementById("runs-count").textContent = shown.length === runs.length ? plural(runs.length, "run") : `${shown.length} of ${plural(runs.length, "run")}`;
+    for (const btn of document.querySelectorAll("[data-view]")) btn.setAttribute("aria-pressed", String(btn.dataset.view === view));
+    const empty = !shown.length;
+    grid.hidden = view !== "grid" && !empty;
+    tableWrap.hidden = view !== "table" || empty;
+    if (empty) showMessage(grid, "No runs match the filters.");
+    else if (view === "grid") renderRunGrid(grid, slug, shown, { groupFrom: GROUP_FROM, selection, dense: true });
+    else drawTable();
+    updatePlayAll();
+  }
+
+  // The "N selected · Compare · Clear" bar, and every checkbox on screen.
+  function syncSelection() {
+    const ids = selection.ids;
+    document.getElementById("select-bar").hidden = !ids.length;
+    document.getElementById("select-count").textContent = `${ids.length} selected`;
+    document.getElementById("compare-selected").href = `compare.html?p=${encodeURIComponent(slug)}&r=${ids.map(encodeURIComponent).join(",")}`;
+    for (const box of document.querySelectorAll("input.run-select")) box.checked = selection.has(box.dataset.id);
   }
 
   // Default order: your ranking when there is one; otherwise by model, then effort low → high,
@@ -57,11 +113,6 @@ function render(page, runs, editable) {
   const table = document.getElementById("runs-table");
   const thead = table.querySelector("thead");
   const tbody = table.querySelector("tbody");
-  const best = {};
-  for (const key of Object.keys(LOWER_IS_BETTER)) {
-    const ranks = rankBy(runs, key);
-    best[key] = new Set([...ranks].filter(([, rank]) => rank === 1).map(([id]) => id));
-  }
 
   const headRow = el("tr", {}, [
     el("th", { attrs: { "data-help": rowHelp(isMedia).expand } }),
@@ -86,7 +137,8 @@ function render(page, runs, editable) {
     }
     const col = COLUMNS.find((c) => c.key === sortKey);
     const val = col.sortVal || col.get;
-    const rows = [...runs].sort((a, b) => {
+    const best = bestSets(shown); // the stars compare the runs on screen
+    const rows = [...shown].sort((a, b) => {
       const va = val(a);
       const vb = val(b);
       if (va == null && vb == null) return byModelThenEffort(a, b);
@@ -98,7 +150,7 @@ function render(page, runs, editable) {
     });
 
     const maxes = {};
-    for (const c of COLUMNS) if (c.num) maxes[c.key] = Math.max(1, ...runs.map((r) => c.get(r) || 0));
+    for (const c of COLUMNS) if (c.num) maxes[c.key] = Math.max(1, ...shown.map((r) => c.get(r) || 0));
 
     tbody.replaceChildren();
     for (const r of rows) {
@@ -106,7 +158,11 @@ function render(page, runs, editable) {
       const thumb = r.thumb
         ? el("a", { attrs: { href: url, "aria-label": "Open run" } }, [el("img", { class: "row-thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })])
         : el("span", { class: "thumb-none", text: "–" });
-      const tds = [el("td", {}, [el("span", { class: "caret", text: "▶" })]), el("td", { class: "thumb-cell", attrs: { "data-col": "thumb" } }, [thumb])];
+      const files = r.output?.kind === "media" ? (r.output.items || []).length : 0; // "×3" when a media run made several
+      const tds = [
+        el("td", { class: "select-cell" }, [selectBox(r, selection), el("span", { class: "caret", text: "▶" })]),
+        el("td", { class: "thumb-cell", attrs: { "data-col": "thumb" } }, [el("div", { class: "thumb-box" }, [thumb, files > 1 ? el("span", { class: "media-count", text: `×${files}`, attrs: { title: mediaCount(r.output.items) } }) : null])]),
+      ];
       for (const c of COLUMNS) {
         const v = c.get(r);
         const attrs = { "data-col": c.key, "data-label": c.label };
@@ -152,7 +208,7 @@ function render(page, runs, editable) {
         else tr.after(detailRow(r, url));
       };
       tr.addEventListener("click", (e) => {
-        if (!e.target.closest("a, button")) toggle();
+        if (!e.target.closest("a, button, input, select")) toggle();
       });
       tr.addEventListener("keydown", (e) => {
         if (e.target === tr && (e.key === "Enter" || e.key === " ")) {
@@ -202,7 +258,8 @@ function render(page, runs, editable) {
     const body = [...errorLine, ...renderOutput(r, runDir(slug, r.id), { autoplay: true }), links];
     return el("tr", { class: "run-detail" }, [el("td", { attrs: { colspan: String(COLUMNS.length + 2) } }, [el("div", { class: "detail-inner" }, body)])]);
   }
-  drawTable();
+  draw();
+  syncSelection();
 }
 
 // "Game · 11 runs · 3 models · updated Sep 27, 2026"
@@ -253,33 +310,6 @@ function renderHighlights(runs) {
   );
   box.append(...tiles);
   box.hidden = false;
-}
-
-// Media pages: one card per run (its first output, or poster frame), linking to the run page.
-function renderGallery(runs) {
-  const grid = el("div", { class: "card-grid gallery", attrs: { id: "gallery" } });
-  for (const r of [...runs].sort(byRankThenModel)) {
-    const n = (r.output?.items || []).length;
-    const sb = stateBadge(r) || outputBadge(r);
-    const thumb = r.thumb
-      ? el("img", { class: "thumb", attrs: { src: runDir(slug, r.id) + r.thumb, alt: "", loading: "lazy" } })
-      : el("div", { class: "thumb-ph", text: "no output" });
-    grid.append(
-      el("a", { class: "card", attrs: { href: runUrl(slug, r.id) } }, [
-        thumb,
-        el("div", { class: "card-body" }, [
-          el("div", { class: "card-head" }, [rankChip(r.rank), effortPill(r.effort), sb || (n > 1 ? el("span", { class: "card-more", text: `${n} files` }) : null)]),
-          el("div", { class: "card-meta", text: modelParts(r.model).short, attrs: { title: r.model } }),
-          el("div", { class: "card-meta", text: `${fmtCost(r.metrics.cost_usd)} · ${fmtDuration(r.metrics.duration_ms)}` }),
-        ]),
-      ])
-    );
-  }
-  const section = el("section", { class: "section" }, [
-    el("div", { class: "section-head" }, [el("h2", { text: "Gallery" }), el("span", { class: "count", text: "click an image to open its run" })]),
-    grid,
-  ]);
-  document.getElementById("runs-section").before(section);
 }
 
 // Column help as a custom tooltip: native title tooltips can't be shown sooner than ~1-2s.

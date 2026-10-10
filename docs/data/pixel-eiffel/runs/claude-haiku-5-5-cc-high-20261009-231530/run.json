@@ -1,0 +1,47 @@
+{
+  "id": "claude-haiku-5-5-cc-high-20261009-231530",
+  "page": "pixel-eiffel",
+  "model": "anthropic/claude-haiku-5-5",
+  "effort": "high",
+  "kind": "media",
+  "started_at": "2026-10-10T06:18:26Z",
+  "batch": "2026-10-09-231530-pixel-eiffel",
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.296"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 99077,
+    "cost_usd": 0.01783071,
+    "tool_calls": 4,
+    "turns": 4,
+    "tokens_total": 24080,
+    "tokens_input": 8,
+    "tokens_output": 24072,
+    "tokens_reasoning": 20325,
+    "tokens_cache_read": 77451
+  },
+  "thumb": "media/eiffel-16bit.jpg",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 600,
+        "height": 750,
+        "bytes": 126476,
+        "path": "media/eiffel-16bit.jpg"
+      }
+    ],
+    "ok": true,
+    "verified": false,
+    "error": "make_eiffel.py: unsupported file type"
+  },
+  "session": {
+    "conversation": "session/conversation.json"
+  },
+  "source": null
+}

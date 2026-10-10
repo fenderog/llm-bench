@@ -10,6 +10,17 @@ export function qsList(name) {
   return v.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
+// Updates the URL's query string in place (no navigation, no history entry); null, "" and false remove a key.
+export function setQuery(changes) {
+  const params = new URLSearchParams(location.search);
+  for (const [k, v] of Object.entries(changes)) {
+    if (v == null || v === "" || v === false) params.delete(k);
+    else params.set(k, v === true ? "1" : v);
+  }
+  const query = params.toString().replaceAll("%2C", ",").replaceAll("%2F", "/");
+  history.replaceState(null, "", `${location.pathname}${query ? "?" + query : ""}${location.hash}`);
+}
+
 // Tiny DOM builder. `text` is always set via textContent (never HTML).
 export function el(tag, opts = {}, children = []) {
   const node = document.createElement(tag);

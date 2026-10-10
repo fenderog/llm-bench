@@ -1,0 +1,53 @@
+{
+  "id": "muse-spark-1.3-contributor-minimal-20261009-231530",
+  "page": "pixel-eiffel",
+  "model": "meta/muse-spark-1.3-contributor",
+  "effort": "minimal",
+  "kind": "media",
+  "started_at": "2026-10-10T06:20:05Z",
+  "batch": "2026-10-09-231530-pixel-eiffel",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 38880,
+    "cost_usd": 0.0009743779999999999,
+    "tool_calls": 5,
+    "turns": 6,
+    "tokens_total": 7367,
+    "tokens_input": 5342,
+    "tokens_output": 2025,
+    "tokens_reasoning": 353,
+    "tokens_cache_read": 17589
+  },
+  "thumb": "media/eiffel-16bit.jpg",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 384,
+        "height": 480,
+        "bytes": 23902,
+        "path": "media/eiffel-16bit.jpg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "make.py"
+    ]
+  }
+}
