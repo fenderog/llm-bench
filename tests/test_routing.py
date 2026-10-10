@@ -7,18 +7,18 @@ from pathlib import Path
 
 import pytest
 
-from bench.cli import main
-from bench.config import Config, RunRequest
-from bench.harness import split_model_route, split_route
-from bench.runner import plan_runs
-from bench.util import BenchError, make_run_id
+from art_crit.cli import main
+from art_crit.config import Config, RunRequest
+from art_crit.harness import split_model_route, split_route
+from art_crit.runner import plan_runs
+from art_crit.util import CritError, make_run_id
 
 STARTED = datetime(2026, 10, 1, 10, 15, 0)
 FAKE_PI = Path(__file__).parent / "fixtures" / "fake_pi"
 
 
 def plan_for(specs, effort=None):
-    """plan_runs for a request with no bench.toml (no model sets)."""
+    """plan_runs for a request with no art-crit.toml (no model sets)."""
     return plan_runs(Config.load(Path("/nonexistent")), RunRequest(prompt="p", model_specs=specs, effort=effort))
 
 
@@ -46,14 +46,14 @@ def fake_build(monkeypatch):
         (out_dir / "export-manifest.json").write_text(json.dumps(manifest) + "\n")
         return True, manifest, None
 
-    monkeypatch.setattr("bench.kinds.godot.export_project", fake_export_project)
-    monkeypatch.setattr("bench.kinds.godot.Godot.verify", lambda self, out_dir: None)
+    monkeypatch.setattr("art_crit.kinds.godot.export_project", fake_export_project)
+    monkeypatch.setattr("art_crit.kinds.godot.Godot.verify", lambda self, out_dir: None)
 
 
 @pytest.fixture
 def run_root(bench_root, tmp_path):
-    runs_dir = tmp_path / "bench-runs"
-    (bench_root / "bench.toml").write_text(f'[run]\ndir = "{runs_dir}"\nparallel = 8\ntimeout = "30m"\n')
+    runs_dir = tmp_path / "art-crit-runs"
+    (bench_root / "art-crit.toml").write_text(f'[run]\ndir = "{runs_dir}"\nparallel = 8\ntimeout = "30m"\n')
     return bench_root
 
 
@@ -74,7 +74,7 @@ def test_split_route_multiple_slugs_and_no_levels():
 
 def test_split_route_bad_slugs():
     for bad in ("openrouter/x/y@", "openrouter/x/y@:low", "openrouter/x/y@a b:low", "openrouter/x/y@a!:low"):
-        with pytest.raises(BenchError):
+        with pytest.raises(CritError):
             split_route(bad)
 
 
@@ -100,17 +100,17 @@ def test_plan_two_upstreams_are_separate_models_with_merged_levels():
 
 
 def test_plan_route_on_non_openrouter_is_an_error():
-    with pytest.raises(BenchError, match="@UPSTREAM only works for pi openrouter/"):
+    with pytest.raises(CritError, match="@UPSTREAM only works for pi openrouter/"):
         plan_for(["openai-codex/gpt-6-sol@deepinfra:low"], None)
 
 
 def test_plan_route_on_claude_code_is_an_error():
-    with pytest.raises(BenchError, match="@UPSTREAM only works for pi openrouter/"):
+    with pytest.raises(CritError, match="@UPSTREAM only works for pi openrouter/"):
         plan_for(["claude-code:opus@deepinfra:low"], None)
 
 
 def test_plan_route_levels_checked_against_base_model():
-    with pytest.raises(BenchError, match="not supported"):
+    with pytest.raises(CritError, match="not supported"):
         plan_for(["openrouter/test/model@deepinfra:bogus"], None)
 
 
@@ -123,8 +123,8 @@ def test_plan_routed_and_unrouted_same_model_share_no_levels():
 
 
 def test_set_entry_with_route(tmp_path, run_root, capsys):
-    (run_root / "bench.toml").write_text(
-        (run_root / "bench.toml").read_text()
+    (run_root / "art-crit.toml").write_text(
+        (run_root / "art-crit.toml").read_text()
         + '\n[sets]\nrouted = ["openrouter/test/model@deepinfra:low"]\n')
     assert main(["run", "--dry-run", "cube", "--set", "routed", "--root", str(run_root)]) == 0
     assert "openrouter/test/model@deepinfra:low" in capsys.readouterr().out
@@ -147,7 +147,7 @@ def test_route_with_a_slash_keeps_the_model_name():
 
 
 def test_upstream_key_matches_slugs_to_display_names():
-    from bench.harness import upstream_key
+    from art_crit.harness import upstream_key
 
     # (slug, what OpenRouter reports) pairs seen on real endpoints
     for slug, name in [("deepinfra/fp8", "DeepInfra"), ("atlas-cloud/fp8", "AtlasCloud"), ("io-net/fp8", "Io Net"),
@@ -157,7 +157,7 @@ def test_upstream_key_matches_slugs_to_display_names():
 
 
 def test_routing_extension_exists():
-    from bench.harness import ROUTING_EXTENSION
+    from art_crit.harness import ROUTING_EXTENSION
 
     assert ROUTING_EXTENSION.name == "openrouter_routing.ts"
     assert ROUTING_EXTENSION.is_file()
@@ -207,7 +207,7 @@ def test_unrouted_run_passes_no_extension_or_env(run_root, monkeypatch, tmp_path
 
 
 def test_resume_reruns_routed_with_same_argv_env(run_root, monkeypatch, tmp_path):
-    from bench.config import Config
+    from art_crit.config import Config
 
     argv_file = tmp_path / "pi-argv.json"
     monkeypatch.setenv("FAKE_PI_ARGV", str(argv_file))
@@ -242,7 +242,7 @@ def test_routed_run_served_elsewhere_sets_error(run_root, monkeypatch):
 
 
 def test_read_route_parses_the_log(tmp_path):
-    from bench.harness import read_route
+    from art_crit.harness import read_route
 
     log = tmp_path / "route.jsonl"
     log.write_text('{"id": "g1", "provider": "DeepInfra"}\nnot json\n[1]\n')
@@ -256,10 +256,10 @@ def test_read_route_parses_the_log(tmp_path):
 
 def test_unpinned_openrouter_run_records_upstream_and_real_cost(run_root, monkeypatch, tmp_path):
     """Every OpenRouter run loads the extension for the served upstream and the real charge;
-    only pinned runs get BENCH_OPENROUTER_ROUTING."""
+    only pinned runs get ART_CRIT_OPENROUTER_ROUTING."""
     argv_file = tmp_path / "pi-argv.json"
     monkeypatch.setenv("FAKE_PI_ARGV", str(argv_file))
-    monkeypatch.setenv("BENCH_OPENROUTER_ROUTING", '{"only": ["leaked"]}')  # a stray value from bench's own env
+    monkeypatch.setenv("ART_CRIT_OPENROUTER_ROUTING", '{"only": ["leaked"]}')  # a stray value from art_crit's own env
     monkeypatch.setenv("FAKE_PI_SERVED", "Fireworks")
     assert main(["run", "--yes", "unpinned run", "-m", "openrouter/test/model:low", "--root", str(run_root)]) == 0
     sent = json.loads(argv_file.read_text())
@@ -273,7 +273,7 @@ def test_unpinned_openrouter_run_records_upstream_and_real_cost(run_root, monkey
 
 
 def test_finish_hook_is_identity_except_for_pi_openrouter_runs(tmp_path):
-    from bench.harness import ClaudeCode, Pi
+    from art_crit.harness import ClaudeCode, Pi
 
     metrics = {"cost_usd": 0.5}
     assert ClaudeCode().finish(tmp_path, "anthropic/claude-opus-5-5", metrics) == metrics

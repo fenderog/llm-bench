@@ -1,4 +1,4 @@
-"""bench import: publishing run directories: ids/slugs, Godot engine dedupe + html rewrite, cleaning,
+"""art-crit import: publishing run directories: ids/slugs, Godot engine dedupe + html rewrite, cleaning,
 secrets, dry-run, idempotency. Uses the synthetic batch_dir fixture from conftest.py."""
 
 import json
@@ -6,9 +6,9 @@ from pathlib import Path
 
 from datetime import datetime
 
-from bench import clean
-from bench.cli import main
-from bench.util import make_run_id, title_from_slug
+from art_crit import clean
+from art_crit.cli import main
+from art_crit.util import make_run_id, title_from_slug
 
 
 def run_data_json(root, slug):
@@ -148,7 +148,7 @@ def test_cleaning_strips_keys_and_rewrites_home(bench_root, batch_dir):
 
 
 def test_bench_toml_extra_rewrite(bench_root, batch_dir):
-    (bench_root / "bench.toml").write_text('[clean]\nrewrite = { "/Volumes/M2SSD" = "<vol>" }\n')
+    (bench_root / "art-crit.toml").write_text('[clean]\nrewrite = { "/Volumes/M2SSD" = "<vol>" }\n')
     convo_path = batch_dir / "gpt-6-sol-low-20260926-001158" / "harness" / "conversation.json"
     convo_path.write_text(convo_path.read_text().replace("effort-runs/x", "/Volumes/M2SSD/effort-runs/x"))
 

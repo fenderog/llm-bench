@@ -15,7 +15,7 @@ Everything a model produces is untrusted:
 
 The site serves it from `fenderog.github.io`, an origin shared by all the owner's Pages sites. Script that
 runs there could read storage of that origin, change the viewer, or trick visitors. The owner's local
-`bench serve` also has a write API (0010) that such script must not reach.
+`art-crit serve` also has a write API (0010) that such script must not reach.
 
 ## Decision
 

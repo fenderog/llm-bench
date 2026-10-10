@@ -1,5 +1,5 @@
-"""`bench run`: plan, launch, collect, finalize, verify and import a batch of agent runs.
-See SPEC.md "Running benchmarks (bench run)". A fresh batch and a `--resume`d one both end in
+"""`art-crit run`: plan, launch, collect, finalize, verify and import a batch of agent runs.
+See SPEC.md "Running benchmarks (art-crit run)". A fresh batch and a `--resume`d one both end in
 `execute()`: for each run, either run its agent (if unfinished) or reuse its run.json, then the kind's
 output step if it hasn't succeeded yet, then import — with `--publish`, each run is imported and pushed
 as soon as its own output step is done, so the live site fills up while the batch still runs.
@@ -28,7 +28,7 @@ from .config import RunRequest
 from .harness import HARNESSES, add_tool_durations, split_harness
 from .importer import cmd_import
 from .kinds import KINDS
-from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError, iso_from_ms, make_run_id, parse_duration, title_from_slug
+from .util import LEVEL_INDEX, LEVEL_ORDER, CritError, iso_from_ms, make_run_id, parse_duration, title_from_slug
 
 # batch.json run states that mean "this agent hasn't produced a finished result yet".
 UNFINISHED = ("queued", "running")
@@ -48,7 +48,7 @@ def tool_version(name):
 
 
 def describe_tools(entries):
-    """bench.toml [run].tools entries ("python3 (standard library only)") -> the text listed in the
+    """art-crit.toml [run].tools entries ("python3 (standard library only)") -> the text listed in the
     brief, e.g. "python3 3.14.7 (standard library only), ffmpeg 9.0.2". Tools not on PATH are left
     out (with a note), so the brief never promises something the agent can't run."""
     listed = []
@@ -63,7 +63,7 @@ def describe_tools(entries):
 
 
 def expand_sets(config, set_args):
-    """--set NAME (from bench.toml [sets]) or --set FILE (one model[:levels] per line, # comments)
+    """--set NAME (from art-crit.toml [sets]) or --set FILE (one model[:levels] per line, # comments)
     -> the model specs, in order, exactly as if each had been given with -m."""
     sets = config.sets if set_args else {}
     specs = []
@@ -75,7 +75,7 @@ def expand_sets(config, set_args):
             specs += [line for line in lines if line]
         else:
             known = ", ".join(sorted(sets)) or "none defined"
-            raise BenchError(f"unknown model set {arg!r}: not in bench.toml [sets] ({known}) and not a file")
+            raise CritError(f"unknown model set {arg!r}: not in art-crit.toml [sets] ({known}) and not a file")
     return specs
 
 
@@ -97,30 +97,30 @@ def parse_model_spec(spec, known):
     name = spec if spec in known or not sep else model
     close = difflib.get_close_matches(name, known, n=3, cutoff=0.6)
     hint = f" (did you mean: {', '.join(close)}?)" if close else ""
-    raise BenchError(f"unknown model {name!r}{hint}; see `bench models`")
+    raise CritError(f"unknown model {name!r}{hint}; see `art-crit models`")
 
 
 def expand_levels(spec, supported, model):
     """spec: 'all' | 'off' | 'a..b' | 'a,b,c'. supported: this model's levels, in LEVEL_ORDER.
-    Raises BenchError naming the supported levels when a requested one isn't supported."""
+    Raises CritError naming the supported levels when a requested one isn't supported."""
     if spec == "all":
         return [level for level in supported if level != "off"]
     if spec == "off":
         if "off" not in supported:
-            raise BenchError(f"{model}: level 'off' not supported (supported: {', '.join(supported)})")
+            raise CritError(f"{model}: level 'off' not supported (supported: {', '.join(supported)})")
         return ["off"]
     if ".." in spec:
         a, b = spec.split("..", 1)
         for level in (a, b):
             if level not in LEVEL_INDEX:
-                raise BenchError(f"{model}: unknown level {level!r} (LEVEL_ORDER: {', '.join(LEVEL_ORDER)})")
+                raise CritError(f"{model}: unknown level {level!r} (LEVEL_ORDER: {', '.join(LEVEL_ORDER)})")
         lo, hi = LEVEL_INDEX[a], LEVEL_INDEX[b]
         wanted = list(LEVEL_ORDER[min(lo, hi) : max(lo, hi) + 1])
     else:
         wanted = [s.strip() for s in spec.split(",") if s.strip()]
     unsupported = [level for level in wanted if level not in supported]
     if unsupported:
-        raise BenchError(
+        raise CritError(
             f"{model}: level(s) {', '.join(unsupported)} not supported (supported: {', '.join(supported)})"
         )
     return [level for level in wanted if level != "off" or spec == "off"]
@@ -132,7 +132,7 @@ class Harnesses(dict):
 
     def __missing__(self, name):
         if name not in HARNESSES:
-            raise BenchError(f"unknown harness {name!r} (known: {', '.join(HARNESSES)})")
+            raise CritError(f"unknown harness {name!r} (known: {', '.join(HARNESSES)})")
         self[name] = HARNESSES[name]()
         return self[name]
 
@@ -145,7 +145,7 @@ def plan_runs(config, request, harnesses=None):
     harnesses = harnesses if harnesses is not None else Harnesses()
     model_specs = [*expand_sets(config, request.model_sets), *request.model_specs]
     if not model_specs:
-        raise BenchError("at least one -m MODEL or --set is required")
+        raise CritError("at least one -m MODEL or --set is required")
     effort_default = request.effort
     known, levels_by_model = {}, {}
     for spec in model_specs:
@@ -174,7 +174,7 @@ def assign_run_ids(plan, harnesses, started):
         display = harness.display_model(model_arg)
         run_id = make_run_id(display, level, started, harness.tag)
         if run_id in owner:
-            raise BenchError(f"{owner[run_id]!r} and {model_arg!r} both resolve to the run id {run_id!r}; run them in separate batches")
+            raise CritError(f"{owner[run_id]!r} and {model_arg!r} both resolve to the run id {run_id!r}; run them in separate batches")
         owner[run_id] = model_arg
         runs.append({"id": run_id, "harness": name, "model": display, "model_arg": model_arg, "level": level, "state": "queued"})
     return runs
@@ -462,12 +462,12 @@ def batch_versions(batch):
 def read_batch(batch_dir):
     batch = json.loads((Path(batch_dir) / "batch.json").read_text())
     if any("id" not in r for r in batch["runs"]):
-        raise BenchError(f"{batch_dir} was made by an older bench (one directory per model); it can't be resumed")
+        raise CritError(f"{batch_dir} was made by an older art-crit (one directory per model); it can't be resumed")
     return batch
 
 
 class Publisher:
-    """`bench run --publish`: import and push each run as it finishes, so the live site fills up while the
+    """`art-crit run --publish`: import and push each run as it finishes, so the live site fills up while the
     batch is still running (nothing is left for the batch's own import at the end; see `execute`).
     One run at a time: importing rewrites page.json, git needs the index to itself, and a push must never
     see a half-written run directory. A run that can't be published — a secret hit, a failed push — is
@@ -484,8 +484,8 @@ class Publisher:
         with self.lock:
             try:
                 cmd_import(self.config, self.batch_dir / run_id, page=self.slug, title=self.title)
-                cmd_publish(self.config.root, f"bench run: {self.slug} ({run_id})")
-            except BenchError as e:
+                cmd_publish(self.config.root, f"art-crit run: {self.slug} ({run_id})")
+            except CritError as e:
                 print(f"note: {run_id} not published: {e}", file=sys.stderr)
                 return
             self.published.add(run_id)
@@ -556,7 +556,7 @@ def execute(config, request, batch_dir, harnesses, verify=True):
                 r["state"] = "queued"
         save()
         progress.stop()
-        print(f"interrupted; resume with: bench run --resume {batch_dir}")
+        print(f"interrupted; resume with: art-crit run --resume {batch_dir}")
         sys.exit(130)
     pool.shutdown(wait=True)
     progress.stop()
@@ -587,28 +587,28 @@ def cmd_run(config, request, *, yes=False, dry_run=False, resume=None, verify=Tr
     if not prompt and existing:
         prompt = existing.get("prompt") or ""
     if not prompt:
-        raise BenchError("PROMPT or --prompt-file is required (or --page with an existing page, to reuse its prompt)")
+        raise CritError("PROMPT or --prompt-file is required (or --page with an existing page, to reuse its prompt)")
     if not request.model_specs and not request.model_sets:
-        raise BenchError("at least one -m MODEL or --set is required")
+        raise CritError("at least one -m MODEL or --set is required")
     slug = page or slug_from_prompt(prompt)
     existing = page_json(root, slug)
     page_exists = existing is not None
     page_kind = existing.get("kind", "godot") if page_exists else None
     kind = kind or page_kind or "godot"
     if page_exists and page_kind != kind:
-        raise BenchError(f"page {slug!r} holds {page_kind} runs; use --kind {page_kind} or another --page")
+        raise CritError(f"page {slug!r} holds {page_kind} runs; use --kind {page_kind} or another --page")
     # Every import replaces the page's prompt, so a different one would silently relabel the existing runs.
     if page_exists and not request.change_prompt and existing.get("prompt") and clean_prompt(config, prompt) != existing["prompt"]:
-        raise BenchError(
+        raise CritError(
             f"page {slug!r} was run with a different prompt:\n  {existing['prompt']}\n"
             "Leave the prompt out to reuse it, use another --page, or pass --change-prompt to replace it for the whole page."
         )
     if kind not in KINDS:
-        raise BenchError(f"unknown kind {kind!r} (expected one of: {', '.join(KINDS)})")
+        raise CritError(f"unknown kind {kind!r} (expected one of: {', '.join(KINDS)})")
     missing = KINDS[kind]().missing_tools()
     if missing:
         hint = KINDS[kind].tools_hint
-        raise BenchError(f"--kind {kind} needs {' and '.join(missing)} on PATH" + (f" ({hint})" if hint else ""))
+        raise CritError(f"--kind {kind} needs {' and '.join(missing)} on PATH" + (f" ({hint})" if hint else ""))
 
     plan = plan_runs(config, request, harnesses)
     versions = {name: harnesses[name].version() for name in dict.fromkeys(name for name, _, _ in plan)}
@@ -636,7 +636,7 @@ def cmd_run(config, request, *, yes=False, dry_run=False, resume=None, verify=Tr
 
     if not yes:
         if not sys.stdin.isatty():
-            raise BenchError("refusing to prompt for confirmation on a non-tty stdin; pass --yes")
+            raise CritError("refusing to prompt for confirmation on a non-tty stdin; pass --yes")
         answer = input("Start? [y/N] ").strip().lower()
         if answer not in ("y", "yes"):
             print("aborted")
@@ -657,12 +657,12 @@ def cmd_run(config, request, *, yes=False, dry_run=False, resume=None, verify=Tr
 
 def _import_and_publish(config, batch_dir, slug, title, publish):
     cmd_import(config, batch_dir, page=slug, title=title)
-    print(f"imported into page {slug!r}. Preview with: bench serve")
+    print(f"imported into page {slug!r}. Preview with: art-crit serve")
     if publish:
         from .cli import cmd_publish
 
-        return cmd_publish(config.root, f"bench run: {slug}")
-    print("publish with: bench publish")
+        return cmd_publish(config.root, f"art-crit run: {slug}")
+    print("publish with: art-crit publish")
     return 0
 
 
@@ -674,7 +674,7 @@ def cmd_models(harness, search=None):
         if search:
             try:
                 levels = harness.levels(model)
-            except BenchError as e:
+            except CritError as e:
                 print(f"{model}: {e}")
                 continue
             print(f"{model}: {', '.join(levels)}")

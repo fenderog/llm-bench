@@ -1,6 +1,6 @@
-# llm-bench spec
+# art-crit spec
 
-This repo is both the CLI (`src/bench/`) and the GitHub Pages site (`docs/`, served from `main:/docs`).
+This repo is both the CLI (`src/art_crit/`) and the GitHub Pages site (`docs/`, served from `main:/docs`).
 The site is static and has no build step. The CLI writes JSON and files into `docs/data/` and `docs/engines/`,
 and the viewer pages fetch that JSON in the browser.
 
@@ -12,7 +12,7 @@ tomllib, http.server, subprocess). The site is vanilla JS ES modules, with one p
 
 - **Page**: one prompt or task, such as `voxel-horse`.
 - **Run**: one model × effort level attempt at a page's task, kept in one directory (`<batch>/<run id>/`, see
-  "Run directory"). `bench import` publishes it to the site.
+  "Run directory"). `art-crit import` publishes it to the site.
 - **Kind**: what a page's runs produce. `godot` = a Godot project, published as a playable web build;
   `media` = image and/or video files; `web` = a web page (HTML + ES modules + npm packages), published as one
   self-contained `index.html` packaged with esbuild. Every run of a page has the page's kind.
@@ -129,7 +129,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   reported one; `pi_cost_usd` = pi's own estimate. For an OpenRouter run `metrics.cost_usd` is `cost_usd` when present:
   pi prices every OpenRouter call at one catalog rate whatever upstream served it (≈ 2–7× too low on real runs).
 
-## Run directory (what `bench run` writes and `bench import` publishes)
+## Run directory (what `art-crit run` writes and `art-crit import` publishes)
 
 ```
 <run.dir>/<YYYY-MM-DD-HHMMSS>-<page slug>/      # a batch
@@ -144,7 +144,7 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
     output/                                     # what the kind made: Godot export (+ verification/), the packaged page
                                                 #   (+ verification/), or normalized media + manifest.json
 ```
-`bench import` takes one run directory or a batch directory and publishes each run: cleans and secret-scans, copies
+`art-crit import` takes one run directory or a batch directory and publishes each run: cleans and secret-scans, copies
 `run.json` (adding `thumb`, `output`'s kind fields, `session` and `source`), `harness/conversation.json` as
 `session/conversation.json`, `work/` as `source/` and the kind's `output/`, then rebuilds. The page slug is the run's
 `page` (`--page` overrides it); the title = the slug with dashes turned into spaces and the first letter capitalized.
@@ -168,7 +168,7 @@ The page's prompt is the batch directory's `prompt.md`. Effort-run folders (`fe-
 
 1. Remove every `thinkingSignature` key and every `encrypted_content` key, at any depth (a `thinkingSignature`
    value may be a JSON string that contains `encrypted_content`; dropping the whole key is enough).
-2. Rewrite path prefixes in all strings: the user's home dir → `~`, plus extra rewrites from `bench.toml`:
+2. Rewrite path prefixes in all strings: the user's home dir → `~`, plus extra rewrites from `art-crit.toml`:
    ```toml
    [clean]
    rewrite = { "/Volumes/M2SSD" = "<vol>" }
@@ -185,19 +185,19 @@ The page's prompt is the batch directory's `prompt.md`. Effort-run folders (`fe-
    Data that isn't plain base64 stays in place and is scanned.
 6. JSONL files are cleaned line by line. Source files, stderr, SVGs and the packaged page get steps 2 and 4 only.
 
-## CLI (`bench`, run from the repo root, or pass `-C/--root`)
+## CLI (`art-crit`, run from the repo root, or pass `-C/--root`)
 
 ```
-bench import <run-dir | batch-dir> [-p/--page SLUG] [-t/--title TEXT] [-r/--redact] [-a/--allow-threads] [-n/--dry-run]
-bench list                      # pages and their runs
-bench rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuild
-bench rename <slug> <new> [-t/--title TEXT]   # move a page to a new slug (rewrites each run.json `page`), then rebuild
-bench rebuild                   # regenerate page.json + pages.json from runs/*/run.json; delete engines no run references
-bench serve [-p/--port 8000]    # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
+art-crit import <run-dir | batch-dir> [-p/--page SLUG] [-t/--title TEXT] [-r/--redact] [-a/--allow-threads] [-n/--dry-run]
+art-crit list                      # pages and their runs
+art-crit rm <slug> [<run_id>]      # remove a run (or a whole page), then rebuild
+art-crit rename <slug> <new> [-t/--title TEXT]   # move a page to a new slug (rewrites each run.json `page`), then rebuild
+art-crit rebuild                   # regenerate page.json + pages.json from runs/*/run.json; delete engines no run references
+art-crit serve [-p/--port 8000]    # serve docs/ like GitHub Pages: Access-Control-Allow-Origin: *, .wasm as application/wasm, NO COOP/COEP headers
                                 #   plus the local-only ranking API (see Ranking)
-bench publish [-m MSG]          # git add docs && git commit && git push
-bench run ...                   # run agents locally, then import (see "Running benchmarks")
-bench models [SEARCH] [-H/--harness pi|claude-code]   # models the harness can run; with SEARCH also their effort levels
+art-crit publish [-m MSG]          # git add docs && git commit && git push
+art-crit run ...                   # run agents locally, then import (see "Running benchmarks")
+art-crit models [SEARCH] [-H/--harness pi|claude-code]   # models the harness can run; with SEARCH also their effort levels
 ```
 Every long option has a single-dash short form (shown as `-p/--page`); the short forms are listed with each command.
 - `import` is idempotent. Re-importing the same directory replaces runs with the same id.
@@ -205,20 +205,20 @@ Every long option has a single-dash short form (shown as `-p/--page`); the short
 - `--dry-run` does all the work, including the secret scan, in a temp dir and writes nothing to docs/.
 - Errors go to stderr with a non-zero exit code, and there are no tracebacks for expected errors.
 
-## Running benchmarks (`bench run`)
+## Running benchmarks (`art-crit run`)
 
 Runs one prompt through one or more models × effort levels on this machine with a **harness** (the agent program;
 pi or Claude Code), turns each run's work into its kind's output and verifies it, then imports everything into one page.
 
 ```
-bench run PROMPT | -f/--prompt-file FILE
+art-crit run PROMPT | -f/--prompt-file FILE
     -k, --kind godot|media|web what the agents produce (default: the existing page's kind, else godot); must match it
     -m, --model MODEL[@UPSTREAMS][:LEVELS]  repeatable. UPSTREAMS: comma-separated OpenRouter provider slugs, as
                         OpenRouter lists a model's endpoints, variants included (`deepinfra/fp8`, `fireworks/us`)
                         (pi `openrouter/` models only, e.g. `openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8:low`);
                         pinned with fallbacks off, recorded as part of the model name. LEVELS: "low,high" | "low..max" (range in LEVEL_ORDER, keeping only supported levels)
                         | "all" (every supported level except off) | explicit "off". No suffix = "all".
-    -s, --set SET       repeatable: a model set, either a NAME from bench.toml [sets] or a FILE with one
+    -s, --set SET       repeatable: a model set, either a NAME from art-crit.toml [sets] or a FILE with one
                         MODEL[@UPSTREAMS][:LEVELS] per line (# comments, blank lines ignored). Its entries are added before
                         the -m specs, exactly as if given with -m. An unknown name that isn't a file is an error
                         listing the defined sets.
@@ -233,17 +233,17 @@ bench run PROMPT | -f/--prompt-file FILE
     -T, --timeout DUR   per agent, "30m" / "90s" / "1h" (default [run].timeout or 30m)
     -y, --yes           don't ask for confirmation
     -n, --dry-run       print the plan and exit
-    -P, --publish       import and `bench publish` each run as it finishes
-bench run -r/--resume DIR  finish an interrupted batch (see Resume)
+    -P, --publish       import and `art-crit publish` each run as it finishes
+art-crit run -r/--resume DIR  finish an interrupted batch (see Resume)
 ```
 `LEVEL_ORDER = off, minimal, low, medium, high, xhigh, max`. Every requested level is checked against the harness's
 list for that model **before anything starts**; an unknown model or unsupported level is an error that names the
 supported levels (pi silently clamps unsupported levels, so this check is what keeps labels honest).
 
-`bench.toml`:
+`art-crit.toml`:
 ```toml
 [run]
-dir = "~/dev/bench-runs"   # where batch directories go (never inside ~/dev/effort-runs)
+dir = "~/dev/art-crit-runs"   # where batch directories go (never inside ~/dev/effort-runs)
 parallel = 8
 timeout = "30m"
 tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", "ffprobe"]   # listed in the brief
@@ -252,12 +252,12 @@ tools = ["python3 (standard library only)", "node (no npm packages)", "ffmpeg", 
 cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4.1-flash:low..high"]
 ```
 
-`bench.toml` is parsed in one place: `bench.config.Config.load(root)` in `cli.main` exposes `.rewrites` (`[clean]`),
+`art-crit.toml` is parsed in one place: `art_crit.config.Config.load(root)` in `cli.main` exposes `.rewrites` (`[clean]`),
 `.run` (dir, parallel, timeout, tools) and `.sets`, and is passed to the importer and runner. One run's inputs
-are a `bench.config.RunRequest` (prompt, kind, page, title, model specs/sets, effort, brief, parallel, timeout,
+are a `art_crit.config.RunRequest` (prompt, kind, page, title, model specs/sets, effort, brief, parallel, timeout,
 publish, change_prompt); it round-trips through JSON and is stored in `batch.json`, so a `--resume` (or, later, a
 website-started run) replays the same fields. It is validated when built (kind, parallel >= 1, a parseable timeout),
-so bad input fails before a batch dir exists; `from_dict` ignores unknown keys. A malformed `bench.toml` is a
+so bad input fails before a batch dir exists; `from_dict` ignores unknown keys. A malformed `art-crit.toml` is a
 plain error for every command.
 
 ### Flow
@@ -266,7 +266,7 @@ plain error for every command.
 2. **Batch dir**: `<run.dir>/<YYYY-MM-DD-HHMMSS>-<page slug>/` with `batch.json`, `prompt.md` and one run directory per
    model × effort (see "Run directory"). Run ids are assigned here from the batch's start time; each run's `state` in
    `batch.json` starts `queued`.
-3. **Brief**: the kind's `src/bench/kinds/<kind>.md` with `{prompt}` replaced by the prompt verbatim and `{tools}` by the
+3. **Brief**: the kind's `src/art_crit/kinds/<kind>.md` with `{prompt}` replaced by the prompt verbatim and `{tools}` by the
    installed tools from `[run].tools` (each `"name note"`, e.g. `"python3 (standard library only)"`, listed as
    `name version note`; tools not on PATH are left out with a note). The same text for every run.
    Saved as `harness/brief.md`, never in the agent's working dir.
@@ -280,8 +280,8 @@ plain error for every command.
 6. **Output** (per run, only when `state` is `complete`, and when `output` is missing or not `ok`): the kind's
    `finalize(work, output/)` makes the publishable output, `verify(output/)` checks it (when `finalize` succeeded), and
    `run.json`'s `output` becomes `{kind, ok, error, verified}`. A step that fails leaves `state` alone. See Kinds.
-7. **Import**: `bench import` the batch directory with `--page` (and `--title` for a new page), then print where to
-   preview (`bench serve`) and publish, or run `bench publish` with `--publish`. With `--publish` each run is
+7. **Import**: `art-crit import` the batch directory with `--page` (and `--title` for a new page), then print where to
+   preview (`art-crit serve`) and publish, or run `art-crit publish` with `--publish`. With `--publish` each run is
    imported and pushed on its own, right after its step 6 (`Publisher`, one run at a time: an import rewrites
    page.json, and a push must never see a half-written run directory), so the live site fills up while the batch
    still runs; the batch's own import at the end is then skipped. Only runs that couldn't be published (a secret
@@ -292,7 +292,7 @@ session file as it grows; otherwise one line per state change. The states are th
 failed, timeout) plus transient labels of the output step (exporting, packaging, processing, verifying, then done, or
 "no output" when it failed); the labels are never written to `batch.json`.
 
-### Kinds (`src/bench/kinds/`)
+### Kinds (`src/art_crit/kinds/`)
 
 A kind is one class registered in `KINDS` (like `HARNESSES`); the runner and the importer never branch on a kind's name.
 ```python
@@ -326,7 +326,7 @@ class Kind:
   "complete"` (≤ 30s) and 1.2s more, then take the two frames. The report adds `blockedRequests`, and `ok = booted and no
   pageErrors and no blockedRequests` (a static page is fine, so frames needn't differ). `stage` copies the page to
   `game/index.html` (cleaned like source). Both Chrome checks are one helper (`browser.verify_page`); Playwright is an
-  optional dependency (`pip install bench[verify]`), and verification is skipped with a note when it's missing.
+  optional dependency (`pip install art-crit[verify]`), and verification is skipped with a note when it's missing.
 - **media** (`Media`; `ffmpeg` and `ffprobe` on PATH): `finalize` checks every media file in `work/output/` (sorted, flattened as
   `a-b.png` for `a/b.png`, at most 8) into `output/`. Images (`.png .jpg .jpeg .webp .gif`) must be readable by ffprobe;
   one over 2 MB is re-encoded as JPEG (a GIF isn't). SVGs must parse as XML with an `<svg>` root (size from width/height
@@ -347,7 +347,7 @@ reasoning/cache_read` = sums of `usage.<field>`; `tokens_total = input + output`
 session file, or the last assistant message has `stopReason: "error"`; `error` = its `errorMessage` or the last
 non-empty stderr line (the first 200 characters).
 
-### Harness interface (`src/bench/harness.py`)
+### Harness interface (`src/art_crit/harness.py`)
 Harnesses: `pi` (the default) and `claude-code`. A `-m` spec picks one with a prefix: `claude-code:MODEL[:LEVELS]`
 (no prefix, or `pi:`, = pi), in `-m`, `--set` entries and set files alike, so one batch can mix harnesses. Each run
 records its harness; batch.json has `harnesses: {name: version}`. The run ids of non-pi harnesses put the harness tag after
@@ -374,10 +374,10 @@ Pi: `pi --version`; `pi --list-models` (parse the table); levels via `pi --mode 
 sending `{"type":"get_available_thinking_levels"}` and reading the matching response;
 command = `pi -p --mode json --model M:LEVEL --session-dir DIR -ne -ns -np -nc BRIEF` (no user extensions, skills,
 prompt templates or AGENTS.md, so runs are reproducible); session file = the `*.jsonl` in DIR that isn't pi's stdout (`events.jsonl`).
-Every `openrouter/` run adds `-e src/bench/pi_ext/openrouter_routing.ts` (explicit `-e` paths still load under
-`-ne`) and sets `BENCH_ROUTE_LOG=<harness dir>/route.jsonl` in that run's environment. A pinned run (`MODEL@slug`)
-passes the base id to `--model` and also sets `BENCH_OPENROUTER_ROUTING={"only": [...], "allow_fallbacks": false}`
-(never inherited from bench's own environment), which the extension merges into the request's
+Every `openrouter/` run adds `-e src/art_crit/pi_ext/openrouter_routing.ts` (explicit `-e` paths still load under
+`-ne`) and sets `ART_CRIT_ROUTE_LOG=<harness dir>/route.jsonl` in that run's environment. A pinned run (`MODEL@slug`)
+passes the base id to `--model` and also sets `ART_CRIT_OPENROUTER_ROUTING={"only": [...], "allow_fallbacks": false}`
+(never inherited from art_crit's own environment), which the extension merges into the request's
 `provider` field. The extension logs, per response (generation id), `{id, provider}` from its first stream chunk and
 `{id, cost}` from the final chunk's `usage.cost`; the run records `route` from that log (see Run). The upstream is part of the recorded model name
 (`openrouter/…/flash@deepinfra`), so two upstreams are separate rows; run ids use `-via-`.
@@ -394,7 +394,7 @@ models sends `effort=high`), so those are listed without xhigh, and a model that
 --disallowed-tools=Agent,Task --disable-slash-commands -- BRIEF`: one direct agent with only the core file and shell
 tools (like pi: no sub-agents, web, scheduling, messaging or skills), none of the user's CLAUDE.md, memory, plugins,
 hooks or MCP servers (login still works), and nothing saved to the user's session history. `CLAUDECODE` and
-`CLAUDE_CODE_*` are removed from its environment (bench may itself run inside Claude Code). The stdout stream-json is
+`CLAUDE_CODE_*` are removed from its environment (art-crit may itself run inside Claude Code). The stdout stream-json is
 the session; its raw events carry account/session details, so they're not published (for any harness). Conversion to pi's format:
 assistant events are merged by message id (the stream emits one per content block, each repeating the usage) and
 become assistant messages (text; thinking only when non-empty, print mode usually omits it; `tool_use` → `toolCall`
@@ -419,15 +419,15 @@ Kills every running agent's process group, marks those runs `queued` in batch.js
 model_arg, level, state}]}`, updated on every state change (`model` = what the site shows, `model_arg` = the harness's id).
 `--resume DIR` reads it and, per run: `queued`/`running` → start the agent again (its run directory is emptied first); a
 finished agent is never rerun. Then the output step for a `complete` run whose `output` is missing or not `ok` (so a failed
-export is retried), and import. Failed and timed-out runs stay as they are. A batch written by a bench that grouped runs by
+export is retried), and import. Failed and timed-out runs stay as they are. A batch written by an art-crit that grouped runs by
 model (no `id` in its runs) can't be resumed.
 
 ## Ranking
 
-The page owner ranks runs in the browser; there is no CLI command for it. Only `bench serve` can save a ranking
+The page owner ranks runs in the browser; there is no CLI command for it. Only `art-crit serve` can save a ranking
 (GitHub Pages is static), so the published site shows rankings read-only.
 
-- `bench serve` answers `GET api/local` → `{"rank": true}` and `PUT api/rank?p=<slug>` with body
+- `art-crit serve` answers `GET api/local` → `{"rank": true}` and `PUT api/rank?p=<slug>` with body
   `{"ranks": {"<run id>": <int>|null, ...}}`. It validates the slug (`[a-z0-9][a-z0-9-]*`, page must exist), that every
   id is a run of the page, and that each rank is a whole number from 1 to the number of runs (ties allowed; `null`
   = unranked), writes `data/<slug>/ranking.json`, then rebuilds. Errors are `400 {"error": ...}`.
@@ -435,14 +435,14 @@ The page owner ranks runs in the browser; there is no CLI command for it. Only `
   without a CORS preflight, which the server doesn't answer) → else 415, and an `Origin` header, when present, must
   match the `Host` → else 403.
 - `rebuild` copies each run's rank into `page.json.runs` (`rank`, `null` when unranked) and drops `ranking.json` entries
-  for runs that no longer exist (e.g. after `bench rm`).
+  for runs that no longer exist (e.g. after `art-crit rm`).
 - The viewer only asks `api/local` when served from localhost; when it answers, the page shows a rank picker per row.
 
 ## Viewer (docs/)
 
 All four page views use `loadPage(slug)` in dom.js: one fetch of `page.json`, which includes
 `runs` sorted by started_at then effort order with ranks applied. `run.json` stays the rebuild source of truth;
-`bench list` reads `page.json.runs`. Rebuild removes legacy `results.json`. The loader owns missing-page
+`art-crit list` reads `page.json.runs`. Rebuild removes legacy `results.json`. The loader owns missing-page
 parameters and fetch-error messages; run/play find their run by id in `page.runs`.
 
 All five viewer documents enforce a meta CSP: `default-src 'self'; script-src 'self'; style-src 'self';
@@ -462,7 +462,7 @@ with ★. Styling is one token set on `:root` (light) redefined under `prefers-c
 
 Your ranking (`run.rank`) is shown as 🥇🥈🥉 then `#4`, `#5`… (`rankLabel()`/`rankChip()`): in the runs table's Rank
 column, on gallery cards, compare cards and the run title. When any run of a page is ranked, the table
-sorts by rank by default, and the gallery and compare order ranked runs first (`byRankThenModel()`). Under `bench serve`
+sorts by rank by default, and the gallery and compare order ranked runs first (`byRankThenModel()`). Under `art-crit serve`
 (`canEditRanks()`), the Rank column holds a `<select>` (– or 1…N) per row, and each change saves the whole page's ranking
 (`saveRanks()`), with a status line next to the run count; a failed save reverts the select and shows the error. Data
 JSON is fetched with `cache: "no-cache"` so a saved ranking or a new publish is never hidden by the browser cache.
@@ -535,7 +535,7 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
   the output, which fills the rest of the window: for `godot`/`web` runs one `sandboxedGame()` iframe that boots immediately
   (opening the window was the click), for `media` runs `mediaGallery()` (videos still don't autoplay). A run's `error` is
   shown above the output; a missing/unknown `p`/`r` or a run without output shows a message. Never links or embeds the raw entry URL.
-- Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/llm-bench/`),
+- Everything renders from the JSON. There are no per-page HTML files. It must work under a sub-path (`/art-crit/`),
   so use only relative URLs. It supports dark mode via `prefers-color-scheme`, has readable defaults, and has no frameworks.
 
 ## Tests (`uv run pytest`)
@@ -545,13 +545,13 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
   files and a real Godot `index.html` template, and covers dedupe, the html rewrite, cleaning, the secret abort and
   redaction, idempotency, rm, and rebuild.
 - Viewer: Playwright (Python, `channel="chrome"`, which uses the installed Google Chrome, so no browser download)
-  against `bench serve` on a fixture site. It covers each page rendering without console errors, click-to-play inserting
+  against `art-crit serve` on a fixture site. It covers each page rendering without console errors, click-to-play inserting
   a sandboxed iframe, the transcript's tool calls and error badges, and compare with 3 runs. A `media` fixture page
   (`art`: an SVG with an embedded script, a PNG and a 1 s mp4) covers the gallery, the Output tab (the SVG's script
   never runs, videos don't autoplay), expanded rows and compare.
   Also covered: effort-order sorting, the highlights (a failed run never wins "cheapest"), best-value stars, the run
   page ranks, the linkable tab hash and the Source tab opening its first file.
-- `bench run`: a fake `pi` (a Python script put first on PATH by the test) that answers `--version`, `--list-models`,
+- `art-crit run`: a fake `pi` (a Python script put first on PATH by the test) that answers `--version`, `--list-models`,
   the RPC levels request, and `-p` runs by writing a canned session file and a tiny project; env vars make it fail,
   hang, or exit non-zero. Covers level parsing (`all`, ranges, explicit lists, off excluded by default, unsupported
   level → error before anything starts), the plan/confirmation, `-j`, timeout, failed runs being imported, metrics

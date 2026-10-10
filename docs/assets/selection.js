@@ -4,7 +4,7 @@
 import { el } from "./dom.js";
 
 export function createSelection(slug, validIds) {
-  const key = `bench.selected.${slug}`;
+  const key = `art-crit.selected.${slug}`;
   let ids = new Set();
   try {
     ids = new Set((JSON.parse(sessionStorage.getItem(key)) ?? []).filter((id) => validIds.includes(id)));

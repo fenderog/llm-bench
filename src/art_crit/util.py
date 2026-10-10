@@ -4,7 +4,7 @@ import re
 from datetime import datetime, timezone
 
 
-class BenchError(Exception):
+class CritError(Exception):
     """A user-facing error: printed to stderr without a traceback."""
 
 
@@ -17,7 +17,7 @@ def parse_duration(text):
     """'30m' / '90s' / '1h' -> seconds."""
     m = re.fullmatch(r"(\d+(?:\.\d+)?)([smh])", str(text).strip())
     if not m:
-        raise BenchError(f"bad duration: {text!r} (expected e.g. 30m, 90s, 1h)")
+        raise CritError(f"bad duration: {text!r} (expected e.g. 30m, 90s, 1h)")
     n, unit = float(m.group(1)), m.group(2)
     return n * {"s": 1, "m": 60, "h": 3600}[unit]
 

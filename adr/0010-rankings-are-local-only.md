@@ -11,7 +11,7 @@ owner wanted to rank the runs of a page in the browser. The published site is st
 
 ## Decision
 
-- **Only `bench serve` can save a ranking**:
+- **Only `art-crit serve` can save a ranking**:
   - `PUT api/rank?p=<slug>` writes `data/<slug>/ranking.json`, then rebuilds.
   - `rebuild` copies each run's rank into `results.json`. `run.json` never holds a rank (0003).
 - **Cross-site writes are refused**:
@@ -25,7 +25,7 @@ owner wanted to rank the runs of a page in the browser. The published site is st
 
 ## Alternatives considered
 
-- **A `bench rank` CLI command**: clumsy, because ranking needs the games and outputs in front of you.
+- **A `art-crit rank` CLI command**: clumsy, because ranking needs the games and outputs in front of you.
 - **Public, arena-style A/B voting**: interesting, but needs a write API outside Pages (for example a
   Cloudflare Worker), plus abuse handling and storage. Deliberately not built.
 - **Writing ranks into `run.json`**: a ranking belongs to the whole page, and runs get removed. A separate file

@@ -15,8 +15,8 @@ upkeep, and survive being ignored for months.
 - Each view is a thin HTML shell (`index.html`, `page.html`, `run.html`, `compare.html`) that fetches JSON
   from `docs/data/` and renders it in the browser. There are no per-page HTML files.
 - "Dynamic" means the data changes and the pages pick it up. Nothing is regenerated.
-- `docs/.nojekyll` is always present, and every URL is relative because the site lives under `/llm-bench/`.
-- `bench serve` reproduces Pages locally: `Access-Control-Allow-Origin: *`, `.wasm` served as `application/wasm`,
+- `docs/.nojekyll` is always present, and every URL is relative because the site lives under `/art-crit/`.
+- `art-crit serve` reproduces Pages locally: `Access-Control-Allow-Origin: *`, `.wasm` served as `application/wasm`,
   and no COOP/COEP headers.
 
 ## Alternatives considered

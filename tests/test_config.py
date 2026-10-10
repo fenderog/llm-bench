@@ -1,15 +1,15 @@
-"""bench.toml is parsed once (`Config.load`), and `RunRequest` round-trips through JSON."""
+"""art-crit.toml is parsed once (`Config.load`), and `RunRequest` round-trips through JSON."""
 
 from pathlib import Path
 
 import pytest
 
-from bench.config import Config, RunRequest
-from bench.util import BenchError
+from art_crit.config import Config, RunRequest
+from art_crit.util import CritError
 
 
 def test_config_load_reads_clean_run_and_sets(tmp_path):
-    (tmp_path / "bench.toml").write_text(
+    (tmp_path / "art-crit.toml").write_text(
         '[clean]\nrewrite = { "/Volumes/M2SSD" = "<vol>" }\n'
         '[run]\ndir = "~/runs"\nparallel = 3\ntimeout = "5m"\ntools = ["node (no npm)"]\n'
         '[sets]\nduo = ["m:low", "n:high"]\n'
@@ -30,8 +30,8 @@ def test_config_defaults_without_bench_toml(tmp_path):
 
 
 def test_malformed_set_is_an_error(tmp_path):
-    (tmp_path / "bench.toml").write_text('[sets]\nbad = "x"\n')
-    with pytest.raises(BenchError, match=r"\[sets\].bad must be a list"):
+    (tmp_path / "art-crit.toml").write_text('[sets]\nbad = "x"\n')
+    with pytest.raises(CritError, match=r"\[sets\].bad must be a list"):
         Config.load(tmp_path)
 
 
@@ -47,7 +47,7 @@ def test_run_request_round_trips_through_json():
 
 
 def test_bench_toml_is_parsed_in_one_place():
-    src = Path(__file__).resolve().parents[1] / "src" / "bench"
+    src = Path(__file__).resolve().parents[1] / "src" / "art_crit"
     parsers = [p.name for p in src.glob("*.py") if "tomllib" in p.read_text()]
     assert parsers == ["config.py"]
 
@@ -58,7 +58,7 @@ def test_bench_toml_is_parsed_in_one_place():
     ({"kind": "pdf"}, "unknown kind"),
 ])
 def test_run_request_is_validated_when_built(fields, match):
-    with pytest.raises(BenchError, match=match):
+    with pytest.raises(CritError, match=match):
         RunRequest(prompt="p", **fields)
 
 
@@ -67,9 +67,9 @@ def test_run_request_from_dict_ignores_unknown_keys():
 
 
 def test_bad_bench_toml_is_a_bench_error(tmp_path):
-    (tmp_path / "bench.toml").write_text("[run\n")
-    with pytest.raises(BenchError, match="bench.toml"):
+    (tmp_path / "art-crit.toml").write_text("[run\n")
+    with pytest.raises(CritError, match="art-crit.toml"):
         Config.load(tmp_path)
-    (tmp_path / "bench.toml").write_text('[run]\ntimeout = "soon"\n')
-    with pytest.raises(BenchError, match="bad duration"):
+    (tmp_path / "art-crit.toml").write_text('[run]\ntimeout = "soon"\n')
+    with pytest.raises(CritError, match="bad duration"):
         Config.load(tmp_path)

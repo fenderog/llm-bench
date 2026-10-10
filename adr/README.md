@@ -1,6 +1,6 @@
 # Architecture decision records
 
-Why llm-bench is built the way it is. Each record covers one decision, the alternatives that were turned
+Why art-crit is built the way it is. Each record covers one decision, the alternatives that were turned
 down, and what the decision costs.
 
 This folder sits at the repo root and not under `docs/`, because everything in `docs/` is published to
@@ -37,7 +37,7 @@ Copy `template.md` to `NNNN-short-title.md` using the next number, and add it to
 | [0008](0008-godot-nothreads-and-engine-dedupe.md) | Godot: no-threads web export, engine deduped by hash | Accepted |
 | [0009](0009-agents-run-as-local-processes.md) | Agents run as local processes, not in a VM | Accepted |
 | [0010](0010-rankings-are-local-only.md) | Rankings are written only locally; the site is read-only | Accepted |
-| [0011](0011-publish-pushes-to-main.md) | `bench publish` pushes to `main`, no PR flow | Accepted |
+| [0011](0011-publish-pushes-to-main.md) | `art-crit publish` pushes to `main`, no PR flow | Accepted |
 | [0012](0012-asset-cache-busting.md) | Asset cache-busting | Proposed |
 | [0013](0013-web-kind-packaged-with-esbuild.md) | Web pages are packaged into one file with esbuild | Accepted |
 | [0014](0014-openrouter-upstream-routing.md) | Pin the OpenRouter upstream provider per run (`MODEL@upstream`) | Accepted |
@@ -45,4 +45,5 @@ Copy `template.md` to `NNNN-short-title.md` using the next number, and add it to
 | [0016](0016-page-json-includes-runs.md) | One page.json includes ranked runs | Accepted |
 | [0017](0017-run-directory-is-the-unit-of-work.md) | The run directory is the unit of work; the effort-run format is retired | Accepted |
 | [0018](0018-one-kind-interface-and-an-output-record.md) | One Kind interface; `state` is the agent's, `output` is the kind step's | Accepted |
-| [0019](0019-publish-each-run-as-it-finishes.md) | `bench run --publish` publishes each run as it finishes | Accepted |
+| [0019](0019-publish-each-run-as-it-finishes.md) | `art-crit run --publish` publishes each run as it finishes | Accepted |
+| [0020](0020-renamed-to-art-crit.md) | Renamed from llm-bench to art-crit | Accepted |

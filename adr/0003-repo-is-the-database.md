@@ -14,18 +14,18 @@ backups and a way to undo mistakes.
 
 - Git is the store. Every published byte lives under `docs/data/` or `docs/engines/`, is committed, and
   is pushed.
-- **`bench import` is the only thing that writes run data.** Its input is a run directory (a batch of them, from
-  `bench run`; originally an effort-run folder, see 0017), and it:
+- **`art-crit import` is the only thing that writes run data.** Its input is a run directory (a batch of them, from
+  `art-crit run`; originally an effort-run folder, see 0017), and it:
   - cleans and secret-scans the data (0005),
   - writes the run to a temp location first, then moves it into place,
   - is idempotent: importing the same run again replaces it.
 - **`run.json` is the source of truth for a run.** These files are derived from it and can be rebuilt at any
-  time (`bench rebuild`):
+  time (`art-crit rebuild`):
   - `results.json`
   - `pages.json`
   - each run's `rank`
 - Nobody edits `docs/data` by hand. To fix a run, re-import it.
-- **Inputs are never modified**: `~/dev/effort-runs/` (the original runs) is read-only, and `bench run` writes to `~/dev/bench-runs/`.
+- **Inputs are never modified**: `~/dev/effort-runs/` (the original runs) is read-only, and `art-crit run` writes to `~/dev/art-crit-runs/`.
 - Git LFS isn't used, because Pages serves the LFS pointer instead of the file.
 
 ## Alternatives considered

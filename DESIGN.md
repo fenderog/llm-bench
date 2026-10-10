@@ -1,6 +1,6 @@
 # bench — a CLI for publishing LLM benchmark results to GitHub Pages
 
-Status: historical. This is the paper design written before anything was built, and much of it changed
+Status: historical (written when the tool was `bench` and the site llm-bench; renamed to art-crit in ADR-0020). This is the paper design written before anything was built, and much of it changed
 (typer → argparse, generic artifacts → one kind per page, `bench push` → `import`/`run`). The current contract is
 SPEC.md, and the decisions and their reasons are in `adr/`.
 

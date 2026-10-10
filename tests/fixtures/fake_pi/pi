@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A fake `pi` binary for testing `bench run` without calling a real model.
+"""A fake `pi` binary for testing `art-crit run` without calling a real model.
 
 Supports:
   pi --version
@@ -13,8 +13,8 @@ Behavior knobs (env vars), read at `-p` run time:
   FAKE_PI_ERROR_STOP=1  write a session whose last assistant message has stopReason "error"
   FAKE_PI_BAD_OUTPUT=1  (media briefs) also put an unreadable image and a stray text file in ./output/
   FAKE_PI_BAD_WEB=1     (web briefs) import a module that doesn't exist, so packaging fails
-  FAKE_PI_ARGV=FILE     write {argv, BENCH_OPENROUTER_ROUTING, BENCH_ROUTE_LOG} to FILE
-  BENCH_ROUTE_LOG       (set by bench for routed runs) append what the routing extension would log:
+  FAKE_PI_ARGV=FILE     write {argv, ART_CRIT_OPENROUTER_ROUTING, ART_CRIT_ROUTE_LOG} to FILE
+  ART_CRIT_ROUTE_LOG       (set by art-crit for routed runs) append what the routing extension would log:
                         {id, provider} (the first requested upstream's name) and {id, cost: 0.0042}
   FAKE_PI_SERVED=NAME   report NAME as the upstream that served the request
 
@@ -101,14 +101,14 @@ def cmd_run():
     if argv_file:
         Path(argv_file).write_text(json.dumps({
             "argv": sys.argv,
-            "routing": os.environ.get("BENCH_OPENROUTER_ROUTING"),
-            "route_log": os.environ.get("BENCH_ROUTE_LOG"),
+            "routing": os.environ.get("ART_CRIT_OPENROUTER_ROUTING"),
+            "route_log": os.environ.get("ART_CRIT_ROUTE_LOG"),
         }))
-    route_log = os.environ.get("BENCH_ROUTE_LOG")
+    route_log = os.environ.get("ART_CRIT_ROUTE_LOG")
     if route_log:
         # Like the routing extension: OpenRouter's display name of the first requested upstream
         # ("deepinfra/fp8" -> "Deepinfra"), or FAKE_PI_SERVED, then the charge from the final chunk.
-        routing = json.loads(os.environ.get("BENCH_OPENROUTER_ROUTING") or "{}")
+        routing = json.loads(os.environ.get("ART_CRIT_OPENROUTER_ROUTING") or "{}")
         slug = (routing.get("only") or ["fake"])[0]
         served = os.environ.get("FAKE_PI_SERVED") or slug.split("/")[0].capitalize()
         Path(route_log).parent.mkdir(parents=True, exist_ok=True)

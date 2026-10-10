@@ -1,5 +1,5 @@
 """Synthetic batch fixture: a batch directory of run directories (two effort levels), each with the
-shape `bench run` writes (run.json, work/, harness/, output/): tiny fake Godot engine files, a real
+shape `art-crit run` writes (run.json, work/, harness/, output/): tiny fake Godot engine files, a real
 Godot index.html template, and small session files with the sensitive shapes the cleaning rules must
 strip. Built at runtime (not committed) so nothing under a real home dir, or any real session content,
 ends up in this public repo.
@@ -58,7 +58,7 @@ def _write_conversation(path, home, level, secret=None):
 
 def make_batch(base, slug="voxel-horse", started=datetime(2026, 9, 26, 0, 11, 58), levels=None, threads=False, secret=None):
     """A synthetic batch directory under `base`: prompt.md and one run directory per level."""
-    from bench.util import make_run_id
+    from art_crit.util import make_run_id
 
     levels = levels if levels is not None else DEFAULT_LEVELS
     home = str(Path.home())

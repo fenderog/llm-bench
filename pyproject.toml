@@ -1,7 +1,7 @@
 [project]
-name = "bench"
+name = "art-crit"
 version = "0.1.0"
-description = "Publish LLM benchmark runs (Godot web builds + agent sessions) to a GitHub Pages site"
+description = "A crit for LLMs: compare what models make for visual and spatial prompts, side by side, on a GitHub Pages site"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
@@ -10,7 +10,7 @@ dependencies = []
 verify = ["playwright>=1.63.0"]
 
 [project.scripts]
-bench = "bench:main"
+art-crit = "art_crit:main"
 
 [build-system]
 requires = ["uv_build>=0.12.14,<0.13.0"]

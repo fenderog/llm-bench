@@ -1,20 +1,20 @@
-# 0019. `bench run --publish` publishes each run as it finishes
+# 0019. `art-crit run --publish` publishes each run as it finishes
 
 - Status: Accepted
 - Date: 2026-10-10
-- Amends: [0011](0011-publish-pushes-to-main.md) (what `bench run --publish` does, not where it pushes).
+- Amends: [0011](0011-publish-pushes-to-main.md) (what `art-crit run --publish` does, not where it pushes).
 
 ## Context
 
-`bench run --publish` imported the whole batch and pushed once, after every agent had finished. A batch of 20 runs,
+`art-crit run --publish` imported the whole batch and pushed once, after every agent had finished. A batch of 20 runs,
 8 at a time, takes one to two hours: nothing was visible on the live site until the end, and a problem in the batch's
 import (a secret hit in any one run) meant nothing at all was published. Following a long batch meant publishing by
-hand from the batch directory while it ran (`bench import <batch>/<run id>` plus `bench publish`).
+hand from the batch directory while it ran (`art-crit import <batch>/<run id>` plus `art-crit publish`).
 
 ## Decision
 
-- With `-P/--publish`, a run is imported and pushed on its own, right after its output step (step 6 of `bench run`) —
-  the same import the batch would do, just per run, with the message `bench run: <page> (<run id>)`.
+- With `-P/--publish`, a run is imported and pushed on its own, right after its output step (step 6 of `art-crit run`) —
+  the same import the batch would do, just per run, with the message `art-crit run: <page> (<run id>)`.
 - One run at a time (`Publisher` in runner.py, one lock): an import rewrites `page.json`/`pages.json` and may write
   `docs/engines/`, git needs the index to itself, and a push must never see a half-written run directory.
 - The batch's own import at the end is skipped when every run was published. A run that couldn't be published — a
@@ -30,7 +30,7 @@ hand from the batch directory while it ran (`bench import <batch>/<run id>` plus
   behind `Publisher` later.
 - **Import as runs finish, push once at the end**: keeps the local preview current but not the deployed site, which is
   the point.
-- **A `bench publish --watch` reading the batch directory**: a second process to babysit, and it has to work out which
+- **A `art-crit publish --watch` reading the batch directory**: a second process to babysit, and it has to work out which
   runs are finished on its own.
 
 ## Consequences
@@ -41,5 +41,5 @@ hand from the batch directory while it ran (`bench import <batch>/<run id>` plus
   minute; Pages coalesces when runs finish together).
 - A secret hit in one run no longer blocks the others (that run simply isn't published), and the batch still exits
   non-zero so the hit can't go unnoticed.
-- `bench run --resume <batch> --publish` re-imports and re-pushes runs that were already published: a "nothing to
+- `art-crit run --resume <batch> --publish` re-imports and re-pushes runs that were already published: a "nothing to
   commit" plus a no-op push, which is idempotent and cheap.

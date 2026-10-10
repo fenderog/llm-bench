@@ -1,5 +1,5 @@
 """The `godot` kind: export the project the agent wrote to a Godot web build, boot-check it, and
-stage it with the engine stored once. See SPEC.md "bench run" steps 6 and 7 and "Godot engine dedupe"."""
+stage it with the engine stored once. See SPEC.md "art-crit run" steps 6 and 7 and "Godot engine dedupe"."""
 
 import hashlib
 import json
@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..browser import copy_thumb, verify_page
-from ..util import BenchError
+from ..util import CritError
 from . import Kind, Staged
 
 PRESET_TEMPLATE = """[preset.0]
@@ -129,7 +129,7 @@ def stage_game(wasm_dir, stage_game_dir, docs_root, slug, run_id, allow_threads,
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     threads = _threads_enabled(wasm_dir, manifest)
     if threads and not allow_threads:
-        raise BenchError(f"{wasm_dir}: export has threads enabled; pass --allow-threads to allow it")
+        raise CritError(f"{wasm_dir}: export has threads enabled; pass --allow-threads to allow it")
 
     sha12 = engine_hash(wasm_dir)
     is_new = sha12 not in known_engines and not (docs_root / "engines" / sha12).is_dir()
@@ -152,7 +152,7 @@ def stage_game(wasm_dir, stage_game_dir, docs_root, slug, run_id, allow_threads,
     html = html.replace('<script src="index.js"></script>', f'<script src="{rel}.js"></script>')
     m = CONFIG_RE.search(html)
     if not m:
-        raise BenchError(f"{html_path}: GODOT_CONFIG not found")
+        raise CritError(f"{html_path}: GODOT_CONFIG not found")
     cfg = json.loads(m.group(1))
     cfg["executable"] = rel
     cfg["mainPack"] = "index.pck"

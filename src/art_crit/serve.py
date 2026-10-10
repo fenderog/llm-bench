@@ -1,7 +1,7 @@
 """Serve docs/ like GitHub Pages: permissive CORS, correct .wasm/.pck types, no COOP/COEP.
 
 Plus a local-only ranking API (GitHub Pages never has it, so the viewer only shows ranking
-controls when served by `bench serve`):
+controls when served by `art-crit serve`):
   GET api/local                 -> {"rank": true}
   PUT api/rank?p=<slug>         body {"ranks": {"<run id>": 1, ...}}  (null/missing = unranked)
     -> writes docs/data/<slug>/ranking.json and rebuilds, so page.json carries each run's rank.

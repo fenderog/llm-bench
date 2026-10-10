@@ -14,9 +14,9 @@ a third party.
 
 ## Decision
 
-- The agent writes a normal page (`index.html` + `<script type="module">` + `npm install`), and **bench packages
+- The agent writes a normal page (`index.html` + `<script type="module">` + `npm install`), and **art-crit packages
   it** into one self-contained `index.html` afterwards: esbuild bundles every local module script with everything
-  it imports, stylesheets are inlined, and imported assets become data: URLs (`src/bench/kinds/web.py`).
+  it imports, stylesheets are inlined, and imported assets become data: URLs (`src/art_crit/kinds/web.py`).
 - **Verification decides whether the page is self-contained**: it boots the packaged file offline, in an iframe
   sandboxed exactly like the site's, and fails on any network request or page error. The brief states the rules
   (import everything, no CDNs, no storage), but the check is what enforces them.

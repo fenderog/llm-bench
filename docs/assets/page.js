@@ -9,7 +9,7 @@ import { readFilters, renderFilterBar } from "./filters.js";
 
 const slug = qs("p");
 const main = document.getElementById("main");
-const VIEW_KEY = "bench.view"; // "grid" (default) or "table", remembered in localStorage; ?view= wins
+const VIEW_KEY = "art-crit.view"; // "grid" (default) or "table", remembered in localStorage; ?view= wins
 const GROUP_FROM = 15; // fewer runs than this are one flat grid; more are grouped by vendor
 
 function initialView() {
@@ -42,7 +42,7 @@ const page = await loadPage(slug);
 if (page) render(page, page.runs, await canEditRanks());
 
 function render(page, runs, editable) {
-  document.title = `${page.title} – llm-bench`;
+  document.title = `${page.title} – art-crit`;
   document.getElementById("title").textContent = page.title;
   if (page.prompt) {
     document.getElementById("prompt").textContent = page.prompt;
@@ -220,7 +220,7 @@ function render(page, runs, editable) {
   }
 
   // Local ranking: one select per run (– or 1…N, ties allowed). Every change saves the whole page's
-  // ranking through `bench serve`, which rewrites ranking.json and page.json.
+  // ranking through `art-crit serve`, which rewrites ranking.json and page.json.
   function rankPicker(r) {
     const select = el("select", { class: "rank-select", attrs: { "aria-label": `Rank for ${r.model} ${r.effort}` } }, [
       el("option", { text: "–", attrs: { value: "" } }),

@@ -12,7 +12,7 @@ Page views fetched two or three overlapping JSON files and repeated their loadin
 
 Rebuild writes metadata plus ranked runs into page.json and deletes legacy results.json. Per-run
 run.json stays the source of truth and never stores rank. Rankings remain in ranking.json and are
-applied to page.json.runs. bench list reads that array. All four page views use the shared loadPage()
+applied to page.json.runs. art-crit list reads that array. All four page views use the shared loadPage()
 loader; run/play select their run from the array.
 
 ## Alternatives considered

@@ -5,7 +5,7 @@ import shutil
 
 import pytest
 
-from bench.kinds.godot import export_project
+from art_crit.kinds.godot import export_project
 
 GODOT_BIN = shutil.which("godot")
 pytestmark = pytest.mark.skipif(GODOT_BIN is None, reason="godot not on PATH")

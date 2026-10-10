@@ -1,4 +1,4 @@
-# Agent guide: llm-bench
+# Agent guide: art-crit
 
 Start here if you're an agent picking up this repo with no prior context. **Keep this file current:** when
 you change how something works, add a command, or learn a gotcha the hard way, update the relevant section
@@ -6,7 +6,8 @@ in the same commit.
 
 ## What this is
 
-A CLI (`bench`, Python) plus a static GitHub Pages site that publishes LLM benchmark runs.
+A CLI (`art-crit`, Python) plus a static GitHub Pages site that shows what LLMs make for visual and spatial prompts,
+side by side, for comparisons you judge by eye rather than by a score (the name is art school's "crit").
 
 - **Page** = one prompt/task (e.g. `voxel-horse`).
 - **Run** = one model × effort level attempt at that task.
@@ -17,8 +18,8 @@ A CLI (`bench`, Python) plus a static GitHub Pages site that publishes LLM bench
 Each run has three parts: its output (a playable Godot web build, images/videos, or a packaged web page), the full agent
 transcript with every tool call, and metrics (tokens, cost, duration).
 
-- Repo: github.com/fenderog/llm-bench (public). The site is served from `main:/docs`:
-  https://fenderog.github.io/llm-bench/
+- Repo: github.com/fenderog/art-crit (public). The site is served from `main:/docs`:
+  https://fenderog.github.io/art-crit/
 - **SPEC.md is the contract**: the data layout, the JSON schemas, cleaning, the CLI and the viewer. Read
   it before changing behavior, and update it together with the code.
 - README.md is the user-facing usage.
@@ -29,19 +30,19 @@ transcript with every tool call, and metrics (tokens, cost, duration).
 ## Layout
 
 ```
-src/bench/          CLI, standard library only (argparse, json, subprocess, tomllib, http.server)
+src/art_crit/          CLI, standard library only (argparse, json, subprocess, tomllib, http.server)
   cli.py            argparse wiring: import, list, rm, rebuild, serve, publish, run, models
-  config.py         bench.toml parsed once (`Config.load`) + `RunRequest` (the inputs of one `bench run`)
+  config.py         art-crit.toml parsed once (`Config.load`) + `RunRequest` (the inputs of one `art-crit run`)
   importer.py       run directory (or a batch of them) -> docs/data/<page>/runs/<id>/ (clean, secret scan, then move)
   clean.py          session cleaning, path rewrites, secret scan/redact
   site.py           rebuild page.json (with runs) / pages.json (+ each run's rank from ranking.json), rm, list, engine GC
-  serve.py          `bench serve` (GitHub-Pages-like) + the local-only ranking API (PUT api/rank)
+  serve.py          `art-crit serve` (GitHub-Pages-like) + the local-only ranking API (PUT api/rank)
   harness.py        Harness interface + Pi and ClaudeCode (stream-json -> pi-format session) + metrics parsers
-  runner.py         `bench run`: plan -> run agents in parallel -> collect -> kind step (finalize + verify) -> import;
+  runner.py         `art-crit run`: plan -> run agents in parallel -> collect -> kind step (finalize + verify) -> import;
                     `RunDir` = <batch>/<run id>/{run.json,work/,harness/,output/}
-  pi_ext/           bench-shipped pi extensions loaded with explicit `-e` (work under `-ne`):
+  pi_ext/           art-crit-shipped pi extensions loaded with explicit `-e` (work under `-ne`):
                     `openrouter_routing.ts`, loaded for every OpenRouter run: logs the serving upstream + real
-                    cost to `BENCH_ROUTE_LOG`, and pins the upstream from `BENCH_OPENROUTER_ROUTING` (`MODEL@slug`)
+                    cost to `ART_CRIT_ROUTE_LOG`, and pins the upstream from `ART_CRIT_OPENROUTER_ROUTING` (`MODEL@slug`)
   kinds/            one class per kind, registered in `KINDS` (ADR-0018): `Kind` = brief, tools, finalize, verify, stage
     godot.py        headless Godot export, boot check, engine dedupe + index.html rewrite
     media.py        check/normalize work/output/ files with ffprobe/ffmpeg -> output/manifest.json
@@ -57,36 +58,36 @@ docs/               the site: vanilla JS ES modules, no build step, no framework
   engines/<sha12>/  deduplicated Godot engines (~38 MB wasm each, stored once)
 adr/                architecture decision records (not published: they're outside docs/)
 tests/              pytest + Python Playwright; fixtures/fake_pi/{pi,claude} are fake harnesses
-bench.toml          [clean] path rewrites, [run] batch dir / parallel / timeout / tools listed in the brief,
-                    [sets] named model sets for `bench run --set`
+art-crit.toml          [clean] path rewrites, [run] batch dir / parallel / timeout / tools listed in the brief,
+                    [sets] named model sets for `art-crit run --set`
 ```
 
 ## Commands
 
 ```sh
 uv run pytest -q                      # all tests, ~40s; must stay green
-uv run bench serve --port 8000        # preview docs/ exactly like GitHub Pages
-uv run bench run --dry-run "prompt" -m openai-codex/gpt-6-sol:low   # plan only, no model calls
-uv run bench run --dry-run --kind media "an SVG pelican" -m openai-codex/gpt-6-sol:low
-uv run bench run --dry-run --kind web "a three.js horse" -m openai-codex/gpt-6-sol:low   # needs esbuild + npm
-uv run bench run --dry-run "prompt" --set cheap   # a model set from bench.toml [sets] (or a file path)
-uv run bench run --dry-run --page <slug> -m MODEL:LEVEL   # add runs to an existing page (reuses its prompt + kind)
-uv run bench run --dry-run "prompt" -m openrouter/deepseek/deepseek-v4.1-flash@deepinfra:low   # pin the OpenRouter upstream
-uv run bench models gpt-6             # models + effort levels from pi
-uv run bench models --harness claude-code   # Claude Code's (from the table in harness.py)
-uv run bench run --dry-run "prompt" -m claude-code:opus:high -m openai-codex/gpt-6-sol:high   # mixed harnesses
-uv run bench import <run-dir|batch-dir> --page <slug>   # publish runs written by `bench run`
-uv run bench run --publish "prompt" -m MODEL:LEVEL      # import + push each run as it finishes (ADR-0019)
-uv run bench publish -m "msg"         # git add docs && commit && push (Pages deploys in ~1 min)
-gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy status
+uv run art-crit serve --port 8000        # preview docs/ exactly like GitHub Pages
+uv run art-crit run --dry-run "prompt" -m openai-codex/gpt-6-sol:low   # plan only, no model calls
+uv run art-crit run --dry-run --kind media "an SVG pelican" -m openai-codex/gpt-6-sol:low
+uv run art-crit run --dry-run --kind web "a three.js horse" -m openai-codex/gpt-6-sol:low   # needs esbuild + npm
+uv run art-crit run --dry-run "prompt" --set cheap   # a model set from art-crit.toml [sets] (or a file path)
+uv run art-crit run --dry-run --page <slug> -m MODEL:LEVEL   # add runs to an existing page (reuses its prompt + kind)
+uv run art-crit run --dry-run "prompt" -m openrouter/deepseek/deepseek-v4.1-flash@deepinfra:low   # pin the OpenRouter upstream
+uv run art-crit models gpt-6             # models + effort levels from pi
+uv run art-crit models --harness claude-code   # Claude Code's (from the table in harness.py)
+uv run art-crit run --dry-run "prompt" -m claude-code:opus:high -m openai-codex/gpt-6-sol:high   # mixed harnesses
+uv run art-crit import <run-dir|batch-dir> --page <slug>   # publish runs written by `art-crit run`
+uv run art-crit run --publish "prompt" -m MODEL:LEVEL      # import + push each run as it finishes (ADR-0019)
+uv run art-crit publish -m "msg"         # git add docs && commit && push (Pages deploys in ~1 min)
+gh api repos/fenderog/art-crit/pages/builds/latest --jq .status   # deploy status
 ```
 
 ## Rules (don't break these)
 
-- **Never modify `~/dev/effort-runs/`.** It holds the user's original runs and is read only (bench no longer reads
-  that format). `bench run` writes to `~/dev/bench-runs/`. (ADR-0003, ADR-0017)
-- **Never call a real model in tests.** `bench run` tests put `tests/fixtures/fake_pi/pi` first on PATH.
-  A real `bench run` costs money: only do one when the user asks, use a cheap model and few levels, and
+- **Never modify `~/dev/effort-runs/`.** It holds the user's original runs and is read only (art-crit no longer reads
+  that format). `art-crit run` writes to `~/dev/art-crit-runs/`. (ADR-0003, ADR-0017)
+- **Never call a real model in tests.** `art-crit run` tests put `tests/fixtures/fake_pi/pi` first on PATH.
+  A real `art-crit run` costs money: only do one when the user asks, use a cheap model and few levels, and
   point `--root` at a throwaway copy of the site so live data isn't touched. (ADR-0009)
 - **Game iframes must never get `allow-same-origin`.** `sandboxedGame()` in `docs/assets/output.js` is the
   only place games are embedded. The compare cards' ↗ pop-out opens `play.html` (which uses it), never the raw
@@ -111,7 +112,7 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
 - **Keep it lean.** Stdlib-only CLI, no JS frameworks or bundler for the site (esbuild only packages model-made
   web pages, ADR-0013); the user checks for this. Prefer small
   functions and small diffs, and don't add dependencies without asking. (ADR-0002)
-- **Rankings are only written by `bench serve` on the user's machine** (`PUT api/rank`, which refuses cross-site
+- **Rankings are only written by `art-crit serve` on the user's machine** (`PUT api/rank`, which refuses cross-site
   writes). Never add a way for the published site to write data. (ADR-0010)
 - **Untrusted text** (model output, transcripts) goes through `textContent` or `renderMarkdown()`, which
   builds DOM nodes from Markdown tokens and permits only HTTP(S) links. Never use innerHTML with run data. (ADR-0004)
@@ -130,10 +131,10 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   trigger an `unsafe-eval` violation.
 - **pi:**
   - `--model provider/id:level` silently clamps unsupported levels, and it reports levels for an unknown
-    model instead of failing. `bench run` checks both against `pi --list-models` and the RPC levels query
+    model instead of failing. `art-crit run` checks both against `pi --list-models` and the RPC levels query
     before starting.
   - Model ids can contain `:`, so levels are read from after the last colon.
-  - bench keeps no list of pi models (Codex included): they come live from `pi --list-models`. New ones show up
+  - art-crit keeps no list of pi models (Codex included): they come live from `pi --list-models`. New ones show up
     after `pi update --models` refreshes pi's catalog.
   - `--mode json` stdout (`harness/events.jsonl`, never published; `Pi.session_file` skips it) is ~1 MB of `message_update` streaming snapshots and
     carries no timestamps, so tool durations come from the session entries' timestamps (`add_tool_durations`).
@@ -150,8 +151,8 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   Check without paying for a call: point `ANTHROPIC_BASE_URL` at a local server that 400s and read
   `output_config.effort` out of the request body (the model catalog + the CLI's `xhigh_effort`/`max_effort` capability
   rules in its binary agree with this).
-- **`-ne` still loads explicit `-e` extensions.** Per-run OpenRouter routing goes through the bench-shipped
-  `pi_ext/openrouter_routing.ts` plus `BENCH_OPENROUTER_ROUTING`/`BENCH_ROUTE_LOG` env vars (never the global
+- **`-ne` still loads explicit `-e` extensions.** Per-run OpenRouter routing goes through the art-crit-shipped
+  `pi_ext/openrouter_routing.ts` plus `ART_CRIT_OPENROUTER_ROUTING`/`ART_CRIT_ROUTE_LOG` env vars (never the global
   `models.json`, which would affect every pi session on the machine).
 - **OpenRouter upstreams:** slugs contain `/` (`deepinfra/fp8`), so anything that takes "the model name after the
   last `/"` must split off `@route` first (`make_run_id`, `model_tag`, `modelParts()`). Responses name the upstream
@@ -179,7 +180,7 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   `data-col`/`data-label`. A new column needs those attributes and a placement in the `@media (max-width: 720px)` block.
   The effort cell's text must stay exactly the level name (the meter is a CSS `::before`); tests read it.
 - **Screenshots of every page type** (desktop/phone, light/dark) are a quick visual check after UI changes: Python
-  Playwright with `channel="chrome"` and `color_scheme="dark"` on the context, against `bench serve`.
+  Playwright with `channel="chrome"` and `color_scheme="dark"` on the context, against `art-crit serve`.
 - **Viewer data JSON is fetched with `cache: "no-cache"`** (`getJSON()`); without it the browser's heuristic cache
   showed stale results after saving a ranking (and after a publish).
 - **Tests address table cells by `data-col`**, not position: adding a column (like Rank) shifted `nth()` indexes.
@@ -189,10 +190,10 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   (verify, the web end-to-end test) run it in a worker thread (`in_thread()` in `test_web_kind.py`).
 - **ffmpeg here has no WebP encoder** (it can decode WebP), so oversized images are re-encoded as JPEG.
 - **`uv run` puts `.venv/bin` first on PATH**, so agents (and the brief's tool list) see the venv's python3,
-  not Homebrew's. The user also has `bench` installed as an editable uv tool (`uv tool install --editable '.[verify]'`),
-  which doesn't do that: a batch started with plain `bench run` sees the system python3. Agents working in this repo
-  should keep using `uv run bench`.
-- **Safari needs HTTP Range requests to play mp4.** GitHub Pages supports them; `bench serve` (Python's
+  not Homebrew's. The user also has `art-crit` installed as an editable uv tool (`uv tool install --editable '.[verify]'`),
+  which doesn't do that: a batch started with plain `art-crit run` sees the system python3. Agents working in this repo
+  should keep using `uv run art-crit`.
+- **Safari needs HTTP Range requests to play mp4.** GitHub Pages supports them; `art-crit serve` (Python's
   http.server) doesn't, so preview videos in Chrome.
 
 ## Open ideas (not built)
@@ -205,7 +206,7 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
   different kind of harness (one API call per run, e.g. via OpenRouter) that writes straight into
   `./output/`; the media step, import and viewer would then work unchanged.
 - Asset cache-busting (ADR-0012).
-- `bench publish` opening a pull request instead of pushing (for people without write access, or `--pr` for
+- `art-crit publish` opening a pull request instead of pushing (for people without write access, or `--pr` for
   the owner), with a GitHub Action checking PRs only touch `docs/data/` + `docs/engines/`. Discussed and
   deliberately not built for now.
 - Public voting (arena-style A/B votes): would need a small write API outside GitHub Pages (e.g. a
@@ -214,6 +215,6 @@ gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy stat
 ## Working with this user
 
 - They iterate on the UI by describing changes against the live site. Deploy, verify on the live site
-  (Playwright against https://fenderog.github.io/llm-bench/), then report.
+  (Playwright against https://fenderog.github.io/art-crit/), then report.
 - They like a short plan before bigger features, and want work to stay simple, lean and well tested.
 - Scratch files go in `tmp/`, which is gitignored.

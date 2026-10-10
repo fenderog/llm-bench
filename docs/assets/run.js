@@ -21,7 +21,7 @@ if (page) {
 }
 
 function render(run, base, siblings) {
-  document.title = `${run.model} · ${run.effort} – llm-bench`;
+  document.title = `${run.model} · ${run.effort} – art-crit`;
   const { provider, name, via } = modelParts(run.model);
   document.getElementById("run-provider").textContent = via ? `${provider} · via ${via}` : provider;
   const myRank = run.rank;

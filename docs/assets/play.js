@@ -17,7 +17,7 @@ if (page) {
 }
 
 function render(r) {
-  document.title = `${r.model} · ${r.effort} – llm-bench`;
+  document.title = `${r.model} · ${r.effort} – art-crit`;
   document.getElementById("play-bar").append(...[modelLabel(r.model), effortPill(r.effort), stateBadge(r), outputBadge(r), el("a", { text: "Run page →", attrs: { href: runUrl(slug, id) } })].filter(Boolean));
   main.replaceChildren(...[r.error ? el("p", { class: "run-error", text: r.error }) : null, ...renderOutput(r, runDir(slug, id), { autoplay: true, frameClass: "play-frame" })].filter(Boolean));
 }

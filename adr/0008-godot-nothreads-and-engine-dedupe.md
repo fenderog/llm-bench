@@ -12,14 +12,14 @@ to a few MB. Pages has a 1 GB site limit. It also can't send the COOP/COEP heade
 
 ## Decision
 
-- **Export single-threaded only** (`web_nothreads_release`). `bench run` writes its own `export_presets.cfg`.
+- **Export single-threaded only** (`web_nothreads_release`). `art-crit run` writes its own `export_presets.cfg`.
   Import refuses threaded exports unless `--allow-threads` is given, which marks the run `threads: true`.
 - **Store each engine once**:
   - `engines/<sha12>/godot.{wasm,js,audio.worklet.js,audio.position.worklet.js}`, where sha12 is taken from
     the four engine files.
   - The run's `index.html` is rewritten to load the engine from there, with `mainPack = "index.pck"` set
     explicitly. Without that, the pck path would resolve into the engine folder.
-- **Delete unreferenced engines** on `bench rebuild`.
+- **Delete unreferenced engines** on `art-crit rebuild`.
 - **Verify builds** headlessly: the output files must exist (Godot can exit 0 after failing), and a Playwright boot
   check waits for `#status` to be removed and for two frames that differ.
 

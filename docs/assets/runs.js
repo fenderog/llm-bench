@@ -163,7 +163,7 @@ export function rankLabel(rank) {
   return ["🥇", "🥈", "🥉"][rank - 1] || `#${rank}`;
 }
 
-// Ranking is edited only through `bench serve` on this machine, which answers api/local;
+// Ranking is edited only through `art-crit serve` on this machine, which answers api/local;
 // GitHub Pages has no such endpoint, so the published site is always read-only.
 export async function canEditRanks() {
   if (!["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) return false;

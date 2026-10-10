@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from bench.kinds import web
-from bench.kinds.web import Web
+from art_crit.kinds import web
+from art_crit.kinds.web import Web
 
 pytestmark = pytest.mark.skipif(shutil.which("esbuild") is None, reason="esbuild not on PATH")
 
@@ -108,8 +108,8 @@ def test_verify_runs_the_page_offline_in_a_sandbox(tmp_path):
 def test_web_run_end_to_end_in_the_viewer(tmp_path, monkeypatch):
     """Fake agent -> real esbuild -> real offline verify -> import -> the viewer plays it sandboxed."""
     sync_api = pytest.importorskip("playwright.sync_api")
-    from bench.cli import main
-    from bench.serve import serve_in_thread
+    from art_crit.cli import main
+    from art_crit.serve import serve_in_thread
 
     repo = Path(__file__).resolve().parents[1]
     monkeypatch.setenv("PATH", f"{repo / 'tests/fixtures/fake_pi'}{os.pathsep}{os.environ['PATH']}")
@@ -118,7 +118,7 @@ def test_web_run_end_to_end_in_the_viewer(tmp_path, monkeypatch):
     for f in repo.glob("docs/*.html"):
         shutil.copy(f, root / "docs")
     shutil.copytree(repo / "docs/assets", root / "docs/assets")
-    (root / "bench.toml").write_text(f'[run]\ndir = "{tmp_path / "runs"}"\n')
+    (root / "art-crit.toml").write_text(f'[run]\ndir = "{tmp_path / "runs"}"\n')
     assert in_thread(main, ["run", "--yes", "--kind", "web", "a spinning horse", "-m", "openai-codex/gpt-6-sol:low", "--root", str(root)]) == 0
     [run] = json.loads((root / "docs/data/a-spinning-horse/page.json").read_text())["runs"]
     assert run["output"]["verified"] is True and run["thumb"] == "thumb.png"

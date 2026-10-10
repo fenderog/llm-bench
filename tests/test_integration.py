@@ -29,12 +29,12 @@ def site(tmp_path_factory):
     for f in [*REPO.glob("docs/*.html"), REPO / "docs/.nojekyll"]:
         shutil.copy(f, root / "docs")
     shutil.copytree(REPO / "docs/assets", root / "docs/assets")
-    shutil.copy(REPO / "bench.toml", root)
+    shutil.copy(REPO / "art-crit.toml", root)
     shutil.copytree(REPO / "docs/data/voxel-horse", root / "docs/data/voxel-horse")
     shutil.copytree(REPO / "docs/engines", root / "docs/engines")
     (root / "docs/data/pages.json").write_text("[]")
     port = free_port()
-    server = subprocess.Popen([sys.executable, "-m", "bench", "serve", "--port", str(port), "--root", str(root)])
+    server = subprocess.Popen([sys.executable, "-m", "art_crit", "serve", "--port", str(port), "--root", str(root)])
     for _ in range(50):
         try:
             urllib.request.urlopen(f"http://127.0.0.1:{port}/data/pages.json")

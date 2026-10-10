@@ -1,4 +1,4 @@
-# 0011. `bench publish` pushes to `main`, no PR flow
+# 0011. `art-crit publish` pushes to `main`, no PR flow
 
 - Status: Accepted
 - Recorded: 2026-09-28 (written after the fact from SPEC.md, DESIGN.md and AGENTS.md)
@@ -11,13 +11,13 @@ as a review step for the owner.
 
 ## Decision
 
-- `bench publish [-m MSG]` commits `docs/` and pushes straight to `main`, using the owner's existing git auth.
-- `bench run --publish` does the same after importing.
+- `art-crit publish [-m MSG]` commits `docs/` and pushes straight to `main`, using the owner's existing git auth.
+- `art-crit run --publish` does the same after importing.
 - There is no pull-request mode and no CI check for now.
 
 ## Alternatives considered
 
-- **`bench publish --pr`**: opens a PR, and a GitHub Action checks that the PR only touches `docs/data/` and
+- **`art-crit publish --pr`**: opens a PR, and a GitHub Action checks that the PR only touches `docs/data/` and
   `docs/engines/`. This would let other people contribute runs, and give the owner a review step.
   Discussed and deliberately deferred: there's one publisher, and the safety checks (0005) already run
   before anything is written.
@@ -25,7 +25,7 @@ as a review step for the owner.
 
 ## Consequences
 
-- Publishing takes one step and is instant. The review is `bench serve` before publishing.
-- A bad import goes live straight away. The fix is `bench rm`/re-import plus another publish, and history
+- Publishing takes one step and is instant. The review is `art-crit serve` before publishing.
+- A bad import goes live straight away. The fix is `art-crit rm`/re-import plus another publish, and history
   keeps the bad version (which matters for secrets, hence 0005).
 - Outside contributions would mean superseding this ADR with the PR flow above.

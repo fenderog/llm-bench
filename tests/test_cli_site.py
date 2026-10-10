@@ -1,8 +1,8 @@
-"""bench rm / rebuild / list, and the shape of pages.json / page.json."""
+"""art-crit rm / rebuild / list, and the shape of pages.json / page.json."""
 
 import json
 
-from bench.cli import main
+from art_crit.cli import main
 
 
 def test_pages_and_page_json_shapes(bench_root, batch_dir):

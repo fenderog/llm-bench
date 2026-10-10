@@ -39,7 +39,7 @@ class Kind:
 
     def brief(self):
         """The brief template ({prompt} and {tools} are substituted)."""
-        return importlib.resources.files("bench.kinds").joinpath(f"{self.name}.md").read_text()
+        return importlib.resources.files("art_crit.kinds").joinpath(f"{self.name}.md").read_text()
 
     def missing_tools(self):
         return [tool for tool in self.tools if not shutil.which(tool)]

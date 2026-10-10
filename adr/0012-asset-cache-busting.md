@@ -15,9 +15,9 @@
 
 ## Options
 
-1. **A version query string on every asset URL** (`app.js?v=<sha>`), stamped by `bench publish`.
+1. **A version query string on every asset URL** (`app.js?v=<sha>`), stamped by `art-crit publish`.
    - Simple.
-   - `bench publish` would then rewrite HTML/JS. So far it only commits, and the CLI never touches viewer
+   - `art-crit publish` would then rewrite HTML/JS. So far it only commits, and the CLI never touches viewer
      files (0003).
    - Every relative `import` between modules needs the same version string.
 2. **Content-hashed filenames** (`common.3f2a.js`).

@@ -1,4 +1,4 @@
-"""The headless-Chrome check the Godot and web kinds share. See SPEC.md "bench run" step 7 (Verify)."""
+"""The headless-Chrome check the Godot and web kinds share. See SPEC.md "art-crit run" step 7 (Verify)."""
 
 import json
 import shutil
@@ -21,7 +21,7 @@ def verify_page(out_dir, ready_js, judge, *, sandboxed=False, wait_s=30, settle_
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
-        print("note: playwright not installed (pip install bench[verify]); skipping verification")
+        print("note: playwright not installed (pip install art-crit[verify]); skipping verification")
         return None
 
     from .serve import serve_in_thread

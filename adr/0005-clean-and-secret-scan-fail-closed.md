@@ -16,7 +16,7 @@ Anything pushed to the repo stays in git history, so a leaked secret can't be ta
 
 ## Decision
 
-- **Cleaning always runs on import.** It can't be turned off, only tuned in `bench.toml [clean]`. It:
+- **Cleaning always runs on import.** It can't be turned off, only tuned in `art-crit.toml [clean]`. It:
   - strips `thinkingSignature`/`encrypted_content`,
   - rewrites paths (home → `~`, plus configured rewrites),
   - drops keys that are machine noise.

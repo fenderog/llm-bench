@@ -874,8 +874,8 @@ def test_ranking_is_shown_read_only_on_the_published_site(site, page):
 
 @pytest.fixture
 def bench_served(tmp_path):
-    """The viewer served by `bench serve` itself (which has the local ranking API) on a copy of the fixture site."""
-    from bench.serve import serve_in_thread
+    """The viewer served by `art-crit serve` itself (which has the local ranking API) on a copy of the fixture site."""
+    from art_crit.serve import serve_in_thread
 
     docs = tmp_path / "docs"
     docs.mkdir()

@@ -1,4 +1,4 @@
-"""The agent-program interface (`bench run` drives one of these): Pi and ClaudeCode. Also the
+"""The agent-program interface (`art-crit run` drives one of these): Pi and ClaudeCode. Also the
 pure session parsers: metrics + state (see SPEC.md "Metrics" and "Harness interface").
 
 Every harness hands the runner the same things: a command line, a session in pi's format
@@ -16,9 +16,9 @@ from datetime import datetime
 from pathlib import Path
 
 from .kinds.media import thumbnail
-from .util import LEVEL_INDEX, LEVEL_ORDER, BenchError
+from .util import LEVEL_INDEX, LEVEL_ORDER, CritError
 
-# Bench-shipped pi extension for OpenRouter runs (see pi_ext/openrouter_routing.ts): it records
+# art-crit-shipped pi extension for OpenRouter runs (see pi_ext/openrouter_routing.ts): it records
 # which upstream served each response and what OpenRouter charged, and pins the upstream for
 # `MODEL@slug` runs. Passed with an explicit `-e` (which still loads under `-ne`).
 ROUTING_EXTENSION = Path(__file__).parent / "pi_ext" / "openrouter_routing.ts"
@@ -36,7 +36,7 @@ def split_route(rest):
     upstreams, _, levels = tail.partition(":")
     slugs = [s.strip().lower() for s in upstreams.split(",") if s.strip()]
     if not slugs or any(not SLUG_RE.match(s) for s in slugs):
-        raise BenchError(f"bad @UPSTREAM in {rest!r}: expected @slug[,slug...] (each matching {SLUG_RE.pattern!r})")
+        raise CritError(f"bad @UPSTREAM in {rest!r}: expected @slug[,slug...] (each matching {SLUG_RE.pattern!r})")
     return base + (f":{levels}" if levels else ""), slugs
 
 
@@ -115,14 +115,14 @@ class Harness:
     def pinned(self, model, upstreams):
         """The model argument for a run: `model`, or `model@a,b` when upstreams are pinned."""
         if upstreams:
-            raise BenchError(f"{model}: @UPSTREAM only works for pi openrouter/ models")
+            raise CritError(f"{model}: @UPSTREAM only works for pi openrouter/ models")
         return model
 
     def command(self, model, level, brief, session_dir):
         raise NotImplementedError
 
     def env(self, model=None, harness_dir=None):
-        """The agent's environment (None = inherit bench's). Routed pi runs pass their
+        """The agent's environment (None = inherit art-crit's). Routed pi runs pass their
         model_arg + harness dir so per-run routing env can be set."""
         return None
 
@@ -161,15 +161,15 @@ class Pi(Harness):
         try:
             r = subprocess.run([self.binary, "--version"], capture_output=True, text=True, timeout=15)
         except (OSError, subprocess.TimeoutExpired) as e:
-            raise BenchError(f"cannot run {self.binary} --version: {e}")
+            raise CritError(f"cannot run {self.binary} --version: {e}")
         if r.returncode != 0:
-            raise BenchError(f"{self.binary} --version failed: {r.stderr.strip()}")
+            raise CritError(f"{self.binary} --version failed: {r.stderr.strip()}")
         return r.stdout.strip().splitlines()[0].strip()
 
     def models(self):
         r = subprocess.run([self.binary, "--list-models"], capture_output=True, text=True, timeout=30)
         if r.returncode != 0:
-            raise BenchError(f"{self.binary} --list-models failed: {r.stderr.strip()}")
+            raise CritError(f"{self.binary} --list-models failed: {r.stderr.strip()}")
         lines = r.stdout.splitlines()
         models = []
         for line in lines[1:]:  # skip the header row
@@ -189,7 +189,7 @@ class Pi(Harness):
         try:
             proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         except OSError as e:
-            raise BenchError(f"cannot run {self.binary}: {e}")
+            raise CritError(f"cannot run {self.binary}: {e}")
         timer = threading.Timer(30, proc.kill)
         timer.start()
         try:
@@ -198,7 +198,7 @@ class Pi(Harness):
             while True:
                 line = proc.stdout.readline()
                 if not line:
-                    raise BenchError(f"{model}: {self.binary} closed its output before answering get_available_thinking_levels (timed out?)")
+                    raise CritError(f"{model}: {self.binary} closed its output before answering get_available_thinking_levels (timed out?)")
                 line = line.strip()
                 if not line:
                     continue
@@ -208,7 +208,7 @@ class Pi(Harness):
                     continue
                 if data.get("type") == "response" and data.get("command") == "get_available_thinking_levels":
                     if not data.get("success"):
-                        raise BenchError(f"{model}: could not get thinking levels: {data}")
+                        raise CritError(f"{model}: could not get thinking levels: {data}")
                     levels = data.get("data", {}).get("levels", [])
                     return [level for level in LEVEL_ORDER if level in levels]
         finally:
@@ -221,7 +221,7 @@ class Pi(Harness):
 
     def pinned(self, model, upstreams):
         if upstreams and not model.startswith("openrouter/"):
-            raise BenchError(f"{model}: @UPSTREAM only works for pi openrouter/ models")
+            raise CritError(f"{model}: @UPSTREAM only works for pi openrouter/ models")
         return f"{model}@{','.join(upstreams)}" if upstreams else model
 
     def finish(self, harness_dir, model, metrics):
@@ -260,17 +260,17 @@ class Pi(Harness):
         return cmd + [brief]
 
     def env(self, model=None, harness_dir=None):
-        """Every OpenRouter run logs its upstreams and real cost to BENCH_ROUTE_LOG; a pinned one
-        (`MODEL@slug`) also gets BENCH_OPENROUTER_ROUTING. Other models inherit bench's env."""
+        """Every OpenRouter run logs its upstreams and real cost to ART_CRIT_ROUTE_LOG; a pinned one
+        (`MODEL@slug`) also gets ART_CRIT_OPENROUTER_ROUTING. Other models inherit art-crit's env."""
         if model is None or harness_dir is None:
             return None
         base, slugs = split_model_route(model)
         if not base.startswith("openrouter/"):
             return None
-        env = {**os.environ, "BENCH_ROUTE_LOG": str(Path(harness_dir) / "route.jsonl")}
-        env.pop("BENCH_OPENROUTER_ROUTING", None)
+        env = {**os.environ, "ART_CRIT_ROUTE_LOG": str(Path(harness_dir) / "route.jsonl")}
+        env.pop("ART_CRIT_OPENROUTER_ROUTING", None)
         if slugs:
-            env["BENCH_OPENROUTER_ROUTING"] = json.dumps({"only": slugs, "allow_fallbacks": False})
+            env["ART_CRIT_OPENROUTER_ROUTING"] = json.dumps({"only": slugs, "allow_fallbacks": False})
         return env
 
     def session_file(self, session_dir):
@@ -377,9 +377,9 @@ class ClaudeCode(Harness):
         try:
             r = subprocess.run([self.binary, "--version"], capture_output=True, text=True, timeout=30)
         except (OSError, subprocess.TimeoutExpired) as e:
-            raise BenchError(f"cannot run {self.binary} --version: {e}")
+            raise CritError(f"cannot run {self.binary} --version: {e}")
         if r.returncode != 0:
-            raise BenchError(f"{self.binary} --version failed: {r.stderr.strip()}")
+            raise CritError(f"{self.binary} --version failed: {r.stderr.strip()}")
         return r.stdout.strip().split()[0]  # "2.1.283 (Claude Code)" -> "2.1.283"
 
     def models(self):
@@ -410,7 +410,7 @@ class ClaudeCode(Harness):
         ]
 
     def env(self, model=None, harness_dir=None):
-        # bench itself may be running inside Claude Code; don't let the agent think it's nested.
+        # art-crit itself may be running inside Claude Code; don't let the agent think it's nested.
         return {k: v for k, v in os.environ.items() if k != "CLAUDECODE" and not k.startswith("CLAUDE_CODE_")}
 
     def session_file(self, session_dir):

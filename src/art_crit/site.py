@@ -6,7 +6,7 @@ import re
 import shutil
 from datetime import datetime, timedelta, timezone
 
-from .util import BenchError, effort_sort_key, title_from_slug
+from .util import CritError, effort_sort_key, title_from_slug
 
 
 def _ended_at(run):
@@ -25,7 +25,7 @@ def _pick_thumb(runs):
 
 def apply_ranking(page_dir, runs):
     """Set each run's `rank` from data/<slug>/ranking.json (null when unranked), dropping entries
-    for runs that no longer exist (e.g. after `bench rm`)."""
+    for runs that no longer exist (e.g. after `art-crit rm`)."""
     path = page_dir / "ranking.json"
     ranking = json.loads(path.read_text()) if path.is_file() else {"ranks": {}}
     ids = {r["id"] for r in runs}
@@ -104,14 +104,14 @@ def rebuild(root):
 def cmd_rm(root, slug, run_id=None):
     page_dir = root / "docs" / "data" / slug
     if not page_dir.is_dir():
-        raise BenchError(f"no such page: {slug}")
+        raise CritError(f"no such page: {slug}")
     if run_id is None:
         shutil.rmtree(page_dir)
         print(f"removed page {slug}")
     else:
         run_dir = page_dir / "runs" / run_id
         if not run_dir.is_dir():
-            raise BenchError(f"no such run: {slug}/{run_id}")
+            raise CritError(f"no such run: {slug}/{run_id}")
         shutil.rmtree(run_dir)
         print(f"removed run {slug}/{run_id}")
     rebuild(root)
@@ -124,11 +124,11 @@ def cmd_rename(root, old, new, title=None):
     data_dir = root / "docs" / "data"
     old_dir, new_dir = data_dir / old, data_dir / new
     if not old_dir.is_dir():
-        raise BenchError(f"no such page: {old}")
+        raise CritError(f"no such page: {old}")
     if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", new):
-        raise BenchError(f"bad slug {new!r}: use lowercase letters, digits and single hyphens")
+        raise CritError(f"bad slug {new!r}: use lowercase letters, digits and single hyphens")
     if new_dir.exists():
-        raise BenchError(f"page already exists: {new}")
+        raise CritError(f"page already exists: {new}")
     old_dir.rename(new_dir)
     for rj in new_dir.glob("runs/*/run.json"):
         run = json.loads(rj.read_text())

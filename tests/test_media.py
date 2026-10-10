@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from bench.kinds import media
+from art_crit.kinds import media
 
 pytestmark = pytest.mark.skipif(not shutil.which("ffmpeg") or not shutil.which("ffprobe"), reason="needs ffmpeg")
 

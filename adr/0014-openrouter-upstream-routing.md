@@ -5,13 +5,13 @@
 
 ## Context
 
-`bench run` could name an OpenRouter model but not which upstream provider serves it: the upstream was
+`art-crit run` could name an OpenRouter model but not which upstream provider serves it: the upstream was
 whatever OpenRouter picked, and could differ between runs of one batch. The site didn't record it either,
 so two runs of one model weren't necessarily comparable.
 
 pi 0.87.1 already has the pieces: `OpenRouterRouting` (sent as the request's `provider` field),
 a `before_provider_request` extension hook that can rewrite the request body, `provider_stream_event`
-chunks that carry the serving upstream, and `-e <path>` extensions that still load under bench's `-ne`.
+chunks that carry the serving upstream, and `-e <path>` extensions that still load under art-crit's `-ne`.
 
 ## Decision
 
@@ -19,8 +19,8 @@ chunks that carry the serving upstream, and `-e <path>` extensions that still lo
   `[harness:]MODEL@SLUG[,SLUG...][:LEVELS]`. `@deepinfra` pins to one upstream (fallbacks off);
   `@deepinfra,fireworks` lets OpenRouter pick among the listed ones. Only valid for pi `openrouter/`
   models; anything else is an error before any run starts.
-- **Mechanism**: bench ships `src/bench/pi_ext/openrouter_routing.ts`. The runner passes it with an
-  explicit `-e` and sets `BENCH_OPENROUTER_ROUTING` + `BENCH_ROUTE_LOG` in that run's environment.
+- **Mechanism**: art-crit ships `src/art_crit/pi_ext/openrouter_routing.ts`. The runner passes it with an
+  explicit `-e` and sets `ART_CRIT_OPENROUTER_ROUTING` + `ART_CRIT_ROUTE_LOG` in that run's environment.
   The extension merges the routing into the request's `provider` field and logs the serving upstream
   per response.
 - **Identity**: the upstream is part of the recorded model name (`openrouter/…/flash@deepinfra`), so

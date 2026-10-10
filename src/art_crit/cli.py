@@ -1,4 +1,4 @@
-"""bench: argparse wiring for import/list/rm/rename/rebuild/serve/publish/run/models."""
+"""art-crit: argparse wiring for import/list/rm/rename/rebuild/serve/publish/run/models."""
 
 import argparse
 import subprocess
@@ -12,18 +12,18 @@ from .kinds import KINDS
 from .runner import cmd_models, cmd_run
 from .serve import serve_forever
 from .site import cmd_list, cmd_rename, cmd_rm, rebuild
-from .util import BenchError
+from .util import CritError
 
 
 def build_parser():
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("-C", "--root", default=".", type=Path, help="repo root (site is <root>/docs)")
 
-    parser = argparse.ArgumentParser(prog="bench")
+    parser = argparse.ArgumentParser(prog="art-crit")
     sub = parser.add_subparsers(dest="command", required=True)
 
     imp = sub.add_parser("import", parents=[common], help="publish a run directory, or every run of a batch directory")
-    imp.add_argument("run_dir", help="<batch>/<run id> or <batch> (as `bench run` writes them)")
+    imp.add_argument("run_dir", help="<batch>/<run id> or <batch> (as `art-crit run` writes them)")
     imp.add_argument("-p", "--page", help="override the page slug")
     imp.add_argument("-t", "--title", help="override the page title")
     imp.add_argument("-r", "--redact", action="store_true", help="redact secret hits instead of aborting")
@@ -53,7 +53,7 @@ def build_parser():
     run.add_argument("prompt", nargs="?", help="the task prompt")
     run.add_argument("-f", "--prompt-file", type=Path)
     run.add_argument("-m", "--model", dest="models", action="append", default=[], help="[claude-code:]MODEL[:LEVELS], repeatable (no prefix = pi)")
-    run.add_argument("-s", "--set", dest="sets", action="append", default=[], help="a model set: a NAME from bench.toml [sets], or a FILE with one MODEL[:LEVELS] per line; repeatable, combines with -m")
+    run.add_argument("-s", "--set", dest="sets", action="append", default=[], help="a model set: a NAME from art-crit.toml [sets], or a FILE with one MODEL[:LEVELS] per line; repeatable, combines with -m")
     run.add_argument("-e", "--effort", help="default LEVELS for every model without a suffix")
     run.add_argument("-k", "--kind", choices=list(KINDS), help="what the agents produce (default: the page's kind, else godot)")
     run.add_argument("-p", "--page", help="page slug (default: from the prompt); an existing page with no PROMPT reuses its prompt")
@@ -64,7 +64,7 @@ def build_parser():
     run.add_argument("-T", "--timeout", help='per agent, e.g. "30m" (default [run].timeout or 30m)')
     run.add_argument("-y", "--yes", action="store_true", help="don't ask for confirmation")
     run.add_argument("-n", "--dry-run", action="store_true", help="print the plan and exit")
-    run.add_argument("-P", "--publish", action="store_true", help="import and `bench publish` each run as it finishes")
+    run.add_argument("-P", "--publish", action="store_true", help="import and `art-crit publish` each run as it finishes")
     run.add_argument("-r", "--resume", type=Path, help="finish an interrupted batch dir")
 
     models_p = sub.add_parser("models", parents=[common], help="models the harness can run")
@@ -80,13 +80,13 @@ def cmd_publish(root, message):
 
     add = git("add", "docs")
     if add.returncode != 0:
-        raise BenchError(f"git add failed: {add.stderr.strip()}")
-    commit = git("commit", "-m", message or "bench publish")
+        raise CritError(f"git add failed: {add.stderr.strip()}")
+    commit = git("commit", "-m", message or "art-crit publish")
     if commit.returncode != 0 and "nothing to commit" not in (commit.stdout + commit.stderr):
-        raise BenchError(f"git commit failed: {commit.stderr.strip()}")
+        raise CritError(f"git commit failed: {commit.stderr.strip()}")
     push = git("push")
     if push.returncode != 0:
-        raise BenchError(f"git push failed: {push.stderr.strip()}")
+        raise CritError(f"git push failed: {push.stderr.strip()}")
     print((commit.stdout + commit.stderr).strip() or "nothing to commit")
     return 0
 
@@ -144,7 +144,7 @@ def main(argv=None):
             )
         if args.command == "models":
             return cmd_models(HARNESSES[args.harness](), args.search)
-    except BenchError as e:
+    except CritError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
     return 1

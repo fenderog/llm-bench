@@ -1,4 +1,4 @@
-"""bench import: publish run directories (the runner's `<batch>/<run id>/`, see SPEC.md "Run directory")
+"""art-crit import: publish run directories (the runner's `<batch>/<run id>/`, see SPEC.md "Run directory")
 to the site: clean + secret-scan, copy, then rebuild."""
 
 import json
@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 from . import clean, site
 from .kinds import KINDS, StageContext
-from .util import BenchError, mask
+from .util import CritError, mask
 
 # Files under work/ that are never part of the copied source (editor cache, npm packages: bundled into a
 # packaged page, never published as source). export_presets.cfg is one of a Godot project's own files and stays.
@@ -133,26 +133,26 @@ def run_dirs_of(path):
         return [path]
     found = sorted(d for d in path.iterdir() if d.is_dir() and (d / "run.json").is_file())
     if not found:
-        raise BenchError(f"no run.json in {path} or its subdirectories: expected a run directory or a batch directory")
+        raise CritError(f"no run.json in {path} or its subdirectories: expected a run directory or a batch directory")
     return found
 
 
 def cmd_import(config, path, page=None, title=None, redact=False, allow_threads=False, dry_run=False):
     path = Path(path).resolve()
     if not path.is_dir():
-        raise BenchError(f"not a directory: {path}")
+        raise CritError(f"not a directory: {path}")
     sources = run_dirs_of(path)
     records = [json.loads((d / "run.json").read_text()) for d in sources]
     kinds = {r["kind"] for r in records}
     if len(kinds) > 1:
-        raise BenchError(f"{path} holds runs of different kinds ({', '.join(sorted(kinds))}); import them separately")
+        raise CritError(f"{path} holds runs of different kinds ({', '.join(sorted(kinds))}); import them separately")
     [kind] = kinds
     slug = page or records[0]["page"]
     docs_root = config.root / "docs"
     page_path = docs_root / "data" / slug / "page.json"
     page_kind = json.loads(page_path.read_text()).get("kind", "godot") if page_path.is_file() else kind
     if page_kind != kind:
-        raise BenchError(f"page {slug!r} holds {page_kind} runs, this import has {kind} runs; use another --page")
+        raise CritError(f"page {slug!r} holds {page_kind} runs, this import has {kind} runs; use another --page")
     (docs_root / "data").mkdir(parents=True, exist_ok=True)
     (docs_root / "engines").mkdir(parents=True, exist_ok=True)
     rewrites = config.rewrites
@@ -178,7 +178,7 @@ def cmd_import(config, path, page=None, title=None, redact=False, allow_threads=
         if all_hits and not redact:
             for run_id, rel, line, secret in all_hits:
                 print(f"secret: {run_id}/{rel}:{line}: {mask(secret)}", file=sys.stderr)
-            raise BenchError(f"{len(all_hits)} possible secret(s) found before writing anything; use --redact to continue")
+            raise CritError(f"{len(all_hits)} possible secret(s) found before writing anything; use --redact to continue")
 
         for r in results:
             status = "n/a" if r.engine_sha is None else ("stored" if r.engine_files is not None else "reused")

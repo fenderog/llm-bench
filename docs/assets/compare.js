@@ -14,7 +14,7 @@ if (page) {
   const link = document.getElementById("page-link");
   link.textContent = page.title;
   link.href = `page.html?p=${encodeURIComponent(slug)}`;
-  document.title = `Compare – ${page.title} – llm-bench`;
+  document.title = `Compare – ${page.title} – art-crit`;
   document.getElementById("title").textContent = page.title;
   if (page.prompt) {
     const p = document.getElementById("compare-prompt");

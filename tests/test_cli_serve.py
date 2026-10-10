@@ -1,8 +1,8 @@
-"""bench serve: CORS, .wasm/.pck content types, and no COOP/COEP headers."""
+"""art-crit serve: CORS, .wasm/.pck content types, and no COOP/COEP headers."""
 
 import urllib.request
 
-from bench.serve import serve_in_thread
+from art_crit.serve import serve_in_thread
 
 
 def _get(url):
@@ -51,7 +51,7 @@ from pathlib import Path
 
 import pytest
 
-from bench.cli import main
+from art_crit.cli import main
 
 FIXTURE_DATA = Path(__file__).parent / "fixtures/site/data"
 LOW, HIGH = "model-x-low-20260101-000000", "model-x-high-20260101-001000"

@@ -14,7 +14,7 @@ changes for bloat and wants to be able to read the whole codebase.
 - **CLI**: Python ≥ 3.12, standard library only (argparse, json, hashlib, tomllib, http.server, subprocess).
   `pyproject.toml` has `dependencies = []`.
 - **Optional pieces are imported lazily and degrade gracefully when they're missing**:
-  - Playwright (`bench[verify]`) is used only to boot-check Godot builds.
+  - Playwright (`art-crit[verify]`) is used only to boot-check Godot builds.
   - ffmpeg/ffprobe are external binaries used only by media pages.
 - **Site**: vanilla JS ES modules, one CSS file, and system fonts. There's no framework and no bundler.
   - The only third-party code is `marked`, pinned to a version and loaded from a CDN. When it doesn't load,

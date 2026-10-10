@@ -11,8 +11,8 @@ The first design (DESIGN.md) was generic: a run could hold any mix of artifacts 
 
 ## Decision
 
-- **A page is one prompt.** Its runs are model × effort attempts, added over time by `bench import` or `bench run`.
-  - `bench run --page` reuses the page's prompt.
+- **A page is one prompt.** Its runs are model × effort attempts, added over time by `art-crit import` or `art-crit run`.
+  - `art-crit run --page` reuses the page's prompt.
   - A different prompt needs `--change-prompt`, because the page's prompt applies to all its runs.
 - **A page has exactly one kind**, and every run of the page has it:
   - `godot`: a project published as a playable web build.
@@ -20,7 +20,7 @@ The first design (DESIGN.md) was generic: a run could hold any mix of artifacts 
   - `web`: a web page, packaged into one `index.html` (added later, see 0013).
   
   Importing a run of another kind is an error.
-- Each kind has its own brief template (`src/bench/kinds/<kind>.md`), post-processing step (export + verify, or
+- Each kind has its own brief template (`src/art_crit/kinds/<kind>.md`), post-processing step (export + verify, or
   media normalization) and viewer (Game tab or Output tab); one class per kind since 0018.
 - The metrics are fixed (duration, tokens, cost, tool calls, turns), not configured per page.
 

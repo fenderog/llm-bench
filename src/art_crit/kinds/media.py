@@ -1,5 +1,5 @@
 """The `media` kind: check and normalize the image/video files an agent saved in work/output/.
-See SPEC.md "bench run" step 6. Uses ffmpeg/ffprobe (checked for before a media batch starts)."""
+See SPEC.md "art-crit run" step 6. Uses ffmpeg/ffprobe (checked for before a media batch starts)."""
 
 import json
 import shutil

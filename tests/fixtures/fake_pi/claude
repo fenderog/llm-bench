@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A fake `claude` (Claude Code) binary for testing `bench run` without calling a real model.
+"""A fake `claude` (Claude Code) binary for testing `art-crit run` without calling a real model.
 
   claude --version
   claude -p ... --output-format stream-json ... -- BRIEF   (prints a canned stream-json session and

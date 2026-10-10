@@ -14,7 +14,7 @@ A fourth kind would have touched about ten places in Python and twenty in JS.
 
 ## Decision
 
-- **A kind is one class** in `src/bench/kinds/` (`Godot`, `Media`, `Web`), registered in `KINDS` like `HARNESSES`:
+- **A kind is one class** in `src/art_crit/kinds/` (`Godot`, `Media`, `Web`), registered in `KINDS` like `HARNESSES`:
   `tools`, `brief()`, `finalize(work, out)`, `verify(out)`, `stage(out, run_dir, ctx)`, `keep_source(rel, path)`.
   The runner and the importer call these and never branch on the kind's name. The headless-Chrome check is one shared
   helper (`browser.verify_page`) that the Godot and web kinds call with their own readiness test and verdict.

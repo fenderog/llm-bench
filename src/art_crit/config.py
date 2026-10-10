@@ -1,4 +1,4 @@
-"""bench.toml, parsed once, plus `RunRequest`: everything one `bench run` needs to know.
+"""art-crit.toml, parsed once, plus `RunRequest`: everything one `art-crit run` needs to know.
 
 `Config.load(root)` reads the file once in `cli.main` and is passed to the importer and runner,
 so `[clean]`, `[run]` and `[sets]` share one parser. `RunRequest` is the run's inputs, built by the
@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 
 from .kinds import KINDS
-from .util import BenchError, parse_duration
+from .util import CritError, parse_duration
 
 DEFAULT_TOOLS = ["python3", "node", "ffmpeg", "ffprobe"]
 
@@ -20,7 +20,7 @@ DEFAULT_TOOLS = ["python3", "node", "ffmpeg", "ffprobe"]
 class RunSettings:
     """`[run]`: where batches go, how many agents at once, and the per-agent timeout/tool list."""
 
-    dir: Path = field(default_factory=lambda: Path.home() / "dev" / "bench-runs")
+    dir: Path = field(default_factory=lambda: Path.home() / "dev" / "art-crit-runs")
     parallel: int = 8
     timeout: str = "30m"
     tools: list[str] = field(default_factory=lambda: list(DEFAULT_TOOLS))
@@ -28,7 +28,7 @@ class RunSettings:
 
 @dataclass
 class Config:
-    """The parsed bench.toml. Missing file -> defaults (no rewrites, no sets)."""
+    """The parsed art-crit.toml. Missing file -> defaults (no rewrites, no sets)."""
 
     root: Path  # repo root: the site is <root>/docs
     rewrites: list[tuple[str, str]]  # [clean].rewrite + home dir, longest prefix first
@@ -38,41 +38,41 @@ class Config:
     @classmethod
     def load(cls, root):
         root = Path(root)
-        path = root / "bench.toml"
+        path = root / "art-crit.toml"
         try:
             data = tomllib.loads(path.read_text()) if path.is_file() else {}
         except tomllib.TOMLDecodeError as e:
-            raise BenchError(f"{path}: {e}")
+            raise CritError(f"{path}: {e}")
 
         rewrites = [(str(Path.home()), "~"), *data.get("clean", {}).get("rewrite", {}).items()]
         rewrites.sort(key=lambda kv: -len(kv[0]))
 
         run_cfg = data.get("run", {})
         run = RunSettings(
-            dir=Path(run_cfg.get("dir", "~/dev/bench-runs")).expanduser(),
+            dir=Path(run_cfg.get("dir", "~/dev/art-crit-runs")).expanduser(),
             parallel=run_cfg.get("parallel", 8),
             timeout=run_cfg.get("timeout", "30m"),
             tools=list(run_cfg.get("tools", DEFAULT_TOOLS)),
         )
-        _check_parallel(run.parallel, "bench.toml [run].parallel")
+        _check_parallel(run.parallel, "art-crit.toml [run].parallel")
         parse_duration(run.timeout)
 
         sets = data.get("sets", {})
         for name, specs in sets.items():
             if not isinstance(specs, list) or not all(isinstance(s, str) for s in specs):
-                raise BenchError(f"bench.toml [sets].{name} must be a list of \"model[:levels]\" strings")
+                raise CritError(f"art-crit.toml [sets].{name} must be a list of \"model[:levels]\" strings")
 
         return cls(root=root, rewrites=rewrites, run=run, sets=sets)
 
 
 def _check_parallel(value, what):
     if not isinstance(value, int) or isinstance(value, bool) or value < 1:
-        raise BenchError(f"{what} must be a whole number of at least 1, got {value!r}")
+        raise CritError(f"{what} must be a whole number of at least 1, got {value!r}")
 
 
 @dataclass
 class RunRequest:
-    """One `bench run` request: the prompt and how to run it. JSON-serialisable (`to_dict`) so a
+    """One `art-crit run` request: the prompt and how to run it. JSON-serialisable (`to_dict`) so a
     batch.json can carry it and a run started elsewhere (website, script) can be replayed."""
 
     prompt: str
@@ -91,7 +91,7 @@ class RunRequest:
     def __post_init__(self):
         """Validated where it's built, before any batch dir exists (from argparse or from JSON)."""
         if self.kind is not None and self.kind not in KINDS:
-            raise BenchError(f"unknown kind {self.kind!r} (expected one of: {', '.join(KINDS)})")
+            raise CritError(f"unknown kind {self.kind!r} (expected one of: {', '.join(KINDS)})")
         if self.parallel is not None:
             _check_parallel(self.parallel, "parallel")
         if self.timeout is not None:
@@ -102,7 +102,7 @@ class RunRequest:
 
     @classmethod
     def from_dict(cls, data):
-        """Unknown keys are ignored, so a batch.json written by another bench version still loads."""
+        """Unknown keys are ignored, so a batch.json written by another art-crit version still loads."""
         names = {f.name for f in fields(cls)}
         return cls(**{k: v for k, v in data.items() if k in names})
 

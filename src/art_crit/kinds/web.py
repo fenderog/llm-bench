@@ -1,6 +1,6 @@
 """The `web` kind: package the page an agent wrote (work/index.html, its scripts and stylesheets,
 and the npm packages they import) into one self-contained index.html with esbuild.
-See SPEC.md "bench run" step 6 and ADR-0013."""
+See SPEC.md "art-crit run" step 6 and ADR-0013."""
 
 import base64
 import json

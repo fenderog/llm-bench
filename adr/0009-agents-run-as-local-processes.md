@@ -5,19 +5,19 @@
 
 ## Context
 
-`bench run` starts many agents in parallel, one per model × effort level. The agents run shell commands the
+`art-crit run` starts many agents in parallel, one per model × effort level. The agents run shell commands the
 model chooses, with permissions bypassed. They need Godot, python3, node, ffmpeg and the harness's login.
 
 ## Decision
 
 - **Each agent is a subprocess on the owner's machine**:
-  - Its working directory is an empty `<batch>/<run id>/work/` under `~/dev/bench-runs/`.
+  - Its working directory is an empty `<batch>/<run id>/work/` under `~/dev/art-crit-runs/`.
   - Its scratch files are in `<run id>/harness/`, outside the project, so it stays clean (layout: see 0017).
 - `start_new_session=True` puts each agent in its own process group. The runner kills those groups itself on
   timeout and Ctrl-C (which doesn't reach them), and marks the runs `queued` for `--resume`.
 - Parallelism uses threads plus subprocesses (`-j`, default 8). Godot exports run one at a time.
 - The brief lists the tools that are available (`[run].tools`) instead of controlling what's installed.
-- A real `bench run` costs money. Tests use a fake `pi`/`claude` first on `PATH`, and never call a real model.
+- A real `art-crit run` costs money. Tests use a fake `pi`/`claude` first on `PATH`, and never call a real model.
 
 ## Alternatives considered
 

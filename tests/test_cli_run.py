@@ -1,4 +1,4 @@
-"""bench run: level parsing, plan/confirmation, parallelism, timeout, failed runs still being
+"""art-crit run: level parsing, plan/confirmation, parallelism, timeout, failed runs still being
 imported, metrics, and --resume. Uses a fake `pi` (tests/fixtures/fake_pi/pi) on PATH so no
 real model, Godot or Playwright is needed; Godot export/verify are monkeypatched to fast fakes.
 """
@@ -13,11 +13,11 @@ from pathlib import Path
 
 import pytest
 
-from bench.cli import main
-from bench.config import Config, RunRequest
-from bench.harness import Pi, convert_claude_stream
-from bench.runner import assign_run_ids, expand_levels, parse_duration, plan_runs
-from bench.util import BenchError
+from art_crit.cli import main
+from art_crit.config import Config, RunRequest
+from art_crit.harness import Pi, convert_claude_stream
+from art_crit.runner import assign_run_ids, expand_levels, parse_duration, plan_runs
+from art_crit.util import CritError
 
 FAKE_PI = Path(__file__).parent / "fixtures" / "fake_pi"
 
@@ -26,13 +26,13 @@ def batch_runs(plan):
     """The plan's runs as batch.json holds them (ids from a fixed start time)."""
     from datetime import datetime
 
-    from bench.runner import Harnesses
+    from art_crit.runner import Harnesses
 
     return assign_run_ids(plan, Harnesses(), datetime(2026, 10, 2, 12, 0, 0))
 
 
 def plan_for(specs, effort=None):
-    """plan_runs for a request with no bench.toml (no model sets)."""
+    """plan_runs for a request with no art-crit.toml (no model sets)."""
     return plan_runs(Config.load(Path("/nonexistent")), RunRequest(prompt="p", model_specs=specs, effort=effort))
 
 
@@ -64,15 +64,15 @@ def fake_pi_on_path(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def fake_build(monkeypatch):
-    monkeypatch.setattr("bench.kinds.godot.export_project", fake_export_project)
-    monkeypatch.setattr("bench.kinds.godot.Godot.verify", lambda self, out_dir: None)
-    monkeypatch.setattr("bench.kinds.web.Web.verify", lambda self, out_dir: None)
+    monkeypatch.setattr("art_crit.kinds.godot.export_project", fake_export_project)
+    monkeypatch.setattr("art_crit.kinds.godot.Godot.verify", lambda self, out_dir: None)
+    monkeypatch.setattr("art_crit.kinds.web.Web.verify", lambda self, out_dir: None)
 
 
 @pytest.fixture
 def run_root(bench_root, tmp_path):
-    runs_dir = tmp_path / "bench-runs"
-    (bench_root / "bench.toml").write_text(f'[run]\ndir = "{runs_dir}"\nparallel = 8\ntimeout = "30m"\n')
+    runs_dir = tmp_path / "art-crit-runs"
+    (bench_root / "art-crit.toml").write_text(f'[run]\ndir = "{runs_dir}"\nparallel = 8\ntimeout = "30m"\n')
     return bench_root
 
 
@@ -103,7 +103,7 @@ def test_expand_levels_explicit_off():
 
 
 def test_expand_levels_unsupported_raises_naming_supported():
-    with pytest.raises(BenchError, match="low.*not supported.*low, medium, high|not supported"):
+    with pytest.raises(CritError, match="low.*not supported.*low, medium, high|not supported"):
         expand_levels("xhigh", ["low", "medium", "high"], "m")
 
 
@@ -115,7 +115,7 @@ def test_plan_runs_checks_before_anything_starts():
 
 
 def test_plan_runs_unsupported_level_errors_for_whole_batch():
-    with pytest.raises(BenchError):
+    with pytest.raises(CritError):
         plan_for(["test/limited:xhigh"], None)
 
 
@@ -126,9 +126,9 @@ def test_plan_runs_dedupes_same_model_merging_levels():
 
 
 def test_plan_runs_rejects_unknown_model_with_suggestions():
-    with pytest.raises(BenchError, match=r"unknown model 'openai-codex/gpt-6-sool'.*gpt-6-sol"):
+    with pytest.raises(CritError, match=r"unknown model 'openai-codex/gpt-6-sool'.*gpt-6-sol"):
         plan_for(["openai-codex/gpt-6-sool:low"], None)
-    with pytest.raises(BenchError, match="unknown model 'nope/nothing'"):
+    with pytest.raises(CritError, match="unknown model 'nope/nothing'"):
         plan_for(["nope/nothing"], None)
 
 
@@ -149,7 +149,7 @@ def test_run_ids_name_the_run_directories():
 def test_two_runs_with_one_id_are_refused_before_anything_starts():
     # Two distinct model ids that both reduce to the id "limited-low-...".
     plan = [("pi", "test/limited", "low"), ("pi", "other/limited", "low")]
-    with pytest.raises(BenchError, match="both resolve to the run id 'limited-low-20261002-120000'"):
+    with pytest.raises(CritError, match="both resolve to the run id 'limited-low-20261002-120000'"):
         batch_runs(plan)
 
 
@@ -157,7 +157,7 @@ def test_parse_duration():
     assert parse_duration("30m") == 1800
     assert parse_duration("90s") == 90
     assert parse_duration("1h") == 3600
-    with pytest.raises(BenchError):
+    with pytest.raises(CritError):
         parse_duration("bad")
 
 
@@ -226,7 +226,7 @@ def test_timeout_kills_hung_agent(run_root, monkeypatch):
 def test_a_run_is_one_directory_with_work_harness_and_output(run_root, tmp_path):
     rc = main(["run", "--yes", "layout run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
-    [batch] = (tmp_path / "bench-runs").glob("*-layout-run")
+    [batch] = (tmp_path / "art-crit-runs").glob("*-layout-run")
     [run_dir] = [d for d in batch.iterdir() if d.is_dir()]
     assert run_dir.name.startswith("gpt-6-sol-low-")
     assert sorted(p.name for p in run_dir.iterdir()) == ["harness", "output", "run.json", "work"]
@@ -271,7 +271,7 @@ def test_export_failure_is_the_outputs_error_not_the_agents(run_root, monkeypatc
     def failing_export(godot_bin, project_dir, out_dir, timeout=600):
         return False, None, "Godot export failed: boom"
 
-    monkeypatch.setattr("bench.kinds.godot.export_project", failing_export)
+    monkeypatch.setattr("art_crit.kinds.godot.export_project", failing_export)
     rc = main(["run", "--yes", "export fails run", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
     results = json.loads((run_root / "docs/data/export-fails-run/page.json").read_text())["runs"]
@@ -303,9 +303,9 @@ def test_multiple_models_and_levels_all_run(run_root):
 def test_resume_does_not_rerun_finished_agents(run_root, monkeypatch, tmp_path):
     # Build a batch by hand: one run already "complete" (its work, run.json and output already on
     # disk), one still "queued". Resume must only (re)run the queued one.
-    from bench.runner import write_batch_json
+    from art_crit.runner import write_batch_json
 
-    batch_dir = tmp_path / "bench-runs" / "2026-09-27-000000-resume-me"
+    batch_dir = tmp_path / "art-crit-runs" / "2026-09-27-000000-resume-me"
     low = batch_dir / "gpt-6-sol-low-20260927-000000"
     (low / "work").mkdir(parents=True)
     (low / "work" / "project.godot").write_text("config_version=5\n")
@@ -335,7 +335,7 @@ def test_resume_does_not_rerun_finished_agents(run_root, monkeypatch, tmp_path):
         exported.append(project_dir.parent.name)
         return fake_export_project(godot_bin, project_dir, out_dir, timeout)
 
-    monkeypatch.setattr("bench.kinds.godot.export_project", counting_export)
+    monkeypatch.setattr("art_crit.kinds.godot.export_project", counting_export)
 
     rc = main(["run", "--resume", str(batch_dir), "--root", str(run_root)])
     assert rc == 0
@@ -361,11 +361,11 @@ def test_resume_retries_a_failed_output_step_without_rerunning_the_agent(run_roo
             return False, None, "Godot export failed: first try"
         return fake_export_project(godot_bin, project_dir, out_dir, timeout)
 
-    monkeypatch.setattr("bench.kinds.godot.export_project", flaky_export)
+    monkeypatch.setattr("art_crit.kinds.godot.export_project", flaky_export)
     assert main(["run", "--yes", "retry output", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
     [run] = json.loads((run_root / "docs/data/retry-output/page.json").read_text())["runs"]
     assert run["output"]["ok"] is False
-    [batch] = (tmp_path / "bench-runs").glob("*-retry-output")
+    [batch] = (tmp_path / "art-crit-runs").glob("*-retry-output")
     work = batch / run["id"] / "work"
     (work / "marker.txt").write_text("the agent must not run again")
 
@@ -396,7 +396,7 @@ def test_ctrl_c_kills_the_agent_and_marks_it_queued_for_resume(run_root, monkeyp
 
     def interrupt_once_agent_started():  # Ctrl-C only after the fake pi is really running
         deadline = time.time() + 10
-        while time.time() < deadline and not list(run_root.parent.glob("bench-runs/*-interrupt-me/*/work/fake_pi.pid")):
+        while time.time() < deadline and not list(run_root.parent.glob("art-crit-runs/*-interrupt-me/*/work/fake_pi.pid")):
             time.sleep(0.05)
         os.kill(os.getpid(), signal.SIGINT)
 
@@ -408,7 +408,7 @@ def test_ctrl_c_kills_the_agent_and_marks_it_queued_for_resume(run_root, monkeyp
 
     assert not (run_root / "docs" / "data").exists() or not list((run_root / "docs" / "data").iterdir())
 
-    from bench.config import Config
+    from art_crit.config import Config
 
     cfg = Config.load(run_root)
     batches = list(cfg.run.dir.glob("*-interrupt-me"))
@@ -436,7 +436,7 @@ REAL_RUN = Path.home() / "dev/effort-runs/2026-09-26-001158-gpt6sol-voxel-horse"
 
 @pytest.mark.skipif(not REAL_RUN.is_dir(), reason="real effort run not on this machine")
 def test_metrics_match_real_session_numbers():
-    from bench.harness import parse_session
+    from art_crit.harness import parse_session
 
     expected = {
         "low": (10692, 3553, 14245, 62, 38016, 0.0645172, 10, 11),
@@ -490,9 +490,9 @@ def test_web_run_that_fails_to_package_has_an_output_error_not_an_agent_error(ru
 
 
 def test_web_run_needs_esbuild(run_root, monkeypatch):
-    monkeypatch.setattr("bench.kinds.shutil.which", lambda name: None if name == "esbuild" else "/bin/" + name)
-    with pytest.raises(BenchError, match="needs esbuild"):
-        from bench.runner import cmd_run
+    monkeypatch.setattr("art_crit.kinds.shutil.which", lambda name: None if name == "esbuild" else "/bin/" + name)
+    with pytest.raises(CritError, match="needs esbuild"):
+        from art_crit.runner import cmd_run
 
         cmd_run(Config.load(run_root), RunRequest(prompt="x", model_specs=["openai-codex/gpt-6-sol:low"], kind="web"), dry_run=True)
 
@@ -585,9 +585,9 @@ def test_run_publish_pushes_each_run_as_it_finishes(run_root, tmp_path, capsys):
     runs = json.loads((run_root / "docs/data/a-horse-as-we-go/page.json").read_text())["runs"]
     assert len(runs) == 3
     assert f"published {len(runs)} runs to 'a-horse-as-we-go' as they finished" in out
-    assert "Preview with: bench serve" not in out
+    assert "Preview with: art-crit serve" not in out
     subjects = git_subjects(run_root)
-    assert sorted(subjects) == sorted(["init", *(f"bench run: a-horse-as-we-go ({r['id']})" for r in runs)])
+    assert sorted(subjects) == sorted(["init", *(f"art-crit run: a-horse-as-we-go ({r['id']})" for r in runs)])
     assert git_subjects(origin) == subjects  # and pushed
     status = subprocess.run(["git", "-C", str(run_root), "status", "--porcelain"], check=True, capture_output=True, text=True)
     assert not status.stdout.strip(), "every published file is committed"
@@ -596,12 +596,12 @@ def test_run_publish_pushes_each_run_as_it_finishes(run_root, tmp_path, capsys):
 def test_run_publish_falls_back_to_the_batch_import_for_a_missed_run(run_root, tmp_path, monkeypatch, capsys):
     """A run that couldn't be published is picked up by the batch's own import at the end (the path that
     also reports the failure and exits non-zero when it fails again)."""
-    monkeypatch.setattr("bench.runner.Publisher.publish", lambda self, run_id: None)
+    monkeypatch.setattr("art_crit.runner.Publisher.publish", lambda self, run_id: None)
     git_repo(run_root, tmp_path)
     rc = main(["run", "--yes", "--publish", "a missed horse", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 0
     out = capsys.readouterr().out
-    assert "Preview with: bench serve" in out
+    assert "Preview with: art-crit serve" in out
     assert "as they finished" not in out
     assert len(json.loads((run_root / "docs/data/a-missed-horse/page.json").read_text())["runs"]) == 1
 
@@ -613,7 +613,7 @@ def test_a_new_kind_is_only_a_kind_class(run_root, monkeypatch):
     """A toy kind (a brief and a finalize that makes one file) runs end to end with the fake pi: the
     runner and the importer have no `if kind ==` for it. The viewer shows any output with an `entry`
     in the sandbox (the demo fixture's "custom" kind is covered in test_web.py)."""
-    from bench.kinds import KINDS, Kind, Staged
+    from art_crit.kinds import KINDS, Kind, Staged
 
     class Toy(Kind):
         name = "toy"
@@ -644,7 +644,7 @@ def test_a_new_kind_is_only_a_kind_class(run_root, monkeypatch):
 
 
 def write_sets(run_root, body):
-    cfg = run_root / "bench.toml"
+    cfg = run_root / "art-crit.toml"
     cfg.write_text(cfg.read_text() + "\n[sets]\n" + body)
 
 
@@ -732,16 +732,16 @@ def test_claude_code_prefix_resolves_aliases_and_levels():
     assert plan_for(["claude-code:sonnet:high"], None) == [("claude-code", "claude-sonnet-5-5", "high")]
     assert plan_for(["claude-code:haiku:low"], None) == [("claude-code", "claude-haiku-5-5", "low")]
     assert [l for _, _, l in plan_for(["claude-code:claude-sonnet-5"], None)] == ["low", "medium", "high", "xhigh", "max"]
-    with pytest.raises(BenchError, match="minimal.*not supported"):
+    with pytest.raises(CritError, match="minimal.*not supported"):
         plan_for(["claude-code:claude-opus-5-5:minimal"], None)
-    with pytest.raises(BenchError, match="unknown model 'claude-opus-9'.*claude-opus-5-5"):
+    with pytest.raises(CritError, match="unknown model 'claude-opus-9'.*claude-opus-5-5"):
         plan_for(["claude-code:claude-opus-9:high"], None)
     # A level the CLI would silently clamp isn't offered, so a run never claims it.
     assert [l for _, _, l in plan_for(["claude-code:claude-opus-4-6"], None)] == ["low", "medium", "high", "max"]
     assert [l for _, _, l in plan_for(["claude-code:claude-sonnet-4-6"], None)] == ["low", "medium", "high", "max"]
-    with pytest.raises(BenchError, match="xhigh not supported"):
+    with pytest.raises(CritError, match="xhigh not supported"):
         plan_for(["claude-code:claude-opus-4-6:xhigh"], None)
-    with pytest.raises(BenchError, match="unknown model 'claude-haiku-4-5'"):
+    with pytest.raises(CritError, match="unknown model 'claude-haiku-4-5'"):
         plan_for(["claude-code:claude-haiku-4-5:low"], None)
 
 
@@ -774,7 +774,7 @@ def test_claude_image_tool_results_become_small_jpeg_thumbnails():
 def test_mixed_harness_batch_records_each_runs_harness_and_session(run_root, monkeypatch, tmp_path):
     argv_file = tmp_path / "claude-argv.json"
     monkeypatch.setenv("FAKE_CLAUDE_ARGV", str(argv_file))
-    monkeypatch.setenv("CLAUDECODE", "1")  # as when bench itself runs inside Claude Code
+    monkeypatch.setenv("CLAUDECODE", "1")  # as when art-crit itself runs inside Claude Code
     rc = main(["run", "--yes", "mixed harness", "-m", "claude-code:claude-opus-5-5:high",
                "-m", "anthropic/claude-opus-5-5:high", "--root", str(run_root)])
     assert rc == 0
@@ -846,14 +846,14 @@ def test_claude_code_in_a_model_set_and_models_listing(run_root, capsys):
 def test_every_long_option_has_a_short_form():
     import argparse
 
-    from bench.cli import build_parser
+    from art_crit.cli import build_parser
 
     sub = next(a for a in build_parser()._actions if isinstance(a, argparse._SubParsersAction))
     for name, parser in sub.choices.items():
         for action in parser._actions:
             longs = [o for o in action.option_strings if o.startswith("--")]
             shorts = [o for o in action.option_strings if not o.startswith("--")]
-            assert not longs or shorts, f"bench {name} {longs[0]} has no short form"
+            assert not longs or shorts, f"art-crit {name} {longs[0]} has no short form"
     args = build_parser().parse_args(["run", "-n", "-y", "-k", "web", "-p", "pg", "-t", "T", "-T", "5m", "-b", "b.md", "-c", "-P", "-C", "/tmp", "x"])
     assert (args.dry_run, args.yes, args.kind, args.page, args.title, args.timeout, str(args.brief), args.change_prompt, args.publish) == \
         (True, True, "web", "pg", "T", "5m", "b.md", True, True)
