@@ -1,0 +1,53 @@
+{
+  "id": "gpt-6.1-sol-high-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "openai-codex/gpt-6.1-sol",
+  "effort": "high",
+  "kind": "media",
+  "started_at": "2026-10-10T08:02:29Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 275439,
+    "cost_usd": 0.11393,
+    "tool_calls": 4,
+    "turns": 5,
+    "tokens_total": 19657,
+    "tokens_input": 10618,
+    "tokens_output": 9039,
+    "tokens_reasoning": 1867,
+    "tokens_cache_read": 23040
+  },
+  "thumb": "media/eiffel_at_sunset.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 4987,
+        "path": "media/eiffel_at_sunset.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "render.py"
+    ]
+  }
+}

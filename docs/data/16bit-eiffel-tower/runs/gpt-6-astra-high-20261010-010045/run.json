@@ -1,0 +1,53 @@
+{
+  "id": "gpt-6-astra-high-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "openai-codex/gpt-6-astra",
+  "effort": "high",
+  "kind": "media",
+  "started_at": "2026-10-10T08:04:49Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 209241,
+    "cost_usd": 0.46289600000000003,
+    "tool_calls": 4,
+    "turns": 5,
+    "tokens_total": 15920,
+    "tokens_input": 8814,
+    "tokens_output": 7106,
+    "tokens_reasoning": 1336,
+    "tokens_cache_read": 19456
+  },
+  "thumb": "media/paris_at_the_golden_hour.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 4223,
+        "path": "media/paris_at_the_golden_hour.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "make_art.py"
+    ]
+  }
+}

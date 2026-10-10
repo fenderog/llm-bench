@@ -1,0 +1,53 @@
+{
+  "id": "claude-sonnet-5-5-cc-xhigh-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "anthropic/claude-sonnet-5-5",
+  "effort": "xhigh",
+  "kind": "media",
+  "started_at": "2026-10-10T08:00:53Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.296"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 795765,
+    "cost_usd": 1.8444044999999996,
+    "tool_calls": 30,
+    "turns": 27,
+    "tokens_total": 108751,
+    "tokens_input": 54,
+    "tokens_output": 108697,
+    "tokens_reasoning": 73489,
+    "tokens_cache_read": 2511385
+  },
+  "thumb": "media/eiffel_tower_snes.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 7920,
+        "path": "media/eiffel_tower_snes.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "src/eiffel.py",
+      "src/verify.py"
+    ]
+  }
+}

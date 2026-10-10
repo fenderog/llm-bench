@@ -1,0 +1,53 @@
+{
+  "id": "gpt-6-astra-xhigh-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "openai-codex/gpt-6-astra",
+  "effort": "xhigh",
+  "kind": "media",
+  "started_at": "2026-10-10T08:04:51Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 533911,
+    "cost_usd": 1.2213,
+    "tool_calls": 8,
+    "turns": 9,
+    "tokens_total": 40210,
+    "tokens_input": 22258,
+    "tokens_output": 17952,
+    "tokens_reasoning": 6820,
+    "tokens_cache_read": 101120
+  },
+  "thumb": "media/eiffel_at_the_golden_hour.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 5706,
+        "path": "media/eiffel_at_the_golden_hour.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "eiffel_snes.py"
+    ]
+  }
+}

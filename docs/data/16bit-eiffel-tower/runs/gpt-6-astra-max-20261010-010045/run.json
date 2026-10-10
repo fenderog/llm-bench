@@ -1,0 +1,53 @@
+{
+  "id": "gpt-6-astra-max-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "openai-codex/gpt-6-astra",
+  "effort": "max",
+  "kind": "media",
+  "started_at": "2026-10-10T08:05:43Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 785175,
+    "cost_usd": 1.845422,
+    "tool_calls": 12,
+    "turns": 13,
+    "tokens_total": 57379,
+    "tokens_input": 31425,
+    "tokens_output": 25954,
+    "tokens_reasoning": 11803,
+    "tokens_cache_read": 233472
+  },
+  "thumb": "media/eiffel_twilight.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 6164,
+        "path": "media/eiffel_twilight.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "draw_scene.py"
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "muse-spark-1.3-contributor-minimal-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "meta/muse-spark-1.3-contributor",
+  "effort": "minimal",
+  "kind": "media",
+  "started_at": "2026-10-10T08:08:22Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 48209,
+    "cost_usd": 0.0016710779999999999,
+    "tool_calls": 5,
+    "turns": 6,
+    "tokens_total": 11629,
+    "tokens_input": 7091,
+    "tokens_output": 4538,
+    "tokens_reasoning": 534,
+    "tokens_cache_read": 27189
+  },
+  "thumb": "media/eiffel-snes.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 4091,
+        "path": "media/eiffel-snes.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "src/make.py"
+    ]
+  }
+}

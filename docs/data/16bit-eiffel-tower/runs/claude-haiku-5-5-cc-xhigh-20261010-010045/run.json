@@ -1,0 +1,52 @@
+{
+  "id": "claude-haiku-5-5-cc-xhigh-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "anthropic/claude-haiku-5-5",
+  "effort": "xhigh",
+  "kind": "media",
+  "started_at": "2026-10-10T08:08:18Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.296"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 257699,
+    "cost_usd": 0.04993303000000001,
+    "tool_calls": 12,
+    "turns": 10,
+    "tokens_total": 62746,
+    "tokens_input": 20,
+    "tokens_output": 62726,
+    "tokens_reasoning": 52753,
+    "tokens_cache_read": 540563
+  },
+  "thumb": "media/eiffel_tower_snes.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 4021,
+        "path": "media/eiffel_tower_snes.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "src/make_eiffel.py"
+    ]
+  }
+}

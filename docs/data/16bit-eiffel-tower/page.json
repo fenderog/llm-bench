@@ -1,0 +1,1352 @@
+{
+  "slug": "16bit-eiffel-tower",
+  "title": "16-bit Eiffel Tower",
+  "kind": "media",
+  "prompt": "Create pixel art of the Eiffel Tower in the style of a Super Nintendo (SNES) game.\n\nFollow the SNES's limits:\n- 256\u00d7224 pixels, no upscaling\n- At most 128 colors in total\n- Use 8\u00d78 tiles, and keep each tile to 16 colors or fewer\n\nSave it as a PNG. Include a sky or background, and make it look like art from a polished 90s SNES game.",
+  "final_prompt": "Create pixel art of the Eiffel Tower in the style of a Super Nintendo (SNES) game.\n\nFollow the SNES's limits:\n- 256\u00d7224 pixels, no upscaling\n- At most 128 colors in total\n- Use 8\u00d78 tiles, and keep each tile to 16 colors or fewer\n\nSave it as a PNG. Include a sky or background, and make it look like art from a polished 90s SNES game.\n\nDeliver the result as image and/or video files, working in the current directory.\n- Save the finished files in ./output/. Only what is in ./output/ is published as the result, so\n  ./output/ holds those finished image/video files and nothing else.\n- Formats: images as .png, .jpg, .webp, .gif or .svg; videos as .mp4 or .webm. At most 8 files,\n  each under 2 MB; videos at most 10 seconds.\n- Tools available on this machine: python3 3.9.6 (standard library only), node 26.11.1 (no npm packages), ffmpeg 9.0.2, ffprobe 9.0.2. Don't install packages or download anything.\n- Keep the code you write to make the files in the working directory (its root, or a subdirectory\n  like ./src/, but not in ./output/): it's published as the source. Delete intermediate files such\n  as rendered frames when you're done.\n- Only create or edit files inside the current directory.\n- Finish with a short summary of what you made.\n",
+  "created": "2026-10-10T08:00:53Z",
+  "updated": "2026-10-10T08:20:20Z",
+  "runs": [
+    {
+      "id": "claude-opus-5-5-cc-low-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "low",
+      "kind": "media",
+      "started_at": "2026-10-10T08:00:53Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 96122,
+        "cost_usd": 0.23453259999999998,
+        "tool_calls": 5,
+        "turns": 4,
+        "tokens_total": 6858,
+        "tokens_input": 8,
+        "tokens_output": 6850,
+        "tokens_reasoning": 1366,
+        "tokens_cache_read": 38623
+      },
+      "thumb": "media/eiffel_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 6080,
+            "path": "media/eiffel_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-sonnet-5-5-cc-low-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-sonnet-5-5",
+      "effort": "low",
+      "kind": "media",
+      "started_at": "2026-10-10T08:00:53Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 30002,
+        "cost_usd": 0.061531699999999995,
+        "tool_calls": 2,
+        "turns": 3,
+        "tokens_total": 3677,
+        "tokens_input": 6,
+        "tokens_output": 3671,
+        "tokens_reasoning": 789,
+        "tokens_cache_read": 22257
+      },
+      "thumb": "media/eiffel_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 3009,
+            "path": "media/eiffel_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-opus-5-5-cc-medium-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "medium",
+      "kind": "media",
+      "started_at": "2026-10-10T08:00:53Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 230099,
+        "cost_usd": 0.799888,
+        "tool_calls": 13,
+        "turns": 10,
+        "tokens_total": 24294,
+        "tokens_input": 20,
+        "tokens_output": 24274,
+        "tokens_reasoning": 10633,
+        "tokens_cache_read": 244760
+      },
+      "thumb": "media/eiffel_tower_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 7332,
+            "path": "media/eiffel_tower_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-sonnet-5-5-cc-medium-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-sonnet-5-5",
+      "effort": "medium",
+      "kind": "media",
+      "started_at": "2026-10-10T08:00:53Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 60580,
+        "cost_usd": 0.1258138,
+        "tool_calls": 6,
+        "turns": 6,
+        "tokens_total": 7749,
+        "tokens_input": 12,
+        "tokens_output": 7737,
+        "tokens_reasoning": 3148,
+        "tokens_cache_read": 70598
+      },
+      "thumb": "media/eiffel_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 4072,
+            "path": "media/eiffel_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-opus-5-5-cc-high-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "high",
+      "kind": "media",
+      "started_at": "2026-10-10T08:00:53Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 596032,
+        "cost_usd": 2.0575692,
+        "tool_calls": 34,
+        "turns": 20,
+        "tokens_total": 60727,
+        "tokens_input": 40,
+        "tokens_output": 60687,
+        "tokens_reasoning": 36808,
+        "tokens_cache_read": 1136226
+      },
+      "thumb": "media/eiffel_tower_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 6190,
+            "path": "media/eiffel_tower_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-sonnet-5-5-cc-high-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-sonnet-5-5",
+      "effort": "high",
+      "kind": "media",
+      "started_at": "2026-10-10T08:00:53Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 290041,
+        "cost_usd": 0.5984860000000001,
+        "tool_calls": 9,
+        "turns": 7,
+        "tokens_total": 39177,
+        "tokens_input": 14,
+        "tokens_output": 39163,
+        "tokens_reasoning": 26994,
+        "tokens_cache_read": 245080
+      },
+      "thumb": "media/eiffel_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 7026,
+            "path": "media/eiffel_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make_eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-opus-5-5-cc-xhigh-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-opus-5-5",
+      "effort": "xhigh",
+      "kind": "media",
+      "started_at": "2026-10-10T08:00:53Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 1167518,
+        "cost_usd": 4.130318399999999,
+        "tool_calls": 43,
+        "turns": 32,
+        "tokens_total": 117726,
+        "tokens_input": 64,
+        "tokens_output": 117662,
+        "tokens_reasoning": 83145,
+        "tokens_cache_read": 3269832
+      },
+      "thumb": "media/eiffel_tower_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 8191,
+            "path": "media/eiffel_tower_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/eiffel.py",
+          "src/pngio.py",
+          "src/verify.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-sonnet-5-5-cc-xhigh-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-sonnet-5-5",
+      "effort": "xhigh",
+      "kind": "media",
+      "started_at": "2026-10-10T08:00:53Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 795765,
+        "cost_usd": 1.8444044999999996,
+        "tool_calls": 30,
+        "turns": 27,
+        "tokens_total": 108751,
+        "tokens_input": 54,
+        "tokens_output": 108697,
+        "tokens_reasoning": 73489,
+        "tokens_cache_read": 2511385
+      },
+      "thumb": "media/eiffel_tower_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 7920,
+            "path": "media/eiffel_tower_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/eiffel.py",
+          "src/verify.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "gpt-6.1-sol-low-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "openai-codex/gpt-6.1-sol",
+      "effort": "low",
+      "kind": "media",
+      "started_at": "2026-10-10T08:01:23Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 103387,
+        "cost_usd": 0.050140800000000006,
+        "tool_calls": 3,
+        "turns": 4,
+        "tokens_total": 11556,
+        "tokens_input": 8235,
+        "tokens_output": 3321,
+        "tokens_reasoning": 99,
+        "tokens_cache_read": 4608
+      },
+      "thumb": "media/eiffel_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 4005,
+            "path": "media/eiffel_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "make_art.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "gpt-6.1-sol-medium-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "openai-codex/gpt-6.1-sol",
+      "effort": "medium",
+      "kind": "media",
+      "started_at": "2026-10-10T08:01:54Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 174888,
+        "cost_usd": 0.0785064,
+        "tool_calls": 4,
+        "turns": 5,
+        "tokens_total": 15202,
+        "tokens_input": 9386,
+        "tokens_output": 5816,
+        "tokens_reasoning": 593,
+        "tokens_cache_read": 15744
+      },
+      "thumb": "media/eiffel_twilight.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 4373,
+            "path": "media/eiffel_twilight.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "make_art.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "gpt-6.1-sol-high-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "openai-codex/gpt-6.1-sol",
+      "effort": "high",
+      "kind": "media",
+      "started_at": "2026-10-10T08:02:29Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 275439,
+        "cost_usd": 0.11393,
+        "tool_calls": 4,
+        "turns": 5,
+        "tokens_total": 19657,
+        "tokens_input": 10618,
+        "tokens_output": 9039,
+        "tokens_reasoning": 1867,
+        "tokens_cache_read": 23040
+      },
+      "thumb": "media/eiffel_at_sunset.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 4987,
+            "path": "media/eiffel_at_sunset.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "render.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "gpt-6-astra-low-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "openai-codex/gpt-6-astra",
+      "effort": "low",
+      "kind": "media",
+      "started_at": "2026-10-10T08:03:07Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 103784,
+        "cost_usd": 0.229022,
+        "tool_calls": 3,
+        "turns": 4,
+        "tokens_total": 8659,
+        "tokens_input": 5287,
+        "tokens_output": 3372,
+        "tokens_reasoning": 226,
+        "tokens_cache_read": 7552
+      },
+      "thumb": "media/eiffel-twilight.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 3404,
+            "path": "media/eiffel-twilight.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "draw.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "gpt-6-astra-medium-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "openai-codex/gpt-6-astra",
+      "effort": "medium",
+      "kind": "media",
+      "started_at": "2026-10-10T08:04:43Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 111683,
+        "cost_usd": 0.301768,
+        "tool_calls": 4,
+        "turns": 5,
+        "tokens_total": 14648,
+        "tokens_input": 10961,
+        "tokens_output": 3687,
+        "tokens_reasoning": 243,
+        "tokens_cache_read": 7808
+      },
+      "thumb": "media/paris-at-dusk.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 3465,
+            "path": "media/paris-at-dusk.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "draw.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "gpt-6-astra-high-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "openai-codex/gpt-6-astra",
+      "effort": "high",
+      "kind": "media",
+      "started_at": "2026-10-10T08:04:49Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 209241,
+        "cost_usd": 0.46289600000000003,
+        "tool_calls": 4,
+        "turns": 5,
+        "tokens_total": 15920,
+        "tokens_input": 8814,
+        "tokens_output": 7106,
+        "tokens_reasoning": 1336,
+        "tokens_cache_read": 19456
+      },
+      "thumb": "media/paris_at_the_golden_hour.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 4223,
+            "path": "media/paris_at_the_golden_hour.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "make_art.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "gpt-6-astra-xhigh-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "openai-codex/gpt-6-astra",
+      "effort": "xhigh",
+      "kind": "media",
+      "started_at": "2026-10-10T08:04:51Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 533911,
+        "cost_usd": 1.2213,
+        "tool_calls": 8,
+        "turns": 9,
+        "tokens_total": 40210,
+        "tokens_input": 22258,
+        "tokens_output": 17952,
+        "tokens_reasoning": 6820,
+        "tokens_cache_read": 101120
+      },
+      "thumb": "media/eiffel_at_the_golden_hour.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 5706,
+            "path": "media/eiffel_at_the_golden_hour.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "eiffel_snes.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "gpt-6-astra-max-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "openai-codex/gpt-6-astra",
+      "effort": "max",
+      "kind": "media",
+      "started_at": "2026-10-10T08:05:43Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 785175,
+        "cost_usd": 1.845422,
+        "tool_calls": 12,
+        "turns": 13,
+        "tokens_total": 57379,
+        "tokens_input": 31425,
+        "tokens_output": 25954,
+        "tokens_reasoning": 11803,
+        "tokens_cache_read": 233472
+      },
+      "thumb": "media/eiffel_twilight.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 6164,
+            "path": "media/eiffel_twilight.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "draw_scene.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-haiku-5-5-cc-low-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-haiku-5-5",
+      "effort": "low",
+      "kind": "media",
+      "started_at": "2026-10-10T08:06:35Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 68251,
+        "cost_usd": 0.013118189999999998,
+        "tool_calls": 13,
+        "turns": 8,
+        "tokens_total": 15402,
+        "tokens_input": 16,
+        "tokens_output": 15386,
+        "tokens_reasoning": 8875,
+        "tokens_cache_read": 142439
+      },
+      "thumb": "media/eiffel_tower_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 3595,
+            "path": "media/eiffel_tower_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make_eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-haiku-5-5-cc-medium-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-haiku-5-5",
+      "effort": "medium",
+      "kind": "media",
+      "started_at": "2026-10-10T08:07:05Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 76548,
+        "cost_usd": 0.01279355,
+        "tool_calls": 4,
+        "turns": 5,
+        "tokens_total": 16866,
+        "tokens_input": 10,
+        "tokens_output": 16856,
+        "tokens_reasoning": 12202,
+        "tokens_cache_read": 84575
+      },
+      "thumb": "media/eiffel_tower_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 2874,
+            "path": "media/eiffel_tower_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make_eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-haiku-5-5-cc-high-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-haiku-5-5",
+      "effort": "high",
+      "kind": "media",
+      "started_at": "2026-10-10T08:07:44Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 126204,
+        "cost_usd": 0.02191557,
+        "tool_calls": 7,
+        "turns": 6,
+        "tokens_total": 29103,
+        "tokens_input": 12,
+        "tokens_output": 29091,
+        "tokens_reasoning": 22641,
+        "tokens_cache_read": 132747
+      },
+      "thumb": "media/eiffel_tower_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 3045,
+            "path": "media/eiffel_tower_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make_eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "claude-haiku-5-5-cc-xhigh-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "anthropic/claude-haiku-5-5",
+      "effort": "xhigh",
+      "kind": "media",
+      "started_at": "2026-10-10T08:08:18Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "claude-code",
+        "version": "2.1.296"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 257699,
+        "cost_usd": 0.04993303000000001,
+        "tool_calls": 12,
+        "turns": 10,
+        "tokens_total": 62746,
+        "tokens_input": 20,
+        "tokens_output": 62726,
+        "tokens_reasoning": 52753,
+        "tokens_cache_read": 540563
+      },
+      "thumb": "media/eiffel_tower_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 4021,
+            "path": "media/eiffel_tower_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make_eiffel.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-minimal-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "minimal",
+      "kind": "media",
+      "started_at": "2026-10-10T08:08:22Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 48209,
+        "cost_usd": 0.0016710779999999999,
+        "tool_calls": 5,
+        "turns": 6,
+        "tokens_total": 11629,
+        "tokens_input": 7091,
+        "tokens_output": 4538,
+        "tokens_reasoning": 534,
+        "tokens_cache_read": 27189
+      },
+      "thumb": "media/eiffel-snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 4091,
+            "path": "media/eiffel-snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-low-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "low",
+      "kind": "media",
+      "started_at": "2026-10-10T08:09:10Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 80874,
+        "cost_usd": 0.0017871140000000002,
+        "tool_calls": 5,
+        "turns": 6,
+        "tokens_total": 12411,
+        "tokens_input": 7510,
+        "tokens_output": 4901,
+        "tokens_reasoning": 975,
+        "tokens_cache_read": 27957
+      },
+      "thumb": "media/eiffel-snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 4095,
+            "path": "media/eiffel-snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-medium-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "medium",
+      "kind": "media",
+      "started_at": "2026-10-10T08:09:50Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 132950,
+        "cost_usd": 0.005938957999999999,
+        "tool_calls": 14,
+        "turns": 15,
+        "tokens_total": 43352,
+        "tokens_input": 30403,
+        "tokens_output": 12949,
+        "tokens_reasoning": 4090,
+        "tokens_cache_read": 154429
+      },
+      "thumb": "media/eiffel-snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 6351,
+            "path": "media/eiffel-snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/gen.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-high-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "high",
+      "kind": "media",
+      "started_at": "2026-10-10T08:10:31Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 275102,
+        "cost_usd": 0.0059890920000000005,
+        "tool_calls": 14,
+        "turns": 15,
+        "tokens_total": 38581,
+        "tokens_input": 21560,
+        "tokens_output": 17021,
+        "tokens_reasoning": 6574,
+        "tokens_cache_read": 214446
+      },
+      "thumb": "media/eiffel-snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 6868,
+            "path": "media/eiffel-snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "render.py"
+        ]
+      },
+      "rank": null
+    },
+    {
+      "id": "muse-spark-1.3-contributor-xhigh-20261010-010045",
+      "page": "16bit-eiffel-tower",
+      "model": "meta/muse-spark-1.3-contributor",
+      "effort": "xhigh",
+      "kind": "media",
+      "started_at": "2026-10-10T08:10:50Z",
+      "batch": "2026-10-10-010045-16bit-eiffel-tower",
+      "harness": {
+        "name": "pi",
+        "version": "1.1.0"
+      },
+      "state": "complete",
+      "error": null,
+      "route": null,
+      "metrics": {
+        "duration_ms": 306120,
+        "cost_usd": 0.011266286,
+        "tool_calls": 14,
+        "turns": 15,
+        "tokens_total": 79616,
+        "tokens_input": 54043,
+        "tokens_output": 25573,
+        "tokens_reasoning": 10634,
+        "tokens_cache_read": 373693
+      },
+      "thumb": "media/eiffel_snes.png",
+      "output": {
+        "kind": "media",
+        "items": [
+          {
+            "type": "image",
+            "width": 256,
+            "height": 224,
+            "bytes": 7177,
+            "path": "media/eiffel_snes.png"
+          }
+        ],
+        "ok": true,
+        "verified": true,
+        "error": null
+      },
+      "session": {
+        "conversation": "session/conversation.json",
+        "stderr": "session/stderr.txt"
+      },
+      "source": {
+        "root": "source/",
+        "files": [
+          "src/make.py"
+        ]
+      },
+      "rank": null
+    }
+  ]
+}

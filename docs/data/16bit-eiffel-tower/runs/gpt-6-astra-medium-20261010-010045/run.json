@@ -1,0 +1,53 @@
+{
+  "id": "gpt-6-astra-medium-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "openai-codex/gpt-6-astra",
+  "effort": "medium",
+  "kind": "media",
+  "started_at": "2026-10-10T08:04:43Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 111683,
+    "cost_usd": 0.301768,
+    "tool_calls": 4,
+    "turns": 5,
+    "tokens_total": 14648,
+    "tokens_input": 10961,
+    "tokens_output": 3687,
+    "tokens_reasoning": 243,
+    "tokens_cache_read": 7808
+  },
+  "thumb": "media/paris-at-dusk.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 3465,
+        "path": "media/paris-at-dusk.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "draw.py"
+    ]
+  }
+}

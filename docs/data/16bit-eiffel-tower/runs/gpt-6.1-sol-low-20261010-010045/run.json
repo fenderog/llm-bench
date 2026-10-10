@@ -1,0 +1,53 @@
+{
+  "id": "gpt-6.1-sol-low-20261010-010045",
+  "page": "16bit-eiffel-tower",
+  "model": "openai-codex/gpt-6.1-sol",
+  "effort": "low",
+  "kind": "media",
+  "started_at": "2026-10-10T08:01:23Z",
+  "batch": "2026-10-10-010045-16bit-eiffel-tower",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 103387,
+    "cost_usd": 0.050140800000000006,
+    "tool_calls": 3,
+    "turns": 4,
+    "tokens_total": 11556,
+    "tokens_input": 8235,
+    "tokens_output": 3321,
+    "tokens_reasoning": 99,
+    "tokens_cache_read": 4608
+  },
+  "thumb": "media/eiffel_snes.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 256,
+        "height": 224,
+        "bytes": 4005,
+        "path": "media/eiffel_snes.png"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "make_art.py"
+    ]
+  }
+}
