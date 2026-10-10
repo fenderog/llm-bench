@@ -99,13 +99,18 @@
           }
         ],
         "ok": true,
-        "verified": false,
-        "error": "make.py: unsupported file type"
+        "verified": true,
+        "error": null
       },
       "session": {
         "conversation": "session/conversation.json"
       },
-      "source": null,
+      "source": {
+        "root": "source/",
+        "files": [
+          "output/make.py"
+        ]
+      },
       "rank": null
     },
     {
@@ -200,13 +205,18 @@
           }
         ],
         "ok": true,
-        "verified": false,
-        "error": "make_eiffel.py: unsupported file type"
+        "verified": true,
+        "error": null
       },
       "session": {
         "conversation": "session/conversation.json"
       },
-      "source": null,
+      "source": {
+        "root": "source/",
+        "files": [
+          "output/make_eiffel.py"
+        ]
+      },
       "rank": null
     },
     {
@@ -302,13 +312,18 @@
           }
         ],
         "ok": true,
-        "verified": false,
-        "error": "make_eiffel.py: unsupported file type"
+        "verified": true,
+        "error": null
       },
       "session": {
         "conversation": "session/conversation.json"
       },
-      "source": null,
+      "source": {
+        "root": "source/",
+        "files": [
+          "output/make_eiffel.py"
+        ]
+      },
       "rank": null
     },
     {
@@ -888,13 +903,18 @@
           }
         ],
         "ok": true,
-        "verified": false,
-        "error": "make_eiffel.py: unsupported file type"
+        "verified": true,
+        "error": null
       },
       "session": {
         "conversation": "session/conversation.json"
       },
-      "source": null,
+      "source": {
+        "root": "source/",
+        "files": [
+          "output/make_eiffel.py"
+        ]
+      },
       "rank": null
     },
     {
@@ -936,13 +956,18 @@
           }
         ],
         "ok": true,
-        "verified": false,
-        "error": "make_eiffel.py: unsupported file type"
+        "verified": true,
+        "error": null
       },
       "session": {
         "conversation": "session/conversation.json"
       },
-      "source": null,
+      "source": {
+        "root": "source/",
+        "files": [
+          "output/make_eiffel.py"
+        ]
+      },
       "rank": null
     },
     {
@@ -984,13 +1009,18 @@
           }
         ],
         "ok": true,
-        "verified": false,
-        "error": "make_eiffel.py: unsupported file type"
+        "verified": true,
+        "error": null
       },
       "session": {
         "conversation": "session/conversation.json"
       },
-      "source": null,
+      "source": {
+        "root": "source/",
+        "files": [
+          "output/make_eiffel.py"
+        ]
+      },
       "rank": null
     },
     {
@@ -1032,13 +1062,18 @@
           }
         ],
         "ok": true,
-        "verified": false,
-        "error": "make_eiffel_16bit.py: unsupported file type"
+        "verified": true,
+        "error": null
       },
       "session": {
         "conversation": "session/conversation.json"
       },
-      "source": null,
+      "source": {
+        "root": "source/",
+        "files": [
+          "output/make_eiffel_16bit.py"
+        ]
+      },
       "rank": null
     },
     {
