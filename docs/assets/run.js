@@ -1,6 +1,6 @@
 import { qs, el, loadPage, getJSON, getText, showMessage, badge } from "./dom.js";
 import { fmtNum, fmtDuration, fmtCost, fmtDate } from "./fmt.js";
-import { runDir, harnessLabel, stateBadge, effortPill, modelParts, runUrl, byModelThenEffort, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, playUrl } from "./runs.js";
+import { runDir, harnessLabel, stateBadge, effortPill, modelParts, rankBy, ordinal, LOWER_IS_BETTER, isComplete, rankChip, playUrl } from "./runs.js";
 import { outputBadge, outputVerified, isPlayable, renderOutput, kindUi } from "./output.js";
 
 const slug = qs("p");
@@ -27,8 +27,6 @@ function render(run, base, siblings) {
   const myRank = run.rank;
   // (replaceChildren would print a null/undefined chip as text, so only real nodes go in)
   document.getElementById("title").replaceChildren(...[el("span", { text: name, attrs: { title: run.model } }), effortPill(run.effort), rankChip(myRank)].filter(Boolean));
-
-  renderSwitcher(run, siblings);
 
   // Stat tiles, each with this run's rank among the page's completed runs ("fastest of 11", "3rd of 11").
   const strip = document.getElementById("metric-strip");
@@ -85,29 +83,6 @@ function render(run, base, siblings) {
 
 function tabCount(tab, text) {
   document.querySelector(`#tabs button[data-tab="${tab}"]`).append(el("span", { class: "tab-count", text }));
-}
-
-// Every run of the same prompt as a pill, grouped by model, so effort levels can be stepped through quickly.
-function renderSwitcher(run, siblings) {
-  if (siblings.length < 2) return;
-  const nav = document.getElementById("run-switcher");
-  const multiModel = new Set(siblings.map((r) => r.model)).size > 1;
-  const groups = new Map();
-  for (const r of [...siblings].sort(byModelThenEffort)) {
-    if (!groups.has(r.model)) {
-      const g = el("div", { class: "sw-group" }, [multiModel ? el("span", { class: "sw-model", text: modelParts(r.model).short, attrs: { title: r.model } }) : null]);
-      groups.set(r.model, g);
-      nav.append(g);
-    }
-    const a = el("a", { attrs: { href: runUrl(slug, r.id), title: `${r.model} · ${r.effort}${isComplete(r) ? "" : ` (${r.state})`}` } }, [
-      effortPill(r.effort),
-      rankChip(r.rank),
-      isComplete(r) ? null : el("span", { class: "sw-failed", text: "✗" }),
-    ]);
-    if (r.id === run.id) a.setAttribute("aria-current", "page");
-    groups.get(r.model).append(a);
-  }
-  nav.hidden = false;
 }
 
 // Tabs; the open tab is kept in the URL hash (#transcript) so it can be linked.

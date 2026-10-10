@@ -281,29 +281,13 @@ def test_runs_are_tinted_by_vendor(site, page):
         assert_no_errors(page)
 
 
-def test_run_switcher_and_ranks(site, page):
+def test_run_page_ranks_and_tabs(site, page):
     page.goto(f"{site}run.html?p=demo&r={MEDIUM_ID}")
-    page.wait_for_selector("#run-switcher a")
-    links = page.locator("#run-switcher a")
-    assert links.count() == 3
-    assert page.locator('#run-switcher a[aria-current="page"]').inner_text().strip() == "medium"
+    page.wait_for_selector("#metric-strip .stat")
     assert "cheapest of 2" in page.locator("#metric-strip").inner_text()  # the failed run isn't ranked
     page.goto(f"{site}run.html?p=demo&r={HIGH_ID}#source")  # the tab is linkable
     page.wait_for_selector("#panel-source:not([hidden]) .source-view pre")
     assert page.locator(".source-files button.active").count() == 1  # first file opens right away
-    assert_no_errors(page)
-
-
-def test_compare_all_opens_every_run(site, page):
-    page.goto(f"{site}page.html?p=demo&view=table")
-    page.wait_for_selector("table.runs tbody tr")
-    link = page.locator("#compare-all")
-    assert link.inner_text().strip() == "Compare all"
-    with page.expect_navigation():
-        link.click()
-    assert page.url.endswith("compare.html?p=demo")
-    page.wait_for_selector(".compare-col")
-    assert page.locator(".compare-col").count() == 3
     assert_no_errors(page)
 
 

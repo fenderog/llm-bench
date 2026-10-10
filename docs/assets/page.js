@@ -56,7 +56,6 @@ function render(page, runs, editable) {
   renderMeta(page, runs);
   renderHighlights(runs);
 
-  document.getElementById("compare-all").href = `compare.html?p=${encodeURIComponent(slug)}`;
   if (isMedia) main.classList.add("media-page");
 
   // What is shown: the runs left by the filter bar, as a grid of cards (default) or the table. Both views share the

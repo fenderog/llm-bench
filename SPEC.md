@@ -461,7 +461,7 @@ among **completed** runs (a failed run never wins), only when at least two runs 
 with ★. Styling is one token set on `:root` (light) redefined under `prefers-color-scheme: dark`, system fonts only.
 
 Your ranking (`run.rank`) is shown as 🥇🥈🥉 then `#4`, `#5`… (`rankLabel()`/`rankChip()`): in the runs table's Rank
-column, on gallery cards, compare cards, the run title and the run switcher. When any run of a page is ranked, the table
+column, on gallery cards, compare cards and the run title. When any run of a page is ranked, the table
 sorts by rank by default, and the gallery and compare order ranked runs first (`byRankThenModel()`). Under `bench serve`
 (`canEditRanks()`), the Rank column holds a `<select>` (– or 1…N) per row, and each change saves the whole page's ranking
 (`saveRanks()`), with a status line next to the run count; a failed save reverts the select and shows the error. Data
@@ -475,7 +475,7 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
 - **index.html**: cards per page (thumb, a Game/Media chip, title, model names, n_runs, updated date) → page.html.
 - **page.html**: title, a meta line (kind, n runs, n models, last run), the Prompt (prompt.md) and a collapsed Final prompt,
   then **highlights**: the cheapest, fastest and fewest-tokens completed run (each links to it) plus verified count, failed
-  count and total spend. Then a "Compare all" link → compare.html and a runs table (thumb, rank, model, effort, harness,
+  count and total spend. Then a runs table (thumb, rank, model, effort, harness,
   verified ✓/✗ (`output.verified`), run at (the run's `started_at`, local time, year on hover; in the phone cards a line under the metrics), duration, tokens total/reasoning, cost, tool calls). Harness shows "pi 0.87.1" (name only
   when version is null, "–" when missing).
   A `media` page also has a **Gallery** above the table: one card per run (its thumb, effort, model, cost, duration,
@@ -491,8 +491,7 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
   table fits the 1240px page, and below it columns hide by priority: Reasoning at ≤1199px, Harness and Tool calls at ≤959px, the thumbnail at ≤799px. Model, Effort, Run at, Verified, Duration and Cost (plus
   the rank, caret and Tokens) always stay; hidden metrics are on the run page's Metrics tab and in compare.
   (`.table-wrap` keeps `overflow-x: auto` as a safety net only.) Model names with a pinned upstream wrap inside their cell.
-- **run.html**: a header with model (provider above) and effort, a switcher with every run of the same page (grouped by
-  model, current one marked), stat tiles (cost, duration, tokens, output tokens, tool calls, turns) each with the run's
+- **run.html**: a header with model (provider above) and effort, stat tiles (cost, duration, tokens, output tokens, tool calls, turns) each with the run's
   rank among the page's completed runs ("cheapest of 6", "3rd of 6"), a line with verified (`output.verified`), harness,
   started (plus the failed/timeout badge for the agent and an "export failed" / "packaging failed" / "output failed"
   badge when the output step failed), and the agent's `error`. Then tabs (the open tab is kept in the URL hash, e.g. `#transcript`; Transcript and
@@ -551,7 +550,7 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
   (`art`: an SVG with an embedded script, a PNG and a 1 s mp4) covers the gallery, the Output tab (the SVG's script
   never runs, videos don't autoplay), expanded rows and compare.
   Also covered: effort-order sorting, the highlights (a failed run never wins "cheapest"), best-value stars, the run
-  page switcher and ranks, the linkable tab hash and the Source tab opening its first file.
+  page ranks, the linkable tab hash and the Source tab opening its first file.
 - `bench run`: a fake `pi` (a Python script put first on PATH by the test) that answers `--version`, `--list-models`,
   the RPC levels request, and `-p` runs by writing a canned session file and a tiny project; env vars make it fail,
   hang, or exit non-zero. Covers level parsing (`all`, ranges, explicit lists, off excluded by default, unsupported
