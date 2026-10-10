@@ -1,0 +1,48 @@
+{
+  "id": "gpt-6-astra-medium-20261009-225107",
+  "page": "skateboard-pelican",
+  "model": "openai-codex/gpt-6-astra",
+  "effort": "medium",
+  "kind": "media",
+  "started_at": "2026-10-10T05:52:14Z",
+  "batch": "2026-10-09-225107-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 70326,
+    "cost_usd": 0.17920000000000003,
+    "tool_calls": 1,
+    "turns": 2,
+    "tokens_total": 6892,
+    "tokens_input": 4167,
+    "tokens_output": 2725,
+    "tokens_reasoning": 0,
+    "tokens_cache_read": 1280
+  },
+  "thumb": "media/pelican-cruiser.svg",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 1200,
+        "height": 1000,
+        "bytes": 6280,
+        "path": "media/pelican-cruiser.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": null
+}

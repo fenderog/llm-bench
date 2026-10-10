@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<title>Pelican on a roll</title>
+<desc>A cheerful ivory pelican with a long golden bill balances on a teal skateboard against a warm coastal sunset.</desc>
+<defs>
+ <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.3" fill="#cbaa80" opacity=".22"/></pattern>
+</defs>
+<rect width="1200" height="1200" fill="#f8efd9"/>
+<rect width="1200" height="1200" fill="url(#dots)"/>
+<circle cx="610" cy="521" r="360" fill="#efad83"/>
+<path d="M270 621 Q433 589 570 625 T950 616 L950 755 Q596 857 270 728Z" fill="#d77d63" opacity=".43"/>
+<g fill="none" stroke="#f8efd9" stroke-width="6" stroke-linecap="round" opacity=".65"><path d="M280 663h119m31 0h65m227 23h167M329 700h149m82 24h87"/></g>
+<g fill="none" stroke="#294d51" stroke-width="5" stroke-linecap="round"><path d="M827 253q20-22 40 0q20-22 40 0M278 362q15-16 30 0q15-16 30 0"/></g>
+<text x="96" y="113" fill="#294d51" font-family="Arial,sans-serif" font-size="20" letter-spacing="6">COASTAL CRUISING CLUB</text>
+<text x="95" y="1081" fill="#294d51" font-family="Arial,sans-serif" font-size="66" font-weight="900" letter-spacing="-2">ON A ROLL.</text>
+<text x="98" y="1124" fill="#647775" font-family="Arial,sans-serif" font-size="18" letter-spacing="3">SALT AIR. GOOD TIMES. FOUR WHEELS.</text>
+<circle cx="1063" cy="1068" r="43" fill="none" stroke="#294d51" stroke-width="2"/>
+<text x="1063" y="1076" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" fill="#294d51">01</text>
+<!-- pavement and rolling accents -->
+<ellipse cx="614" cy="941" rx="327" ry="25" fill="#dccdb0"/>
+<g fill="none" stroke="#294d51" stroke-width="6" stroke-linecap="round"><path d="M176 925h100m-42-29h64m664 58h60"/></g>
+<!-- wheels and trucks -->
+<g stroke="#294d51" stroke-width="8" stroke-linejoin="round">
+<path d="M446 859l11 43h61l-11-43m236-18 12 44h59l-10-44" fill="#b6c5bb"/>
+<circle cx="490" cy="907" r="33" fill="#eaa461"/>
+<circle cx="788" cy="886" r="33" fill="#eaa461"/>
+<circle cx="490" cy="907" r="11" fill="#f8efd9" stroke-width="5"/>
+<circle cx="788" cy="886" r="11" fill="#f8efd9" stroke-width="5"/>
+<!-- the curved skateboard deck -->
+<path d="M324 843Q347 842 384 852L815 820Q854 815 875 795Q891 783 900 798Q904 810 888 827Q862 853 822 859L403 892Q360 893 329 870Q310 855 324 843Z" fill="#2c9690"/>
+<path d="M328 846Q365 872 401 870L821 838Q865 831 891 803" fill="none" stroke="#89c7af" stroke-width="6"/>
+</g>
+<!-- legs and webbed feet -->
+<g fill="#eeac50" stroke="#294d51" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+<path d="M532 687L554 756L523 831L493 846L557 850L579 837L556 824L589 759L579 690Z"/>
+<path d="M663 685L669 752L740 812L720 830L795 826L811 812L773 801L711 738L710 670Z"/>
+</g>
+<!-- raised tail and plump body -->
+<path d="M408 560Q367 554 302 490Q304 552 345 593Q307 581 276 557Q287 623 371 662Q417 735 537 744Q649 759 710 695Q770 632 720 556L607 479Z" fill="#fff9e9" stroke="#294d51" stroke-width="9" stroke-linejoin="round"/>
+<path d="M344 605Q405 699 546 704Q660 711 710 644Q698 731 589 742Q425 762 371 662Z" fill="#d8e1d4"/>
+<!-- neck sweeping up to the head -->
+<path d="M604 545Q647 499 619 436Q590 374 629 304Q655 255 714 264Q772 272 787 317Q797 350 776 382Q747 412 737 439Q727 476 766 536Q804 607 758 659Q735 683 702 688" fill="#fff9e9" stroke="#294d51" stroke-width="9" stroke-linecap="round"/>
+<path d="M736 387Q698 439 717 488Q738 531 745 558Q760 609 727 642Q775 623 761 569Q748 530 733 495Q712 444 754 399Z" fill="#d8e1d4"/>
+<!-- wing, lifted in a surfer's pose -->
+<path d="M625 564Q576 508 517 541Q466 568 412 590Q435 612 475 605Q450 626 430 631Q457 650 495 630Q483 648 469 659Q504 676 545 650Q551 675 580 650Q611 640 632 603" fill="#f4eedb" stroke="#294d51" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M518 588Q558 555 590 582" fill="none" stroke="#b7c9bf" stroke-width="7" stroke-linecap="round"/>
+<!-- tiny windswept crest -->
+<path d="M648 285Q625 273 619 252Q639 265 662 266Q650 246 657 235Q670 255 693 264" fill="#fff9e9" stroke="#294d51" stroke-width="7" stroke-linejoin="round"/>
+<!-- expansive bill and pendulous pouch -->
+<path d="M765 352L1048 379Q990 427 925 470Q851 518 805 453Q780 415 765 352Z" fill="#edaa51" stroke="#294d51" stroke-width="8" stroke-linejoin="round"/>
+<path d="M793 384Q821 455 868 462Q914 470 979 419Q914 484 869 485Q815 482 793 384Z" fill="#db8050"/>
+<path d="M766 333Q865 337 979 359L1064 377Q1077 383 1065 389L774 377Q753 361 766 333Z" fill="#f7c663" stroke="#294d51" stroke-width="8" stroke-linejoin="round"/>
+<path d="M801 349L1006 374" stroke="#ffe6a5" stroke-width="6" stroke-linecap="round"/>
+<!-- bright eye and expression -->
+<circle cx="735" cy="325" r="19" fill="#294d51"/>
+<circle cx="741" cy="318" r="6" fill="#fff9e9"/>
+<path d="M710 294q15-8 28-2" fill="none" stroke="#294d51" stroke-width="6" stroke-linecap="round"/>
+<ellipse cx="727" cy="366" rx="15" ry="9" fill="#efad83"/>
+<!-- neckerchief streaming behind -->
+<path d="M632 443Q684 465 737 432L746 463Q690 495 641 475Z" fill="#2c9690" stroke="#294d51" stroke-width="7" stroke-linejoin="round"/>
+<path d="M646 463Q580 457 539 420L555 461L517 476Q585 496 651 480Z" fill="#2c9690" stroke="#294d51" stroke-width="7" stroke-linejoin="round"/>
+<path d="M642 464l-52 5" stroke="#89c7af" stroke-width="5" stroke-linecap="round"/>
+<path d="M641 450q-15 14 3 33q21-2 17-21Z" fill="#398b83" stroke="#294d51" stroke-width="6"/>
+<!-- little sparks of momentum -->
+<g stroke="#f8efd9" stroke-width="7" stroke-linecap="round"><path d="M352 435l-22-24m47 11-6-28m-37 65-28-8"/></g>
+</svg>

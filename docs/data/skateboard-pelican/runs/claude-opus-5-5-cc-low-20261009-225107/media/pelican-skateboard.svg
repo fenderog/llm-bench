@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ec8f0"/><stop offset="1" stop-color="#fde9c4"/>
+    </linearGradient>
+    <linearGradient id="pouch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb347"/><stop offset="1" stop-color="#f08a24"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="660" cy="110" r="55" fill="#fff3a8"/>
+  <path d="M0 470 Q200 440 400 465 T800 455 V600 H0Z" fill="#9aa3ad"/>
+  <rect y="500" width="800" height="100" fill="#6b737c"/>
+  <g stroke="#fff" stroke-width="6" stroke-dasharray="40 30"><line x1="0" y1="550" x2="800" y2="550"/></g>
+  <!-- speed lines -->
+  <g stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.8">
+    <line x1="40" y1="300" x2="160" y2="300"/><line x1="70" y1="350" x2="190" y2="350"/><line x1="30" y1="400" x2="140" y2="400"/>
+  </g>
+  <!-- skateboard -->
+  <g>
+    <path d="M200 470 Q205 452 230 452 H560 Q585 452 592 470 Z" fill="#c0392b" stroke="#7a1f16" stroke-width="4"/>
+    <rect x="200" y="466" width="392" height="10" rx="5" fill="#2c2c2c"/>
+    <rect x="260" y="476" width="40" height="10" fill="#888"/><rect x="490" y="476" width="40" height="10" fill="#888"/>
+    <circle cx="265" cy="497" r="16" fill="#f4d03f" stroke="#333" stroke-width="4"/>
+    <circle cx="295" cy="497" r="16" fill="#f4d03f" stroke="#333" stroke-width="4"/>
+    <circle cx="495" cy="497" r="16" fill="#f4d03f" stroke="#333" stroke-width="4"/>
+    <circle cx="525" cy="497" r="16" fill="#f4d03f" stroke="#333" stroke-width="4"/>
+  </g>
+  <!-- legs -->
+  <g stroke="#f08a24" stroke-width="10" stroke-linecap="round" fill="none">
+    <path d="M340 370 L320 410 L345 452"/><path d="M430 370 L455 410 L440 452"/>
+  </g>
+  <g fill="#f08a24">
+    <path d="M315 452 Q345 438 375 452Z"/><path d="M410 452 Q440 438 470 452Z"/>
+  </g>
+  <!-- tail -->
+  <path d="M250 300 L190 280 L205 310 L180 330 L260 335Z" fill="#e8e8e8" stroke="#555" stroke-width="3"/>
+  <!-- body -->
+  <ellipse cx="380" cy="310" rx="140" ry="80" fill="#fafafa" stroke="#555" stroke-width="4"/>
+  <!-- wing -->
+  <path d="M290 280 Q380 230 470 285 Q430 340 330 345 Q280 330 290 280Z" fill="#dcdcdc" stroke="#555" stroke-width="3"/>
+  <path d="M300 320 Q260 340 240 330 M310 335 Q270 360 250 352" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <!-- neck -->
+  <path d="M470 290 Q520 240 495 180 Q480 140 510 115" stroke="#555" stroke-width="44" fill="none" stroke-linecap="round"/>
+  <path d="M470 290 Q520 240 495 180 Q480 140 510 115" stroke="#fafafa" stroke-width="36" fill="none" stroke-linecap="round"/>
+  <!-- head -->
+  <ellipse cx="520" cy="110" rx="38" ry="32" fill="#fafafa" stroke="#555" stroke-width="4"/>
+  <path d="M500 82 Q515 60 540 78" stroke="#f4d03f" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- beak & pouch -->
+  <path d="M548 100 L700 128 L552 118Z" fill="#f4b042" stroke="#9a5a10" stroke-width="3"/>
+  <path d="M552 118 L700 128 Q640 200 565 160 Q548 140 552 118Z" fill="url(#pouch)" stroke="#9a5a10" stroke-width="3"/>
+  <circle cx="696" cy="127" r="5" fill="#c0392b"/>
+  <!-- eye -->
+  <circle cx="532" cy="100" r="8" fill="#fff" stroke="#333" stroke-width="2"/>
+  <circle cx="535" cy="100" r="4" fill="#111"/>
+  <!-- cap -->
+  <path d="M488 92 Q515 55 552 85 Z" fill="#2e86de"/>
+  <path d="M488 92 Q470 92 462 102 L492 98Z" fill="#1b5fa8"/>
+</svg>

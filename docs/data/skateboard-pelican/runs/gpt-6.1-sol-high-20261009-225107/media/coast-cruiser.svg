@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1100" viewBox="0 0 1400 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Coast Cruiser — a pelican on a skateboard</title>
+  <desc id="desc">A cheerful ivory pelican wearing a sea-green helmet spreads a wing as it rides an orange skateboard. Its enormous golden bill catches the sun, against a warm cream coastal backdrop.</desc>
+  <defs>
+    <pattern id="sand" width="46" height="43" patternUnits="userSpaceOnUse">
+      <circle cx="8" cy="13" r=".8" fill="#b9a88a" opacity=".25"/>
+      <circle cx="32" cy="35" r=".65" fill="#b9a88a" opacity=".22"/>
+    </pattern>
+    <pattern id="grip" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-8)">
+      <circle cx="3" cy="3" r="1.1" fill="#fff1cd" opacity=".35"/>
+    </pattern>
+    <clipPath id="deckClip"><path d="M451 832 Q430 828 426 809 Q470 818 503 813 L873 757 Q899 752 926 734 Q936 753 914 770 L500 842 Q467 846 451 832Z"/></clipPath>
+  </defs>
+
+  <!-- A little salt, sun, and room to roll. -->
+  <path fill="#f7f0df" d="M0 0H1400V1100H0Z"/>
+  <path fill="url(#sand)" d="M0 0H1400V1100H0Z"/>
+  <circle cx="1010" cy="391" r="243" fill="#edb99a"/>
+  <circle cx="1010" cy="391" r="214" fill="none" stroke="#f6d3b8" stroke-width="2"/>
+  <path d="M1140 136l12-17m20 33 18-8m-32-35 3-20" stroke="#c27d62" stroke-width="3" stroke-linecap="round"/>
+  <g fill="#173f43" font-family="Arial, Helvetica, sans-serif">
+    <text x="100" y="119" font-size="18" font-weight="700" letter-spacing="5">BORN TO</text>
+    <text x="94" y="207" font-size="94" font-weight="900" letter-spacing="-5">COAST.</text>
+    <text x="102" y="244" font-size="17" letter-spacing="1.6">A LITTLE WILD. A LOT OF STYLE.</text>
+  </g>
+  <g fill="none" stroke="#8dafa5" stroke-width="3" stroke-linecap="round">
+    <path d="M1080 652q30-20 60 0t60 0t60 0"/>
+    <path d="M1120 672q30-20 60 0t60 0"/>
+    <path d="M135 721q25-17 50 0t50 0"/>
+  </g>
+  <path d="M0 953 C258 886 379 970 627 966 C917 961 1050 867 1400 938 V1100 H0Z" fill="#dce4d6"/>
+  <path d="M0 989 C252 918 371 1005 635 1001 C934 997 1124 916 1400 971" fill="none" stroke="#bfd1c3" stroke-width="3"/>
+  <ellipse cx="691" cy="926" rx="301" ry="28" fill="#173f43" opacity=".12" transform="rotate(-7 691 926)"/>
+  <g fill="none" stroke="#c68762" stroke-width="5" stroke-linecap="round">
+    <path d="M266 795l-89 14m126 9-48 8m89-53-42 6"/>
+    <path d="M339 883l-99 16m78 7-31 5"/>
+  </g>
+
+  <!-- The board: warm wood, turquoise trucks, buttery yellow wheels. -->
+  <g transform="translate(0 30)">
+  <g stroke="#173f43" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M514 840l13 28 31-5 9-32m245-36 12 27 31-5 9-33" fill="#7baba1"/>
+    <path d="M521 872l57-9m237-40 57-9" fill="none"/>
+    <g fill="#eebd63">
+      <ellipse cx="549" cy="882" rx="27" ry="33" transform="rotate(-9 549 882)"/>
+      <ellipse cx="845" cy="831" rx="27" ry="33" transform="rotate(-9 845 831)"/>
+    </g>
+    <g fill="#fff0cf" stroke-width="5">
+      <ellipse cx="544" cy="882" rx="11" ry="17" transform="rotate(-9 544 882)"/>
+      <ellipse cx="840" cy="831" rx="11" ry="17" transform="rotate(-9 840 831)"/>
+    </g>
+    <path d="M426 809l4 16q5 25 46 29l31-3 407-69q27-8 16-39l-11 15-415 67Z" fill="#397e79"/>
+    <path d="M451 832 Q430 828 426 809 Q470 818 503 813 L873 757 Q899 752 926 734 Q936 753 914 770 L500 842 Q467 846 451 832Z" fill="#e7844d"/>
+    <path d="M461 828l414-64" fill="none" stroke="#f5bf7c" stroke-width="3"/>
+  </g>
+  <path d="M419 730H945V850H419Z" fill="url(#grip)" clip-path="url(#deckClip)"/>
+  <g fill="#173f43">
+    <circle cx="522" cy="818" r="3"/><circle cx="538" cy="815" r="3"/>
+    <circle cx="844" cy="770" r="3"/><circle cx="860" cy="767" r="3"/>
+  </g>
+  </g>
+
+  <!-- Webbed feet planted on the deck, knees bent into the glide. -->
+  <g stroke="#173f43" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M580 686 Q594 748 581 774 L616 817 L642 809 L610 766 L624 692Z" fill="#eebd63"/>
+    <path d="M619 799 Q633 795 645 807 L688 816 Q696 821 683 826 L607 836 Q588 837 595 824Z" fill="#e7844d"/>
+    <path d="M634 811l-9 16m25-11 4 6" fill="none" stroke-width="4"/>
+    <path d="M710 674 L767 729 Q779 739 769 756 L752 782 L780 791 L802 751 Q809 736 796 721 L748 667Z" fill="#eebd63"/>
+    <path d="M754 774 Q766 772 780 782 L819 789 Q835 795 821 800 L742 814 Q725 816 730 803Z" fill="#e7844d"/>
+    <path d="M764 787l-8 17m22-12 5 7" fill="none" stroke-width="4"/>
+  </g>
+
+  <!-- The far wing fans out like the sails of a little coastal boat. -->
+  <g stroke="#173f43" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M585 618 C501 583 405 500 355 418 C328 374 304 323 300 291 Q299 271 313 281 L373 341 L348 280 Q344 261 359 271 L419 339 L407 293 Q406 278 421 290 C494 360 538 449 579 497 Q618 542 647 568Z" fill="#fffaf0"/>
+    <path d="M312 300 C351 407 438 508 539 556 C495 501 466 455 445 409 C486 456 527 492 574 523 L611 577 L585 618 C478 573 387 488 337 386Z" fill="#dce4d6" stroke="none"/>
+    <path d="M373 341q38 78 98 135m-52-137q32 64 72 99m-64-51q10 19 20 31" fill="none" stroke-width="5"/>
+    <path d="M482 624l-90 30q-9 4 2 11l45 17-22 16q-9 8 5 9l104-6Z" fill="#fffaf0"/>
+    <path d="M407 660l83 7m-55 22 64-8" fill="none" stroke="#8eaaa0" stroke-width="4"/>
+
+    <!-- A broad, buoyant body and a long, curved pelican neck. -->
+    <path d="M473 575 C518 528 584 518 655 539 C714 531 759 554 794 586 C837 625 818 672 772 705 C722 743 622 747 551 717 C483 688 445 627 473 575Z" fill="#fffaf0"/>
+    <path d="M481 631 C522 692 596 713 671 714 C736 715 784 688 810 654 C806 684 771 714 729 729 C635 758 520 724 485 670Z" fill="#dce4d6" stroke="none"/>
+    <path d="M644 571 C699 545 720 509 721 458 C719 423 719 380 741 344 C760 311 797 298 831 307 C868 318 883 350 873 382 C865 411 838 430 819 452 C797 479 790 516 800 558 C806 582 819 595 813 622 C806 648 780 663 751 646" fill="#fffaf0"/>
+    <path d="M792 414 C765 454 758 483 765 521 C769 546 781 565 781 591 C780 612 769 626 754 640 C783 650 802 637 804 618 C808 596 794 570 790 550 C780 507 792 477 810 453 L842 415Z" fill="#dce4d6" stroke="none"/>
+    <path d="M711 576q19 11 35 10" fill="none" stroke="#8eaaa0" stroke-width="4"/>
+
+    <!-- Near wing: scalloped flight feathers, in soft sea-glass tones. -->
+    <path d="M719 581 C687 561 637 565 599 588 C557 613 529 644 509 659 Q501 669 514 672 L550 668 Q538 683 552 688 L582 680 Q573 696 590 697 L621 686 Q615 702 634 700 C685 694 726 667 741 632 Q752 600 719 581Z" fill="#edf0e3"/>
+    <path d="M586 633 C622 596 672 585 707 603 C731 619 710 655 684 672 C709 667 731 649 739 628 C749 600 719 580 693 578 C653 571 611 594 586 633Z" fill="#d0ded1" stroke="none"/>
+    <path d="M550 668q48-40 82-47m-50 59q38-34 72-43m-33 49q36-26 55-37" fill="none" stroke="#8eaaa0" stroke-width="4"/>
+  </g>
+
+  <!-- That unmistakable bill and generous fishing pouch. -->
+  <g stroke="#173f43" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M855 369 L1207 409 C1163 422 1142 432 1117 457 C1090 487 1056 509 1016 505 C945 499 882 461 857 405Z" fill="#efbd64"/>
+    <path d="M874 412 C922 462 974 476 1020 480 C1064 485 1095 465 1132 439 C1089 492 1050 512 1009 502 C951 490 898 459 874 412Z" fill="#e99a51" stroke="none"/>
+    <path d="M863 352 C956 361 1095 389 1208 409 Q1222 412 1211 418 C1092 416 972 403 859 389Z" fill="#f6cf71"/>
+    <path d="M881 365l253 39" stroke="#fff1be" stroke-width="5" fill="none"/>
+    <path d="M875 400q6 19 19 31" stroke="#c18146" stroke-width="4" fill="none"/>
+    <path d="M842 401q11 9 26 2" fill="none" stroke-width="4"/>
+  </g>
+  <ellipse cx="837" cy="365" rx="13" ry="16" fill="#173f43" transform="rotate(8 837 365)"/>
+  <circle cx="841" cy="359" r="4" fill="#fffaf0"/>
+  <path d="M818 341q13-10 26-3" fill="none" stroke="#173f43" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="816" cy="390" rx="14" ry="8" fill="#edb99a" transform="rotate(15 816 390)"/>
+
+  <!-- Safety first. Custom sea-green skate helmet. -->
+  <g stroke="#173f43" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M751 329 L764 388 Q777 409 797 414 L832 322" fill="none" stroke-width="8"/>
+    <path d="M766 393l20 8" stroke="#f7f0df" stroke-width="3"/>
+    <path d="M730 331 C727 280 759 250 801 249 C850 248 882 281 884 325 L879 337 C830 321 778 318 730 338Z" fill="#6ca99a"/>
+    <path d="M807 251 C785 274 782 300 788 325 L811 326 C805 299 810 273 829 254Z" fill="#f6cf71" stroke="none"/>
+    <path d="M743 284q13-19 29-23" fill="none" stroke="#a8cec0" stroke-width="5"/>
+    <path d="M729 335q76-25 155 1" fill="none"/>
+    <path d="M848 283l8 7m-14 13 9 4" fill="none" stroke-width="8"/>
+  </g>
+  <g fill="#173f43">
+    <path d="M252 412l6 18 18 6-18 6-6 18-6-18-18-6 18-6Z"/>
+    <path d="M1046 561l5 13 13 5-13 5-5 13-5-13-13-5 13-5Z"/>
+  </g>
+  <g fill="none" stroke="#173f43" stroke-width="4" stroke-linecap="round">
+    <path d="M882 688l17-16m-8 37 21-4"/>
+  </g>
+
+  <!-- Restrained poster furniture. -->
+  <path d="M100 1010H1300" stroke="#173f43" stroke-width="2" opacity=".28"/>
+  <g fill="#173f43" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="2.5">
+    <text x="100" y="1048">THE DAILY GLIDE</text>
+    <text x="1300" y="1048" text-anchor="end">SALTY AIR / SMOOTH RIDES</text>
+  </g>
+</svg>

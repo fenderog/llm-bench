@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+<rect width="400" height="300" fill="#bfe6ff"/>
+<circle cx="340" cy="50" r="28" fill="#ffe27a"/>
+<rect y="235" width="400" height="65" fill="#8c8c96"/>
+<rect y="235" width="400" height="5" fill="#6d6d77"/>
+<!-- skateboard -->
+<path d="M85 222 Q75 215 82 210 L318 210 Q325 215 315 222 Z" fill="#d9472b"/>
+<circle cx="130" cy="232" r="11" fill="#333"/><circle cx="130" cy="232" r="4" fill="#ddd"/>
+<circle cx="272" cy="232" r="11" fill="#333"/><circle cx="272" cy="232" r="4" fill="#ddd"/>
+<!-- legs -->
+<path d="M180 168 L172 205 M222 168 L228 205" stroke="#f5a623" stroke-width="7" stroke-linecap="round"/>
+<path d="M160 208 h26 M216 208 h28" stroke="#f5a623" stroke-width="7" stroke-linecap="round"/>
+<!-- tail -->
+<path d="M165 150 L120 168 L172 172 Z" fill="#e8e8e8" stroke="#999"/>
+<!-- body -->
+<ellipse cx="205" cy="140" rx="55" ry="38" fill="#f4f4f4" stroke="#999" stroke-width="2"/>
+<path d="M175 135 Q205 160 245 125 Q215 110 175 135Z" fill="#dcdcdc"/>
+<!-- neck & head -->
+<path d="M240 125 Q275 110 262 80 Q255 62 272 55" stroke="#f4f4f4" stroke-width="18" fill="none" stroke-linecap="round"/>
+<circle cx="275" cy="55" r="19" fill="#f4f4f4" stroke="#999" stroke-width="2"/>
+<!-- beak -->
+<path d="M290 50 L368 66 Q330 70 291 66 Z" fill="#f5a623" stroke="#c77d0a" stroke-width="2"/>
+<path d="M291 66 Q325 98 365 68 Q330 72 291 66Z" fill="#e8920f"/>
+<circle cx="281" cy="49" r="4" fill="#111"/><circle cx="282.5" cy="48" r="1.3" fill="#fff"/>
+<!-- wing -->
+<path d="M200 118 Q160 130 150 165 Q190 160 225 135Z" fill="#c9d3dc" stroke="#889" stroke-width="2"/>
+</svg>

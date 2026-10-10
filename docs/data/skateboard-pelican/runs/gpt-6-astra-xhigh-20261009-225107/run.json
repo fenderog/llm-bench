@@ -1,0 +1,60 @@
+{
+  "id": "gpt-6-astra-xhigh-20261009-225107",
+  "page": "skateboard-pelican",
+  "model": "openai-codex/gpt-6-astra",
+  "effort": "xhigh",
+  "kind": "media",
+  "started_at": "2026-10-10T05:53:04Z",
+  "batch": "2026-10-09-225107-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 415921,
+    "cost_usd": 1.1722840000000003,
+    "tool_calls": 12,
+    "turns": 12,
+    "tokens_total": 42130,
+    "tokens_input": 27157,
+    "tokens_output": 14973,
+    "tokens_reasoning": 6095,
+    "tokens_cache_read": 152064
+  },
+  "thumb": "media/coast-and-roll.png",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 1800,
+        "height": 1440,
+        "bytes": 257207,
+        "path": "media/coast-and-roll.png"
+      },
+      {
+        "type": "image",
+        "width": 1400,
+        "height": 1120,
+        "bytes": 17539,
+        "path": "media/coast-and-roll.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "render_png.py"
+    ]
+  }
+}

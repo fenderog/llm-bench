@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ec8f0"/>
+      <stop offset="1" stop-color="#d8f1ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky, sun and clouds -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="690" cy="90" r="50" fill="#ffd65a"/>
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="150" cy="90" rx="60" ry="22"/>
+    <ellipse cx="185" cy="78" rx="38" ry="24"/>
+    <ellipse cx="260" cy="130" rx="46" ry="16"/>
+    <ellipse cx="560" cy="150" rx="56" ry="18"/>
+    <ellipse cx="596" cy="138" rx="34" ry="20"/>
+  </g>
+
+  <!-- Ground -->
+  <rect x="0" y="520" width="800" height="80" fill="#8c9199"/>
+  <rect x="0" y="520" width="800" height="6" fill="#5b6068"/>
+  <ellipse cx="400" cy="522" rx="220" ry="11" fill="#000000" opacity="0.25"/>
+
+  <!-- Speed lines -->
+  <g stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.7">
+    <line x1="110" y1="380" x2="190" y2="380"/>
+    <line x1="80" y1="420" x2="175" y2="420"/>
+    <line x1="120" y1="460" x2="200" y2="460"/>
+  </g>
+
+  <!-- Skateboard wheels and trucks -->
+  <rect x="255" y="470" width="40" height="10" fill="#b0b5bb"/>
+  <rect x="505" y="470" width="40" height="10" fill="#b0b5bb"/>
+  <circle cx="275" cy="505" r="15" fill="#f5e6a0" stroke="#4a4a4a" stroke-width="2"/>
+  <circle cx="525" cy="505" r="15" fill="#f5e6a0" stroke="#4a4a4a" stroke-width="2"/>
+
+  <!-- Pelican legs (drawn before the deck so the deck covers the feet) -->
+  <g stroke="#f08c2a" stroke-width="10" stroke-linecap="round" fill="none">
+    <path d="M 372 380 L 362 456"/>
+    <path d="M 412 380 L 424 456"/>
+  </g>
+  <g stroke="#f08c2a" stroke-width="8" stroke-linecap="round">
+    <line x1="345" y1="454" x2="380" y2="454"/>
+    <line x1="405" y1="454" x2="440" y2="454"/>
+  </g>
+
+  <!-- Skateboard deck -->
+  <rect x="205" y="452" width="390" height="18" rx="9" fill="#e0563b" stroke="#9c3322" stroke-width="2"/>
+  <line x1="225" y1="461" x2="575" y2="461" stroke="#f08a6e" stroke-width="2" stroke-dasharray="4 6" opacity="0.7"/>
+
+  <!-- Tail -->
+  <path d="M 300 325 L 228 298 L 236 345 L 290 355 Z" fill="#b8c2cc" stroke="#556070" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Raised wing for balance (behind body) -->
+  <path d="M 340 300 Q 300 230 245 210 Q 270 262 300 326 Z" fill="#9aa7b4" stroke="#556070" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Body -->
+  <ellipse cx="390" cy="325" rx="115" ry="68" transform="rotate(-12 390 325)" fill="#f4f4f0" stroke="#666666" stroke-width="2"/>
+
+  <!-- Folded wing on the back -->
+  <path d="M 330 290 Q 400 228 482 272 Q 432 300 402 320 Q 362 342 298 332 Z" fill="#9aa7b4" stroke="#556070" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M 350 300 Q 400 262 462 282" fill="none" stroke="#556070" stroke-width="2" opacity="0.6"/>
+
+  <!-- Neck (outline stroke, then white fill stroke) -->
+  <path d="M 455 285 Q 480 250 495 215" fill="none" stroke="#666666" stroke-width="50" stroke-linecap="round"/>
+  <path d="M 455 285 Q 480 250 495 215" fill="none" stroke="#f4f4f0" stroke-width="46" stroke-linecap="round"/>
+
+  <!-- Head -->
+  <circle cx="500" cy="205" r="36" fill="#f4f4f0" stroke="#666666" stroke-width="2"/>
+
+  <!-- Cap (worn backwards) -->
+  <path d="M 468 192 Q 498 150 534 178 L 532 188 Q 500 178 468 198 Z" fill="#2a6fdb" stroke="#1d4f9c" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M 532 182 L 552 190 L 532 190 Z" fill="#1d4f9c"/>
+
+  <!-- Bill and pouch -->
+  <path d="M 528 190 Q 620 180 700 205 Q 690 214 672 214 Q 600 224 530 222 Z" fill="#f0a030" stroke="#b86a10" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M 532 222 Q 600 226 668 214 Q 640 270 590 262 Q 555 255 532 222 Z" fill="#e88a1e" stroke="#b86a10" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Eye and brow -->
+  <circle cx="512" cy="198" r="6" fill="#222222"/>
+  <circle cx="514" cy="196" r="2" fill="#ffffff"/>
+  <path d="M 502 184 L 524 190" stroke="#333333" stroke-width="3" stroke-linecap="round"/>
+</svg>

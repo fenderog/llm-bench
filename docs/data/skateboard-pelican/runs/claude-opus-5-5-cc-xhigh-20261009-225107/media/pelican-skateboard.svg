@@ -1,0 +1,269 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 900" width="1200" height="900">
+  <title>A pelican riding a skateboard along a seaside boardwalk at sunset</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f7fd0"/>
+      <stop offset="0.45" stop-color="#9fa7dc"/>
+      <stop offset="0.75" stop-color="#f6b89a"/>
+      <stop offset="1" stop-color="#ffd9a0"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff4c2" stop-opacity="0.9"/>
+      <stop offset="0.35" stop-color="#ffd27a" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#ffb36b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff6c8"/>
+      <stop offset="1" stop-color="#ffb347"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5d7fc4"/>
+      <stop offset="1" stop-color="#3f9bc9"/>
+    </linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6dcaa"/>
+      <stop offset="1" stop-color="#ebc58a"/>
+    </linearGradient>
+    <linearGradient id="walk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d6c0b8"/>
+      <stop offset="1" stop-color="#eddccf"/>
+    </linearGradient>
+    <linearGradient id="pouch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb347"/>
+      <stop offset="1" stop-color="#ef7d33"/>
+    </linearGradient>
+    <linearGradient id="bill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd85a"/>
+      <stop offset="1" stop-color="#f7a93a"/>
+    </linearGradient>
+    <linearGradient id="feather" gradientUnits="userSpaceOnUse" x1="0" y1="250" x2="0" y2="640">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e9e6f2"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2ec4b6"/>
+      <stop offset="1" stop-color="#1a8fa3"/>
+    </linearGradient>
+
+    <!-- one palm frond, pivoting at the origin -->
+    <path id="frond" d="M0 0 C 40 -34 96 -36 140 6 C 100 -12 56 -10 0 0 Z"/>
+    <g id="palmCrown">
+      <use xlink:href="#frond" transform="rotate(-10)"/>
+      <use xlink:href="#frond" transform="rotate(25)"/>
+      <use xlink:href="#frond" transform="scale(-1 1) rotate(-5)"/>
+      <use xlink:href="#frond" transform="scale(-1 1) rotate(30)"/>
+      <use xlink:href="#frond" transform="rotate(-55) scale(0.8)"/>
+      <use xlink:href="#frond" transform="scale(-1 1) rotate(-55) scale(0.8)"/>
+    </g>
+    <!-- a single flight feather pointing along +x, ~100 long -->
+    <path id="feather1" d="M0 -10 C 40 -13 84 -12 98 -4 Q 104 0 98 4 C 84 12 40 13 0 10 Z"/>
+
+    <path id="bodyShape" d="M705 458 C 758 498 752 590 672 618 C 600 645 490 642 428 606 C 410 610 380 618 352 614 C 368 604 378 596 384 588 C 362 590 340 586 326 576 C 350 570 372 562 388 552 C 430 498 520 458 600 450 C 645 446 680 446 705 458 Z"/>
+    <path id="neckShape" d="M640 482 C 628 410 652 360 705 318 L 770 322 C 738 362 712 405 726 482 Z"/>
+    <ellipse id="headShape" cx="738" cy="292" rx="50" ry="40"/>
+    <g id="silhouette">
+      <use xlink:href="#bodyShape"/>
+      <use xlink:href="#neckShape"/>
+      <use xlink:href="#headShape"/>
+    </g>
+    <clipPath id="bodyClip"><use xlink:href="#bodyShape"/></clipPath>
+  </defs>
+
+  <!-- ===== Background ===== -->
+  <rect width="1200" height="560" fill="url(#sky)"/>
+
+  <!-- clouds -->
+  <g fill="#fff" opacity="0.75">
+    <path d="M430 170 a34 34 0 0 1 60 -18 a44 44 0 0 1 80 10 a28 28 0 0 1 36 30 h-196 a22 22 0 0 1 20 -22 Z"/>
+    <path d="M880 110 a26 26 0 0 1 46 -14 a36 36 0 0 1 66 8 a22 22 0 0 1 28 24 h-160 a18 18 0 0 1 20 -18 Z"/>
+  </g>
+  <g fill="#ffe9e0" opacity="0.6">
+    <path d="M60 300 a22 22 0 0 1 40 -10 a30 30 0 0 1 54 8 h-110 a12 12 0 0 1 16 2 Z"/>
+  </g>
+
+  <!-- sun -->
+  <circle cx="210" cy="470" r="190" fill="url(#sunGlow)"/>
+  <circle cx="210" cy="480" r="86" fill="url(#sun)"/>
+
+  <!-- distant gulls -->
+  <g fill="none" stroke="#4a4466" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M290 110 q10 -10 20 0 q10 -10 20 0"/>
+    <path d="M338 140 q7 -7 14 0 q7 -7 14 0"/>
+  </g>
+
+  <!-- sea -->
+  <rect y="540" width="1200" height="80" fill="url(#sea)"/>
+  <g stroke="#ffe3a3" stroke-linecap="round" opacity="0.85">
+    <line x1="150" y1="552" x2="270" y2="552" stroke-width="5"/>
+    <line x1="170" y1="566" x2="250" y2="566" stroke-width="4"/>
+    <line x1="185" y1="580" x2="235" y2="580" stroke-width="4"/>
+    <line x1="198" y1="594" x2="222" y2="594" stroke-width="3"/>
+  </g>
+  <g stroke="#a9d3f0" stroke-linecap="round" stroke-width="3" opacity="0.6">
+    <line x1="420" y1="560" x2="470" y2="560"/>
+    <line x1="640" y1="575" x2="700" y2="575"/>
+    <line x1="880" y1="558" x2="920" y2="558"/>
+    <line x1="1000" y1="590" x2="1060" y2="590"/>
+    <line x1="520" y1="600" x2="560" y2="600"/>
+  </g>
+
+  <!-- beach -->
+  <path d="M0 612 Q 300 600 600 610 T 1200 606 V 660 H 0 Z" fill="url(#sand)"/>
+
+  <!-- palms -->
+  <g fill="#3b3a5e" opacity="0.88">
+    <path d="M1096 655 C 1100 560 1090 440 1060 330 L 1072 328 C 1104 440 1114 560 1112 655 Z"/>
+    <use xlink:href="#palmCrown" transform="translate(1066 330)"/>
+    <path d="M1160 655 C 1160 590 1168 520 1188 450 L 1198 454 C 1180 520 1174 590 1174 655 Z"/>
+    <use xlink:href="#palmCrown" transform="translate(1192 452) scale(0.75)"/>
+    <path d="M30 655 C 34 590 46 520 66 450 L 78 454 C 60 520 48 590 46 655 Z"/>
+    <use xlink:href="#palmCrown" transform="translate(72 452) scale(0.8)"/>
+  </g>
+
+  <!-- boardwalk -->
+  <rect y="650" width="1200" height="250" fill="url(#walk)"/>
+  <rect y="646" width="1200" height="12" fill="#ae969a"/>
+  <g stroke="#c6aca8" stroke-width="3">
+    <line x1="0" y1="808" x2="1200" y2="808"/>
+    <line x1="-60" y1="900" x2="60" y2="658"/>
+    <line x1="300" y1="900" x2="390" y2="658"/>
+    <line x1="660" y1="900" x2="720" y2="658"/>
+    <line x1="1020" y1="900" x2="1050" y2="658"/>
+  </g>
+
+  <!-- speed lines -->
+  <g stroke="#fff" stroke-linecap="round" opacity="0.8">
+    <line x1="150" y1="250" x2="280" y2="250" stroke-width="6"/>
+    <line x1="190" y1="290" x2="290" y2="290" stroke-width="5"/>
+    <line x1="60" y1="696" x2="250" y2="696" stroke-width="6"/>
+    <line x1="140" y1="730" x2="290" y2="730" stroke-width="5"/>
+  </g>
+
+  <!-- dust kicked up by the back wheel -->
+  <g fill="#f3e6da" stroke="#c6aca8" stroke-width="3">
+    <circle cx="372" cy="748" r="13"/>
+    <circle cx="346" cy="742" r="10"/>
+    <circle cx="324" cy="750" r="7"/>
+    <circle cx="304" cy="744" r="4.5"/>
+  </g>
+
+  <!-- ===== Skateboard ===== -->
+  <ellipse cx="590" cy="764" rx="290" ry="14" fill="#5a4560" opacity="0.28"/>
+
+  <g stroke="#2b2233" stroke-width="5" stroke-linejoin="round">
+    <!-- trucks -->
+    <path d="M405 700 h50 v10 l-8 14 h-34 l-8 -14 Z" fill="#9aa3b5"/>
+    <path d="M735 700 h50 v10 l-8 14 h-34 l-8 -14 Z" fill="#9aa3b5"/>
+    <!-- wheels -->
+    <circle cx="430" cy="736" r="24" fill="#ffd23f"/>
+    <circle cx="760" cy="736" r="24" fill="#ffd23f"/>
+    <circle cx="430" cy="736" r="9" fill="#f4f1ea"/>
+    <circle cx="760" cy="736" r="9" fill="#f4f1ea"/>
+  </g>
+  <g fill="none" stroke="#2b2233" stroke-width="3" stroke-linecap="round" opacity="0.5">
+    <path d="M412 724 a20 20 0 0 1 14 -8"/>
+    <path d="M742 724 a20 20 0 0 1 14 -8"/>
+  </g>
+
+  <!-- deck -->
+  <path d="M318 662 Q 336 694 384 694 L 806 694 Q 852 694 872 662" fill="none" stroke="#2b2233" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M318 662 Q 336 694 384 694 L 806 694 Q 852 694 872 662" fill="none" stroke="url(#deck)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M340 690 Q 350 698 384 699 L 806 699 Q 836 698 850 690" fill="none" stroke="#ff6b6b" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- ===== Pelican ===== -->
+  <!-- legs -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M492 612 L 466 648 L 486 672" stroke="#2b2233" stroke-width="21"/>
+    <path d="M492 612 L 466 648 L 486 672" stroke="#f39c34" stroke-width="11"/>
+    <path d="M642 612 L 672 646 L 658 672" stroke="#2b2233" stroke-width="21"/>
+    <path d="M642 612 L 672 646 L 658 672" stroke="#f39c34" stroke-width="11"/>
+  </g>
+  <!-- webbed feet -->
+  <g stroke="#2b2233" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M478 664 C 500 666 528 672 546 680 Q 550 683 545 683 L 454 683 C 452 674 464 664 478 664 Z" fill="#f39c34"/>
+    <path d="M650 664 C 672 666 700 672 718 680 Q 722 683 717 683 L 626 683 C 624 674 636 664 650 664 Z" fill="#f39c34"/>
+    <path d="M486 670 L 524 683 M 486 670 L 500 683" fill="none" stroke-width="3" opacity="0.55"/>
+    <path d="M658 670 L 696 683 M 658 670 L 672 683" fill="none" stroke-width="3" opacity="0.55"/>
+  </g>
+
+  <g transform="rotate(3 570 615)">
+  <!-- far wing (raised behind the back) -->
+  <g stroke="#2b2233" stroke-width="4.5" stroke-linejoin="round">
+    <g fill="#3a3348">
+      <use xlink:href="#feather1" transform="translate(492 375) rotate(196) scale(0.62 1)"/>
+      <use xlink:href="#feather1" transform="translate(505 400) rotate(188) scale(0.62 1)"/>
+      <use xlink:href="#feather1" transform="translate(522 425) rotate(180) scale(0.6 1)"/>
+      <use xlink:href="#feather1" transform="translate(542 450) rotate(172) scale(0.55 1)"/>
+      <use xlink:href="#feather1" transform="translate(484 360) rotate(214) scale(1.1 1)"/>
+      <use xlink:href="#feather1" transform="translate(490 350) rotate(226) scale(1.25 1)"/>
+      <use xlink:href="#feather1" transform="translate(497 342) rotate(238) scale(1.3 1)"/>
+      <use xlink:href="#feather1" transform="translate(505 335) rotate(250) scale(1.2 1)"/>
+    </g>
+    <path d="M615 480 C 595 415 565 362 520 326 C 503 313 484 320 480 338 C 486 385 515 435 560 485 Z" fill="#dcd6ea"/>
+  </g>
+
+  <!-- body, neck and head share one outline -->
+  <use xlink:href="#silhouette" fill="#2b2233" stroke="#2b2233" stroke-width="10" stroke-linejoin="round"/>
+  <use xlink:href="#silhouette" fill="url(#feather)"/>
+  <g clip-path="url(#bodyClip)">
+    <ellipse cx="545" cy="655" rx="250" ry="78" fill="#cbc3df" opacity="0.7"/>
+  </g>
+  <!-- golden wash down the back of the neck -->
+  <path d="M705 318 C 668 348 646 380 640 420 C 652 390 672 362 716 330 Z" fill="#ffe7a8" opacity="0.6"/>
+  <!-- chest feathers -->
+  <g fill="none" stroke="#b9b0cf" stroke-width="3" stroke-linecap="round">
+    <path d="M700 520 q8 8 16 0"/>
+    <path d="M684 548 q8 8 16 0"/>
+    <path d="M712 552 q7 7 14 0"/>
+    <path d="M694 580 q8 8 16 0"/>
+  </g>
+
+  <!-- near wing (swept back for balance) -->
+  <g stroke="#2b2233" stroke-width="4.5" stroke-linejoin="round">
+    <g fill="#2f2a3a">
+      <use xlink:href="#feather1" transform="translate(470 438) rotate(172) scale(0.58 1.35)"/>
+      <use xlink:href="#feather1" transform="translate(490 452) rotate(165) scale(0.58 1.35)"/>
+      <use xlink:href="#feather1" transform="translate(511 465) rotate(158) scale(0.58 1.35)"/>
+      <use xlink:href="#feather1" transform="translate(533 478) rotate(152) scale(0.58 1.35)"/>
+      <use xlink:href="#feather1" transform="translate(556 490) rotate(147) scale(0.58 1.35)"/>
+      <use xlink:href="#feather1" transform="translate(580 502) rotate(142) scale(0.58 1.35)"/>
+      <use xlink:href="#feather1" transform="translate(604 514) rotate(137) scale(0.58 1.35)"/>
+      <use xlink:href="#feather1" transform="translate(626 526) rotate(132) scale(0.58 1.35)"/>
+      <use xlink:href="#feather1" transform="translate(456 440) rotate(176) scale(1.25 1.1)"/>
+      <use xlink:href="#feather1" transform="translate(460 428) rotate(185) scale(1.4 1.1)"/>
+      <use xlink:href="#feather1" transform="translate(466 416) rotate(194) scale(1.55 1.1)"/>
+      <use xlink:href="#feather1" transform="translate(472 405) rotate(203) scale(1.6 1.1)"/>
+      <use xlink:href="#feather1" transform="translate(480 395) rotate(212) scale(1.5 1.1)"/>
+    </g>
+    <path d="M672 508 C 640 452 582 404 502 384 C 472 377 448 384 444 402 C 450 424 474 444 504 460 C 552 486 600 510 640 532 C 660 540 680 526 672 508 Z" fill="url(#feather)"/>
+    <g fill="none" stroke="#b9b0cf" stroke-width="3" stroke-linecap="round">
+      <path d="M492 414 q14 14 28 4 q14 14 28 4 q14 14 28 4"/>
+      <path d="M520 444 q14 14 28 4 q14 14 28 4 q14 14 28 4"/>
+    </g>
+  </g>
+
+  <!-- wind-swept crest -->
+  <g stroke="#2b2233" stroke-width="4" stroke-linejoin="round" fill="#fff3c4">
+    <path d="M716 258 C 700 244 684 256 666 246 C 652 238 642 244 630 238 C 640 254 654 260 668 262 C 684 265 694 266 708 278 Z"/>
+    <path d="M704 278 C 690 270 678 282 662 276 C 650 272 642 278 632 276 C 644 288 656 290 668 290 C 682 290 690 290 700 296 Z"/>
+  </g>
+  <use xlink:href="#headShape" fill="url(#feather)"/>
+
+  <!-- pouch + bill -->
+  <g stroke="#2b2233" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M778 304 C 860 312 930 322 992 334 C 975 362 930 394 870 406 C 815 416 768 396 750 360 C 743 340 752 318 778 304 Z" fill="url(#pouch)"/>
+    <path d="M790 330 C 840 340 900 346 950 346" fill="none" stroke="#d9652b" stroke-width="3"/>
+    <path d="M768 268 C 850 272 940 292 1012 318 C 1030 324 1030 342 1014 344 C 1008 336 1000 334 992 334 C 920 322 850 312 780 306 C 770 296 766 280 768 268 Z" fill="url(#bill)"/>
+    <path d="M792 288 C 870 294 950 308 1002 326" fill="none" stroke-width="3" opacity="0.4"/>
+    <path d="M1012 318 C 1030 324 1030 342 1014 344 C 1012 334 1008 326 1000 322 Z" fill="#e0532b"/>
+    <path d="M780 306 Q 770 314 776 322" fill="none" stroke-width="4"/>
+  </g>
+
+  <!-- eye -->
+  <ellipse cx="752" cy="283" rx="16" ry="13" fill="#ffd9a8"/>
+  <circle cx="753" cy="283" r="8.5" fill="#fff" stroke="#2b2233" stroke-width="3"/>
+  <circle cx="756" cy="283" r="4.8" fill="#2b2233"/>
+  <circle cx="757.6" cy="281" r="1.6" fill="#fff"/>
+  <path d="M736 268 Q 752 259 769 267" fill="none" stroke="#2b2233" stroke-width="4.5" stroke-linecap="round"/>
+  </g>
+</svg>

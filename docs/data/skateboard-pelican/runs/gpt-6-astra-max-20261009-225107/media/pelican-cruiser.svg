@@ -1,0 +1,199 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1200" viewBox="0 0 1400 1200" role="img" aria-labelledby="title description">
+  <title id="title">Coastal Cruiser</title>
+  <desc id="description">A jaunty white pelican balances on a coral skateboard, one black-tipped wing lifted into the sea breeze. Its enormous golden bill points down the coast, against a mint-green ocean and an apricot sun. Original vector illustration in warm, screen-printed colors.</desc>
+  <defs>
+    <pattern id="paper" width="54" height="47" patternUnits="userSpaceOnUse">
+      <g fill="#967f61" opacity=".10">
+        <circle cx="4" cy="7" r=".7"/><circle cx="28" cy="12" r=".8"/><circle cx="46" cy="35" r=".65"/>
+        <circle cx="13" cy="39" r=".65"/><circle cx="35" cy="28" r=".5"/><circle cx="21" cy="25" r=".5"/>
+      </g>
+    </pattern>
+    <pattern id="halftone" width="13" height="13" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+      <circle cx="3" cy="3" r="1.15" fill="#28575a" opacity=".13"/>
+    </pattern>
+    <pattern id="grip" width="11" height="11" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r=".85" fill="#e7e3c7" opacity=".26"/>
+      <circle cx="7.5" cy="7.5" r=".65" fill="#e7e3c7" opacity=".17"/>
+    </pattern>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c5ddd0"/><stop offset="1" stop-color="#9fc9bd"/>
+    </linearGradient>
+    <linearGradient id="pouch" x1="0" y1="0" x2=".85" y2="1">
+      <stop offset="0" stop-color="#f8ca70"/><stop offset="1" stop-color="#efa94c"/>
+    </linearGradient>
+    <clipPath id="landscape"><circle cx="716" cy="575" r="431"/></clipPath>
+    <path id="bird-shape" d="M473 608 C508 582 517 541 565 518 C602 499 637 503 674 516 C689 477 670 433 675 389 C680 331 713 281 764 270 C808 260 850 282 859 321 C868 360 846 395 821 431 C795 468 797 493 821 531 C858 585 880 638 864 699 C844 778 773 828 682 845 C607 860 529 843 480 806 C440 775 424 736 440 692 L378 703 C392 670 421 637 473 608 Z"/>
+    <clipPath id="bird-clip"><use href="#bird-shape"/></clipPath>
+    <path id="wing-shape" d="M677 640 C632 661 567 635 517 603 C457 563 417 518 383 478 C339 462 301 441 273 411 C264 400 273 390 286 397 L325 420 C289 381 263 344 250 309 C245 295 257 286 268 300 L309 344 C287 301 275 260 277 226 C278 210 292 207 299 224 C323 270 354 305 396 337 C443 372 475 402 503 439 C557 452 612 474 653 507 C688 535 706 565 705 593 C705 614 695 632 677 640 Z"/>
+    <clipPath id="wing-clip"><use href="#wing-shape"/></clipPath>
+    <path id="deck-top" d="M332 932 C353 933 369 953 412 954 L1013 954 C1051 954 1069 933 1088 925 C1103 921 1113 932 1102 944 C1079 970 1052 982 1014 983 L413 983 C375 983 348 968 329 951 C318 941 321 932 332 932 Z"/>
+    <clipPath id="deck-clip"><use href="#deck-top"/></clipPath>
+  </defs>
+
+  <!-- Warm, very lightly flecked paper. -->
+  <path fill="#f6efdf" d="M0 0H1400V1200H0Z"/>
+  <path fill="url(#paper)" d="M0 0H1400V1200H0Z"/>
+
+  <!-- A little piece of the coast, contained in a circular vignette. -->
+  <circle cx="716" cy="575" r="431" fill="url(#sky)"/>
+  <g clip-path="url(#landscape)">
+    <circle cx="1000" cy="283" r="94" fill="#f3b17d"/>
+    <circle cx="1000" cy="283" r="78" fill="#f7c38e"/>
+    <path d="M256 658 C394 625 470 679 599 648 C751 611 858 646 964 634 C1060 622 1127 633 1187 651 V1025H256Z" fill="#87b6ac"/>
+    <path d="M239 759 C383 707 469 765 598 729 C740 690 841 758 984 714 C1080 686 1150 711 1199 729 V1025H239Z" fill="#76a79d"/>
+    <path d="M265 865 C408 796 543 893 687 833 C843 769 1017 876 1172 804 V1025H265Z" fill="#63968d"/>
+    <path d="M275 927 C409 878 483 930 634 908 C797 885 962 967 1139 896 V1030H275Z" fill="#d9dfc5"/>
+    <path d="M256 831 C395 775 487 846 574 820 M967 791 C1029 777 1084 782 1159 760 M314 696 H410 M322 707 H370 M1014 673 H1123 M1078 685 H1151 M365 894 Q418 881 459 890" fill="none" stroke="#e8ebcf" stroke-width="4" stroke-linecap="round" opacity=".75"/>
+    <path d="M256 858 C448 778 502 906 717 812 C913 726 1028 860 1173 794 V1030H256Z" fill="url(#halftone)"/>
+    <path d="M869 220 H1063 M925 235 H1108 M1009 251 H1119" stroke="#f9d2a0" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+  </g>
+  <path d="M467 197 A451 451 0 0 1 683 125 M1110 806 A451 451 0 0 1 1051 887" fill="none" stroke="#a6c4b4" stroke-width="2.5" stroke-linecap="round"/>
+  <g fill="none" stroke="#35635f" stroke-width="4" stroke-linecap="round">
+    <path d="M1052 180 Q1066 165 1081 182 Q1095 168 1108 177"/>
+    <path d="M1148 261 Q1159 250 1170 263 Q1181 253 1191 260" stroke-width="3"/>
+  </g>
+  <g fill="#da8252">
+    <path d="M214 564 Q221 544 218 532 Q225 547 239 550 Q224 554 214 564Z"/>
+    <path d="M1184 695 Q1190 677 1188 665 Q1194 679 1208 682 Q1194 684 1184 695Z"/>
+    <circle cx="237" cy="585" r="3.5"/><circle cx="1169" cy="723" r="3"/>
+  </g>
+
+  <!-- Soft graphic shadow and little skate-speed strokes. -->
+  <ellipse cx="724" cy="1081" rx="362" ry="25" fill="#ddd8bc"/>
+  <ellipse cx="727" cy="1078" rx="279" ry="12" fill="#cecdb0" opacity=".6"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M185 891 L351 871 M245 930 L317 921 M202 938 L218 936" stroke="#315a55" stroke-width="6"/>
+    <path d="M248 860 L308 853 M174 910 L218 905" stroke="#dc8558" stroke-width="4"/>
+    <path d="M1051 1059 Q1101 1055 1135 1045 M1115 1070 L1170 1059" stroke="#b9bea2" stroke-width="4"/>
+  </g>
+
+  <!-- The far wing is swept out behind the breast. -->
+  <g stroke="#203f43" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M800 551 C865 542 914 570 961 616 C988 641 1016 650 1042 658 C1057 663 1057 676 1042 679 L1004 675 L1031 698 C1043 708 1036 720 1023 716 L979 700 L999 729 C1007 741 995 749 982 741 C927 710 891 670 840 653Z" fill="#e6e9db"/>
+    <path d="M919 600 C954 622 983 647 1011 659 L1042 658 Q1064 672 1042 679 L1004 675 L1031 698 Q1049 718 1023 716 L979 700 L999 729 Q1011 751 982 741 C951 722 928 693 913 671 C937 686 951 689 963 692 C942 668 930 643 919 600Z" fill="#426362" stroke="none"/>
+    <path d="M878 598 Q915 620 939 650 M908 625 Q918 652 939 669" fill="none" stroke="#98b4a9" stroke-width="4"/>
+  </g>
+
+  <!-- Four wheels, metal trucks, wood laminations, and a speckled grip tape. -->
+  <g transform="rotate(-7 730 954)" stroke="#203f43" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke-width="6">
+      <circle cx="515" cy="1018" r="32" fill="#577772"/>
+      <circle cx="986" cy="1018" r="32" fill="#577772"/>
+      <circle cx="515" cy="1018" r="17" fill="#bbab74"/>
+      <circle cx="986" cy="1018" r="17" fill="#bbab74"/>
+      <path d="M465 982 H515 L506 1008 L493 1027 L465 1021 L481 1001Z" fill="#b6c7b8"/>
+      <path d="M935 982 H985 L976 1008 L963 1027 L935 1021 L951 1001Z" fill="#b6c7b8"/>
+      <path d="M474 1018 H517 M944 1018 H987" fill="none" stroke-width="12"/>
+    </g>
+    <g stroke-width="6.5">
+      <path d="M329 945 C349 966 374 978 413 978 H1014 C1054 978 1082 960 1102 942 L1102 956 C1084 981 1056 995 1018 999 L415 999 C376 999 347 984 331 966 C325 959 323 951 329 945Z" fill="#df7552"/>
+      <path d="M334 956 C354 975 379 986 414 986 H1018 C1053 984 1078 972 1097 954" fill="none" stroke="#f5c47b" stroke-width="4"/>
+      <use href="#deck-top" fill="#214b4e"/>
+    </g>
+    <g clip-path="url(#deck-clip)">
+      <path fill="url(#grip)" d="M320 920H1120V990H320Z"/>
+      <path d="M363 937 L389 986 M1036 939 L1059 983" stroke="#a5bfb0" stroke-width="4"/>
+      <path d="M680 953 L703 969 L725 953 M729 953 L752 969 L774 953" fill="none" stroke="#e4b673" stroke-width="5"/>
+    </g>
+    <path d="M401 970 H1006" fill="none" stroke="#71948b" stroke-width="2" opacity=".65"/>
+    <g fill="#ebd9ad" stroke="none">
+      <circle cx="465" cy="961" r="3"/><circle cx="479" cy="975" r="3"/>
+      <circle cx="951" cy="961" r="3"/><circle cx="965" cy="975" r="3"/>
+    </g>
+    <g stroke-width="6.5">
+      <circle cx="482" cy="1033" r="42" fill="#f3dfad"/>
+      <circle cx="955" cy="1033" r="42" fill="#f3dfad"/>
+    </g>
+    <g fill="none" stroke="#c79150" stroke-width="3">
+      <circle cx="482" cy="1033" r="29"/><circle cx="955" cy="1033" r="29"/>
+    </g>
+    <g fill="#e49954" stroke-width="4">
+      <circle cx="482" cy="1033" r="17"/><circle cx="955" cy="1033" r="17"/>
+    </g>
+    <g fill="#203f43" stroke="none">
+      <circle cx="482" cy="1033" r="7"/><circle cx="955" cy="1033" r="7"/>
+    </g>
+    <path d="M452 1024 A32 32 0 0 1 470 1004 M925 1024 A32 32 0 0 1 943 1004" fill="none" stroke="#fff4d5" stroke-width="5"/>
+    <path d="M509 1045 L506 1050 M982 1045 L979 1050" stroke="#b99f6f" stroke-width="3"/>
+  </g>
+
+  <!-- Low, springy knees: the bird is really riding, not just perched. -->
+  <g stroke="#203f43" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M736 753 C757 772 778 799 794 827 C805 850 811 873 851 895 L866 911 L842 928 C815 905 785 893 775 866 C761 838 735 814 713 796Z" fill="#de9850"/>
+    <path d="M632 780 C615 809 610 831 629 852 C609 875 591 912 583 947 L555 943 C560 910 571 883 586 860 C558 837 556 807 573 777Z" fill="#f0b457"/>
+    <path d="M612 844 Q605 858 593 868 M562 916 L584 922 M567 904 L588 911 M820 891 L830 879 M830 900 L840 888" fill="none" stroke="#a76c3e" stroke-width="3.5"/>
+  </g>
+
+  <!-- Wind-combed crown, then the continuous body-and-neck silhouette. -->
+  <path d="M723 294 C710 276 694 265 685 257 C712 256 734 266 747 276 C733 252 732 244 731 236 C755 247 768 262 774 277Z" fill="#fffaf0" stroke="#203f43" stroke-width="6.5" stroke-linejoin="round"/>
+  <use href="#bird-shape" fill="#fffaf0"/>
+  <g clip-path="url(#bird-clip)">
+    <path d="M821 346 C845 382 798 417 777 461 C754 508 790 554 817 595 C845 638 845 689 822 730 C801 768 767 788 746 799 C815 771 844 736 857 698 C881 629 845 556 821 531 C797 493 795 468 821 431 C846 395 866 366 858 330Z" fill="#c4d8d0"/>
+    <path d="M431 704 C488 773 578 804 680 794 C763 786 814 751 854 719 C830 790 762 832 680 846 C580 866 477 825 445 766Z" fill="#c4d8d0"/>
+    <path d="M436 745 C512 813 622 837 727 811 C763 802 790 787 810 773 C775 819 731 837 677 847 C582 864 490 828 455 783Z" fill="#a7c1b7"/>
+    <path d="M461 653 C527 691 599 719 677 683 C704 670 724 650 734 627 C685 608 661 592 633 577 L461 598Z" fill="#b4cdc3" opacity=".72"/>
+    <path d="M816 749 C768 798 698 817 619 811 C546 806 491 777 445 739 L440 834 L739 890Z" fill="url(#halftone)"/>
+    <path d="M756 287 C719 303 701 341 699 375" fill="none" stroke="#fffef6" stroke-width="13" stroke-linecap="round"/>
+  </g>
+  <use href="#bird-shape" fill="none" stroke="#203f43" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M393 689 L457 662 M420 674 L461 653" stroke="#6e9189" stroke-width="4"/>
+    <path d="M737 452 C723 477 728 506 743 529 M748 538 L755 550" stroke="#759a90" stroke-width="4"/>
+    <path d="M680 739 Q695 751 705 735 M709 758 Q724 769 734 750 M647 764 Q662 778 675 764" stroke="#8cac9f" stroke-width="3.5"/>
+    <path d="M488 745 Q503 756 516 752" stroke="#8cac9f" stroke-width="3.5"/>
+  </g>
+
+  <!-- Near wing: long pale coverts over inky pelican flight feathers. -->
+  <use href="#wing-shape" fill="#fffaf0"/>
+  <g clip-path="url(#wing-clip)">
+    <path d="M270 201 L299 209 C322 265 359 303 402 341 C446 380 472 411 495 446 C453 424 420 396 398 379 C421 415 443 438 468 463 C418 441 387 417 359 388 C379 424 405 452 426 472 C385 459 361 447 337 428 C353 449 372 466 392 481 C342 465 293 441 268 414 L233 301Z" fill="#294b50"/>
+    <path d="M288 236 C302 288 331 334 364 369 M267 314 C294 355 327 394 358 417 M288 409 Q320 436 349 449" fill="none" stroke="#648781" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M394 337 C462 379 483 420 512 457 C557 463 625 496 663 537 C692 568 693 593 682 612 C650 626 610 609 576 591 C519 562 475 518 445 483 C488 510 526 531 557 540 C517 504 485 466 466 430 C489 458 522 478 546 488 C527 465 508 445 501 436Z" fill="#d4dfd3"/>
+    <path d="M424 468 C478 530 535 578 591 608 C633 630 670 638 696 609 L698 641 L652 661 L517 630Z" fill="#b7cec2"/>
+    <path d="M304 419 C357 446 379 468 414 490 L388 511 L292 457Z" fill="url(#halftone)"/>
+    <path d="M557 547 C585 559 605 567 627 582" fill="none" stroke="#fffdf2" stroke-width="9" stroke-linecap="round"/>
+  </g>
+  <use href="#wing-shape" fill="none" stroke="#203f43" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M394 365 C434 416 471 453 522 484 M364 398 C410 455 465 503 532 533 M354 443 C413 505 484 556 552 581" stroke="#5e8078" stroke-width="4.5"/>
+    <path d="M545 485 Q560 507 580 507 Q588 528 609 530 Q617 548 636 550 Q643 564 657 568" stroke="#85a69a" stroke-width="4"/>
+    <path d="M581 562 Q596 575 610 573 M613 584 Q629 597 644 593" stroke="#85a69a" stroke-width="3.5"/>
+  </g>
+
+  <!-- Unmistakable pelican bill: a long upper mandible and a generous pouch. -->
+  <g stroke="#203f43" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M827 356 L1187 383 C1136 417 1085 460 1026 483 C979 502 935 507 901 484 C869 462 847 413 827 356Z" fill="url(#pouch)" stroke-width="6.5"/>
+    <path d="M851 379 C873 415 887 461 923 475 C966 493 1010 476 1048 463 C1005 490 948 505 913 488 C876 470 850 412 839 380Z" fill="#df8d46" stroke="none"/>
+    <path d="M871 387 C912 405 954 412 1002 414 C1046 416 1084 409 1122 402" fill="none" stroke="#ffdc89" stroke-width="8"/>
+    <path d="M883 421 Q893 447 910 461 M922 442 L930 467 M947 448 L951 477 M972 449 L972 477" fill="none" stroke="#c48543" stroke-width="3" opacity=".65"/>
+    <path d="M828 328 C934 328 1063 347 1179 369 C1196 372 1202 382 1185 390 C1178 394 1169 394 1159 393 L831 373 C818 361 817 340 828 328Z" fill="#ef9b50" stroke-width="6.5"/>
+    <path d="M843 338 C942 339 1059 355 1158 374" fill="none" stroke="#ffd58b" stroke-width="8"/>
+    <path d="M846 360 C953 361 1067 379 1175 385" fill="none" stroke="#b7713f" stroke-width="3.5"/>
+    <path d="M1170 368 C1195 371 1200 380 1189 388 L1178 399 C1176 391 1171 385 1164 383Z" fill="#d87345" stroke-width="4.5"/>
+    <path d="M834 346 Q829 358 836 365" fill="none" stroke-width="4"/>
+    <path d="M875 344 L888 345" stroke="#8b6440" stroke-width="3.5"/>
+  </g>
+
+  <!-- Bright, intent eye and a relaxed little brow. -->
+  <path d="M766 324 C764 306 777 292 793 295 C811 298 818 316 812 335 C801 344 782 342 770 333Z" fill="#f3d495"/>
+  <ellipse cx="791" cy="320" rx="14.5" ry="18" fill="#fffdf3" stroke="#203f43" stroke-width="4.5"/>
+  <ellipse cx="796" cy="321" rx="7.5" ry="11" fill="#203f43"/>
+  <circle cx="798" cy="317" r="3" fill="#fffdf3"/>
+  <path d="M772 289 Q786 281 800 291" fill="none" stroke="#203f43" stroke-width="5" stroke-linecap="round"/>
+  <path d="M749 344 Q749 355 757 361" fill="none" stroke="#9ab7aa" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Broad, webbed feet planted on the grip, with three little toe ridges. -->
+  <g transform="rotate(-7 730 954)" stroke="#203f43" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M837 910 C839 926 826 940 813 948 C807 953 814 961 825 960 L858 957 Q876 965 892 957 L930 956 C941 953 938 945 927 942 L882 928 L870 907Z" fill="#e5a04f" stroke-width="6"/>
+    <path d="M557 920 C554 934 538 944 523 950 C516 954 520 962 531 962 L568 959 Q583 967 600 960 L637 958 C649 955 643 948 632 945 L594 934 L588 917" fill="#f6bd62" stroke-width="6"/>
+    <path d="M574 936 Q581 948 600 960 M590 936 L625 951 M859 930 Q866 946 892 957 M876 932 L920 948" fill="none" stroke="#a87540" stroke-width="3.5"/>
+    <path d="M540 949 L561 942 M831 947 L845 940" fill="none" stroke="#ffe1a0" stroke-width="4"/>
+  </g>
+
+  <!-- A few loose grains of sand finish the quiet foreground. -->
+  <g fill="#aaaf91">
+    <ellipse cx="344" cy="1097" rx="4" ry="2"/><ellipse cx="382" cy="1108" rx="2.8" ry="1.7"/>
+    <ellipse cx="1051" cy="1100" rx="4.5" ry="2"/><ellipse cx="1090" cy="1088" rx="2.5" ry="1.6"/>
+    <ellipse cx="307" cy="1079" rx="2.5" ry="1.5"/>
+  </g>
+</svg>

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1000" viewBox="0 0 1200 1000">
+  <title>Pelican on a skateboard</title>
+  <desc>A cheerful cream-colored pelican with a long orange bill and a teal cap balances on a coral skateboard, cruising past a sunny seaside.</desc>
+  <defs>
+    <pattern id="grain" width="17" height="19" patternUnits="userSpaceOnUse"><circle cx="3" cy="4" r=".7" fill="#153e48" opacity=".07"/><circle cx="12" cy="14" r=".6" fill="#153e48" opacity=".05"/></pattern>
+    <clipPath id="scene"><rect x="55" y="55" width="1090" height="890" rx="44"/></clipPath>
+  </defs>
+  <rect width="1200" height="1000" fill="#f4ecd9"/>
+  <g clip-path="url(#scene)">
+    <rect x="55" y="55" width="1090" height="890" fill="#dcebe4"/>
+    <circle cx="904" cy="251" r="119" fill="#f3c35d"/>
+    <circle cx="904" cy="251" r="143" fill="none" stroke="#f3c35d" stroke-width="2" opacity=".65"/>
+    <path d="M55 610 Q242 575 426 609 T812 607 T1160 584 V945 H55Z" fill="#8cbfb8"/>
+    <path d="M55 682 Q296 646 527 684 T1145 672 V945 H55Z" fill="#f1dfb9"/>
+    <g fill="none" stroke="#eef5e8" stroke-width="4" stroke-linecap="round" opacity=".8"><path d="M79 636h122m41 0h32m598 3h98m35 0h41"/><path d="M890 661h108m34 0h49"/></g>
+    <path d="M55 856 Q627 765 1145 801" fill="none" stroke="#dfc89c" stroke-width="3"/>
+    <g fill="none" stroke="#547d7c" stroke-width="4" stroke-linecap="round"><path d="M163 250q17-19 34 0q18-19 35-1"/><path d="M281 202q12-13 24 0q12-13 24 0"/></g>
+    <ellipse cx="611" cy="836" rx="267" ry="25" fill="#315958" opacity=".13"/>
+    <!-- Skateboard hardware and wheels -->
+    <g stroke="#193f49" stroke-width="7" stroke-linejoin="round">
+      <path d="M467 781l10 30 57-3 6-29m176-16 10 29 51-4 4-29" fill="#709493"/>
+      <g fill="#193f49"><circle cx="498" cy="819" r="27"/><circle cx="753" cy="800" r="27"/></g>
+      <g fill="#f2bd5b"><circle cx="509" cy="818" r="26"/><circle cx="764" cy="799" r="26"/></g>
+      <g fill="#f5e8c8" stroke-width="5"><circle cx="509" cy="818" r="9"/><circle cx="764" cy="799" r="9"/></g>
+      <path d="M361 750 Q390 770 433 768 L805 738 Q840 735 865 712 L876 720 Q856 760 812 767 L436 798 Q389 799 363 779 Q349 767 361 750Z" fill="#e77456"/>
+      <path d="M361 750 Q390 770 433 768 L805 738 Q840 735 865 712 Q843 706 822 718 Q808 725 785 726 L432 754 Q389 758 372 744Z" fill="#234f56"/>
+    </g>
+    <path d="M430 781l370-30" stroke="#f8bd7c" stroke-width="4" stroke-linecap="round"/>
+    <!-- Trailing breeze -->
+    <g fill="none" stroke="#547d7c" stroke-width="5" stroke-linecap="round"><path d="M214 720l92-7"/><path d="M252 750l59-5"/><path d="M192 778l122-10"/></g>
+    <!-- Legs and big webbed feet -->
+    <g fill="#f1ac47" stroke="#193f49" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M539 615l-1 65-34 50-41 7-19 22 113-7-22-20 36-48 5-65Z"/>
+      <path d="M672 613l12 72 53 33-4 20 80-7-30-23-24-4-41-42-9-55Z"/>
+      <path d="M474 755l16-15m18 12 9-14m237-4 4-16m19 15-5-14" fill="none" stroke="#bd7333" stroke-width="3"/>
+    </g>
+    <!-- Tail, body, and raised neck -->
+    <path d="M457 495Q399 495 361 451Q369 510 403 537Q366 530 337 511Q360 569 414 579" fill="#faf5df" stroke="#193f49" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M413 524 Q426 446 533 446 Q595 447 635 473 Q674 432 666 376 Q654 342 660 306 Q667 260 715 245 Q766 228 798 261 Q827 290 810 331 Q793 361 773 394 Q745 443 771 497 Q798 554 753 607 Q713 656 630 659 Q534 665 465 618 Q409 579 413 524Z" fill="#fff9e8" stroke="#193f49" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M732 375 Q704 461 735 510 Q769 567 720 610 Q661 653 571 636 Q679 678 747 610 Q794 562 771 500 Q745 440 773 394 Q789 366 798 352Z" fill="#d9e4d6"/>
+    <!-- Swept wing -->
+    <path d="M648 489 Q571 462 492 511 Q461 530 439 533 Q463 576 533 594 Q604 612 665 556 Q680 537 667 519" fill="#e1e8d9" stroke="#193f49" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="none" stroke="#86a5a0" stroke-width="4" stroke-linecap="round"><path d="M473 540q63 36 135-10"/><path d="M494 561q59 25 106-6"/><path d="M523 580q43 9 71-10"/></g>
+    <!-- Long bill and pouch -->
+    <path d="M780 309 Q862 320 1029 359 Q1001 428 903 428 Q823 425 783 346Z" fill="#f4b753" stroke="#193f49" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M801 348 Q848 405 918 406 Q977 405 1007 380 Q972 433 906 428 Q836 425 801 348Z" fill="#e8914c"/>
+    <path d="M779 306 Q860 298 1042 353 Q1057 359 1045 368 Q951 358 784 336Z" fill="#f7ca6a" stroke="#193f49" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M811 316q92 9 174 32" fill="none" stroke="#fff0bd" stroke-width="4" stroke-linecap="round"/>
+    <!-- Face -->
+    <circle cx="755" cy="296" r="19" fill="#fff"/>
+    <ellipse cx="760" cy="295" rx="8" ry="12" fill="#193f49"/>
+    <circle cx="763" cy="291" r="3" fill="#fff"/>
+    <path d="M740 269q12-7 23 0" fill="none" stroke="#193f49" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="735" cy="329" rx="14" ry="9" fill="#ecac85" opacity=".8"/>
+    <!-- Backwards cap -->
+    <g stroke="#193f49" stroke-width="6" stroke-linejoin="round">
+      <path d="M672 253 Q659 210 690 191 Q732 166 771 205 L791 245 Q733 227 672 253Z" fill="#287c7c"/>
+      <path d="M676 235Q628 223 620 242 Q622 259 679 254 L706 244Z" fill="#3d9992"/>
+      <path d="M672 249q58-27 118-4l3 12q-67-20-116 7Z" fill="#4b9d92"/>
+    </g>
+    <path d="M708 195q-17 18-7 37" fill="none" stroke="#76b7a6" stroke-width="3"/>
+    <circle cx="707" cy="187" r="6" fill="#193f49"/>
+    <!-- Little energy sparks -->
+    <g stroke="#e79a44" stroke-width="5" stroke-linecap="round"><path d="M827 464l18 9m-31 12 6 19m29-55 18-7"/></g>
+    <rect x="55" y="55" width="1090" height="890" fill="url(#grain)" pointer-events="none"/>
+    <g fill="#214d52" font-family="Helvetica, Arial, sans-serif"><text x="103" y="132" font-size="18" font-weight="700" letter-spacing="5">COASTAL CRUISER</text><text x="105" y="161" font-size="12" letter-spacing="3">SALT AIR · SMOOTH RIDES</text><text x="1092" y="901" text-anchor="end" font-size="13" letter-spacing="3">TAKE IT EASY.</text></g>
+  </g>
+  <rect x="55" y="55" width="1090" height="890" rx="44" fill="none" stroke="#214d52" stroke-width="2"/>
+</svg>

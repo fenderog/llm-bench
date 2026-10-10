@@ -1,0 +1,1255 @@
+[
+  {
+    "type": "session",
+    "version": 3,
+    "id": "01a12460-9b8d-70e5-8318-d5997d172956",
+    "timestamp": "2026-10-10T05:54:33.489Z",
+    "cwd": "<vol>/dev/bench-runs/2026-10-09-225107-skateboard-pelican/muse-spark-1.3-contributor-medium-20261009-225107/work"
+  },
+  {
+    "type": "model_change",
+    "id": "b7b55069",
+    "parentId": null,
+    "timestamp": "2026-10-10T05:54:33.518Z",
+    "provider": "meta",
+    "modelId": "muse-spark-1.3-contributor"
+  },
+  {
+    "type": "thinking_level_change",
+    "id": "2662a247",
+    "parentId": "b7b55069",
+    "timestamp": "2026-10-10T05:54:33.518Z",
+    "thinkingLevel": "medium"
+  },
+  {
+    "type": "message",
+    "id": "ce8a3555",
+    "parentId": "2662a247",
+    "timestamp": "2026-10-10T05:54:33.523Z",
+    "message": {
+      "role": "system",
+      "content": "",
+      "sections": {
+        "preamble": "You are an expert coding assistant operating inside pi, a coding agent harness. You help users by reading files, executing commands, editing code, and writing new files.",
+        "tools": "<tools>\n- read: Read file contents\n- bash: Execute bash commands (ls, grep, find, etc.)\n- edit: Make precise file edits with exact text replacement, including multiple disjoint edits in one call\n- write: Create or overwrite files\n\nIn addition to the tools above, you may have access to other custom tools depending on the project.\n</tools>",
+        "rules": "<rules>\n- Use bash for file operations like ls, rg, find\n- Use read to examine files instead of cat or sed.\n- You can inspect PI_* environment variables for current model and session details.\n- Use edit for precise changes (edits[].oldText must match exactly)\n- When changing multiple separate locations in one file, use one edit call with multiple entries in edits[] instead of multiple edit calls\n- Each edits[].oldText is matched against the original file, not after earlier edits are applied. Do not emit overlapping or nested edits. Merge nearby changes into one edit.\n- Keep edits[].oldText as small as possible while still being unique in the file. Do not pad with large unchanged regions.\n- Use write only for new files or complete rewrites.\n- Be concise in your responses\n- Show file paths clearly when working with files\n</rules>",
+        "docs": "<docs>\nPi documentation (read only when the user asks about pi itself, its SDK, extensions, themes, skills, or TUI):\n- Main documentation: <vol>/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/README.md\n- Additional docs: <vol>/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/docs\n- Examples: <vol>/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/examples (extensions, custom tools, SDK)\n- When reading pi docs or examples, resolve docs/... under Additional docs and examples/... under Examples, not the current working directory\n- When asked about: extensions (docs/extensions.md, examples/extensions/), themes (docs/themes.md), skills (docs/skills.md), prompt templates (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers (docs/custom-provider.md), adding models (docs/models.md), pi packages (docs/packages.md), environment variables (docs/environment-variables.md), MCP servers (docs/mcp.md), codemode scripts and non-LLM models such as classifiers and image models (docs/codemode.md)\n- When working on pi topics, read the docs and examples, and follow .md cross-references before implementing\n- Always read pi .md files completely and follow links to related docs (e.g., tui.md for TUI API details)\n</docs>",
+        "cwd": "<cwd>\n<vol>/dev/bench-runs/2026-10-09-225107-skateboard-pelican/muse-spark-1.3-contributor-medium-20261009-225107/work\n</cwd>"
+      },
+      "timestamp": 1791611673522,
+      "toolsAdded": [
+        {
+          "name": "read",
+          "description": "Read the contents of a file. Supports text files and images (jpg, png, gif, webp, bmp). Images are sent as attachments. For text files, output is truncated to 2000 lines or 50KB (whichever is hit first). Use offset/limit for large files. When you need the full file, continue with offset until complete.",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "path"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to the file to read (relative or absolute)"
+              },
+              "offset": {
+                "type": "number",
+                "description": "Line number to start reading from (1-indexed)"
+              },
+              "limit": {
+                "type": "number",
+                "description": "Maximum number of lines to read"
+              }
+            }
+          },
+          "constrainedSampling": {
+            "type": "json_schema",
+            "strict": "prefer"
+          }
+        },
+        {
+          "name": "bash",
+          "description": "Execute a bash command in the current working directory. Returns stdout and stderr. Output is truncated to last 2000 lines or 50KB (whichever is hit first). If truncated, full output is saved to a temp file. Optionally provide a timeout in seconds.",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "command"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "description": "Shell command to execute"
+              },
+              "timeout": {
+                "type": "number",
+                "description": "Timeout in seconds (optional, no default timeout)"
+              }
+            }
+          },
+          "constrainedSampling": {
+            "type": "json_schema",
+            "strict": "prefer"
+          }
+        },
+        {
+          "name": "edit",
+          "description": "Edit a single file using exact text replacement. Every edits[].oldText must match a unique, non-overlapping region of the original file. If two changes affect the same block or nearby lines, merge them into one edit instead of emitting overlapping edits. Do not include large unchanged regions just to connect distant changes.",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "path",
+              "edits"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to the file to edit (relative or absolute)"
+              },
+              "edits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "oldText",
+                    "newText"
+                  ],
+                  "properties": {
+                    "oldText": {
+                      "type": "string",
+                      "description": "Exact text for one targeted replacement. It must be unique in the original file and must not overlap with any other edits[].oldText in the same call."
+                    },
+                    "newText": {
+                      "type": "string",
+                      "description": "Replacement text for this targeted edit."
+                    }
+                  }
+                },
+                "description": "One or more targeted replacements. Each edit is matched against the original file, not incrementally. Do not include overlapping or nested edits. If two changes touch the same block or nearby lines, merge them into one edit instead."
+              }
+            }
+          },
+          "constrainedSampling": {
+            "type": "json_schema",
+            "strict": "prefer"
+          }
+        },
+        {
+          "name": "write",
+          "description": "Write content to a file. Creates the file if it doesn't exist, overwrites if it does. Automatically creates parent directories.",
+          "parameters": {
+            "type": "object",
+            "required": [
+              "path",
+              "content"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Path to the file to write (relative or absolute)"
+              },
+              "content": {
+                "type": "string",
+                "description": "Content to write to the file"
+              }
+            }
+          },
+          "constrainedSampling": {
+            "type": "json_schema",
+            "strict": "prefer"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "message",
+    "id": "1a0eeb12",
+    "parentId": "ce8a3555",
+    "timestamp": "2026-10-10T05:54:33.523Z",
+    "message": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Create an SVG illustration of a pelican riding a skateboard\n\nDeliver the result as image and/or video files, working in the current directory.\n- Save the finished files in ./output/. Only what is in ./output/ is published as the result.\n- Formats: images as .png, .jpg, .webp, .gif or .svg; videos as .mp4 or .webm. At most 8 files,\n  each under 2 MB; videos at most 10 seconds.\n- Tools available on this machine: python3 3.9.6 (standard library only), node 26.11.1 (no npm packages), ffmpeg 9.0.2, ffprobe 9.0.2. Don't install packages or download anything.\n- Keep any code you write to make the files (it's published as the source), but delete\n  intermediate files such as rendered frames when you're done.\n- Only create or edit files inside the current directory.\n- Finish with a short summary of what you made.\n"
+        }
+      ],
+      "timestamp": 1791611673522
+    }
+  },
+  {
+    "type": "message",
+    "id": "7836df92",
+    "parentId": "1a0eeb12",
+    "timestamp": "2026-10-10T05:54:36.117Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": ""
+        },
+        {
+          "type": "text",
+          "text": "Building your pelican-on-a-skateboard illustration \u2014 crafting the SVG now.",
+          "textSignature": "{\"v\":1,\"id\":\"rs_01a12460a1f472258e78a2ecf3447460\",\"phase\":\"commentary\"}"
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a12460a35f762585176b8a4f93c83a|fc_01a12460a35f762585176b8a4f93c83a",
+          "name": "bash",
+          "arguments": {
+            "command": "pwd; ls -la; ls -la ./output/ 2>&1 || mkdir -p output && ls -la"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 2037,
+        "output": 142,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "reasoning": 43,
+        "totalTokens": 2179,
+        "cost": {
+          "input": 0.00020370000000000002,
+          "output": 2.8400000000000003e-05,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "total": 0.00023210000000000003
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611673533,
+      "responseId": "resp_6ac9d31a5319f7cef01d44e0",
+      "rawStopReason": "completed",
+      "durationMs": 2584,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "f546c4aa",
+    "parentId": "7836df92",
+    "timestamp": "2026-10-10T05:54:36.153Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a12460a35f762585176b8a4f93c83a|fc_01a12460a35f762585176b8a4f93c83a",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "<vol>/dev/bench-runs/2026-10-09-225107-skateboard-pelican/muse-spark-1.3-contributor-medium-20261009-225107/work\ntotal 0\ndrwxr-xr-x@ 2 fender  staff   64 Oct  9 22:54 .\ndrwxr-xr-x@ 4 fender  staff  128 Oct  9 22:54 ..\nls: ./output/: No such file or directory\ntotal 0\ndrwxr-xr-x@ 3 fender  staff   96 Oct  9 22:54 .\ndrwxr-xr-x@ 4 fender  staff  128 Oct  9 22:54 ..\ndrwxr-xr-x@ 2 fender  staff   64 Oct  9 22:54 output\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 31,
+      "timestamp": 1791611676153
+    }
+  },
+  {
+    "type": "message",
+    "id": "27e59dad",
+    "parentId": "f546c4aa",
+    "timestamp": "2026-10-10T05:54:50.469Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "Designing an 800x600 SVG cartoon pelican on a skateboard with background elements and checking PNG preview feasibility under standard library constraints."
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a12460d52b75708caed0c5f106ab7d|fc_01a12460d52b75708caed0c5f106ab7d",
+          "name": "bash",
+          "arguments": {
+            "command": "ffmpeg -hide_banner -h 2>&1 | head -n 20; echo \"---\"; python3 -c \"import sys; print(sys.version)\"; node --version; ls /usr/bin/*svg* /opt/homebrew/bin/*svg* 2>&1; which rsvg-convert inkscape convert 2>&1; ffmpeg -hide_banner -formats 2>&1 | grep -i svg"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 354,
+        "output": 519,
+        "cacheRead": 2033,
+        "cacheWrite": 0,
+        "reasoning": 351,
+        "totalTokens": 2906,
+        "cost": {
+          "input": 3.54e-05,
+          "output": 0.0001038,
+          "cacheRead": 4.0660000000000005e-06,
+          "cacheWrite": 0,
+          "total": 0.000143266
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611676164,
+      "responseId": "resp_6ac9d31ef36ea8c3e5934d54",
+      "rawStopReason": "completed",
+      "durationMs": 14304,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "009a54cb",
+    "parentId": "27e59dad",
+    "timestamp": "2026-10-10T05:54:50.768Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a12460d52b75708caed0c5f106ab7d|fc_01a12460d52b75708caed0c5f106ab7d",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "Universal media converter\nusage: ffmpeg [options] [[infile options] -i infile]... {[outfile options] outfile}...\n\nGetting help:\n    -h      -- print basic options\n    -h long -- print more options\n    -h full -- print all options (including all format and codec specific options, very long)\n    -h type=name -- print all options for the named decoder/encoder/demuxer/muxer/filter/bsf/protocol\n    See man ffmpeg for detailed description of the options.\n\nPer-stream options can be followed by :<stream_spec> to apply that option to specific streams only. <stream_spec> can be a stream index, or v/a/s for video/audio/subtitle (see manual for full syntax).\n\nPrint help / information / capabilities:\n-L                  show license\n-license            show license\n-h <topic>          show help\n-version            show version\n-muxers             show available muxers\n-demuxers           show available demuxers\n-devices            show available devices\n---\n3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]\nv26.11.1\nls: /opt/homebrew/bin/*svg*: No such file or directory\nls: /usr/bin/*svg*: No such file or directory\n D   svg_pipe        piped svg sequence\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 297,
+      "timestamp": 1791611690768
+    }
+  },
+  {
+    "type": "message",
+    "id": "7d7c3355",
+    "parentId": "009a54cb",
+    "timestamp": "2026-10-10T05:54:53.668Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": ""
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a12460e5ce70c6b5856a676a247d2f|fc_01a12460e5ce70c6b5856a676a247d2f",
+          "name": "bash",
+          "arguments": {
+            "command": "ffmpeg -hide_banner -decoders 2>&1 | grep -i svg; echo \"---codecs\"; ffmpeg -hide_banner -codecs 2>&1 | grep -i svg\npython3 -c \"import PIL\" 2>&1; python3 -c \"import zlib, struct; print('zlib ok')\""
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 909,
+        "output": 131,
+        "cacheRead": 2289,
+        "cacheWrite": 0,
+        "reasoning": 12,
+        "totalTokens": 3329,
+        "cost": {
+          "input": 9.090000000000001e-05,
+          "output": 2.6200000000000003e-05,
+          "cacheRead": 4.578e-06,
+          "cacheWrite": 0,
+          "total": 0.00012167800000000001
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611690769,
+      "responseId": "resp_6ac9d32bf2103bdf1aed44f7",
+      "rawStopReason": "completed",
+      "durationMs": 2899,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "78bb4d22",
+    "parentId": "7d7c3355",
+    "timestamp": "2026-10-10T05:54:53.789Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a12460e5ce70c6b5856a676a247d2f|fc_01a12460e5ce70c6b5856a676a247d2f",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "---codecs\n ..V..S svg                  Scalable Vector Graphics\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'PIL'\nzlib ok\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 119,
+      "timestamp": 1791611693789
+    }
+  },
+  {
+    "type": "message",
+    "id": "2d9db4c0",
+    "parentId": "78bb4d22",
+    "timestamp": "2026-10-10T05:54:58.275Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": ""
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a12460f5f5710d8fc556723e6ea382|fc_01a12460f5f5710d8fc556723e6ea382",
+          "name": "bash",
+          "arguments": {
+            "command": "cat > /tmp/test.svg <<'SVG'\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"800\" height=\"600\"><rect width=\"800\" height=\"600\" fill=\"skyblue\"/><circle cx=\"400\" cy=\"300\" r=\"100\" fill=\"red\"/></svg>\nSVG\nffmpeg -y -hide_banner -loglevel error -i /tmp/test.svg -frames:v 1 /tmp/test.png && ls -lh /tmp/test.png && file /tmp/test.png || echo FAILED"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 218,
+        "output": 256,
+        "cacheRead": 3185,
+        "cacheWrite": 0,
+        "reasoning": 96,
+        "totalTokens": 3659,
+        "cost": {
+          "input": 2.18e-05,
+          "output": 5.1200000000000004e-05,
+          "cacheRead": 6.37e-06,
+          "cacheWrite": 0,
+          "total": 7.937000000000001e-05
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611693789,
+      "responseId": "resp_6ac9d32ee4d13ddb31c14bf3",
+      "rawStopReason": "completed",
+      "durationMs": 4486,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "cc9d3ac5",
+    "parentId": "2d9db4c0",
+    "timestamp": "2026-10-10T05:54:58.348Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a12460f5f5710d8fc556723e6ea382|fc_01a12460f5f5710d8fc556723e6ea382",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "[vist#0:0/svg @ 0x75ccc10180] Decoding requested, but no decoder found for: svg\nError opening output file /tmp/test.png.\nError opening output files: Invalid argument\nFAILED\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 72,
+      "timestamp": 1791611698348
+    }
+  },
+  {
+    "type": "message",
+    "id": "6579344b",
+    "parentId": "cc9d3ac5",
+    "timestamp": "2026-10-10T05:56:37.611Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "Evaluating a pure Python PNG writer as a fallback since ffmpeg lacks SVG decoding and no canvas is available.\n\nChoosing SVG-only delivery as compliant while adding Python-rendered PNG and MP4 for completeness.\n\nEvaluating rasterizer performance limits and simplifying to static background with fewer frames."
+        },
+        {
+          "type": "text",
+          "text": "I've mapped out a sunny skate-park scene \u2014 now drawing the pelican, board, and background.",
+          "textSignature": "{\"v\":1,\"id\":\"rs_01a124617f457112a7fb91961de1d498\",\"phase\":\"commentary\"}"
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a1246180de7338b2ab8c59efc043ce|fc_01a1246180de7338b2ab8c59efc043ce",
+          "name": "write",
+          "arguments": {
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 700\" width=\"1000\" height=\"700\" role=\"img\" aria-label=\"A cheerful pelican riding a skateboard\">\n  <title>Pelican riding a skateboard</title>\n  <desc>A cute cartoon pelican wearing a teal helmet and red scarf, cruising on a skateboard along a sunny seaside boardwalk.</desc>\n\n  <defs>\n    <linearGradient id=\"sky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#4FB6E8\"/>\n      <stop offset=\"0.62\" stop-color=\"#9BDBF5\"/>\n      <stop offset=\"1\" stop-color=\"#DFF6FF\"/>\n    </linearGradient>\n    <linearGradient id=\"sea\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#2DBFC8\"/>\n      <stop offset=\"1\" stop-color=\"#1A8FB5\"/>\n    </linearGradient>\n    <linearGradient id=\"sand\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFE9B8\"/>\n      <stop offset=\"1\" stop-color=\"#FFD48A\"/>\n    </linearGradient>\n    <linearGradient id=\"road\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#6B7686\"/>\n      <stop offset=\"0.18\" stop-color=\"#7D8A9D\"/>\n      <stop offset=\"1\" stop-color=\"#525C6B\"/>\n    </linearGradient>\n    <linearGradient id=\"deckTop\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\">\n      <stop offset=\"0\" stop-color=\"#FF5A7A\"/>\n      <stop offset=\"0.5\" stop-color=\"#FF8A5C\"/>\n      <stop offset=\"1\" stop-color=\"#FF5A7A\"/>\n    </linearGradient>\n    <linearGradient id=\"beakGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFC53D\"/>\n      <stop offset=\"0.55\" stop-color=\"#FF9F1C\"/>\n      <stop offset=\"1\" stop-color=\"#E67E00\"/>\n    </linearGradient>\n    <linearGradient id=\"pouchGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFB3A7\"/>\n      <stop offset=\"1\" stop-color=\"#F4846B\"/>\n    </linearGradient>\n    <radialGradient id=\"sunGlow\" cx=\"0.5\" cy=\"0.5\" r=\"0.5\">\n      <stop offset=\"0\" stop-color=\"#FFF7C2\" stop-opacity=\"0.95\"/>\n      <stop offset=\"0.45\" stop-color=\"#FFE66D\" stop-opacity=\"0.9\"/>\n      <stop offset=\"1\" stop-color=\"#FFE66D\" stop-opacity=\"0\"/>\n    </radialGradient>\n    <linearGradient id=\"bodyGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFFFFF\"/>\n      <stop offset=\"0.7\" stop-color=\"#EFF4F8\"/>\n      <stop offset=\"1\" stop-color=\"#D8E4EC\"/>\n    </linearGradient>\n    <linearGradient id=\"wingGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFFFFF\"/>\n      <stop offset=\"1\" stop-color=\"#C9D9E6\"/>\n    </linearGradient>\n    <filter id=\"softShadow\" x=\"-30%\" y=\"-30%\" width=\"160%\" height=\"160%\">\n      <feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#1A3A55\" flood-opacity=\"0.25\"/>\n    </filter>\n  </defs>\n\n  <!-- BACKGROUND -->\n  <rect x=\"0\" y=\"0\" width=\"1000\" height=\"700\" fill=\"url(#sky)\"/>\n\n  <circle cx=\"830\" cy=\"135\" r=\"110\" fill=\"url(#sunGlow)\"/>\n  <g stroke=\"#FFD93D\" stroke-width=\"10\" stroke-linecap=\"round\">\n    <line x1=\"830\" y1=\"28\" x2=\"830\" y2=\"48\"/>\n    <line x1=\"917\" y1=\"48\" x2=\"903\" y2=\"62\"/>\n    <line x1=\"743\" y1=\"48\" x2=\"757\" y2=\"62\"/>\n    <line x1=\"937\" y1=\"135\" x2=\"917\" y2=\"135\"/>\n    <line x1=\"723\" y1=\"135\" x2=\"743\" y2=\"135\"/>\n  </g>\n  <circle cx=\"830\" cy=\"135\" r=\"52\" fill=\"#FFF3A0\" stroke=\"#FFB800\" stroke-width=\"6\"/>\n  <circle cx=\"815\" cy=\"125\" r=\"10\" fill=\"#FFFCE0\"/>\n  <g fill=\"#FFB800\" opacity=\"0.9\">\n    <circle cx=\"815\" cy=\"135\" r=\"5\"/><circle cx=\"845\" cy=\"135\" r=\"5\"/>\n    <path d=\"M810 152 Q830 166 850 152 Q830 158 810 152Z\"/>\n  </g>\n\n  <!-- clouds -->\n  <g fill=\"#FFFFFF\" opacity=\"0.95\" filter=\"url(#softShadow)\">\n    <g id=\"cloud1\">\n      <ellipse cx=\"180\" cy=\"130\" rx=\"68\" ry=\"30\"/>\n      <ellipse cx=\"225\" cy=\"112\" rx=\"48\" ry=\"28\"/>\n      <ellipse cx=\"135\" cy=\"112\" rx=\"36\" ry=\"22\"/>\n    </g>\n    <g id=\"cloud2\" opacity=\"0.9\">\n      <ellipse cx=\"520\" cy=\"85\" rx=\"58\" ry=\"24\"/>\n      <ellipse cx=\"560\" cy=\"70\" rx=\"38\" ry=\"20\"/>\n      <ellipse cx=\"484\" cy=\"70\" rx=\"28\" ry=\"16\"/>\n    </g>\n    <g opacity=\"0.85\">\n      <ellipse cx=\"660\" cy=\"190\" rx=\"42\" ry=\"18\"/>\n      <ellipse cx=\"688\" cy=\"180\" rx=\"26\" ry=\"14\"/>\n    </g>\n  </g>\n\n  <!-- distant hills + sea + sand -->\n  <path d=\"M0 360 Q150 300 300 345 Q420 380 550 335 Q700 285 830 340 Q930 375 1000 345 L1000 410 L0 410 Z\" fill=\"#7AC74F\" stroke=\"#4E9440\" stroke-width=\"5\" stroke-linejoin=\"round\"/>\n  <path d=\"M0 360 Q150 300 300 345 Q420 380 550 335 Q700 285 830 340 Q930 375 1000 345\" fill=\"none\" stroke=\"#A8E08A\" stroke-width=\"6\" stroke-linecap=\"round\" opacity=\"0.8\"/>\n  <!-- palm trees -->\n  <g stroke-linecap=\"round\">\n    <g transform=\"translate(90,335)\">\n      <path d=\"M0 0 Q4 35 0 70\" stroke=\"#7A4A2B\" stroke-width=\"12\" fill=\"none\"/>\n      <g fill=\"#2FA36B\" stroke=\"#1E7A4F\" stroke-width=\"3\">\n        <ellipse cx=\"-32\" cy=\"-8\" rx=\"34\" ry=\"12\" transform=\"rotate(-18)\"/>\n        <ellipse cx=\"32\" cy=\"-8\" rx=\"34\" ry=\"12\" transform=\"rotate(18)\"/>\n        <ellipse cx=\"0\" cy=\"-22\" rx=\"36\" ry=\"13\"/>\n        <ellipse cx=\"-18\" cy=\"-28\" rx=\"26\" ry=\"10\" transform=\"rotate(-28)\"/>\n        <ellipse cx=\"18\" cy=\"-28\" rx=\"26\" ry=\"10\" transform=\"rotate(28)\"/>\n      </g>\n      <circle cx=\"-10\" cy=\"0\" r=\"7\" fill=\"#6B4226\"/><circle cx=\"12\" cy=\"2\" r=\"7\" fill=\"#6B4226\"/>\n    </g>\n    <g transform=\"translate(915,330) scale(0.85)\">\n      <path d=\"M0 0 Q-4 35 0 70\" stroke=\"#7A4A2B\" stroke-width=\"12\" fill=\"none\"/>\n      <g fill=\"#2FA36B\" stroke=\"#1E7A4F\" stroke-width=\"3\">\n        <ellipse cx=\"-32\" cy=\"-8\" rx=\"34\" ry=\"12\" transform=\"rotate(-18)\"/>\n        <ellipse cx=\"32\" cy=\"-8\" rx=\"34\" ry=\"12\" transform=\"rotate(18)\"/>\n        <ellipse cx=\"0\" cy=\"-22\" rx=\"36\" ry=\"13\"/>\n      </g>\n      <circle cx=\"-8\" cy=\"0\" r=\"7\" fill=\"#6B4226\"/><circle cx=\"10\" cy=\"3\" r=\"7\" fill=\"#6B4226\"/>\n    </g>\n  </g>\n\n  <rect x=\"0\" y=\"400\" width=\"1000\" height=\"62\" fill=\"url(#sea)\"/>\n  <g stroke=\"#FFFFFF\" stroke-width=\"4\" stroke-linecap=\"round\" opacity=\"0.7\">\n    <path d=\"M60 425 q15 -8 30 0 t30 0\"/>\n    <path d=\"M300 435 q15 -8 30 0 t30 0\"/>\n    <path d=\"M620 428 q15 -8 30 0 t30 0\"/>\n    <path d=\"M840 438 q15 -8 30 0 t30 0\"/>\n  </g>\n  <rect x=\"0\" y=\"462\" width=\"1000\" height=\"48\" fill=\"url(#sand)\"/>\n  <g fill=\"#F2B86B\" opacity=\"0.7\">\n    <ellipse cx=\"200\" cy=\"484\" rx=\"8\" ry=\"4\"/><ellipse cx=\"750\" cy=\"478\" rx=\"10\" ry=\"5\"/><ellipse cx=\"500\" cy=\"488\" rx=\"7\" ry=\"3.5\"/>\n  </g>\n\n  <!-- boardwalk / road -->\n  <rect x=\"0\" y=\"510\" width=\"1000\" height=\"190\" fill=\"url(#road)\"/>\n  <rect x=\"0\" y=\"510\" width=\"1000\" height=\"14\" fill=\"#FFD166\"/>\n  <rect x=\"0\" y=\"524\" width=\"1000\" height=\"6\" fill=\"#E8B44A\"/>\n  <g fill=\"#FFFFFF\" opacity=\"0.85\">\n    <rect x=\"30\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"150\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"270\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"670\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"790\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"910\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n  </g>\n\n  <!-- seagulls -->\n  <g fill=\"none\" stroke=\"#2B3A4A\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.8\">\n    <path d=\"M340 165 q14 -14 28 0 q14 -14 28 0\"/>\n    <path d=\"M430 200 q10 -10 20 0 q10 -10 20 0\"/>\n    <path d=\"M700 110 q10 -10 20 0 q10 -10 20 0\"/>\n  </g>\n\n  <!-- speed lines behind -->\n  <g stroke=\"#FFFFFF\" stroke-linecap=\"round\" opacity=\"0.85\">\n    <line x1=\"55\" y1=\"500\" x2=\"185\" y2=\"500\" stroke-width=\"9\"/>\n    <line x1=\"30\" y1=\"535\" x2=\"155\" y2=\"535\" stroke-width=\"7\"/>\n    <line x1=\"70\" y1=\"568\" x2=\"180\" y2=\"568\" stroke-width=\"6\" opacity=\"0.7\"/>\n  </g>\n\n  <!-- SHADOW -->\n  <ellipse cx=\"510\" cy=\"638\" rx=\"240\" ry=\"22\" fill=\"#1A2A3A\" opacity=\"0.28\"/>\n\n  <!-- SKATEBOARD -->\n  <g transform=\"rotate(-4 510 575)\" filter=\"url(#softShadow)\">\n    <!-- wheels back/front -->\n    <g>\n      <circle cx=\"350\" cy=\"605\" r=\"34\" fill=\"#2B3A4A\"/>\n      <circle cx=\"350\" cy=\"605\" r=\"26\" fill=\"#FF5A7A\" stroke=\"#FFFFFF\" stroke-width=\"5\"/>\n      <circle cx=\"350\" cy=\"605\" r=\"8\" fill=\"#FFFFFF\"/>\n      <circle cx=\"342\" cy=\"597\" r=\"4\" fill=\"#FFC2D1\"/>\n    </g>\n    <g>\n      <circle cx=\"670\" cy=\"605\" r=\"34\" fill=\"#2B3A4A\"/>\n      <circle cx=\"670\" cy=\"605\" r=\"26\" fill=\"#FF5A7A\" stroke=\"#FFFFFF\" stroke-width=\"5\"/>\n      <circle cx=\"670\" cy=\"605\" r=\"8\" fill=\"#FFFFFF\"/>\n      <circle cx=\"662\" cy=\"597\" r=\"4\" fill=\"#FFC2D1\"/>\n    </g>\n    <!-- trucks -->\n    <g fill=\"#CBD5E1\" stroke=\"#2B3A4A\" stroke-width=\"5\" stroke-linejoin=\"round\">\n      <path d=\"M330 575 L370 575 L360 595 L340 595 Z\"/>\n      <path d=\"M650 575 L690 575 L680 595 L660 595 Z\"/>\n      <rect x=\"325\" y=\"568\" width=\"50\" height=\"12\" rx=\"6\"/>\n      <rect x=\"645\" y=\"568\" width=\"50\" height=\"12\" rx=\"6\"/>\n    </g>\n    <!-- deck -->\n    <g stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linejoin=\"round\">\n      <path d=\"M210 555 Q210 530 250 530 L770 530 Q810 530 810 555 Q810 580 770 580 L250 580 Q210 580 210 555 Z\" fill=\"url(#deckTop)\"/>\n      <path d=\"M210 555 Q210 530 250 530 L270 530 L270 580 L250 580 Q210 580 210 555 Z\" fill=\"#2EC4B6\" opacity=\"0.95\"/>\n      <path d=\"M750 530 L770 530 Q810 530 810 555 Q810 580 770 580 L750 580 Z\" fill=\"#2EC4B6\" opacity=\"0.95\"/>\n    </g>\n    <!-- grip dots + lightning bolt -->\n    <g fill=\"#FFFFFF\" opacity=\"0.9\">\n      <circle cx=\"300\" cy=\"555\" r=\"5\"/><circle cx=\"340\" cy=\"555\" r=\"5\"/><circle cx=\"680\" cy=\"555\" r=\"5\"/><circle cx=\"720\" cy=\"555\" r=\"5\"/>\n    </g>\n    <path d=\"M500 532 L470 558 L490 558 L475 578 L515 550 L495 550 Z\" fill=\"#FFF200\" stroke=\"#2B3A4A\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n    <!-- motion blur under -->\n    <g stroke=\"#FFFFFF\" stroke-linecap=\"round\" opacity=\"0.5\">\n      <line x1=\"240\" y1=\"620\" x2=\"340\" y2=\"620\" stroke-width=\"5\"/>\n      <line x1=\"680\" y1=\"620\" x2=\"780\" y2=\"620\" stroke-width=\"5\"/>\n    </g>\n  </g>\n\n  <!-- PELICAN -->\n  <g filter=\"url(#softShadow)\">\n    <!-- tail -->\n    <g fill=\"url(#wingGrad)\" stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linejoin=\"round\">\n      <path d=\"M310 480 L230 460 L245 490 L220 495 L250 515 L235 535 L310 515 Z\"/>\n    </g>\n    <!-- body -->\n    <ellipse cx=\"440\" cy=\"460\" rx=\"135\" ry=\"105\" fill=\"url(#bodyGrad)\" stroke=\"#2B3A4A\" stroke-width=\"7\"/>\n    <!-- belly shading -->\n    <path d=\"M340 500 Q430 550 530 500 Q500 545 430 548 Q360 545 340 500Z\" fill=\"#D8E4EC\" opacity=\"0.8\"/>\n    <!-- far leg -->\n    <g stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n      <path d=\"M430 550 L425 595\" fill=\"none\" stroke=\"#E67E00\" stroke-width=\"14\"/>\n      <g fill=\"#FF9F1C\" stroke=\"#2B3A4A\" stroke-width=\"5\">\n        <ellipse cx=\"425\" cy=\"600\" rx=\"28\" ry=\"12\"/>\n        <path d=\"M405 600 l-14 8 M425 602 l0 10 M445 600 l14 8\" stroke=\"#2B3A4A\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/>\n      </g>\n    </g>\n\n    <!-- near leg -->\n    <g stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linecap=\"round\">\n      <path d=\"M550 550 L560 595\" fill=\"none\" stroke=\"#E67E00\" stroke-width=\"16\"/>\n      <g fill=\"#FF9F1C\" stroke=\"#2B3A4A\" stroke-width=\"5\">\n        <ellipse cx=\"570\" cy=\"597\" rx=\"32\" ry=\"13\"/>\n        <path d=\"M548 597 l-14 9 M570 600 l0 11 M592 597 l14 9\" fill=\"none\" stroke-width=\"4\"/>\n      </g>\n    </g>\n\n    <!-- big wing (raised for balance) -->\n    <g transform=\"rotate(-18 420 400)\">\n      <path d=\"M380 430 Q300 340 250 220 Q245 200 265 195 Q285 190 295 210 Q340 310 430 380 Z\" fill=\"url(#wingGrad)\" stroke=\"#2B3A4A\" stroke-width=\"7\" stroke-linejoin=\"round\"/>\n      <g fill=\"none\" stroke=\"#7A9BB5\" stroke-width=\"5\" stroke-linecap=\"round\">\n        <path d=\"M285 250 Q310 300 350 350\"/>\n        <path d=\"M310 235 Q335 285 375 335\"/>\n      </g>\n      <!-- wing feathers tip -->\n      <g fill=\"#FFFFFF\" stroke=\"#2B3A4A\" stroke-width=\"5\" stroke-linejoin=\"round\">\n        <path d=\"M250 220 Q230 180 235 150 Q255 155 265 180 Q270 200 265 195\"/>\n        <path d=\"M265 205 Q255 165 270 135 Q287 145 290 170 Q292 190 285 195\"/>\n      </g>\n    </g>\n\n    <!-- scarf flowing behind -->\n    <g>\n      <path d=\"M540 330 Q460 320 380 350 Q330 370 280 360 Q310 385 360 385 Q450 385 545 355 Z\" fill=\"#E63946\" stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linejoin=\"round\"/>\n      <path d=\"M380 350 Q360 365 355 380\" fill=\"none\" stroke=\"#A91E2E\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n      <path d=\"M420 348 Q400 362 396 376\" fill=\"none\" stroke=\"#A91E2E\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n      <path d=\"M540 330 Q560 315 580 318 L575 350 Q558 348 545 355 Z\" fill=\"#B11F2D\" stroke=\"#2B3A4A\" stroke-width=\"5\"/>\n    </g>\n\n    <!-- neck + head -->\n    <path d=\"M520 450 Q560 400 545 340 Q535 300 570 285\" fill=\"none\" stroke=\"#EFF4F8\" stroke-width=\"78\" stroke-linecap=\"round\"/>\n    <path d=\"M520 450 Q560 400 545 340 Q535 300 570 285\" fill=\"none\" stroke=\"#2B3A4A\" stroke-width=\"88\" stroke-linecap=\"round\" opacity=\"0.0\"/>\n    <path d=\"M485 470 Q535 420 525 350\" fill=\"none\" stroke=\"#2B3A4A\" stroke-width=\"7\" stroke-linecap=\"round\" opacity=\"0.25\"/>\n    <circle cx=\"595\" cy=\"260\" r=\"72\" fill=\"url(#bodyGrad)\" stroke=\"#2B3A4A\" stroke-width=\"7\"/>\n\n    <!-- crest -->\n    <path d=\"M545 205 Q530 175 500 170 Q525 165 545 180 Q560 165 590 170 Q565 180 555 205 Z\" fill=\"#2B3A4A\"/>\n\n    <!-- helmet -->\n    <g>\n      <path d=\"M535 235 Q535 155 600 150 Q665 155 665 235 Q665 245 655 245 L545 245 Q535 245 535 235Z\" fill=\"#2EC4B6\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n      <path d=\"M535 220 Q600 210 665 220 L665 235 Q665 245 655 245 L545 245 Q535 245 535 235Z\" fill=\"#1A8FB5\" opacity=\"0.6\"/>\n      <rect x=\"592\" y=\"150\" width=\"18\" height=\"22\" rx=\"6\" fill=\"#FFD166\" stroke=\"#2B3A4A\" stroke-width=\"5\"/>\n      <circle cx=\"601\" cy=\"148\" r=\"6\" fill=\"#FF5A7A\" stroke=\"#2B3A4A\" stroke-width=\"4\"/>\n      <g fill=\"#FFD166\" stroke=\"#2B3A4A\" stroke-width=\"4\">\n        <circle cx=\"560\" cy=\"195\" r=\"7\"/><circle cx=\"640\" cy=\"195\" r=\"7\"/>\n      </g>\n      <path d=\"M550 245 L550 265 Q550 272 557 272 L563 272 Q570 272 570 265 L570 245\" fill=\"#2B3A4A\"/>\n      <path d=\"M630 245 L630 265 Q630 272 637 272 L643 272 Q650 272 650 265 L650 245\" fill=\"#2B3A4A\"/>\n    </g>\n\n    <!-- eye + cheek -->\n    <circle cx=\"612\" cy=\"260\" r=\"20\" fill=\"#FFFFFF\" stroke=\"#2B3A4A\" stroke-width=\"5\"/>\n    <circle cx=\"616\" cy=\"262\" r=\"11\" fill=\"#2B3A4A\"/>\n    <circle cx=\"620\" cy=\"258\" r=\"4\" fill=\"#FFFFFF\"/>\n    <ellipse cx=\"575\" cy=\"285\" rx=\"12\" ry=\"8\" fill=\"#FF9AA2\" opacity=\"0.8\"/>\n    <path d=\"M545 285 Q560 295 575 293\" fill=\"none\" stroke=\"#2B3A4A\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n\n    <!-- BEAK (long, forward) -->\n    <g stroke-linejoin=\"round\">\n      <!-- upper beak -->\n      <path d=\"M650 245 L880 270 Q895 272 893 285 Q891 297 875 296 L650 275 Z\" fill=\"url(#beakGrad)\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n      <path d=\"M650 245 L880 270\" fill=\"none\" stroke=\"#FFE8A3\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.9\"/>\n      <!-- nail tip -->\n      <path d=\"M880 270 Q895 272 893 285 Q891 297 875 296 L860 294 Q870 282 860 272 Z\" fill=\"#E67E00\" stroke=\"#2B3A4A\" stroke-width=\"5\"/>\n      <!-- pouch -->\n      <path d=\"M650 275 L875 296 Q870 360 760 375 Q670 385 630 310 L650 275Z\" fill=\"url(#pouchGrad)\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n      <path d=\"M675 295 Q750 305 830 305 Q800 350 740 355 Q690 355 665 315Z\" fill=\"#E96A5A\" opacity=\"0.45\"/>\n      <!-- fish tail peeking from pouch! -->\n      <g transform=\"translate(730,300) rotate(15)\">\n        <path d=\"M0 0 L28 -14 L22 0 L28 14 Z\" fill=\"#4FB6E8\" stroke=\"#2B3A4A\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n        <ellipse cx=\"-8\" cy=\"0\" rx=\"14\" ry=\"10\" fill=\"#4FB6E8\" stroke=\"#2B3A4A\" stroke-width=\"4\"/>\n        <circle cx=\"-12\" cy=\"-2\" r=\"2.5\" fill=\"#2B3A4A\"/>\n      </g>\n    </g>\n\n    <!-- front small wing holding? tucked -->\n    <path d=\"M460 420 Q500 430 520 470 Q525 500 500 520 Q470 530 440 510 Q420 470 460 420Z\" fill=\"#FFFFFF\" stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linejoin=\"round\"/>\n    <g fill=\"none\" stroke=\"#7A9BB5\" stroke-width=\"4\" stroke-linecap=\"round\">\n      <path d=\"M470 445 Q490 460 495 485\"/>\n      <path d=\"M460 460 Q478 474 482 496\"/>\n    </g>\n\n    <!-- scarf knot + flap over chest -->\n    <g>\n      <circle cx=\"548\" cy=\"342\" r=\"20\" fill=\"#E63946\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n      <path d=\"M555 360 Q570 400 560 435 Q555 450 540 448 Q525 445 530 425 Q535 395 542 362Z\" fill=\"#FF5A5A\" stroke=\"#2B3A4A\" stroke-width=\"5\" stroke-linejoin=\"round\"/>\n    </g>\n  </g>\n\n  <!-- dust puffs -->\n  <g fill=\"#FFFFFF\" stroke=\"#E6DCC8\" stroke-width=\"4\" opacity=\"0.95\">\n    <g>\n      <circle cx=\"210\" cy=\"600\" r=\"18\"/><circle cx=\"228\" cy=\"592\" r=\"13\"/><circle cx=\"194\" cy=\"592\" r=\"11\"/>\n    </g>\n    <g>\n      <circle cx=\"800\" cy=\"605\" r=\"15\"/><circle cx=\"815\" cy=\"598\" r=\"10\"/><circle cx=\"787\" cy=\"597\" r=\"9\"/>\n    </g>\n  </g>\n\n  <!-- badge -->\n  <g transform=\"translate(88,560) rotate(-8)\">\n    <circle cx=\"0\" cy=\"0\" r=\"52\" fill=\"#FFFDF0\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n    <circle cx=\"0\" cy=\"0\" r=\"43\" fill=\"none\" stroke=\"#FF5A7A\" stroke-width=\"3\" stroke-dasharray=\"6 5\"/>\n    <text x=\"0\" y=\"-6\" text-anchor=\"middle\" font-family=\"Verdana, sans-serif\" font-size=\"16\" font-weight=\"bold\" fill=\"#2B3A4A\">SKATE</text>\n    <text x=\"0\" y=\"14\" text-anchor=\"middle\" font-family=\"Verdana, sans-serif\" font-size=\"16\" font-weight=\"bold\" fill=\"#E63946\">CLUB</text>\n    <text x=\"0\" y=\"30\" text-anchor=\"middle\" font-family=\"Verdana, sans-serif\" font-size=\"11\" fill=\"#2B3A4A\">\u2605 PELICAN \u2605</text>\n  </g>\n\n  <g transform=\"translate(500,668)\">\n    <rect x=\"-190\" y=\"-22\" width=\"380\" height=\"36\" rx=\"18\" fill=\"#2B3A4A\" opacity=\"0.85\"/>\n    <text x=\"0\" y=\"3\" text-anchor=\"middle\" font-family=\"Verdana, sans-serif\" font-size=\"20\" font-weight=\"bold\" fill=\"#FFFFFF\" letter-spacing=\"1\">PELICAN  SKATE  DAY  \u2600  SURFSIDE</text>\n  </g>\n</svg>",
+            "path": "output/pelican-skateboard.svg"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 414,
+        "output": 8245,
+        "cacheRead": 3313,
+        "cacheWrite": 0,
+        "reasoning": 1449,
+        "totalTokens": 11972,
+        "cost": {
+          "input": 4.1400000000000003e-05,
+          "output": 0.001649,
+          "cacheRead": 6.626000000000001e-06,
+          "cacheWrite": 0,
+          "total": 0.0016970260000000001
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611698350,
+      "responseId": "resp_6ac9d33274e6e9a5a65448cd",
+      "rawStopReason": "completed",
+      "durationMs": 99260,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "070b8ef0",
+    "parentId": "6579344b",
+    "timestamp": "2026-10-10T05:56:37.659Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a1246180de7338b2ab8c59efc043ce|fc_01a1246180de7338b2ab8c59efc043ce",
+      "toolName": "write",
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully wrote to output/pelican-skateboard.svg"
+        }
+      ],
+      "isError": false,
+      "durationMs": 6,
+      "timestamp": 1791611797659
+    }
+  },
+  {
+    "type": "message",
+    "id": "e647a7af",
+    "parentId": "070b8ef0",
+    "timestamp": "2026-10-10T05:57:36.302Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "Implementing a Python rasterizer with pixel buffer, alpha blending, and primitive shapes for PNG output.\n\nAdding scanline polygon fill and stroke rendering with PNG encoding via zlib compression."
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a12462d01d719da6670a5f7a9e6142|fc_01a12462d01d719da6670a5f7a9e6142",
+          "name": "write",
+          "arguments": {
+            "content": "#!/usr/bin/env python3\n\"\"\"Raster version of pelican-on-skateboard illustration (stdlib only).\"\"\"\nimport zlib, struct, math\n\nW, H = 1000, 700\nimg = bytearray(W*H*3)\n\ndef hexcol(s):\n    s=s.lstrip('#'); return (int(s[0:2],16),int(s[2:4],16),int(s[4:6],16))\n\ndef set_px(x,y,c,alpha=1.0):\n    if 0<=x<W and 0<=y<H:\n        i=(y*W+x)*3\n        if alpha>=1.0:\n            img[i]=c[0]; img[i+1]=c[1]; img[i+2]=c[2]\n        else:\n            img[i]=int(img[i]*(1-alpha)+c[0]*alpha)\n            img[i+1]=int(img[i+1]*(1-alpha)+c[1]*alpha)\n            img[i+2]=int(img[i+2]*(1-alpha)+c[2]*alpha)\n\ndef lerp(a,b,t): return (int(a[0]+(b[0]-a[0])*t),int(a[1]+(b[1]-a[1])*t),int(a[2]+(b[2]-a[2])*t))\n\ndef vgrad(y0,y1,c0,c1):\n    for y in range(max(0,y0),min(H,y1)):\n        t=(y-y0)/max(1,(y1-1-y0)); c=lerp(c0,c1,t)\n        base=(y*W)*3\n        for x in range(W):\n            img[base+x*3]=c[0]; img[base+x*3+1]=c[1]; img[base+x*3+2]=c[2]\n\ndef fill_rect(x0,y0,x1,y1,c,alpha=1.0):\n    x0=max(0,int(x0)); y0=max(0,int(y0)); x1=min(W,int(x1)); y1=min(H,int(y1))\n    if alpha>=1:\n        for y in range(y0,y1):\n            b=(y*W)*3\n            for x in range(x0,x1):\n                img[b+x*3]=c[0]; img[b+x*3+1]=c[1]; img[b+x*3+2]=c[2]\n    else:\n        for y in range(y0,y1):\n            for x in range(x0,x1): set_px(x,y,c,alpha)\n\ndef fill_circle(cx,cy,r,c,alpha=1.0):\n    cx=int(cx);cy=int(cy);r=int(r)\n    for y in range(max(0,cy-r),min(H,cy+r+1)):\n        dy=y-cy; dx=int(math.sqrt(max(0,r*r-dy*dy)))\n        for x in range(max(0,cx-dx),min(W,cx+dx+1)): set_px(x,y,c,alpha)\n\ndef fill_ellipse(cx,cy,rx,ry,c,alpha=1.0):\n    cx=int(cx);cy=int(cy);rx=int(rx);ry=int(ry)\n    if rx<=0 or ry<=0: return\n    for y in range(max(0,cy-ry),min(H,cy+ry+1)):\n        t=(y-cy)/ry; dx=int(rx*math.sqrt(max(0,1-t*t)))\n        for x in range(max(0,cx-dx),min(W,cx+dx+1)): set_px(x,y,c,alpha)\n\ndef ellipse_outline(cx,cy,rx,ry,c,lw=5):\n    for a in range(int(lw)):\n        rx2=rx+a//2; ry2=ry+a//2\n    # draw ring by angle steps\n    steps=max(64,int(2*math.pi*max(rx,ry)))\n    for i in range(steps):\n        th=2*math.pi*i/steps\n        for k in range(lw):\n            set_px(int(cx+(rx-k*0.5)*math.cos(th)),int(cy+(ry-k*0.5)*math.sin(th)),c)\n\ndef circle_outline(cx,cy,r,c,lw=5):\n    ellipse_outline(cx,cy,r,r,c,lw)\n\ndef thick_line(x0,y0,x1,y1,c,lw=5,alpha=1.0):\n    dx=x1-x0; dy=y1-y0; L=math.hypot(dx,dy)\n    steps=max(1,int(L))\n    rad=lw/2\n    for i in range(steps+1):\n        t=i/steps; px=x0+dx*t; py=y0+dy*t\n        r=int(math.ceil(rad))\n        for yy in range(int(py-r),int(py+r)+1):\n            for xx in range(int(px-r),int(px+r)+1):\n                if (xx-px)**2+(yy-py)**2<=rad*rad: set_px(xx,yy,c,alpha)\n\ndef fill_poly(pts,c,alpha=1.0):\n    ys=[p[1] for p in pts]; y0=max(0,int(min(ys))); y1=min(H-1,int(max(ys)))\n    n=len(pts)\n    for y in range(y0,y1+1):\n        xs=[]\n        for i in range(n):\n            x0,y0p=pts[i]; x1,y1p=pts[(i+1)%n]\n            if (y0p<=y<y1p) or (y1p<=y<y0p):\n                t=(y-y0p)/(y1p-y0p) if y1p!=y0p else 0\n                xs.append(x0+t*(x1-x0))\n        xs.sort()\n        for k in range(0,len(xs)-1,2):\n            for x in range(max(0,int(xs[k])),min(W,int(xs[k+1])+1)): set_px(x,y,c,alpha)\n\ndef poly_outline(pts,c,lw=5,close=True):\n    n=len(pts)\n    for i in range(n if close else n-1):\n        thick_line(pts[i][0],pts[i][1],pts[(i+1)%n][0],pts[(i+1)%n][1],c,lw)\n\nINK=hexcol('#2B3A4A')\n\n# --- background ---\nvgrad(0,700,hexcol('#4FB6E8'),hexcol('#DFF6FF'))\n# sun glow + sun\nfor r,a in [(110,0.25),(85,0.35),(65,0.5)]:\n    fill_circle(830,135,r,hexcol('#FFE66D'),alpha=a)\nfill_circle(830,135,52,hexcol('#FFF3A0'))\ncircle_outline(830,135,52,hexcol('#FFB800'),6)\nfill_circle(815,135,5,hexcol('#2B3A4A')); fill_circle(845,135,5,hexcol('#2B3A4A'))\nthick_line(810,152,830,160,INK,4); thick_line(830,160,850,152,INK,4)\n# clouds\nfor cx,cy,rx,ry in [(180,130,68,30),(225,112,48,28),(135,112,36,22),(520,85,58,24),(560,70,38,20),(484,70,28,16),(660,190,42,18),(688,180,26,14)]:\n    fill_ellipse(cx,cy,rx,ry,hexcol('#FFFFFF'),0.95)\n# hills\nfill_poly([(0,360),(0,410),(1000,410),(1000,345),(930,375),(830,340),(700,285),(550,335),(420,380),(300,345),(150,300)],hexcol('#7AC74F'))\nthick_line(0,360,150,300,hexcol('#4E9440'),5); thick_line(150,300,300,345,hexcol('#4E9440'),5)\nthick_line(300,345,420,380,hexcol('#4E9440'),5); thick_line(420,380,550,335,hexcol('#4E9440'),5)\nthick_line(550,335,700,285,hexcol('#4E9440'),5); thick_line(700,285,830,340,hexcol('#4E9440'),5)\nthick_line(830,340,1000,345,hexcol('#4E9440'),5)\n# palms (simplified)\nfor px,py,s in [(90,335,1.0),(915,330,0.85)]:\n    thick_line(px,py,px,py+70,hexcol('#7A4A2B'),12)\n    fill_ellipse(px-32*s,py-8,34*s,12,hexcol('#2FA36B')); fill_ellipse(px+32*s,py-8,34*s,12,hexcol('#2FA36B'))\n    fill_ellipse(px,py-22,36*s,13,hexcol('#2FA36B'))\n    fill_circle(px-10,py,7,hexcol('#6B4226')); fill_circle(px+12,py+2,7,hexcol('#6B4226'))\n# sea + sand\nfill_rect(0,400,1000,462,hexcol('#1A8FB5'))\nfill_rect(0,400,1000,428,hexcol('#2DBFC8'))\nfor x,y in [(60,425),(300,435),(620,428),(840,438)]:\n    thick_line(x,y,x+15,y-5,hexcol('#FFFFFF'),3,0.7); thick_line(x+15,y-5,x+30,y,hexcol('#FFFFFF'),3,0.7); thick_line(x+30,y,x+45,y-5,hexcol('#FFFFFF'),3,0.7); thick_line(x+45,y-5,x+60,y,hexcol('#FFFFFF'),3,0.7)\nfill_rect(0,462,1000,510,hexcol('#FFD48A'))\nfill_rect(0,462,1000,478,hexcol('#FFE9B8'))\n# road\nfill_rect(0,510,1000,700,hexcol('#5D6878'))\nfill_rect(0,510,1000,524,hexcol('#FFD166'))\nfor x in [30,150,270,670,790,910]:\n    fill_rect(x,600,x+70,612,hexcol('#FFFFFF'))\n# seagulls\nfor gx,gy,s in [(340,165,1.4),(430,200,1.0),(700,110,1.0)]:\n    thick_line(gx-28*s,gy,gx-14*s,gy-10*s,INK,4); thick_line(gx-14*s,gy-10*s,gx,gy,INK,4)\n    thick_line(gx,gy,gx+14*s,gy-10*s,INK,4); thick_line(gx+14*s,gy-10*s,gx+28*s,gy,INK,4)\n# speed lines\nthick_line(55,500,185,500,hexcol('#FFFFFF'),9,0.85); thick_line(30,535,155,535,hexcol('#FFFFFF'),7,0.85); thick_line(70,568,180,568,hexcol('#FFFFFF'),6,0.6)\n# shadow\nfill_ellipse(510,638,240,22,hexcol('#1A2A3A'),0.28)\n\n# --- skateboard ---\n# wheels\nfor wx in [350,670]:\n    fill_circle(wx,605,34,INK); fill_circle(wx,605,26,hexcol('#FF5A7A'))\n    circle_outline(wx,605,26,hexcol('#FFFFFF'),5); fill_circle(wx,605,8,hexcol('#FFFFFF')); fill_circle(wx-8,605-8,4,hexcol('#FFC2D1'))\n# trucks\nfill_poly([(330,575),(370,575),(360,595),(340,595)],hexcol('#CBD5E1')); poly_outline([(330,575),(370,575),(360,595),(340,595)],INK,4)\nfill_poly([(650,575),(690,575),(680,595),(660,595)],hexcol('#CBD5E1')); poly_outline([(650,575),(690,575),(680,595),(660,595)],INK,4)\n# deck\nfill_poly([(210,555),(210,543),(230,532),(790,532),(810,543),(810,567),(790,578),(230,578),(210,567)],hexcol('#FF5A7A'))\nfill_rect(230,532,790,578,hexcol('#FF6B6B'))\nfill_rect(470,532,550,578,hexcol('#FFF200'))  # bolt bg area simplified\nfill_poly([(500,532),(470,558),(490,558),(475,578),(515,550),(495,550)],hexcol('#FFF200'))\npoly_outline([(500,532),(470,558),(490,558),(475,578),(515,550),(495,550)],INK,3)\npoly_outline([(210,555),(210,543),(230,532),(790,532),(810,543),(810,567),(790,578),(230,578),(210,567)],INK,6)\nfor dx in [300,340,680,720]:\n    fill_circle(dx,555,5,hexcol('#FFFFFF'))\nthick_line(240,620,340,620,hexcol('#FFFFFF'),5,0.5); thick_line(680,620,780,620,hexcol('#FFFFFF'),5,0.5)\n\n# --- pelican ---\nORANGE=hexcol('#FF9F1C'); DORANGE=hexcol('#E67E00')\n# tail\nfill_poly([(310,480),(230,460),(245,490),(220,495),(250,515),(235,535),(310,515)],hexcol('#D8E4EC'))\npoly_outline([(310,480),(230,460),(245,490),(220,495),(250,515),(235,535),(310,515)],INK,5)\n# body\nfill_ellipse(440,460,135,105,hexcol('#FFFFFF'))\nfill_ellipse(440,490,100,60,hexcol('#D8E4EC'),0.7)\nellipse_outline(440,460,135,105,INK,7)\n# legs\nthick_line(430,550,425,595,DORANGE,14); fill_ellipse(425,600,28,12,ORANGE); ellipse_outline(425,600,28,12,INK,4)\nthick_line(550,550,560,595,DORANGE,16); fill_ellipse(570,597,32,13,ORANGE); ellipse_outline(570,597,32,13,INK,4)\n# raised wing\nfill_poly([(380,430),(300,340),(250,220),(265,195),(295,210),(430,380)],hexcol('#EAF2F8'))\npoly_outline([(380,430),(300,340),(250,220),(265,195),(295,210),(430,380)],INK,6)\nthick_line(285,250,350,350,hexcol('#7A9BB5'),4); thick_line(310,235,375,335,hexcol('#7A9BB5'),4)\nfill_poly([(250,220),(230,180),(235,150),(265,180)],hexcol('#FFFFFF')); poly_outline([(250,220),(230,180),(235,150),(265,180)],INK,4)\n# scarf back\nfill_poly([(540,330),(460,320),(380,350),(280,360),(360,385),(545,355)],hexcol('#E63946'))\npoly_outline([(540,330),(460,320),(380,350),(280,360),(360,385),(545,355)],INK,5)\n# neck\nthick_line(520,450,560,400,hexcol('#EFF4F8'),70); thick_line(560,400,545,340,hexcol('#EFF4F8'),70); thick_line(545,340,570,285,hexcol('#EFF4F8'),70)\n# head\nfill_circle(595,260,72,hexcol('#FFFFFF')); circle_outline(595,260,72,INK,6)\n# crest\nfill_poly([(545,205),(500,170),(545,180),(590,170),(555,205)],INK)\n# helmet\nfill_ellipse(600,215,65,62,hexcol('#2EC4B6')); fill_rect(535,215,665,245,hexcol('#2EC4B6'))\npoly_outline([(535,235),(535,200),(560,160),(640,160),(665,200),(665,245),(535,245)],INK,5)\nfill_rect(592,150,610,172,hexcol('#FFD166')); fill_circle(601,148,8,hexcol('#FF5A7A')); circle_outline(601,148,8,INK,3)\nfill_circle(560,195,7,hexcol('#FFD166')); fill_circle(640,195,7,hexcol('#FFD166'))\n# eye\nfill_circle(612,260,20,hexcol('#FFFFFF')); circle_outline(612,260,20,INK,4)\nfill_circle(616,262,11,INK); fill_circle(620,258,4,hexcol('#FFFFFF'))\nfill_ellipse(575,285,12,8,hexcol('#FF9AA2'))\n# beak upper\nfill_poly([(650,245),(880,270),(875,296),(650,275)],hexcol('#FF9F1C'))\npoly_outline([(650,245),(880,270),(875,296),(650,275)],INK,5)\nfill_poly([(860,272),(893,272),(891,295),(860,294)],DORANGE)\n# pouch\nfill_poly([(650,275),(875,296),(760,375),(630,310)],hexcol('#F4846B'))\npoly_outline([(650,275),(875,296),(760,375),(630,310)],INK,5)\nfill_poly([(675,295),(830,305),(740,355),(665,315)],hexcol('#E96A5A'))\n# fish\nfill_ellipse(722,300,14,10,hexcol('#4FB6E8')); fill_poly([(736,286),(764,300),(736,314)],hexcol('#4FB6E8'))\npoly_outline([(736,286),(764,300),(736,314)],INK,3); ellipse_outline(722,300,14,10,INK,3)\n# front wing\nfill_ellipse(480,475,42,55,hexcol('#FFFFFF')); ellipse_outline(480,475,42,55,INK,5)\nthick_line(470,445,495,485,hexcol('#7A9BB5'),3)\n# scarf knot\nfill_circle(548,342,20,hexcol('#E63946')); circle_outline(548,342,20,INK,5)\nfill_poly([(555,360),(560,435),(540,448),(530,425),(542,362)],hexcol('#FF5A5A'))\npoly_outline([(555,360),(560,435),(540,448),(530,425),(542,362)],INK,4)\n\n# dust\nfor cx,cy,r in [(210,600,18),(228,592,13),(194,592,11),(800,605,15),(815,598,10),(787,597,9)]:\n    fill_circle(cx,cy,r,hexcol('#FFFFFF')); circle_outline(cx,cy,r,hexcol('#E6DCC8'),3)\n# badge\nfill_circle(88,560,52,hexcol('#FFFDF0')); circle_outline(88,560,52,INK,6); circle_outline(88,560,43,hexcol('#FF5A7A'),3)\n# bottom banner\nfill_rect(310,646,690,682,INK)\n# (text omitted in raster - banner only)\n\ndef save_png(path):\n    def chunk(t,d):\n        h=struct.pack('>I',len(d))+t+d\n        return h+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)\n    raw=bytearray()\n    for y in range(H):\n        raw.append(0)\n        raw.extend(img[y*W*3:(y+1)*W*3])\n    png=b'\\x89PNG\\r\\n\\x1a\\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',W,H,8,2,0,0,0))+chunk(b'IDAT',zlib.compress(bytes(raw),6))+chunk(b'IEND',b'')\n    open(path,'wb').write(png)\n    print('wrote',path,len(png))\n\nsave_png('output/pelican-skateboard.png')\n",
+            "path": "make_art.py"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 8241,
+        "output": 5395,
+        "cacheRead": 3697,
+        "cacheWrite": 0,
+        "reasoning": 700,
+        "totalTokens": 17333,
+        "cost": {
+          "input": 0.0008241,
+          "output": 0.001079,
+          "cacheRead": 7.394000000000001e-06,
+          "cacheWrite": 0,
+          "total": 0.001910494
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611797660,
+      "responseId": "resp_6ac9d399292c733591d448fb",
+      "rawStopReason": "completed",
+      "durationMs": 58641,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "4ff12987",
+    "parentId": "e647a7af",
+    "timestamp": "2026-10-10T05:57:36.348Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a12462d01d719da6670a5f7a9e6142|fc_01a12462d01d719da6670a5f7a9e6142",
+      "toolName": "write",
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully wrote to make_art.py"
+        }
+      ],
+      "isError": false,
+      "durationMs": 1,
+      "timestamp": 1791611856348
+    }
+  },
+  {
+    "type": "message",
+    "id": "f39afc4e",
+    "parentId": "4ff12987",
+    "timestamp": "2026-10-10T05:57:37.553Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_01a1246369487477a96e0c9bb94465d2|fc_01a1246369487477a96e0c9bb94465d2",
+          "name": "bash",
+          "arguments": {
+            "command": "python3 make_art.py && ls -lh output/"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 5427,
+        "output": 54,
+        "cacheRead": 11889,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 17370,
+        "cost": {
+          "input": 0.0005427,
+          "output": 1.0800000000000002e-05,
+          "cacheRead": 2.3778000000000002e-05,
+          "cacheWrite": 0,
+          "total": 0.0005772780000000001
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611856350,
+      "responseId": "resp_6ac9d3d198bbb54462ff475d",
+      "rawStopReason": "completed",
+      "durationMs": 1203,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "d170ab68",
+    "parentId": "f39afc4e",
+    "timestamp": "2026-10-10T05:57:38.326Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a1246369487477a96e0c9bb94465d2|fc_01a1246369487477a96e0c9bb94465d2",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "wrote output/pelican-skateboard.png 24371\ntotal 88\n-rw-r--r--@ 1 fender  staff    24K Oct  9 22:57 pelican-skateboard.png\n-rw-r--r--@ 1 fender  staff    17K Oct  9 22:56 pelican-skateboard.svg\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 770,
+      "timestamp": 1791611858326
+    }
+  },
+  {
+    "type": "message",
+    "id": "496d3ae1",
+    "parentId": "d170ab68",
+    "timestamp": "2026-10-10T05:57:40.736Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": ""
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a1246371ce74589307db5108fcc317|fc_01a1246371ce74589307db5108fcc317",
+          "name": "bash",
+          "arguments": {
+            "command": "python3 -c \"\nd=open('output/pelican-skateboard.png','rb').read()\nprint(len(d)); print(d[16:24].hex())\nimport struct\nw,h=struct.unpack('>II',d[16:24]); print(w,h)\"\nffprobe -hide_banner -i output/pelican-skateboard.png 2>&1 | head"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 207,
+        "output": 146,
+        "cacheRead": 17265,
+        "cacheWrite": 0,
+        "reasoning": 19,
+        "totalTokens": 17618,
+        "cost": {
+          "input": 2.0700000000000002e-05,
+          "output": 2.92e-05,
+          "cacheRead": 3.453e-05,
+          "cacheWrite": 0,
+          "total": 8.443e-05
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611858326,
+      "responseId": "resp_6ac9d3d2e3f617822e9b467b",
+      "rawStopReason": "completed",
+      "durationMs": 2410,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "6ce44be6",
+    "parentId": "496d3ae1",
+    "timestamp": "2026-10-10T05:57:40.828Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a1246371ce74589307db5108fcc317|fc_01a1246371ce74589307db5108fcc317",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "24371\n000003e8000002bc\n1000 700\nInput #0, png_pipe, from 'output/pelican-skateboard.png':\n  Duration: N/A, bitrate: N/A\n  Stream #0:0: Video: png, rgb24(pc, gbr/unknown/unknown), 1000x700, 25 fps, 25 tbr, 25 tbn\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 90,
+      "timestamp": 1791611860828
+    }
+  },
+  {
+    "type": "message",
+    "id": "77d9c613",
+    "parentId": "6ce44be6",
+    "timestamp": "2026-10-10T05:57:47.257Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": ""
+        },
+        {
+          "type": "text",
+          "text": "The static artwork is done \u2014 now turning it into a short video.",
+          "textSignature": "{\"v\":1,\"id\":\"rs_01a12463878d73b7b2017391fbcb3f94\",\"phase\":\"commentary\"}"
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a1246388bd730d8b459f23303e081f|fc_01a1246388bd730d8b459f23303e081f",
+          "name": "bash",
+          "arguments": {
+            "command": "ffmpeg -hide_banner -encoders 2>&1 | grep -E \"libx264|aac|mpeg4\" | head\nffmpeg -y -hide_banner -loglevel error -loop 1 -i output/pelican-skateboard.png -vf \"scale=2000:1400,zoompan=z='1+0.10*on/150':x='iw/2-(iw/zoom/2)+20*sin(on/20)':y='ih/2-(ih/zoom/2)':d=150:s=1000x700:fps=25\" -t 6 -c:v libx264 -pix_fmt yuv420p -movflags +faststart output/pelican-skateboard.mp4 && ls -lh output/ && ffprobe -hide_banner -i output/pelican-skateboard.mp4 2>&1 | head -n 15"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 335,
+        "output": 399,
+        "cacheRead": 17393,
+        "cacheWrite": 0,
+        "reasoning": 139,
+        "totalTokens": 18127,
+        "cost": {
+          "input": 3.35e-05,
+          "output": 7.98e-05,
+          "cacheRead": 3.4786e-05,
+          "cacheWrite": 0,
+          "total": 0.00014808600000000002
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611860829,
+      "responseId": "resp_6ac9d3d64a462f5c85ee4510",
+      "rawStopReason": "completed",
+      "durationMs": 6428,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "ce76fd6e",
+    "parentId": "77d9c613",
+    "timestamp": "2026-10-10T05:57:47.849Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a1246388bd730d8b459f23303e081f|fc_01a1246388bd730d8b459f23303e081f",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": " V....D libx264              libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (codec h264)\n V....D libx264rgb           libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 RGB (codec h264)\n V.S..D mpeg4                MPEG-4 part 2\n V....D msmpeg4v2            MPEG-4 part 2 Microsoft variant version 2\n V....D msmpeg4              MPEG-4 part 2 Microsoft variant version 3 (codec msmpeg4v3)\n A....D aac                  AAC (Advanced Audio Coding)\n A..... aac_at               aac (AudioToolbox) (codec aac)\ntotal 1256\n-rw-r--r--@ 1 fender  staff   580K Oct  9 22:57 pelican-skateboard.mp4\n-rw-r--r--@ 1 fender  staff    24K Oct  9 22:57 pelican-skateboard.png\n-rw-r--r--@ 1 fender  staff    17K Oct  9 22:56 pelican-skateboard.svg\nInput #0, mov,mp4,m4a,3gp,3g2,mj2, from 'output/pelican-skateboard.mp4':\n  Metadata:\n    major_brand     : isom\n    minor_version   : 512\n    compatible_brands: isomiso2avc1mp41\n    encoder         : Lavf63.1.102\n  Duration: 00:00:06.00, start: 0.000000, bitrate: 792 kb/s\n  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1000x700, 788 kb/s, 25 fps, 25 tbr, 12800 tbn (default)\n    Metadata:\n      handler_name    : VideoHandler\n      encoder         : Lavc63.1.102 libx264\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 591,
+      "timestamp": 1791611867849
+    }
+  },
+  {
+    "type": "message",
+    "id": "c9a4e5b5",
+    "parentId": "ce76fd6e",
+    "timestamp": "2026-10-10T05:57:57.395Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "Verifying SVG validity and file sizes while planning cleanup of intermediate files and confirming image read tool capabilities."
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a12463b46376bb9a326368e120a172|fc_01a12463b46376bb9a326368e120a172",
+          "name": "bash",
+          "arguments": {
+            "command": "rm -f /tmp/test.svg /tmp/test.png\npython3 -c \"import xml.dom.minidom; xml.dom.minidom.parse('output/pelican-skateboard.svg'); print('SVG valid')\"\nls -lh output/; du -h output/*"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 960,
+        "output": 400,
+        "cacheRead": 17649,
+        "cacheWrite": 0,
+        "reasoning": 272,
+        "totalTokens": 19009,
+        "cost": {
+          "input": 9.6e-05,
+          "output": 8e-05,
+          "cacheRead": 3.5298e-05,
+          "cacheWrite": 0,
+          "total": 0.000211298
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611867850,
+      "responseId": "resp_6ac9d3dd99e4a199507d40d0",
+      "rawStopReason": "completed",
+      "durationMs": 9545,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "11620928",
+    "parentId": "c9a4e5b5",
+    "timestamp": "2026-10-10T05:57:57.453Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a12463b46376bb9a326368e120a172|fc_01a12463b46376bb9a326368e120a172",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "SVG valid\ntotal 1256\n-rw-r--r--@ 1 fender  staff   580K Oct  9 22:57 pelican-skateboard.mp4\n-rw-r--r--@ 1 fender  staff    24K Oct  9 22:57 pelican-skateboard.png\n-rw-r--r--@ 1 fender  staff    17K Oct  9 22:56 pelican-skateboard.svg\n584K\toutput/pelican-skateboard.mp4\n 24K\toutput/pelican-skateboard.png\n 20K\toutput/pelican-skateboard.svg\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 56,
+      "timestamp": 1791611877453
+    }
+  },
+  {
+    "type": "message",
+    "id": "6cd04f97",
+    "parentId": "11620928",
+    "timestamp": "2026-10-10T05:57:59.967Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_01a12463c068760b864fc2d7f295a83e|fc_01a12463c068760b864fc2d7f295a83e",
+          "name": "read",
+          "arguments": {
+            "path": "output/pelican-skateboard.png"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 600,
+        "output": 50,
+        "cacheRead": 18545,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 19195,
+        "cost": {
+          "input": 6.000000000000001e-05,
+          "output": 1e-05,
+          "cacheRead": 3.709e-05,
+          "cacheWrite": 0,
+          "total": 0.00010709
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611877454,
+      "responseId": "resp_6ac9d3e762d6ff9d3db74e23",
+      "rawStopReason": "completed",
+      "durationMs": 2513,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "e43fc805",
+    "parentId": "6cd04f97",
+    "timestamp": "2026-10-10T05:58:00.076Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a12463c068760b864fc2d7f295a83e|fc_01a12463c068760b864fc2d7f295a83e",
+      "toolName": "read",
+      "content": [
+        {
+          "type": "text",
+          "text": "Read image file [image/png]"
+        },
+        {
+          "type": "image",
+          "data": "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",
+          "mimeType": "image/png"
+        }
+      ],
+      "isError": false,
+      "durationMs": 89,
+      "timestamp": 1791611880076
+    }
+  },
+  {
+    "type": "message",
+    "id": "63b6e8f8",
+    "parentId": "e43fc805",
+    "timestamp": "2026-10-10T05:58:19.946Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "Evaluating PNG rendering issues including badge misinterpreted as a wheel and shape proportions while noting SVG as the primary deliverable.\n\nAdjusting badge placement and styling to distinguish it from the wheel in the PNG render."
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a124640ead774c8459d062af3101e2|fc_01a124640ead774c8459d062af3101e2",
+          "name": "read",
+          "arguments": {
+            "path": "output/pelican-skateboard.svg"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 1068,
+        "output": 696,
+        "cacheRead": 19057,
+        "cacheWrite": 0,
+        "reasoning": 590,
+        "totalTokens": 20821,
+        "cost": {
+          "input": 0.00010680000000000001,
+          "output": 0.00013920000000000002,
+          "cacheRead": 3.8114e-05,
+          "cacheWrite": 0,
+          "total": 0.000284114
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611880077,
+      "responseId": "resp_6ac9d3eaf8cd18be308d4baf",
+      "rawStopReason": "completed",
+      "durationMs": 19868,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "8803334c",
+    "parentId": "63b6e8f8",
+    "timestamp": "2026-10-10T05:58:19.991Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a124640ead774c8459d062af3101e2|fc_01a124640ead774c8459d062af3101e2",
+      "toolName": "read",
+      "content": [
+        {
+          "type": "text",
+          "text": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 700\" width=\"1000\" height=\"700\" role=\"img\" aria-label=\"A cheerful pelican riding a skateboard\">\n  <title>Pelican riding a skateboard</title>\n  <desc>A cute cartoon pelican wearing a teal helmet and red scarf, cruising on a skateboard along a sunny seaside boardwalk.</desc>\n\n  <defs>\n    <linearGradient id=\"sky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#4FB6E8\"/>\n      <stop offset=\"0.62\" stop-color=\"#9BDBF5\"/>\n      <stop offset=\"1\" stop-color=\"#DFF6FF\"/>\n    </linearGradient>\n    <linearGradient id=\"sea\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#2DBFC8\"/>\n      <stop offset=\"1\" stop-color=\"#1A8FB5\"/>\n    </linearGradient>\n    <linearGradient id=\"sand\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFE9B8\"/>\n      <stop offset=\"1\" stop-color=\"#FFD48A\"/>\n    </linearGradient>\n    <linearGradient id=\"road\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#6B7686\"/>\n      <stop offset=\"0.18\" stop-color=\"#7D8A9D\"/>\n      <stop offset=\"1\" stop-color=\"#525C6B\"/>\n    </linearGradient>\n    <linearGradient id=\"deckTop\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\">\n      <stop offset=\"0\" stop-color=\"#FF5A7A\"/>\n      <stop offset=\"0.5\" stop-color=\"#FF8A5C\"/>\n      <stop offset=\"1\" stop-color=\"#FF5A7A\"/>\n    </linearGradient>\n    <linearGradient id=\"beakGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFC53D\"/>\n      <stop offset=\"0.55\" stop-color=\"#FF9F1C\"/>\n      <stop offset=\"1\" stop-color=\"#E67E00\"/>\n    </linearGradient>\n    <linearGradient id=\"pouchGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFB3A7\"/>\n      <stop offset=\"1\" stop-color=\"#F4846B\"/>\n    </linearGradient>\n    <radialGradient id=\"sunGlow\" cx=\"0.5\" cy=\"0.5\" r=\"0.5\">\n      <stop offset=\"0\" stop-color=\"#FFF7C2\" stop-opacity=\"0.95\"/>\n      <stop offset=\"0.45\" stop-color=\"#FFE66D\" stop-opacity=\"0.9\"/>\n      <stop offset=\"1\" stop-color=\"#FFE66D\" stop-opacity=\"0\"/>\n    </radialGradient>\n    <linearGradient id=\"bodyGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFFFFF\"/>\n      <stop offset=\"0.7\" stop-color=\"#EFF4F8\"/>\n      <stop offset=\"1\" stop-color=\"#D8E4EC\"/>\n    </linearGradient>\n    <linearGradient id=\"wingGrad\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#FFFFFF\"/>\n      <stop offset=\"1\" stop-color=\"#C9D9E6\"/>\n    </linearGradient>\n    <filter id=\"softShadow\" x=\"-30%\" y=\"-30%\" width=\"160%\" height=\"160%\">\n      <feDropShadow dx=\"0\" dy=\"10\" stdDeviation=\"12\" flood-color=\"#1A3A55\" flood-opacity=\"0.25\"/>\n    </filter>\n  </defs>\n\n  <!-- BACKGROUND -->\n  <rect x=\"0\" y=\"0\" width=\"1000\" height=\"700\" fill=\"url(#sky)\"/>\n\n  <circle cx=\"830\" cy=\"135\" r=\"110\" fill=\"url(#sunGlow)\"/>\n  <g stroke=\"#FFD93D\" stroke-width=\"10\" stroke-linecap=\"round\">\n    <line x1=\"830\" y1=\"28\" x2=\"830\" y2=\"48\"/>\n    <line x1=\"917\" y1=\"48\" x2=\"903\" y2=\"62\"/>\n    <line x1=\"743\" y1=\"48\" x2=\"757\" y2=\"62\"/>\n    <line x1=\"937\" y1=\"135\" x2=\"917\" y2=\"135\"/>\n    <line x1=\"723\" y1=\"135\" x2=\"743\" y2=\"135\"/>\n  </g>\n  <circle cx=\"830\" cy=\"135\" r=\"52\" fill=\"#FFF3A0\" stroke=\"#FFB800\" stroke-width=\"6\"/>\n  <circle cx=\"815\" cy=\"125\" r=\"10\" fill=\"#FFFCE0\"/>\n  <g fill=\"#FFB800\" opacity=\"0.9\">\n    <circle cx=\"815\" cy=\"135\" r=\"5\"/><circle cx=\"845\" cy=\"135\" r=\"5\"/>\n    <path d=\"M810 152 Q830 166 850 152 Q830 158 810 152Z\"/>\n  </g>\n\n  <!-- clouds -->\n  <g fill=\"#FFFFFF\" opacity=\"0.95\" filter=\"url(#softShadow)\">\n    <g id=\"cloud1\">\n      <ellipse cx=\"180\" cy=\"130\" rx=\"68\" ry=\"30\"/>\n      <ellipse cx=\"225\" cy=\"112\" rx=\"48\" ry=\"28\"/>\n      <ellipse cx=\"135\" cy=\"112\" rx=\"36\" ry=\"22\"/>\n    </g>\n    <g id=\"cloud2\" opacity=\"0.9\">\n      <ellipse cx=\"520\" cy=\"85\" rx=\"58\" ry=\"24\"/>\n      <ellipse cx=\"560\" cy=\"70\" rx=\"38\" ry=\"20\"/>\n      <ellipse cx=\"484\" cy=\"70\" rx=\"28\" ry=\"16\"/>\n    </g>\n    <g opacity=\"0.85\">\n      <ellipse cx=\"660\" cy=\"190\" rx=\"42\" ry=\"18\"/>\n      <ellipse cx=\"688\" cy=\"180\" rx=\"26\" ry=\"14\"/>\n    </g>\n  </g>\n\n  <!-- distant hills + sea + sand -->\n  <path d=\"M0 360 Q150 300 300 345 Q420 380 550 335 Q700 285 830 340 Q930 375 1000 345 L1000 410 L0 410 Z\" fill=\"#7AC74F\" stroke=\"#4E9440\" stroke-width=\"5\" stroke-linejoin=\"round\"/>\n  <path d=\"M0 360 Q150 300 300 345 Q420 380 550 335 Q700 285 830 340 Q930 375 1000 345\" fill=\"none\" stroke=\"#A8E08A\" stroke-width=\"6\" stroke-linecap=\"round\" opacity=\"0.8\"/>\n  <!-- palm trees -->\n  <g stroke-linecap=\"round\">\n    <g transform=\"translate(90,335)\">\n      <path d=\"M0 0 Q4 35 0 70\" stroke=\"#7A4A2B\" stroke-width=\"12\" fill=\"none\"/>\n      <g fill=\"#2FA36B\" stroke=\"#1E7A4F\" stroke-width=\"3\">\n        <ellipse cx=\"-32\" cy=\"-8\" rx=\"34\" ry=\"12\" transform=\"rotate(-18)\"/>\n        <ellipse cx=\"32\" cy=\"-8\" rx=\"34\" ry=\"12\" transform=\"rotate(18)\"/>\n        <ellipse cx=\"0\" cy=\"-22\" rx=\"36\" ry=\"13\"/>\n        <ellipse cx=\"-18\" cy=\"-28\" rx=\"26\" ry=\"10\" transform=\"rotate(-28)\"/>\n        <ellipse cx=\"18\" cy=\"-28\" rx=\"26\" ry=\"10\" transform=\"rotate(28)\"/>\n      </g>\n      <circle cx=\"-10\" cy=\"0\" r=\"7\" fill=\"#6B4226\"/><circle cx=\"12\" cy=\"2\" r=\"7\" fill=\"#6B4226\"/>\n    </g>\n    <g transform=\"translate(915,330) scale(0.85)\">\n      <path d=\"M0 0 Q-4 35 0 70\" stroke=\"#7A4A2B\" stroke-width=\"12\" fill=\"none\"/>\n      <g fill=\"#2FA36B\" stroke=\"#1E7A4F\" stroke-width=\"3\">\n        <ellipse cx=\"-32\" cy=\"-8\" rx=\"34\" ry=\"12\" transform=\"rotate(-18)\"/>\n        <ellipse cx=\"32\" cy=\"-8\" rx=\"34\" ry=\"12\" transform=\"rotate(18)\"/>\n        <ellipse cx=\"0\" cy=\"-22\" rx=\"36\" ry=\"13\"/>\n      </g>\n      <circle cx=\"-8\" cy=\"0\" r=\"7\" fill=\"#6B4226\"/><circle cx=\"10\" cy=\"3\" r=\"7\" fill=\"#6B4226\"/>\n    </g>\n  </g>\n\n  <rect x=\"0\" y=\"400\" width=\"1000\" height=\"62\" fill=\"url(#sea)\"/>\n  <g stroke=\"#FFFFFF\" stroke-width=\"4\" stroke-linecap=\"round\" opacity=\"0.7\">\n    <path d=\"M60 425 q15 -8 30 0 t30 0\"/>\n    <path d=\"M300 435 q15 -8 30 0 t30 0\"/>\n    <path d=\"M620 428 q15 -8 30 0 t30 0\"/>\n    <path d=\"M840 438 q15 -8 30 0 t30 0\"/>\n  </g>\n  <rect x=\"0\" y=\"462\" width=\"1000\" height=\"48\" fill=\"url(#sand)\"/>\n  <g fill=\"#F2B86B\" opacity=\"0.7\">\n    <ellipse cx=\"200\" cy=\"484\" rx=\"8\" ry=\"4\"/><ellipse cx=\"750\" cy=\"478\" rx=\"10\" ry=\"5\"/><ellipse cx=\"500\" cy=\"488\" rx=\"7\" ry=\"3.5\"/>\n  </g>\n\n  <!-- boardwalk / road -->\n  <rect x=\"0\" y=\"510\" width=\"1000\" height=\"190\" fill=\"url(#road)\"/>\n  <rect x=\"0\" y=\"510\" width=\"1000\" height=\"14\" fill=\"#FFD166\"/>\n  <rect x=\"0\" y=\"524\" width=\"1000\" height=\"6\" fill=\"#E8B44A\"/>\n  <g fill=\"#FFFFFF\" opacity=\"0.85\">\n    <rect x=\"30\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"150\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"270\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"670\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"790\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n    <rect x=\"910\" y=\"600\" width=\"70\" height=\"12\" rx=\"6\"/>\n  </g>\n\n  <!-- seagulls -->\n  <g fill=\"none\" stroke=\"#2B3A4A\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.8\">\n    <path d=\"M340 165 q14 -14 28 0 q14 -14 28 0\"/>\n    <path d=\"M430 200 q10 -10 20 0 q10 -10 20 0\"/>\n    <path d=\"M700 110 q10 -10 20 0 q10 -10 20 0\"/>\n  </g>\n\n  <!-- speed lines behind -->\n  <g stroke=\"#FFFFFF\" stroke-linecap=\"round\" opacity=\"0.85\">\n    <line x1=\"55\" y1=\"500\" x2=\"185\" y2=\"500\" stroke-width=\"9\"/>\n    <line x1=\"30\" y1=\"535\" x2=\"155\" y2=\"535\" stroke-width=\"7\"/>\n    <line x1=\"70\" y1=\"568\" x2=\"180\" y2=\"568\" stroke-width=\"6\" opacity=\"0.7\"/>\n  </g>\n\n  <!-- SHADOW -->\n  <ellipse cx=\"510\" cy=\"638\" rx=\"240\" ry=\"22\" fill=\"#1A2A3A\" opacity=\"0.28\"/>\n\n  <!-- SKATEBOARD -->\n  <g transform=\"rotate(-4 510 575)\" filter=\"url(#softShadow)\">\n    <!-- wheels back/front -->\n    <g>\n      <circle cx=\"350\" cy=\"605\" r=\"34\" fill=\"#2B3A4A\"/>\n      <circle cx=\"350\" cy=\"605\" r=\"26\" fill=\"#FF5A7A\" stroke=\"#FFFFFF\" stroke-width=\"5\"/>\n      <circle cx=\"350\" cy=\"605\" r=\"8\" fill=\"#FFFFFF\"/>\n      <circle cx=\"342\" cy=\"597\" r=\"4\" fill=\"#FFC2D1\"/>\n    </g>\n    <g>\n      <circle cx=\"670\" cy=\"605\" r=\"34\" fill=\"#2B3A4A\"/>\n      <circle cx=\"670\" cy=\"605\" r=\"26\" fill=\"#FF5A7A\" stroke=\"#FFFFFF\" stroke-width=\"5\"/>\n      <circle cx=\"670\" cy=\"605\" r=\"8\" fill=\"#FFFFFF\"/>\n      <circle cx=\"662\" cy=\"597\" r=\"4\" fill=\"#FFC2D1\"/>\n    </g>\n    <!-- trucks -->\n    <g fill=\"#CBD5E1\" stroke=\"#2B3A4A\" stroke-width=\"5\" stroke-linejoin=\"round\">\n      <path d=\"M330 575 L370 575 L360 595 L340 595 Z\"/>\n      <path d=\"M650 575 L690 575 L680 595 L660 595 Z\"/>\n      <rect x=\"325\" y=\"568\" width=\"50\" height=\"12\" rx=\"6\"/>\n      <rect x=\"645\" y=\"568\" width=\"50\" height=\"12\" rx=\"6\"/>\n    </g>\n    <!-- deck -->\n    <g stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linejoin=\"round\">\n      <path d=\"M210 555 Q210 530 250 530 L770 530 Q810 530 810 555 Q810 580 770 580 L250 580 Q210 580 210 555 Z\" fill=\"url(#deckTop)\"/>\n      <path d=\"M210 555 Q210 530 250 530 L270 530 L270 580 L250 580 Q210 580 210 555 Z\" fill=\"#2EC4B6\" opacity=\"0.95\"/>\n      <path d=\"M750 530 L770 530 Q810 530 810 555 Q810 580 770 580 L750 580 Z\" fill=\"#2EC4B6\" opacity=\"0.95\"/>\n    </g>\n    <!-- grip dots + lightning bolt -->\n    <g fill=\"#FFFFFF\" opacity=\"0.9\">\n      <circle cx=\"300\" cy=\"555\" r=\"5\"/><circle cx=\"340\" cy=\"555\" r=\"5\"/><circle cx=\"680\" cy=\"555\" r=\"5\"/><circle cx=\"720\" cy=\"555\" r=\"5\"/>\n    </g>\n    <path d=\"M500 532 L470 558 L490 558 L475 578 L515 550 L495 550 Z\" fill=\"#FFF200\" stroke=\"#2B3A4A\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n    <!-- motion blur under -->\n    <g stroke=\"#FFFFFF\" stroke-linecap=\"round\" opacity=\"0.5\">\n      <line x1=\"240\" y1=\"620\" x2=\"340\" y2=\"620\" stroke-width=\"5\"/>\n      <line x1=\"680\" y1=\"620\" x2=\"780\" y2=\"620\" stroke-width=\"5\"/>\n    </g>\n  </g>\n\n  <!-- PELICAN -->\n  <g filter=\"url(#softShadow)\">\n    <!-- tail -->\n    <g fill=\"url(#wingGrad)\" stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linejoin=\"round\">\n      <path d=\"M310 480 L230 460 L245 490 L220 495 L250 515 L235 535 L310 515 Z\"/>\n    </g>\n    <!-- body -->\n    <ellipse cx=\"440\" cy=\"460\" rx=\"135\" ry=\"105\" fill=\"url(#bodyGrad)\" stroke=\"#2B3A4A\" stroke-width=\"7\"/>\n    <!-- belly shading -->\n    <path d=\"M340 500 Q430 550 530 500 Q500 545 430 548 Q360 545 340 500Z\" fill=\"#D8E4EC\" opacity=\"0.8\"/>\n    <!-- far leg -->\n    <g stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n      <path d=\"M430 550 L425 595\" fill=\"none\" stroke=\"#E67E00\" stroke-width=\"14\"/>\n      <g fill=\"#FF9F1C\" stroke=\"#2B3A4A\" stroke-width=\"5\">\n        <ellipse cx=\"425\" cy=\"600\" rx=\"28\" ry=\"12\"/>\n        <path d=\"M405 600 l-14 8 M425 602 l0 10 M445 600 l14 8\" stroke=\"#2B3A4A\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/>\n      </g>\n    </g>\n\n    <!-- near leg -->\n    <g stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linecap=\"round\">\n      <path d=\"M550 550 L560 595\" fill=\"none\" stroke=\"#E67E00\" stroke-width=\"16\"/>\n      <g fill=\"#FF9F1C\" stroke=\"#2B3A4A\" stroke-width=\"5\">\n        <ellipse cx=\"570\" cy=\"597\" rx=\"32\" ry=\"13\"/>\n        <path d=\"M548 597 l-14 9 M570 600 l0 11 M592 597 l14 9\" fill=\"none\" stroke-width=\"4\"/>\n      </g>\n    </g>\n\n    <!-- big wing (raised for balance) -->\n    <g transform=\"rotate(-18 420 400)\">\n      <path d=\"M380 430 Q300 340 250 220 Q245 200 265 195 Q285 190 295 210 Q340 310 430 380 Z\" fill=\"url(#wingGrad)\" stroke=\"#2B3A4A\" stroke-width=\"7\" stroke-linejoin=\"round\"/>\n      <g fill=\"none\" stroke=\"#7A9BB5\" stroke-width=\"5\" stroke-linecap=\"round\">\n        <path d=\"M285 250 Q310 300 350 350\"/>\n        <path d=\"M310 235 Q335 285 375 335\"/>\n      </g>\n      <!-- wing feathers tip -->\n      <g fill=\"#FFFFFF\" stroke=\"#2B3A4A\" stroke-width=\"5\" stroke-linejoin=\"round\">\n        <path d=\"M250 220 Q230 180 235 150 Q255 155 265 180 Q270 200 265 195\"/>\n        <path d=\"M265 205 Q255 165 270 135 Q287 145 290 170 Q292 190 285 195\"/>\n      </g>\n    </g>\n\n    <!-- scarf flowing behind -->\n    <g>\n      <path d=\"M540 330 Q460 320 380 350 Q330 370 280 360 Q310 385 360 385 Q450 385 545 355 Z\" fill=\"#E63946\" stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linejoin=\"round\"/>\n      <path d=\"M380 350 Q360 365 355 380\" fill=\"none\" stroke=\"#A91E2E\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n      <path d=\"M420 348 Q400 362 396 376\" fill=\"none\" stroke=\"#A91E2E\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n      <path d=\"M540 330 Q560 315 580 318 L575 350 Q558 348 545 355 Z\" fill=\"#B11F2D\" stroke=\"#2B3A4A\" stroke-width=\"5\"/>\n    </g>\n\n    <!-- neck + head -->\n    <path d=\"M520 450 Q560 400 545 340 Q535 300 570 285\" fill=\"none\" stroke=\"#EFF4F8\" stroke-width=\"78\" stroke-linecap=\"round\"/>\n    <path d=\"M520 450 Q560 400 545 340 Q535 300 570 285\" fill=\"none\" stroke=\"#2B3A4A\" stroke-width=\"88\" stroke-linecap=\"round\" opacity=\"0.0\"/>\n    <path d=\"M485 470 Q535 420 525 350\" fill=\"none\" stroke=\"#2B3A4A\" stroke-width=\"7\" stroke-linecap=\"round\" opacity=\"0.25\"/>\n    <circle cx=\"595\" cy=\"260\" r=\"72\" fill=\"url(#bodyGrad)\" stroke=\"#2B3A4A\" stroke-width=\"7\"/>\n\n    <!-- crest -->\n    <path d=\"M545 205 Q530 175 500 170 Q525 165 545 180 Q560 165 590 170 Q565 180 555 205 Z\" fill=\"#2B3A4A\"/>\n\n    <!-- helmet -->\n    <g>\n      <path d=\"M535 235 Q535 155 600 150 Q665 155 665 235 Q665 245 655 245 L545 245 Q535 245 535 235Z\" fill=\"#2EC4B6\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n      <path d=\"M535 220 Q600 210 665 220 L665 235 Q665 245 655 245 L545 245 Q535 245 535 235Z\" fill=\"#1A8FB5\" opacity=\"0.6\"/>\n      <rect x=\"592\" y=\"150\" width=\"18\" height=\"22\" rx=\"6\" fill=\"#FFD166\" stroke=\"#2B3A4A\" stroke-width=\"5\"/>\n      <circle cx=\"601\" cy=\"148\" r=\"6\" fill=\"#FF5A7A\" stroke=\"#2B3A4A\" stroke-width=\"4\"/>\n      <g fill=\"#FFD166\" stroke=\"#2B3A4A\" stroke-width=\"4\">\n        <circle cx=\"560\" cy=\"195\" r=\"7\"/><circle cx=\"640\" cy=\"195\" r=\"7\"/>\n      </g>\n      <path d=\"M550 245 L550 265 Q550 272 557 272 L563 272 Q570 272 570 265 L570 245\" fill=\"#2B3A4A\"/>\n      <path d=\"M630 245 L630 265 Q630 272 637 272 L643 272 Q650 272 650 265 L650 245\" fill=\"#2B3A4A\"/>\n    </g>\n\n    <!-- eye + cheek -->\n    <circle cx=\"612\" cy=\"260\" r=\"20\" fill=\"#FFFFFF\" stroke=\"#2B3A4A\" stroke-width=\"5\"/>\n    <circle cx=\"616\" cy=\"262\" r=\"11\" fill=\"#2B3A4A\"/>\n    <circle cx=\"620\" cy=\"258\" r=\"4\" fill=\"#FFFFFF\"/>\n    <ellipse cx=\"575\" cy=\"285\" rx=\"12\" ry=\"8\" fill=\"#FF9AA2\" opacity=\"0.8\"/>\n    <path d=\"M545 285 Q560 295 575 293\" fill=\"none\" stroke=\"#2B3A4A\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n\n    <!-- BEAK (long, forward) -->\n    <g stroke-linejoin=\"round\">\n      <!-- upper beak -->\n      <path d=\"M650 245 L880 270 Q895 272 893 285 Q891 297 875 296 L650 275 Z\" fill=\"url(#beakGrad)\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n      <path d=\"M650 245 L880 270\" fill=\"none\" stroke=\"#FFE8A3\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.9\"/>\n      <!-- nail tip -->\n      <path d=\"M880 270 Q895 272 893 285 Q891 297 875 296 L860 294 Q870 282 860 272 Z\" fill=\"#E67E00\" stroke=\"#2B3A4A\" stroke-width=\"5\"/>\n      <!-- pouch -->\n      <path d=\"M650 275 L875 296 Q870 360 760 375 Q670 385 630 310 L650 275Z\" fill=\"url(#pouchGrad)\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n      <path d=\"M675 295 Q750 305 830 305 Q800 350 740 355 Q690 355 665 315Z\" fill=\"#E96A5A\" opacity=\"0.45\"/>\n      <!-- fish tail peeking from pouch! -->\n      <g transform=\"translate(730,300) rotate(15)\">\n        <path d=\"M0 0 L28 -14 L22 0 L28 14 Z\" fill=\"#4FB6E8\" stroke=\"#2B3A4A\" stroke-width=\"4\" stroke-linejoin=\"round\"/>\n        <ellipse cx=\"-8\" cy=\"0\" rx=\"14\" ry=\"10\" fill=\"#4FB6E8\" stroke=\"#2B3A4A\" stroke-width=\"4\"/>\n        <circle cx=\"-12\" cy=\"-2\" r=\"2.5\" fill=\"#2B3A4A\"/>\n      </g>\n    </g>\n\n    <!-- front small wing holding? tucked -->\n    <path d=\"M460 420 Q500 430 520 470 Q525 500 500 520 Q470 530 440 510 Q420 470 460 420Z\" fill=\"#FFFFFF\" stroke=\"#2B3A4A\" stroke-width=\"6\" stroke-linejoin=\"round\"/>\n    <g fill=\"none\" stroke=\"#7A9BB5\" stroke-width=\"4\" stroke-linecap=\"round\">\n      <path d=\"M470 445 Q490 460 495 485\"/>\n      <path d=\"M460 460 Q478 474 482 496\"/>\n    </g>\n\n    <!-- scarf knot + flap over chest -->\n    <g>\n      <circle cx=\"548\" cy=\"342\" r=\"20\" fill=\"#E63946\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n      <path d=\"M555 360 Q570 400 560 435 Q555 450 540 448 Q525 445 530 425 Q535 395 542 362Z\" fill=\"#FF5A5A\" stroke=\"#2B3A4A\" stroke-width=\"5\" stroke-linejoin=\"round\"/>\n    </g>\n  </g>\n\n  <!-- dust puffs -->\n  <g fill=\"#FFFFFF\" stroke=\"#E6DCC8\" stroke-width=\"4\" opacity=\"0.95\">\n    <g>\n      <circle cx=\"210\" cy=\"600\" r=\"18\"/><circle cx=\"228\" cy=\"592\" r=\"13\"/><circle cx=\"194\" cy=\"592\" r=\"11\"/>\n    </g>\n    <g>\n      <circle cx=\"800\" cy=\"605\" r=\"15\"/><circle cx=\"815\" cy=\"598\" r=\"10\"/><circle cx=\"787\" cy=\"597\" r=\"9\"/>\n    </g>\n  </g>\n\n  <!-- badge -->\n  <g transform=\"translate(88,560) rotate(-8)\">\n    <circle cx=\"0\" cy=\"0\" r=\"52\" fill=\"#FFFDF0\" stroke=\"#2B3A4A\" stroke-width=\"6\"/>\n    <circle cx=\"0\" cy=\"0\" r=\"43\" fill=\"none\" stroke=\"#FF5A7A\" stroke-width=\"3\" stroke-dasharray=\"6 5\"/>\n    <text x=\"0\" y=\"-6\" text-anchor=\"middle\" font-family=\"Verdana, sans-serif\" font-size=\"16\" font-weight=\"bold\" fill=\"#2B3A4A\">SKATE</text>\n    <text x=\"0\" y=\"14\" text-anchor=\"middle\" font-family=\"Verdana, sans-serif\" font-size=\"16\" font-weight=\"bold\" fill=\"#E63946\">CLUB</text>\n    <text x=\"0\" y=\"30\" text-anchor=\"middle\" font-family=\"Verdana, sans-serif\" font-size=\"11\" fill=\"#2B3A4A\">\u2605 PELICAN \u2605</text>\n  </g>\n\n  <g transform=\"translate(500,668)\">\n    <rect x=\"-190\" y=\"-22\" width=\"380\" height=\"36\" rx=\"18\" fill=\"#2B3A4A\" opacity=\"0.85\"/>\n    <text x=\"0\" y=\"3\" text-anchor=\"middle\" font-family=\"Verdana, sans-serif\" font-size=\"20\" font-weight=\"bold\" fill=\"#FFFFFF\" letter-spacing=\"1\">PELICAN  SKATE  DAY  \u2600  SURFSIDE</text>\n  </g>\n</svg>"
+        }
+      ],
+      "isError": false,
+      "durationMs": 43,
+      "timestamp": 1791611899990
+    }
+  },
+  {
+    "type": "message",
+    "id": "3c38bbad",
+    "parentId": "8803334c",
+    "timestamp": "2026-10-10T05:58:33.424Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "Evaluating SVG rendering options and adjusting PNG badge placement to avoid overlap with deck and road elements."
+        },
+        {
+          "type": "text",
+          "text": "The raster preview needs a couple fixes \u2014 polishing those details.",
+          "textSignature": "{\"v\":1,\"id\":\"rs_01a124643869704a834f4736872a7fbe\",\"phase\":\"commentary\"}"
+        },
+        {
+          "type": "toolCall",
+          "id": "call_01a12464399d735096169316054b5a96|fc_01a12464399d735096169316054b5a96",
+          "name": "edit",
+          "arguments": {
+            "edits": [
+              {
+                "newText": "# badge (moved below deck so it doesn't read as a wheel) + star\nfill_circle(95,645,40,hexcol('#FFFDF0')); circle_outline(95,645,40,INK,5); circle_outline(95,645,32,hexcol('#FF5A7A'),3)\nfill_poly([(95,622),(101,637),(117,637),(104,646),(109,661),(95,652),(81,661),(86,646),(73,637),(89,637)],hexcol('#E63946'))\n# bottom banner with yellow trim (no text in raster)\nfill_rect(330,648,670,680,INK)\nfill_rect(330,648,670,654,hexcol('#FFD166'))",
+                "oldText": "# badge\nfill_circle(88,560,52,hexcol('#FFFDF0')); circle_outline(88,560,52,INK,6); circle_outline(88,560,43,hexcol('#FF5A7A'),3)\n# bottom banner\nfill_rect(310,646,690,682,INK)\n# (text omitted in raster - banner only)"
+              }
+            ],
+            "path": "make_art.py"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 27426,
+        "output": 605,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "reasoning": 243,
+        "totalTokens": 28031,
+        "cost": {
+          "input": 0.0027426000000000004,
+          "output": 0.00012100000000000001,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "total": 0.0028636000000000004
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611899993,
+      "responseId": "resp_6ac9d3fff0539069b6424c8e",
+      "rawStopReason": "completed",
+      "durationMs": 13431,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "57a7284d",
+    "parentId": "3c38bbad",
+    "timestamp": "2026-10-10T05:58:33.476Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a12464399d735096169316054b5a96|fc_01a12464399d735096169316054b5a96",
+      "toolName": "edit",
+      "content": [
+        {
+          "type": "text",
+          "text": "Successfully replaced 1 block(s) in make_art.py."
+        }
+      ],
+      "details": {
+        "diff": "     ...\n 216 \n 217 # dust\n 218 for cx,cy,r in [(210,600,18),(228,592,13),(194,592,11),(800,605,15),(815,598,10),(787,597,9)]:\n 219     fill_circle(cx,cy,r,hexcol('#FFFFFF')); circle_outline(cx,cy,r,hexcol('#E6DCC8'),3)\n-220 # badge\n-221 fill_circle(88,560,52,hexcol('#FFFDF0')); circle_outline(88,560,52,INK,6); circle_outline(88,560,43,hexcol('#FF5A7A'),3)\n-222 # bottom banner\n-223 fill_rect(310,646,690,682,INK)\n-224 # (text omitted in raster - banner only)\n+220 # badge (moved below deck so it doesn't read as a wheel) + star\n+221 fill_circle(95,645,40,hexcol('#FFFDF0')); circle_outline(95,645,40,INK,5); circle_outline(95,645,32,hexcol('#FF5A7A'),3)\n+222 fill_poly([(95,622),(101,637),(117,637),(104,646),(109,661),(95,652),(81,661),(86,646),(73,637),(89,637)],hexcol('#E63946'))\n+223 # bottom banner with yellow trim (no text in raster)\n+224 fill_rect(330,648,670,680,INK)\n+225 fill_rect(330,648,670,654,hexcol('#FFD166'))\n 225 \n 226 def save_png(path):\n 227     def chunk(t,d):\n 228         h=struct.pack('>I',len(d))+t+d\n     ...",
+        "patch": "--- make_art.py\n+++ make_art.py\n@@ -216,13 +216,14 @@\n \n # dust\n for cx,cy,r in [(210,600,18),(228,592,13),(194,592,11),(800,605,15),(815,598,10),(787,597,9)]:\n     fill_circle(cx,cy,r,hexcol('#FFFFFF')); circle_outline(cx,cy,r,hexcol('#E6DCC8'),3)\n-# badge\n-fill_circle(88,560,52,hexcol('#FFFDF0')); circle_outline(88,560,52,INK,6); circle_outline(88,560,43,hexcol('#FF5A7A'),3)\n-# bottom banner\n-fill_rect(310,646,690,682,INK)\n-# (text omitted in raster - banner only)\n+# badge (moved below deck so it doesn't read as a wheel) + star\n+fill_circle(95,645,40,hexcol('#FFFDF0')); circle_outline(95,645,40,INK,5); circle_outline(95,645,32,hexcol('#FF5A7A'),3)\n+fill_poly([(95,622),(101,637),(117,637),(104,646),(109,661),(95,652),(81,661),(86,646),(73,637),(89,637)],hexcol('#E63946'))\n+# bottom banner with yellow trim (no text in raster)\n+fill_rect(330,648,670,680,INK)\n+fill_rect(330,648,670,654,hexcol('#FFD166'))\n \n def save_png(path):\n     def chunk(t,d):\n         h=struct.pack('>I',len(d))+t+d\n",
+        "firstChangedLine": 220
+      },
+      "isError": false,
+      "durationMs": 49,
+      "timestamp": 1791611913476
+    }
+  },
+  {
+    "type": "message",
+    "id": "ece480a4",
+    "parentId": "57a7284d",
+    "timestamp": "2026-10-10T05:58:36.158Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_01a124644bd17573ba27cb3accd8b35f|fc_01a124644bd17573ba27cb3accd8b35f",
+          "name": "bash",
+          "arguments": {
+            "command": "python3 make_art.py\nffmpeg -y -hide_banner -loglevel error -loop 1 -i output/pelican-skateboard.png -vf \"scale=2000:1400,zoompan=z='1+0.10*on/150':x='iw/2-(iw/zoom/2)+20*sin(on/20)':y='ih/2-(ih/zoom/2)':d=150:s=1000x700:fps=25\" -t 6 -c:v libx264 -pix_fmt yuv420p -movflags +faststart output/pelican-skateboard.mp4\nls -lh output/"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 664,
+        "output": 182,
+        "cacheRead": 27377,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 28223,
+        "cost": {
+          "input": 6.64e-05,
+          "output": 3.6400000000000004e-05,
+          "cacheRead": 5.4754000000000005e-05,
+          "cacheWrite": 0,
+          "total": 0.00015755400000000002
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611913477,
+      "responseId": "resp_6ac9d40bd488e177ddac42a4",
+      "rawStopReason": "completed",
+      "durationMs": 2681,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "77469874",
+    "parentId": "ece480a4",
+    "timestamp": "2026-10-10T05:58:37.589Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a124644bd17573ba27cb3accd8b35f|fc_01a124644bd17573ba27cb3accd8b35f",
+      "toolName": "bash",
+      "content": [
+        {
+          "type": "text",
+          "text": "wrote output/pelican-skateboard.png 24341\ntotal 1256\n-rw-r--r--@ 1 fender  staff   583K Oct  9 22:58 pelican-skateboard.mp4\n-rw-r--r--@ 1 fender  staff    24K Oct  9 22:58 pelican-skateboard.png\n-rw-r--r--@ 1 fender  staff    17K Oct  9 22:56 pelican-skateboard.svg\n"
+        }
+      ],
+      "isError": false,
+      "durationMs": 1429,
+      "timestamp": 1791611917589
+    }
+  },
+  {
+    "type": "message",
+    "id": "a591c37c",
+    "parentId": "77469874",
+    "timestamp": "2026-10-10T05:58:40.809Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "call_01a124645f2d751291e1c6936777ab47|fc_01a124645f2d751291e1c6936777ab47",
+          "name": "read",
+          "arguments": {
+            "path": "output/pelican-skateboard.png"
+          }
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 341,
+        "output": 50,
+        "cacheRead": 28017,
+        "cacheWrite": 0,
+        "reasoning": 0,
+        "totalTokens": 28408,
+        "cost": {
+          "input": 3.41e-05,
+          "output": 1e-05,
+          "cacheRead": 5.6034000000000006e-05,
+          "cacheWrite": 0,
+          "total": 0.00010013400000000001
+        }
+      },
+      "stopReason": "toolUse",
+      "timestamp": 1791611917590,
+      "responseId": "resp_6ac9d41045c107e3d33e4479",
+      "rawStopReason": "completed",
+      "durationMs": 3219,
+      "thinkingLevel": "medium"
+    }
+  },
+  {
+    "type": "message",
+    "id": "9822ff62",
+    "parentId": "a591c37c",
+    "timestamp": "2026-10-10T05:58:40.885Z",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "call_01a124645f2d751291e1c6936777ab47|fc_01a124645f2d751291e1c6936777ab47",
+      "toolName": "read",
+      "content": [
+        {
+          "type": "text",
+          "text": "Read image file [image/png]"
+        },
+        {
+          "type": "image",
+          "data": "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",
+          "mimeType": "image/png"
+        }
+      ],
+      "isError": false,
+      "durationMs": 49,
+      "timestamp": 1791611920884
+    }
+  },
+  {
+    "type": "message",
+    "id": "8b21e781",
+    "parentId": "9822ff62",
+    "timestamp": "2026-10-10T05:58:50.510Z",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": ""
+        },
+        {
+          "type": "text",
+          "text": "Done! A cheerful cartoon pelican skateboarding along a sunny seaside road.\n\n**Files in `./output/` (3 files):**\n- `pelican-skateboard.svg` (17 KB) \u2014 hand-crafted vector master: white pelican with teal skate helmet, red scarf flowing, big orange beak + pink pouch with a little blue fish peeking out, one wing raised for balance, orange feet on a pink/orange lightning-bolt deck with pink wheels, plus sun with smiley face, clouds, seagulls, palms, sea, sand, road with speed lines, dust puffs, \"Skate Club\" badge and title banner.\n- `pelican-skateboard.png` (24 KB, 1000\u00d7700) \u2014 matching raster render generated with pure-Python stdlib (custom PNG writer in `make_art.py`, no packages).\n- `pelican-skateboard.mp4` (6 s, 1000\u00d7700, 25 fps, ~580 KB) \u2014 slow zoom-in / sway video made from the PNG with `ffmpeg zoompan`.\n\n**Source kept:** `make_art.py` (stdlib-only rasterizer + PNG encoder) and the SVG itself.",
+          "textSignature": "{\"v\":1,\"id\":\"msg_01a12464757570738965041878936c41\"}"
+        }
+      ],
+      "api": "openai-responses",
+      "provider": "meta",
+      "model": "muse-spark-1.3-contributor",
+      "usage": {
+        "input": 1065,
+        "output": 319,
+        "cacheRead": 28273,
+        "cacheWrite": 0,
+        "reasoning": 61,
+        "totalTokens": 29657,
+        "cost": {
+          "input": 0.00010650000000000001,
+          "output": 6.38e-05,
+          "cacheRead": 5.6546000000000004e-05,
+          "cacheWrite": 0,
+          "total": 0.00022684600000000003
+        }
+      },
+      "stopReason": "stop",
+      "timestamp": 1791611920886,
+      "responseId": "resp_6ac9d4146a1730c14ddd4995",
+      "rawStopReason": "completed",
+      "durationMs": 9624,
+      "thinkingLevel": "medium"
+    }
+  }
+]

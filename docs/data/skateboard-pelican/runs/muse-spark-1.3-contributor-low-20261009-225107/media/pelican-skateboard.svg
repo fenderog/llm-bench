@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#2E9BD6"/>
+<stop offset="0.55" stop-color="#7ED0F0"/>
+<stop offset="0.78" stop-color="#FFE9B8"/>
+<stop offset="1" stop-color="#FFD09A"/>
+</linearGradient>
+<linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#2AB7C2"/>
+<stop offset="1" stop-color="#1A7FA8"/>
+</linearGradient>
+<linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FFB84D"/>
+<stop offset="0.5" stop-color="#FF8C42"/>
+<stop offset="1" stop-color="#E56B2F"/>
+</linearGradient>
+<linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FFFFFF"/>
+<stop offset="0.7" stop-color="#E8EEF2"/>
+<stop offset="1" stop-color="#CBD6DE"/>
+</linearGradient>
+<linearGradient id="pouch" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FFB65C"/>
+<stop offset="1" stop-color="#F07F2E"/>
+</linearGradient>
+<linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FFF7C4"/>
+<stop offset="1" stop-color="#FFB300"/>
+</linearGradient>
+<filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+<feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0A3A5A" flood-opacity="0.25"/>
+</filter>
+</defs>
+
+<!-- background -->
+<rect width="1200" height="900" fill="url(#sky)"/>
+<circle cx="880" cy="420" r="110" fill="url(#sun)" opacity="0.95"/>
+<circle cx="880" cy="420" r="140" fill="#FFDD55" opacity="0.25"/>
+
+<!-- clouds -->
+<g fill="white" opacity="0.92">
+<ellipse cx="250" cy="180" rx="90" ry="32"/>
+<ellipse cx="310" cy="165" rx="70" ry="36"/>
+<ellipse cx="190" cy="165" rx="55" ry="28"/>
+<ellipse cx="950" cy="150" rx="80" ry="26"/>
+<ellipse cx="1000" cy="135" rx="60" ry="30"/>
+</g>
+<g fill="white" opacity="0.7">
+<ellipse cx="600" cy="120" rx="60" ry="20"/>
+<ellipse cx="640" cy="110" rx="45" ry="22"/>
+</g>
+
+<!-- distant birds -->
+<g stroke="#3A5A6B" stroke-width="4" fill="none" stroke-linecap="round">
+<path d="M500 200 q15 -15 30 0 q15 -15 30 0"/>
+<path d="M580 240 q10 -10 20 0 q10 -10 20 0"/>
+</g>
+
+<!-- sea -->
+<rect x="0" y="500" width="1200" height="90" fill="url(#sea)"/>
+<g stroke="white" stroke-width="3" opacity="0.6" stroke-linecap="round">
+<path d="M100 530 q30 -8 60 0 t60 0 t60 0"/>
+<path d="M700 555 q30 -8 60 0 t60 0"/>
+<path d="M400 560 q25 -7 50 0 t50 0"/>
+</g>
+
+<!-- boardwalk -->
+<rect x="0" y="590" width="1200" height="310" fill="#C9A87A"/>
+<rect x="0" y="590" width="1200" height="18" fill="#A9835A"/>
+<g stroke="#A9835A" stroke-width="4" opacity="0.8">
+<line x1="0" y1="670" x2="1200" y2="670"/>
+<line x1="0" y1="750" x2="1200" y2="750"/>
+<line x1="0" y1="830" x2="1200" y2="830"/>
+</g>
+<g stroke="#8A6A45" stroke-width="4" opacity="0.5">
+<line x1="150" y1="608" x2="150" y2="900"/>
+<line x1="350" y1="608" x2="350" y2="900"/>
+<line x1="550" y1="608" x2="550" y2="900"/>
+<line x1="750" y1="608" x2="750" y2="900"/>
+<line x1="950" y1="608" x2="950" y2="900"/>
+<line x1="1150" y1="608" x2="1150" y2="900"/>
+</g>
+
+<!-- speed lines -->
+<g stroke="white" stroke-width="10" stroke-linecap="round" opacity="0.55">
+<line x1="80" y1="620" x2="280" y2="620"/>
+<line x1="50" y1="670" x2="200" y2="670"/>
+<line x1="90" y1="720" x2="260" y2="720"/>
+</g>
+
+<!-- shadow -->
+<ellipse cx="600" cy="800" rx="280" ry="28" fill="#5A3E22" opacity="0.35"/>
+
+<!-- SKATEBOARD -->
+<g filter="url(#soft)">
+<!-- wheels back/front -->
+<g>
+<rect x="425" y="675" width="22" height="55" rx="6" fill="#7A7F85"/>
+<circle cx="436" cy="755" r="42" fill="#33373D"/>
+<circle cx="436" cy="755" r="28" fill="#FFD23F"/>
+<circle cx="436" cy="755" r="8" fill="#33373D"/>
+<rect x="770" y="675" width="22" height="55" rx="6" fill="#7A7F85"/>
+<circle cx="781" cy="755" r="42" fill="#33373D"/>
+<circle cx="781" cy="755" r="28" fill="#FFD23F"/>
+<circle cx="781" cy="755" r="8" fill="#33373D"/>
+</g>
+<!-- deck -->
+<g transform="rotate(-3 600 700)">
+<rect x="330" y="665" width="560" height="36" rx="18" fill="url(#deck)" stroke="#8A3B1A" stroke-width="4"/>
+<!-- deck stripe + bolts -->
+<rect x="350" y="674" width="520" height="8" rx="4" fill="#FFF3D6" opacity="0.7"/>
+<circle cx="380" cy="683" r="5" fill="#5A2A12"/>
+<circle cx="410" cy="683" r="5" fill="#5A2A12"/>
+<circle cx="810" cy="683" r="5" fill="#5A2A12"/>
+<circle cx="840" cy="683" r="5" fill="#5A2A12"/>
+<!-- flame decal -->
+<path d="M560 683 q20 -18 35 0 q15 -12 30 2 q-15 12 -35 10 q-20 2 -30 -12z" fill="#E63E21" opacity="0.9"/>
+</g>
+</g>
+
+<!-- PELICAN -->
+<g filter="url(#soft)">
+<!-- tail -->
+<path d="M420 520 L340 500 L360 540 L330 550 L420 560 Z" fill="#9FB3BF" stroke="#5A6E7A" stroke-width="4" stroke-linejoin="round"/>
+
+<!-- legs on board -->
+<g stroke="#FF8C42" stroke-width="22" stroke-linecap="round">
+<line x1="540" y1="620" x2="535" y2="670"/>
+<line x1="650" y1="620" x2="655" y2="670"/>
+</g>
+<g fill="#FF8C42" stroke="#B54A1A" stroke-width="3">
+<ellipse cx="535" cy="675" rx="32" ry="12"/>
+<ellipse cx="655" cy="675" rx="32" ry="12"/>
+<!-- toes -->
+<path d="M505 675 l-18 6 M565 675 l18 6 M625 675 l-18 6 M685 675 l18 6" stroke="#B54A1A" stroke-width="3" stroke-linecap="round"/>
+</g>
+
+<!-- body -->
+<ellipse cx="600" cy="520" rx="145" ry="125" fill="url(#body)" stroke="#5A6E7A" stroke-width="5"/>
+
+<!-- belly feather scallops -->
+<g fill="none" stroke="#B9C8D2" stroke-width="3" opacity="0.9">
+<path d="M510 540 q15 15 30 0 q15 15 30 0"/>
+<path d="M530 575 q15 15 30 0 q15 15 30 0"/>
+<path d="M570 605 q15 15 30 0 q15 15 30 0"/>
+</g>
+
+<!-- far wing (balancing back) -->
+<path d="M500 480 C420 440 350 430 300 450 C340 470 400 500 470 530 Z" fill="#D7E1E8" stroke="#5A6E7A" stroke-width="5" stroke-linejoin="round"/>
+
+<!-- near wing spread out -->
+<path d="M620 500 C700 440 800 420 880 440 C830 465 760 490 700 520 C750 520 800 530 830 550 C770 565 690 560 630 540 Z" fill="white" stroke="#5A6E7A" stroke-width="5" stroke-linejoin="round"/>
+<path d="M660 510 q40 -25 90 -30 M650 530 q50 -15 110 -10" stroke="#9FB3BF" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+<!-- neck + head -->
+<path d="M690 430 C710 360 740 300 800 280 L860 270 C840 310 820 360 810 430 Z" fill="white" stroke="#5A6E7A" stroke-width="5" stroke-linejoin="round"/>
+<circle cx="830" cy="250" r="62" fill="white" stroke="#5A6E7A" stroke-width="5"/>
+<!-- head crest -->
+<path d="M790 205 q-15 -30 10 -45 q5 20 20 25 q15 -10 30 5 q-25 15 -60 15z" fill="#9FB3BF" stroke="#5A6E7A" stroke-width="3" stroke-linejoin="round"/>
+
+<!-- eye -->
+<circle cx="845" cy="245" r="14" fill="white" stroke="#5A6E7A" stroke-width="3"/>
+<circle cx="848" cy="247" r="7" fill="#222"/>
+<circle cx="850" cy="245" r="2.5" fill="white"/>
+<!-- cool sunglasses? no, happy eye + blush -->
+<ellipse cx="875" cy="270" rx="10" ry="6" fill="#FF9AA2" opacity="0.8"/>
+
+<!-- BEAK + POUCH - the star -->
+<g>
+<!-- upper beak -->
+<path d="M875 235 L1060 290 L875 305 Z" fill="#FFB65C" stroke="#B54A1A" stroke-width="5" stroke-linejoin="round"/>
+<line x1="875" y1="270" x2="1060" y2="290" stroke="#B54A1A" stroke-width="3"/>
+<!-- nail tip -->
+<path d="M1060 290 q15 5 0 18 l-25 -8z" fill="#E63E21" stroke="#B54A1A" stroke-width="3"/>
+<!-- pouch hanging -->
+<path d="M875 305 C930 340 980 360 1040 308 C1020 360 950 400 890 350 Z" fill="url(#pouch)" stroke="#B54A1A" stroke-width="5" stroke-linejoin="round"/>
+<path d="M910 330 q30 20 70 15" stroke="#B54A1A" stroke-width="3" fill="none" opacity="0.5" stroke-linecap="round"/>
+</g>
+
+<!-- scarf blowing -->
+<path d="M710 380 C650 380 600 360 550 330 C570 360 620 400 700 410 Z" fill="#E63E21"/>
+<path d="M710 380 C660 395 610 395 570 380 C600 410 660 420 720 405 Z" fill="#B81F0F"/>
+<circle cx="715" cy="395" r="18" fill="#E63E21" stroke="#8A150A" stroke-width="3"/>
+<!-- helmet? little cap -->
+<path d="M785 200 A62 62 0 0 1 875 210 L870 225 Q830 205 790 220 Z" fill="#2EC4B6" stroke="#0E7C72" stroke-width="4"/>
+<rect x="825" y="155" width="14" height="30" rx="7" fill="#0E7C72"/>
+<circle cx="832" cy="155" r="10" fill="#FFD23F" stroke="#0E7C72" stroke-width="3"/>
+</g>
+
+<!-- motion puffs -->
+<g fill="white" opacity="0.8">
+<ellipse cx="280" cy="740" rx="28" ry="16"/>
+<ellipse cx="240" cy="750" rx="18" ry="12"/>
+<ellipse cx="320" cy="755" rx="15" ry="10"/>
+</g>
+
+<!-- title -->
+<g>
+<rect x="52" y="48" width="460" height="86" rx="20" fill="white" opacity="0.85"/>
+<text x="75" y="102" font-family="Verdana, Arial, sans-serif" font-size="42" font-weight="bold" fill="#1A4A62">PELICAN SKATE!</text>
+<text x="75" y="126" font-family="Verdana, Arial, sans-serif" font-size="18" fill="#E56B2F">beak • pouch • ollie — boardwalk cruisin'</text>
+</g>
+
+</svg>

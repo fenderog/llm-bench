@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Coast &amp; Roll — a pelican riding a skateboard</title>
+  <desc id="desc">A cheerful white pelican with a long golden bill and coral bandana rides a teal skateboard beside the sea. A sunny circle, rolling waves, and hand-drawn motion lines complete the coastal poster.</desc>
+  <defs>
+    <pattern id="paper" width="37" height="43" patternUnits="userSpaceOnUse">
+      <circle cx="5" cy="9" r=".8" fill="#b8a684" opacity=".2"/>
+      <circle cx="27" cy="31" r=".7" fill="#b8a684" opacity=".2"/>
+      <path d="M17 19h2M32 6h1" stroke="#b8a684" stroke-width=".7" opacity=".14"/>
+    </pattern>
+    <clipPath id="sunClip"><circle cx="516" cy="446" r="283"/></clipPath>
+    <style>
+      .outline{stroke:#203e45;stroke-width:7;stroke-linejoin:round;stroke-linecap:round}
+      .detail{fill:none;stroke:#203e45;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .type{font-family:'Avenir Next',Avenir,'Trebuchet MS',sans-serif;fill:#203e45}
+    </style>
+  </defs>
+  <!-- Warm, lightly flecked poster stock -->
+  <path fill="#f8f0db" d="M0 0h1000v1000H0z"/>
+  <path fill="url(#paper)" d="M0 0h1000v1000H0z"/>
+  <rect x="29" y="29" width="942" height="942" rx="22" fill="none" stroke="#203e45" stroke-width="2"/>
+  <text class="type" x="65" y="84" font-size="15" font-weight="700" letter-spacing="4">THE SEASIDE SERIES</text>
+  <text class="type" x="935" y="84" text-anchor="end" font-size="15" font-weight="700" letter-spacing="3">NO. 01</text>
+  <path d="M65 107H935" stroke="#203e45" stroke-width="1.5"/>
+  <text class="type" x="65" y="195" font-size="77" font-weight="900" letter-spacing="-3">COAST &amp; ROLL</text>
+  <text class="type" x="69" y="229" font-size="16" font-weight="600" letter-spacing="4.3">A LITTLE SALT. A LOT OF SOUL.</text>
+  <!-- Sun disk with a softly striped sea -->
+  <circle cx="516" cy="446" r="283" fill="#edbb63"/>
+  <g clip-path="url(#sunClip)">
+    <path d="M185 577Q254 552 323 578T461 578T599 578T737 578T875 578V742H185Z" fill="#96bcb5"/>
+    <path d="M187 605Q254 582 323 607T461 607T599 607T737 607T875 607" fill="none" stroke="#f8f0db" stroke-width="4" opacity=".65"/>
+    <path d="M179 646Q251 622 323 647T467 647T611 647T755 647T899 647" fill="none" stroke="#5c9391" stroke-width="4" opacity=".5"/>
+  </g>
+  <!-- Distant gulls and small sparkle -->
+  <path d="M730 275q13-14 26 0q13-14 26 0M805 314q9-10 18 0q9-10 18 0" fill="none" stroke="#203e45" stroke-width="4" stroke-linecap="round"/>
+  <path d="M214 367v27m-13-14h26" stroke="#f8f0db" stroke-width="5" stroke-linecap="round"/>
+  <path d="M846 472v20m-10-10h20" stroke="#c77943" stroke-width="3" stroke-linecap="round"/>
+  <!-- Speed marks behind the rider -->
+  <g fill="none" stroke="#203e45" stroke-width="5" stroke-linecap="round">
+    <path d="M152 542h91M175 568h53M140 595h70"/>
+    <path d="M179 754l44-5M147 778l66-5"/>
+  </g>
+  <!-- Ground and cast shadow -->
+  <ellipse cx="508" cy="833" rx="266" ry="23" fill="#203e45" opacity=".10"/>
+  <path d="M97 853H902" stroke="#203e45" stroke-width="2" stroke-linecap="round"/>
+  <path d="M734 868h87M204 868h37" stroke="#96bcb5" stroke-width="3" stroke-linecap="round"/>
+  <!-- Board wheels, axle housings, and deck -->
+  <g class="outline">
+    <path d="M355 777l4 22h31l4-24M624 756l4 23h31l4-27" fill="#c0ccc2"/>
+    <circle cx="375" cy="812" r="27" fill="#e99957"/>
+    <circle cx="648" cy="790" r="27" fill="#e99957"/>
+  </g>
+  <circle cx="375" cy="812" r="10" fill="#203e45"/>
+  <circle cx="648" cy="790" r="10" fill="#203e45"/>
+  <circle cx="375" cy="812" r="3" fill="#f8f0db"/>
+  <circle cx="648" cy="790" r="3" fill="#f8f0db"/>
+  <path class="outline" d="M254 739Q270 758 301 755L704 718Q732 715 750 694L758 705Q744 738 708 743L302 781Q270 784 251 760Q244 748 254 739Z" fill="#298386"/>
+  <path d="M267 747q16 18 43 15l393-36q25-2 40-17" fill="none" stroke="#f5cf82" stroke-width="5" stroke-linecap="round"/>
+  <path d="M319 745l365-33" stroke="#203e45" stroke-width="7" stroke-linecap="round"/>
+  <!-- Webbed feet, planted at opposite ends of the deck -->
+  <path class="outline" d="M424 650L414 710L385 733Q379 739 390 745L441 741Q449 739 443 731L434 715L445 656Z" fill="#e99a4c"/>
+  <path class="outline" d="M526 650L557 699L552 718L541 730Q536 738 548 737L599 732Q610 730 602 723L578 708L550 643Z" fill="#e99a4c"/>
+  <path d="M405 735l11-10 13 10M561 730l7-12 15 10" fill="none" stroke="#a96232" stroke-width="3" stroke-linecap="round"/>
+  <!-- Pelican silhouette: lifted tail, round body, elegant curved neck -->
+  <path class="outline" d="M340 548Q310 541 275 504Q271 499 273 515L280 560L251 548Q241 544 249 556L288 603Q316 662 389 677Q461 695 536 668Q604 644 613 588Q621 543 578 502Q549 474 548 427L550 351Q551 301 514 285Q478 268 448 292Q426 310 433 344Q443 384 463 419Q480 451 458 477Q430 504 393 517Z" fill="#fffbee"/>
+  <!-- Cool reflected light on the neck and belly -->
+  <path d="M479 357Q467 382 488 421Q514 467 480 503Q527 497 543 470Q530 443 532 414L534 361Z" fill="#d3e4dc"/>
+  <path d="M291 599Q327 650 395 660Q481 677 543 647Q585 627 593 585Q602 629 549 658Q480 689 401 672Q326 663 291 599Z" fill="#d3e4dc"/>
+  <!-- Swept wing with broad scalloped feathers -->
+  <path class="outline" d="M464 505Q413 496 369 528Q334 554 321 595Q333 604 348 590Q338 609 354 613Q369 616 382 602Q375 622 393 625Q410 625 427 610Q421 629 440 625Q482 618 514 578Q538 545 509 522Q490 508 464 505Z" fill="#a9c9c3"/>
+  <path class="detail" d="M350 588Q379 542 428 530M382 602Q412 557 460 542M427 610Q456 578 481 560"/>
+  <path d="M363 537Q399 511 438 517" fill="none" stroke="#e3eee3" stroke-width="7" stroke-linecap="round"/>
+  <!-- Wind-blown coral neckerchief -->
+  <path class="outline" d="M467 420Q443 438 421 438L387 421L399 448L377 466Q419 475 470 446Z" fill="#d9694e"/>
+  <path class="outline" d="M455 414Q499 427 544 410L549 431Q502 452 465 436Z" fill="#e57857"/>
+  <path d="M409 448l34-1" stroke="#a8493e" stroke-width="4" stroke-linecap="round"/>
+  <path d="M478 432l5 3m19-3 6-1m18-4 6-2" stroke="#ffe0ae" stroke-width="4" stroke-linecap="round"/>
+  <path class="outline" d="M462 417q-14 0-14 14q1 12 14 11q15-1 12-14q-1-10-12-11Z" fill="#e57857"/>
+  <!-- Crest and expressive face -->
+  <path class="outline" d="M445 298l-5-26q18 4 30 19m-9-12 4-17q18 10 22 24" fill="#fffbee"/>
+  <!-- Pelican pouch hangs below its exceptionally long bill -->
+  <path class="outline" d="M529 349L778 371Q746 392 696 421Q644 453 592 456Q553 458 540 426Q527 396 529 349Z" fill="#e7a351"/>
+  <path d="M550 379Q554 424 584 437Q615 449 653 432Q599 442 581 403Z" fill="#f3c477"/>
+  <path d="M555 385q67 20 147 5" fill="none" stroke="#c1843c" stroke-width="4" stroke-linecap="round"/>
+  <!-- Upper bill and tiny hooked tip -->
+  <path class="outline" d="M523 331Q582 329 651 340L780 362Q797 365 795 375L781 387L781 373Q665 378 531 364Q519 351 523 331Z" fill="#f6c65f"/>
+  <path d="M549 343l189 23" fill="none" stroke="#ffdf8d" stroke-width="5" stroke-linecap="round"/>
+  <path d="M532 363q99 11 248 10" fill="none" stroke="#203e45" stroke-width="4" stroke-linecap="round"/>
+  <path d="M555 347l7 1" stroke="#a47232" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="506" cy="323" rx="18" ry="20" fill="#edbb63"/>
+  <circle cx="509" cy="323" r="10" fill="#203e45"/>
+  <circle cx="512" cy="319" r="3.5" fill="#fffbee"/>
+  <path d="M487 300q12-8 23-3" class="detail"/>
+  <path d="M477 355q8 6 16 2" fill="none" stroke="#d3e4dc" stroke-width="5" stroke-linecap="round"/>
+  <!-- Little sparks of speed around the nose and board -->
+  <path d="M821 366l24-6M805 400l20 7M740 776l25 8" fill="none" stroke="#c77943" stroke-width="4" stroke-linecap="round"/>
+  <path d="M65 893H935" stroke="#203e45" stroke-width="1.5"/>
+  <text class="type" x="65" y="933" font-size="14" font-weight="700" letter-spacing="2.8">KEEP YOUR WINGS UP.</text>
+  <g transform="translate(505 928)" fill="none" stroke="#298386" stroke-width="3" stroke-linecap="round"><path d="M-35 0q9-9 18 0t18 0t18 0t18 0"/></g>
+  <text class="type" x="935" y="933" text-anchor="end" font-size="14" font-weight="700" letter-spacing="2.8">KEEP THE GOOD TIMES ROLLING.</text>
+</svg>

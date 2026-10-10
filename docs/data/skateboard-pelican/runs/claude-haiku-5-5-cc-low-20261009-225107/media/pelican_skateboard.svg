@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4fb3e8"/>
+      <stop offset="1" stop-color="#d4f1ff"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7c2"/>
+      <stop offset="1" stop-color="#fff7c2" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky and sun -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="660" cy="110" r="90" fill="url(#sun)"/>
+  <circle cx="660" cy="110" r="38" fill="#ffe27a"/>
+
+  <!-- Ground -->
+  <rect y="530" width="800" height="70" fill="#7bbf6a"/>
+  <rect y="526" width="800" height="6" fill="#5e9e50"/>
+
+  <!-- Speed lines -->
+  <g stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity="0.8">
+    <line x1="90" y1="380" x2="190" y2="380"/>
+    <line x1="60" y1="420" x2="170" y2="420"/>
+    <line x1="110" y1="460" x2="215" y2="460"/>
+  </g>
+
+  <!-- Board shadow -->
+  <ellipse cx="400" cy="526" rx="170" ry="8" fill="#000" opacity="0.18"/>
+
+  <!-- Skateboard -->
+  <g>
+    <!-- wheels -->
+    <circle cx="302" cy="512" r="11" fill="#222"/>
+    <circle cx="302" cy="512" r="4" fill="#ccc"/>
+    <circle cx="498" cy="512" r="11" fill="#222"/>
+    <circle cx="498" cy="512" r="4" fill="#ccc"/>
+    <!-- trucks -->
+    <rect x="290" y="496" width="24" height="6" rx="2" fill="#999"/>
+    <rect x="486" y="496" width="24" height="6" rx="2" fill="#999"/>
+    <!-- deck -->
+    <path d="M240,470 Q250,486 280,486 L520,486 Q550,486 560,470 Q565,478 550,490 L250,490 Q235,478 240,470 Z" fill="#d9472b"/>
+    <rect x="262" y="478" width="276" height="6" rx="3" fill="#f2a03d" opacity="0.8"/>
+  </g>
+
+  <!-- Pelican (leaning forward slightly) -->
+  <g transform="rotate(-8 400 350)">
+    <!-- tail -->
+    <path d="M318,340 L255,318 Q248,345 258,372 L320,372 Z" fill="#b5bfc9" stroke="#6f7c89" stroke-width="2"/>
+
+    <!-- legs -->
+    <path d="M380,400 L372,470" stroke="#f08c1e" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <path d="M415,402 L425,470" stroke="#f08c1e" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <!-- webbed feet -->
+    <path d="M352,470 L392,470 L380,480 L368,476 L356,482 Z" fill="#f08c1e"/>
+    <path d="M408,470 L446,470 L434,480 L422,476 L412,482 Z" fill="#f08c1e"/>
+
+    <!-- body -->
+    <ellipse cx="390" cy="350" rx="92" ry="58" fill="#f4f4f1" stroke="#8a939c" stroke-width="2"/>
+
+    <!-- wing -->
+    <path d="M320,330 Q360,270 440,300 Q420,340 350,380 Q325,372 320,330 Z" fill="#d3dbe2" stroke="#7a8794" stroke-width="2"/>
+    <path d="M345,340 Q375,320 415,318" stroke="#7a8794" stroke-width="2" fill="none"/>
+
+    <!-- neck -->
+    <path d="M440,320 Q465,290 470,262" stroke="#f4f4f1" stroke-width="40" stroke-linecap="round" fill="none"/>
+
+    <!-- head -->
+    <circle cx="478" cy="250" r="34" fill="#f4f4f1" stroke="#8a939c" stroke-width="2"/>
+
+    <!-- beak with pouch -->
+    <path d="M498,240 Q575,236 616,266 Q622,278 610,282 L506,268 Z" fill="#f2b233" stroke="#c97f12" stroke-width="2"/>
+    <path d="M506,268 L610,282 Q580,320 540,300 Q520,290 506,268 Z" fill="#e8861c" stroke="#c97f12" stroke-width="2"/>
+    <line x1="508" y1="262" x2="600" y2="274" stroke="#c97f12" stroke-width="2"/>
+
+    <!-- eye -->
+    <circle cx="488" cy="242" r="7" fill="#111"/>
+    <circle cx="490" cy="240" r="2.5" fill="#fff"/>
+  </g>
+
+  <!-- Title -->
+  <text x="400" y="575" font-family="Helvetica, Arial, sans-serif" font-size="22" text-anchor="middle" fill="#2b3a2b" opacity="0.85">Pelican on a skateboard</text>
+</svg>

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4aa3e8"/>
+      <stop offset="1" stop-color="#bfe6fb"/>
+    </linearGradient>
+    <linearGradient id="beak" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb02e"/>
+      <stop offset="1" stop-color="#f08a12"/>
+    </linearGradient>
+    <linearGradient id="pouch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffcf6b"/>
+      <stop offset="1" stop-color="#f4a02a"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e2453c"/>
+      <stop offset="1" stop-color="#ff7a45"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7c2"/>
+      <stop offset="1" stop-color="#fff7c2" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="650" cy="100" r="110" fill="url(#sun)"/>
+  <circle cx="650" cy="100" r="42" fill="#fff3a8"/>
+  <g fill="#fff" opacity="0.9">
+    <ellipse cx="140" cy="100" rx="60" ry="18"/><ellipse cx="180" cy="86" rx="40" ry="18"/><ellipse cx="105" cy="92" rx="34" ry="14"/>
+    <ellipse cx="430" cy="55" rx="50" ry="13"/><ellipse cx="460" cy="45" rx="30" ry="12"/>
+  </g>
+  <!-- distant hills -->
+  <path d="M0 440 Q120 380 250 430 T520 420 T800 410 V500 H0Z" fill="#8fc98f"/>
+  <!-- road -->
+  <rect y="486" width="800" height="114" fill="#5b5f6b"/>
+  <rect y="480" width="800" height="10" fill="#9aa0ab"/>
+  <g fill="#e9e9e9" opacity="0.8">
+    <rect x="30" y="555" width="90" height="8" rx="3"/><rect x="240" y="555" width="90" height="8" rx="3"/>
+    <rect x="450" y="555" width="90" height="8" rx="3"/><rect x="660" y="555" width="90" height="8" rx="3"/>
+  </g>
+
+  <!-- speed lines -->
+  <g stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.8">
+    <path d="M60 300 H170"/><path d="M30 345 H140"/><path d="M80 390 H180"/><path d="M110 250 H190"/>
+  </g>
+
+  <!-- shadow -->
+  <ellipse cx="400" cy="500" rx="190" ry="12" fill="#000" opacity="0.28"/>
+
+  <!-- skateboard -->
+  <g>
+    <!-- trucks -->
+    <rect x="276" y="448" width="30" height="10" rx="3" fill="#8a8f98"/>
+    <rect x="494" y="448" width="30" height="10" rx="3" fill="#8a8f98"/>
+    <!-- wheels -->
+    <g>
+      <circle cx="291" cy="468" r="20" fill="#2d2f36"/><circle cx="291" cy="468" r="10" fill="#f5d547"/><circle cx="291" cy="468" r="3.5" fill="#2d2f36"/>
+      <circle cx="509" cy="468" r="20" fill="#2d2f36"/><circle cx="509" cy="468" r="10" fill="#f5d547"/><circle cx="509" cy="468" r="3.5" fill="#2d2f36"/>
+    </g>
+    <!-- deck -->
+    <path d="M205 420 Q215 438 245 440 H555 Q585 438 595 420 Q597 414 590 418 Q570 428 548 428 H252 Q230 428 210 418 Q203 414 205 420Z" fill="url(#deck)" stroke="#8c2620" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M250 432 H550" stroke="#fff" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- legs -->
+  <g stroke="#f08a12" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M368 370 L356 418"/>
+    <path d="M432 372 L450 418"/>
+  </g>
+  <!-- feet -->
+  <g fill="#f08a12" stroke="#b9650a" stroke-width="2" stroke-linejoin="round">
+    <path d="M338 420 Q352 410 380 420 Q384 427 376 428 H340Z"/>
+    <path d="M432 420 Q448 410 478 420 Q482 427 474 428 H436Z"/>
+  </g>
+
+  <g transform="translate(0,-24)">
+  <!-- tail feathers -->
+  <path d="M300 330 Q240 330 205 372 Q250 370 262 384 Q285 378 300 375Z" fill="#cfd8e0" stroke="#7b8896" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- body -->
+  <ellipse cx="400" cy="335" rx="130" ry="78" transform="rotate(-6 400 335)" fill="#f7fafc" stroke="#7b8896" stroke-width="3"/>
+  <!-- belly shade -->
+  <path d="M290 355 Q400 420 520 350 Q500 405 400 410 Q310 405 290 355Z" fill="#dfe7ee" opacity="0.8"/>
+
+  <!-- neck (S curve) -->
+  <path d="M470 300 Q535 290 520 240 Q505 205 520 180 L568 182 Q560 215 572 250 Q585 310 520 355 Q490 365 470 360Z" fill="#f7fafc" stroke="#7b8896" stroke-width="3" stroke-linejoin="round"/>
+
+  <path d="M462 296 L505 300 L505 362 L462 362Z" fill="#f7fafc"/>
+  <!-- wing -->
+  <path d="M310 305 Q370 265 450 295 Q480 315 470 345 Q430 385 360 372 Q315 360 295 335Z" fill="#aab6c4" stroke="#5f6d7c" stroke-width="3" stroke-linejoin="round"/>
+  <g stroke="#5f6d7c" stroke-width="2.5" fill="none" stroke-linecap="round">
+    <path d="M335 320 Q390 300 440 318"/>
+    <path d="M340 340 Q395 322 455 338"/>
+    <path d="M355 358 Q400 345 450 356"/>
+  </g>
+
+  <!-- head -->
+  <ellipse cx="545" cy="160" rx="36" ry="32" fill="#f7fafc" stroke="#7b8896" stroke-width="3"/>
+  <!-- crest tuft -->
+  <path d="M520 135 Q505 118 492 122 Q505 112 520 120 Q512 108 504 100 Q528 102 538 128Z" fill="#f7fafc" stroke="#7b8896" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <!-- beak: lower pouch -->
+  <path d="M552 172 Q600 215 700 196 Q640 176 575 172Z" fill="url(#pouch)" stroke="#b9650a" stroke-width="3" stroke-linejoin="round"/>
+  <!-- beak: upper -->
+  <path d="M560 148 Q640 150 735 184 Q738 190 728 190 Q640 182 556 176Z" fill="url(#beak)" stroke="#b9650a" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M728 180 Q740 178 738 190 Q732 194 724 190Z" fill="#d9660a"/>
+  <path d="M570 160 Q640 166 715 184" stroke="#b9650a" stroke-width="2" fill="none" opacity="0.7"/>
+  <circle cx="595" cy="158" r="2.5" fill="#b9650a"/>
+
+  <!-- eye -->
+  <circle cx="550" cy="150" r="9" fill="#fff" stroke="#3a3f48" stroke-width="2"/>
+  <circle cx="553" cy="150" r="5" fill="#16181d"/>
+  <circle cx="555" cy="148" r="1.8" fill="#fff"/>
+  <!-- cheek blush -->
+  <ellipse cx="535" cy="172" rx="9" ry="5" fill="#ffb3a7" opacity="0.6"/>
+  <!-- brow for determination -->
+  <path d="M540 138 Q552 134 562 140" stroke="#3a3f48" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+  <title>Coastal Cruiser — a pelican riding a skateboard</title>
+  <desc>A jaunty white pelican with a long coral bill balances on a teal skateboard, against a sunny cream coastal poster background.</desc>
+  <defs>
+    <pattern id="grain" width="37" height="41" patternUnits="userSpaceOnUse"><circle cx="4" cy="9" r=".8" fill="#193c46" opacity=".07"/><circle cx="26" cy="31" r=".7" fill="#193c46" opacity=".06"/></pattern>
+    <pattern id="grip" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1" fill="#fff0cc" opacity=".35"/></pattern>
+  </defs>
+  <rect width="1000" height="1000" fill="#f6edda"/>
+  <rect x="28" y="28" width="944" height="944" rx="24" fill="none" stroke="#203f48" stroke-width="2"/>
+  <g fill="#203f48" font-family="Arial, Helvetica, sans-serif">
+    <text x="66" y="91" font-size="17" font-weight="700" letter-spacing="5">THE GOOD LIFE / VOL. 01</text>
+    <text x="64" y="181" font-size="78" font-weight="900" letter-spacing="-4">COASTAL CRUISER</text>
+    <text x="68" y="219" font-size="18" letter-spacing="4">LESS FLAPPING. MORE ROLLING.</text>
+  </g>
+  <circle cx="666" cy="477" r="209" fill="#efb94f"/>
+  <path d="M480 585 Q655 492 853 578 L865 624 Q648 546 480 624Z" fill="#e7a941"/>
+  <g fill="none" stroke="#203f48" stroke-width="4" stroke-linecap="round">
+    <path d="M778 291q16-17 32 0q16-17 32 0"/><path d="M847 331q10-11 20 0q10-11 20 0"/>
+  </g>
+  <path d="M74 744 Q270 702 451 742 T924 724" fill="none" stroke="#c8d3bc" stroke-width="3"/>
+  <path d="M72 791 Q219 770 348 791" fill="none" stroke="#c8d3bc" stroke-width="3"/>
+  <ellipse cx="496" cy="834" rx="291" ry="23" fill="#203f48" opacity=".12"/>
+  <!-- speed marks -->
+  <g stroke="#203f48" stroke-width="5" stroke-linecap="round"><path d="M150 643h91M116 663h78M174 685h42"/><path d="M134 795h95M184 817h34"/></g>
+  <!-- tail and lifted wing -->
+  <g stroke="#203f48" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M370 567 L252 526 L272 571 L240 570 L291 605 L268 614 Q335 631 400 608" fill="#fffaf0"/>
+    <path d="M430 502 Q371 422 310 378 Q291 364 282 378 L322 426 Q261 389 249 410 Q238 425 300 473 Q239 444 232 465 Q229 486 312 530 L401 568" fill="#fffaf0"/>
+    <path d="M317 446l46 42M302 477l42 26" fill="none" stroke="#b2c7c5" stroke-width="4"/>
+    <!-- body and long curved neck -->
+    <path d="M371 486 Q326 511 335 573 Q342 651 438 653 Q538 654 572 596 Q597 552 574 506 Q552 461 574 417 Q592 391 626 389 Q654 386 663 358 Q675 316 641 296 Q609 276 575 299 Q541 322 531 368 L508 443 Q487 476 452 480 Q407 475 371 486Z" fill="#fffaf0"/>
+    <path d="M351 589 Q403 635 468 616 Q525 598 545 556 Q561 574 544 608 Q506 659 437 652 Q370 649 351 589Z" fill="#d8e3db" stroke="none"/>
+    <path d="M558 368 Q544 413 555 450" fill="none" stroke="#b2c7c5" stroke-width="4"/>
+    <!-- swept-back wing -->
+    <path d="M451 506 Q491 527 470 560 Q440 605 373 593 L316 571 Q351 572 362 561 L324 540 Q365 549 378 537 L353 518 Q390 530 408 518 Q429 499 451 506Z" fill="#e9efe6"/>
+    <path d="M378 537q34 24 68 8M362 561q40 22 72 4" stroke="#91adaa" stroke-width="4" fill="none"/>
+    <!-- expressive brow and eye -->
+    <path d="M605 315q16-10 30 1" fill="none" stroke-width="4"/>
+    <circle cx="622" cy="334" r="10" fill="#203f48" stroke="none"/>
+    <circle cx="625" cy="331" r="3" fill="#fffaf0" stroke="none"/>
+    <!-- unmistakable long bill and hanging pouch -->
+    <path d="M646 350 L848 395 Q829 449 760 464 Q687 480 637 393Z" fill="#ed9659"/>
+    <path d="M657 393 Q689 450 749 449 Q788 448 814 426" fill="none" stroke="#cf7146" stroke-width="4"/>
+    <path d="M645 347 Q743 344 866 394 Q872 398 861 403 L645 378 Q633 362 645 347Z" fill="#f3bd62"/>
+    <path d="M661 363L837 391" fill="none" stroke="#d48642" stroke-width="3"/>
+    <path d="M638 383q2 14 15 23" fill="none" stroke-width="3"/>
+    <!-- bent legs and webbed feet -->
+    <path d="M424 640 L408 685 L452 720 L441 748" fill="none" stroke="#203f48" stroke-width="17"/>
+    <path d="M424 640 L408 685 L452 720 L441 748" fill="none" stroke="#e8a44e" stroke-width="8"/>
+    <path d="M520 623 L531 681 L576 710 L566 730" fill="none" stroke="#203f48" stroke-width="17"/>
+    <path d="M520 623 L531 681 L576 710 L566 730" fill="none" stroke="#e8a44e" stroke-width="8"/>
+  </g>
+  <!-- skateboard, tilted nose up -->
+  <g transform="rotate(-9 501 774)" stroke="#203f48" stroke-linejoin="round">
+    <g stroke-width="6">
+      <path d="M369 788v24h29v-24M607 788v24h29v-24" fill="#a3b3ab"/>
+      <circle cx="383" cy="824" r="27" fill="#203f48"/><circle cx="383" cy="824" r="15" fill="#f5c269"/><circle cx="383" cy="824" r="5" fill="#203f48" stroke="none"/>
+      <circle cx="622" cy="824" r="27" fill="#203f48"/><circle cx="622" cy="824" r="15" fill="#f5c269"/><circle cx="622" cy="824" r="5" fill="#203f48" stroke="none"/>
+      <path d="M269 761 Q295 781 330 780 L677 780 Q710 780 738 758 L736 780 Q710 799 680 799 L327 799 Q287 798 270 780Z" fill="#eda15d"/>
+      <path d="M269 761 Q295 743 336 747 L674 747 Q713 744 738 758 Q711 779 677 780 L330 780 Q295 780 269 761Z" fill="#2c7c7c"/>
+    </g>
+    <path d="M302 760 Q317 756 338 757H674q20-2 33 2q-17 10-33 10H337q-24 0-35-9Z" fill="url(#grip)" stroke="none"/>
+    <g stroke-width="2" fill="#f6edda"><circle cx="373" cy="759" r="3"/><circle cx="393" cy="759" r="3"/><circle cx="611" cy="759" r="3"/><circle cx="631" cy="759" r="3"/></g>
+  </g>
+  <g stroke="#203f48" stroke-width="5" stroke-linejoin="round" fill="#e8a44e">
+    <path d="M436 738 Q447 733 456 741 L484 750 L455 758 L418 754Z"/>
+    <path d="M562 720 Q572 714 581 722 L609 731 L581 739 L548 735Z"/>
+    <path d="M451 743l4 15M576 724l5 15" fill="none" stroke-width="2"/>
+  </g>
+  <g fill="#203f48" font-family="Arial, Helvetica, sans-serif">
+    <text x="67" y="923" font-size="15" letter-spacing="3">SALT AIR • SOFT WHEELS • NO WORRIES</text>
+    <text x="932" y="923" text-anchor="end" font-size="15" font-weight="700" letter-spacing="2">EST. SUNNY DAYS</text>
+  </g>
+  <rect width="1000" height="1000" fill="url(#grain)" pointer-events="none"/>
+</svg>

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fd0ff"/>
+      <stop offset="0.7" stop-color="#d4f1ff"/>
+      <stop offset="1" stop-color="#fff3d6"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0573b"/>
+      <stop offset="1" stop-color="#a83a25"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dfe6ea"/>
+    </linearGradient>
+    <linearGradient id="asphalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5d626b"/>
+      <stop offset="1" stop-color="#3b3f47"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky and sun -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="660" cy="110" r="52" fill="#ffd45e"/>
+  <circle cx="660" cy="110" r="70" fill="#ffd45e" opacity="0.25"/>
+
+  <!-- Clouds -->
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="150" cy="95" rx="55" ry="18"/>
+    <ellipse cx="180" cy="82" rx="36" ry="20"/>
+    <ellipse cx="420" cy="60" rx="48" ry="15"/>
+    <ellipse cx="445" cy="50" rx="30" ry="16"/>
+  </g>
+
+  <!-- Distant hills -->
+  <path d="M0 400 Q120 330 260 390 T520 380 T800 360 L800 512 L0 512 Z" fill="#9fdc9a"/>
+  <path d="M0 440 Q160 395 330 445 T800 430 L800 512 L0 512 Z" fill="#7cc87c"/>
+
+  <!-- Ground -->
+  <rect x="0" y="512" width="800" height="88" fill="url(#asphalt)"/>
+  <rect x="0" y="512" width="800" height="6" fill="#c9ccd1"/>
+  <g fill="#f4d35e">
+    <rect x="30" y="556" width="70" height="7" rx="3"/>
+    <rect x="160" y="556" width="70" height="7" rx="3"/>
+    <rect x="290" y="556" width="70" height="7" rx="3"/>
+    <rect x="420" y="556" width="70" height="7" rx="3"/>
+    <rect x="550" y="556" width="70" height="7" rx="3"/>
+    <rect x="680" y="556" width="70" height="7" rx="3"/>
+  </g>
+
+  <!-- Speed lines -->
+  <g stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.8">
+    <line x1="60" y1="330" x2="170" y2="330"/>
+    <line x1="90" y1="365" x2="200" y2="365"/>
+    <line x1="40" y1="400" x2="150" y2="400"/>
+    <line x1="110" y1="438" x2="210" y2="438"/>
+  </g>
+
+  <!-- Pelican tail -->
+  <path d="M280 392 L200 372 L214 404 L286 416 Z" fill="#8b98a6" stroke="#4a5562" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- Pelican legs -->
+  <g stroke="#f08c2e" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M340 414 L346 468"/>
+    <path d="M384 418 L392 468"/>
+  </g>
+
+  <!-- Pelican body -->
+  <ellipse cx="362" cy="366" rx="100" ry="58" transform="rotate(-18 362 366)" fill="url(#body)" stroke="#4a5562" stroke-width="3"/>
+
+  <!-- Neck -->
+  <path d="M410 330 Q440 300 452 262 L486 268 Q474 318 446 362 Z" fill="#ffffff" stroke="#4a5562" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- Folded wing -->
+  <path d="M322 332 Q372 300 420 336 Q384 378 298 404 Q258 410 250 394 Q288 362 322 332 Z" fill="#9aa7b5" stroke="#4a5562" stroke-width="3" stroke-linejoin="round"/>
+  <g stroke="#5f6c7a" stroke-width="2.5" fill="none" stroke-linecap="round">
+    <path d="M330 350 Q300 372 262 392"/>
+    <path d="M356 340 Q326 368 282 396"/>
+    <path d="M384 346 Q352 374 304 400"/>
+  </g>
+
+  <!-- Head -->
+  <circle cx="478" cy="236" r="28" fill="#ffffff" stroke="#4a5562" stroke-width="3"/>
+
+  <!-- Bill pouch -->
+  <path d="M498 252 Q556 258 584 296 Q558 302 530 278 Q508 268 496 256 Z" fill="#e8892a" stroke="#8a4b12" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <!-- Upper bill -->
+  <path d="M488 222 L614 250 Q620 258 612 262 L492 244 Z" fill="#f7b538" stroke="#8a4b12" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <!-- Eye -->
+  <circle cx="486" cy="228" r="7" fill="#ffffff" stroke="#4a5562" stroke-width="2"/>
+  <circle cx="488" cy="229" r="3.5" fill="#1d1f24"/>
+  <path d="M474 220 Q482 214 492 220" stroke="#4a5562" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Skateboard -->
+  <!-- Trucks -->
+  <g fill="#9aa3ad" stroke="#4a5562" stroke-width="2">
+    <rect x="302" y="482" width="22" height="8" rx="2"/>
+    <rect x="444" y="482" width="22" height="8" rx="2"/>
+  </g>
+  <!-- Wheels -->
+  <g fill="#f3f3f3" stroke="#2b2e34" stroke-width="3">
+    <circle cx="313" cy="500" r="12"/>
+    <circle cx="455" cy="500" r="12"/>
+  </g>
+  <g fill="#2b2e34">
+    <circle cx="313" cy="500" r="3.5"/>
+    <circle cx="455" cy="500" r="3.5"/>
+  </g>
+  <!-- Deck with kicked tips -->
+  <path d="M262 474 Q262 464 274 464 L484 464 Q500 464 500 474 Q500 484 486 484 L276 484 Q262 484 262 474 Z" fill="url(#deck)" stroke="#6e2616" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M278 474 L484 474" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.35"/>
+
+  <!-- Feet gripping the deck -->
+  <g fill="#f08c2e" stroke="#8a4b12" stroke-width="2" stroke-linejoin="round">
+    <path d="M330 464 L352 464 Q360 464 352 470 L330 470 Z"/>
+    <path d="M376 464 L398 464 Q406 464 398 470 L376 470 Z"/>
+  </g>
+</svg>

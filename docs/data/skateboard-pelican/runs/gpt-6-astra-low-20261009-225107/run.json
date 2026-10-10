@@ -1,0 +1,48 @@
+{
+  "id": "gpt-6-astra-low-20261009-225107",
+  "page": "skateboard-pelican",
+  "model": "openai-codex/gpt-6-astra",
+  "effort": "low",
+  "kind": "media",
+  "started_at": "2026-10-10T05:52:02Z",
+  "batch": "2026-10-09-225107-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 64972,
+    "cost_usd": 0.1616,
+    "tool_calls": 1,
+    "turns": 2,
+    "tokens_total": 6304,
+    "tokens_input": 3872,
+    "tokens_output": 2432,
+    "tokens_reasoning": 0,
+    "tokens_cache_read": 1280
+  },
+  "thumb": "media/pelican-skate.svg",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 1200,
+        "height": 1200,
+        "bytes": 5663,
+        "path": "media/pelican-skate.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": null
+}

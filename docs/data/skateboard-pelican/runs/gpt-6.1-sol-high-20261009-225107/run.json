@@ -1,0 +1,48 @@
+{
+  "id": "gpt-6.1-sol-high-20261009-225107",
+  "page": "skateboard-pelican",
+  "model": "openai-codex/gpt-6.1-sol",
+  "effort": "high",
+  "kind": "media",
+  "started_at": "2026-10-10T05:51:52Z",
+  "batch": "2026-10-09-225107-skateboard-pelican",
+  "harness": {
+    "name": "pi",
+    "version": "1.1.0"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 139201,
+    "cost_usd": 0.07599360000000002,
+    "tool_calls": 4,
+    "turns": 5,
+    "tokens_total": 13720,
+    "tokens_input": 7862,
+    "tokens_output": 5858,
+    "tokens_reasoning": 1303,
+    "tokens_cache_read": 16896
+  },
+  "thumb": "media/coast-cruiser.svg",
+  "output": {
+    "kind": "media",
+    "items": [
+      {
+        "type": "image",
+        "width": 1400,
+        "height": 1100,
+        "bytes": 9436,
+        "path": "media/coast-cruiser.svg"
+      }
+    ],
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "stderr": "session/stderr.txt"
+  },
+  "source": null
+}

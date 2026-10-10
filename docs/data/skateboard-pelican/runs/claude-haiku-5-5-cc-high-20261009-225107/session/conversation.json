@@ -1,0 +1,328 @@
+[
+  {
+    "type": "session",
+    "cwd": "<vol>/dev/bench-runs/2026-10-09-225107-skateboard-pelican/claude-haiku-5-5-cc-high-20261009-225107/work",
+    "timestamp": "2026-10-10T05:53:54.527Z"
+  },
+  {
+    "type": "model_change",
+    "provider": "anthropic",
+    "modelId": "claude-haiku-5-5"
+  },
+  {
+    "type": "thinking_level_change",
+    "thinkingLevel": "high"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Create an SVG illustration of a pelican riding a skateboard\n\nDeliver the result as image and/or video files, working in the current directory.\n- Save the finished files in ./output/. Only what is in ./output/ is published as the result.\n- Formats: images as .png, .jpg, .webp, .gif or .svg; videos as .mp4 or .webm. At most 8 files,\n  each under 2 MB; videos at most 10 seconds.\n- Tools available on this machine: python3 3.9.6 (standard library only), node 26.11.1 (no npm packages), ffmpeg 9.0.2, ffprobe 9.0.2. Don't install packages or download anything.\n- Keep any code you write to make the files (it's published as the source), but delete\n  intermediate files such as rendered frames when you're done.\n- Only create or edit files inside the current directory.\n- Finish with a short summary of what you made.\n"
+        }
+      ]
+    },
+    "timestamp": "2026-10-10T05:53:54.527Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "toolu_01ER46ipCeYvwDe83BarHtDR",
+          "name": "bash",
+          "arguments": {
+            "command": "mkdir -p ./output && ls -la ./output"
+          }
+        }
+      ],
+      "usage": {
+        "input": 2,
+        "output": 2,
+        "cacheRead": 7325,
+        "cacheWrite": 377,
+        "totalTokens": 7706
+      },
+      "stopReason": null
+    },
+    "timestamp": "2026-10-10T05:53:54.527Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "toolu_01ER46ipCeYvwDe83BarHtDR",
+      "content": [
+        {
+          "type": "text",
+          "text": "total 0\ndrwxr-xr-x@ 2 fender  staff    64B Oct  9 22:53 .\ndrwxr-xr-x@ 3 fender  staff    96B Oct  9 22:53 .."
+        }
+      ],
+      "isError": false,
+      "durationMs": 116
+    },
+    "timestamp": "2026-10-10T05:53:54.858Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "toolu_01VyeCEQWmA2HXUWN3wNaaFd",
+          "name": "write",
+          "arguments": {
+            "path": "output/pelican-skateboard.svg",
+            "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 600\" width=\"800\" height=\"600\">\n  <defs>\n    <linearGradient id=\"sky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#7fd0ff\"/>\n      <stop offset=\"0.7\" stop-color=\"#d4f1ff\"/>\n      <stop offset=\"1\" stop-color=\"#fff3d6\"/>\n    </linearGradient>\n    <linearGradient id=\"deck\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#e0573b\"/>\n      <stop offset=\"1\" stop-color=\"#a83a25\"/>\n    </linearGradient>\n    <linearGradient id=\"body\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#ffffff\"/>\n      <stop offset=\"1\" stop-color=\"#dfe6ea\"/>\n    </linearGradient>\n    <linearGradient id=\"asphalt\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\">\n      <stop offset=\"0\" stop-color=\"#5d626b\"/>\n      <stop offset=\"1\" stop-color=\"#3b3f47\"/>\n    </linearGradient>\n  </defs>\n\n  <!-- Sky and sun -->\n  <rect width=\"800\" height=\"600\" fill=\"url(#sky)\"/>\n  <circle cx=\"660\" cy=\"110\" r=\"52\" fill=\"#ffd45e\"/>\n  <circle cx=\"660\" cy=\"110\" r=\"70\" fill=\"#ffd45e\" opacity=\"0.25\"/>\n\n  <!-- Clouds -->\n  <g fill=\"#ffffff\" opacity=\"0.9\">\n    <ellipse cx=\"150\" cy=\"95\" rx=\"55\" ry=\"18\"/>\n    <ellipse cx=\"180\" cy=\"82\" rx=\"36\" ry=\"20\"/>\n    <ellipse cx=\"420\" cy=\"60\" rx=\"48\" ry=\"15\"/>\n    <ellipse cx=\"445\" cy=\"50\" rx=\"30\" ry=\"16\"/>\n  </g>\n\n  <!-- Distant hills -->\n  <path d=\"M0 400 Q120 330 260 390 T520 380 T800 360 L800 512 L0 512 Z\" fill=\"#9fdc9a\"/>\n  <path d=\"M0 440 Q160 395 330 445 T800 430 L800 512 L0 512 Z\" fill=\"#7cc87c\"/>\n\n  <!-- Ground -->\n  <rect x=\"0\" y=\"512\" width=\"800\" height=\"88\" fill=\"url(#asphalt)\"/>\n  <rect x=\"0\" y=\"512\" width=\"800\" height=\"6\" fill=\"#c9ccd1\"/>\n  <g fill=\"#f4d35e\">\n    <rect x=\"30\" y=\"556\" width=\"70\" height=\"7\" rx=\"3\"/>\n    <rect x=\"160\" y=\"556\" width=\"70\" height=\"7\" rx=\"3\"/>\n    <rect x=\"290\" y=\"556\" width=\"70\" height=\"7\" rx=\"3\"/>\n    <rect x=\"420\" y=\"556\" width=\"70\" height=\"7\" rx=\"3\"/>\n    <rect x=\"550\" y=\"556\" width=\"70\" height=\"7\" rx=\"3\"/>\n    <rect x=\"680\" y=\"556\" width=\"70\" height=\"7\" rx=\"3\"/>\n  </g>\n\n  <!-- Speed lines -->\n  <g stroke=\"#ffffff\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.8\">\n    <line x1=\"60\" y1=\"330\" x2=\"170\" y2=\"330\"/>\n    <line x1=\"90\" y1=\"365\" x2=\"200\" y2=\"365\"/>\n    <line x1=\"40\" y1=\"400\" x2=\"150\" y2=\"400\"/>\n    <line x1=\"110\" y1=\"438\" x2=\"210\" y2=\"438\"/>\n  </g>\n\n  <!-- Pelican tail -->\n  <path d=\"M280 392 L200 372 L214 404 L286 416 Z\" fill=\"#8b98a6\" stroke=\"#4a5562\" stroke-width=\"3\" stroke-linejoin=\"round\"/>\n\n  <!-- Pelican legs -->\n  <g stroke=\"#f08c2e\" stroke-width=\"9\" stroke-linecap=\"round\" fill=\"none\">\n    <path d=\"M340 414 L346 468\"/>\n    <path d=\"M384 418 L392 468\"/>\n  </g>\n\n  <!-- Pelican body -->\n  <ellipse cx=\"362\" cy=\"366\" rx=\"100\" ry=\"58\" transform=\"rotate(-18 362 366)\" fill=\"url(#body)\" stroke=\"#4a5562\" stroke-width=\"3\"/>\n\n  <!-- Neck -->\n  <path d=\"M410 330 Q440 300 452 262 L486 268 Q474 318 446 362 Z\" fill=\"#ffffff\" stroke=\"#4a5562\" stroke-width=\"3\" stroke-linejoin=\"round\"/>\n\n  <!-- Folded wing -->\n  <path d=\"M322 332 Q372 300 420 336 Q384 378 298 404 Q258 410 250 394 Q288 362 322 332 Z\" fill=\"#9aa7b5\" stroke=\"#4a5562\" stroke-width=\"3\" stroke-linejoin=\"round\"/>\n  <g stroke=\"#5f6c7a\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\">\n    <path d=\"M330 350 Q300 372 262 392\"/>\n    <path d=\"M356 340 Q326 368 282 396\"/>\n    <path d=\"M384 346 Q352 374 304 400\"/>\n  </g>\n\n  <!-- Head -->\n  <circle cx=\"478\" cy=\"236\" r=\"28\" fill=\"#ffffff\" stroke=\"#4a5562\" stroke-width=\"3\"/>\n\n  <!-- Bill pouch -->\n  <path d=\"M498 252 Q556 258 584 296 Q558 302 530 278 Q508 268 496 256 Z\" fill=\"#e8892a\" stroke=\"#8a4b12\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/>\n\n  <!-- Upper bill -->\n  <path d=\"M488 222 L614 250 Q620 258 612 262 L492 244 Z\" fill=\"#f7b538\" stroke=\"#8a4b12\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/>\n\n  <!-- Eye -->\n  <circle cx=\"486\" cy=\"228\" r=\"7\" fill=\"#ffffff\" stroke=\"#4a5562\" stroke-width=\"2\"/>\n  <circle cx=\"488\" cy=\"229\" r=\"3.5\" fill=\"#1d1f24\"/>\n  <path d=\"M474 220 Q482 214 492 220\" stroke=\"#4a5562\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/>\n\n  <!-- Skateboard -->\n  <!-- Trucks -->\n  <g fill=\"#9aa3ad\" stroke=\"#4a5562\" stroke-width=\"2\">\n    <rect x=\"302\" y=\"482\" width=\"22\" height=\"8\" rx=\"2\"/>\n    <rect x=\"444\" y=\"482\" width=\"22\" height=\"8\" rx=\"2\"/>\n  </g>\n  <!-- Wheels -->\n  <g fill=\"#f3f3f3\" stroke=\"#2b2e34\" stroke-width=\"3\">\n    <circle cx=\"313\" cy=\"500\" r=\"12\"/>\n    <circle cx=\"455\" cy=\"500\" r=\"12\"/>\n  </g>\n  <g fill=\"#2b2e34\">\n    <circle cx=\"313\" cy=\"500\" r=\"3.5\"/>\n    <circle cx=\"455\" cy=\"500\" r=\"3.5\"/>\n  </g>\n  <!-- Deck with kicked tips -->\n  <path d=\"M262 474 Q262 464 274 464 L484 464 Q500 464 500 474 Q500 484 486 484 L276 484 Q262 484 262 474 Z\" fill=\"url(#deck)\" stroke=\"#6e2616\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/>\n  <path d=\"M278 474 L484 474\" stroke=\"#ffffff\" stroke-width=\"2\" stroke-linecap=\"round\" opacity=\"0.35\"/>\n\n  <!-- Feet gripping the deck -->\n  <g fill=\"#f08c2e\" stroke=\"#8a4b12\" stroke-width=\"2\" stroke-linejoin=\"round\">\n    <path d=\"M330 464 L352 464 Q360 464 352 470 L330 470 Z\"/>\n    <path d=\"M376 464 L398 464 Q406 464 398 470 L376 470 Z\"/>\n  </g>\n</svg>\n"
+          }
+        }
+      ],
+      "usage": {
+        "input": 2,
+        "output": 16,
+        "cacheRead": 7702,
+        "cacheWrite": 1957,
+        "totalTokens": 9677
+      },
+      "stopReason": null
+    },
+    "timestamp": "2026-10-10T05:54:05.275Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "toolu_01VyeCEQWmA2HXUWN3wNaaFd",
+      "content": [
+        {
+          "type": "text",
+          "text": "File created successfully at: <vol>/dev/bench-runs/2026-10-09-225107-skateboard-pelican/claude-haiku-5-5-cc-high-20261009-225107/work/output/pelican-skateboard.svg (file state is current in your context \u2014 no need to Read it back)"
+        }
+      ],
+      "isError": false,
+      "durationMs": 74
+    },
+    "timestamp": "2026-10-10T05:54:05.349Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "toolu_01YQdtPeLt4vAeCqXaYi7PrV",
+          "name": "bash",
+          "arguments": {
+            "command": "ffmpeg -hide_banner -loglevel error -y -i output/pelican-skateboard.svg preview.png; echo \"exit=$?\"; ls -la preview.png 2>/dev/null"
+          }
+        },
+        {
+          "type": "toolCall",
+          "id": "toolu_018DiFGc5aSpJVHsGvS3wnnZ",
+          "name": "read",
+          "arguments": {
+            "path": "preview.png"
+          }
+        }
+      ],
+      "usage": {
+        "input": 2,
+        "output": 3,
+        "cacheRead": 9659,
+        "cacheWrite": 3104,
+        "totalTokens": 12768
+      },
+      "stopReason": null
+    },
+    "timestamp": "2026-10-10T05:54:06.675Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "toolu_01YQdtPeLt4vAeCqXaYi7PrV",
+      "content": [
+        {
+          "type": "text",
+          "text": "Exit code 1\n[vist#0:0/svg @ 0x7a2cc10180] Decoding requested, but no decoder found for: svg\nError opening output file preview.png.\nError opening output files: Invalid argument\nexit=234"
+        }
+      ],
+      "isError": true,
+      "durationMs": 76
+    },
+    "timestamp": "2026-10-10T05:54:07.087Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "toolu_018DiFGc5aSpJVHsGvS3wnnZ",
+      "content": [
+        {
+          "type": "text",
+          "text": "File does not exist. Note: your current working directory is <vol>/dev/bench-runs/2026-10-09-225107-skateboard-pelican/claude-haiku-5-5-cc-high-20261009-225107/work."
+        }
+      ],
+      "isError": true,
+      "durationMs": 52
+    },
+    "timestamp": "2026-10-10T05:54:07.280Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "toolu_01TuZrLzn1J45Yqskvxu1KCK",
+          "name": "bash",
+          "arguments": {
+            "command": "mkdir -p ./scratch-preview && qlmanage -t -s 800 -o ./scratch-preview output/pelican-skateboard.svg >/dev/null 2>&1; ls ./scratch-preview"
+          }
+        }
+      ],
+      "usage": {
+        "input": 2,
+        "output": 8,
+        "cacheRead": 12763,
+        "cacheWrite": 653,
+        "totalTokens": 13426
+      },
+      "stopReason": null
+    },
+    "timestamp": "2026-10-10T05:54:08.432Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "toolu_01TuZrLzn1J45Yqskvxu1KCK",
+      "content": [
+        {
+          "type": "text",
+          "text": "pelican-skateboard.svg.png"
+        }
+      ],
+      "isError": false,
+      "durationMs": 159
+    },
+    "timestamp": "2026-10-10T05:54:08.922Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "toolu_01PYiAhPUDhQm4q4aTDgu8LD",
+          "name": "read",
+          "arguments": {
+            "path": "scratch-preview/pelican-skateboard.svg.png"
+          }
+        }
+      ],
+      "usage": {
+        "input": 2,
+        "output": 16,
+        "cacheRead": 13416,
+        "cacheWrite": 303,
+        "totalTokens": 13737
+      },
+      "stopReason": null
+    },
+    "timestamp": "2026-10-10T05:54:09.786Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "toolu_01PYiAhPUDhQm4q4aTDgu8LD",
+      "content": [
+        {
+          "type": "text",
+          "text": ""
+        },
+        {
+          "type": "image",
+          "mimeType": "image/jpeg",
+          "sourceMimeType": "image/png",
+          "bytes": 156247,
+          "data": "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XbDL+7eH6X/V+zz4npL0evfdsQORU5E9l+gnuceP00tj8TU5q/FG2GX928P0v+p58T0l6PXvu2PO3OLm5Nt62237zXTEYjHR5TVrmxXNbc/dfNreMaMhWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa6XNi+a25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrpc2L5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWGutzYrmtufuvm1vGWjKVYa63Niua25+6+bW8ZaMpVhrrc2K5rbn7r5tbxloylWHsBEDBEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQABEAARAAEQAD/2Q=="
+        }
+      ],
+      "isError": false,
+      "durationMs": 22
+    },
+    "timestamp": "2026-10-10T05:54:09.808Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "toolu_01DcqEnejJH4yrkoG2B4FL3s",
+          "name": "bash",
+          "arguments": {
+            "command": "rm -rf ./scratch-preview ./preview.png; ls -la ./output"
+          }
+        }
+      ],
+      "usage": {
+        "input": 2,
+        "output": 6,
+        "cacheRead": 13719,
+        "cacheWrite": 1016,
+        "totalTokens": 14743
+      },
+      "stopReason": null
+    },
+    "timestamp": "2026-10-10T05:54:11.368Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "toolResult",
+      "toolCallId": "toolu_01DcqEnejJH4yrkoG2B4FL3s",
+      "content": [
+        {
+          "type": "text",
+          "text": "total 16\ndrwxr-xr-x@ 3 fender  staff    96B Oct  9 22:54 .\ndrwxr-xr-x@ 3 fender  staff    96B Oct  9 22:54 ..\n-rw-r--r--@ 1 fender  staff   5.0K Oct  9 22:54 pelican-skateboard.svg"
+        }
+      ],
+      "isError": false,
+      "durationMs": 18
+    },
+    "timestamp": "2026-10-10T05:54:11.633Z"
+  },
+  {
+    "type": "message",
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "I made an SVG of a pelican riding a skateboard: `output/pelican-skateboard.svg` (5 KB, 800\u00d7600).\n\nThe scene has a white pelican with an orange bill and pouch, a grey folded wing and tail, and orange feet gripping a red skateboard with wheels. It sits on a road with dashed lines, under a blue sky with clouds, a sun, green hills, and speed lines behind it.\n\nI wrote the SVG by hand, so the file is the source. I checked the render with macOS Quick Look, since ffmpeg can't decode SVG here, and then deleted the preview. The pelican looked right in that render, though I haven't tested the file in a browser or other SVG viewer."
+        }
+      ],
+      "usage": {
+        "input": 2,
+        "output": 3,
+        "cacheRead": 14735,
+        "cacheWrite": 446,
+        "totalTokens": 15186
+      },
+      "stopReason": null
+    },
+    "timestamp": "2026-10-10T05:54:13.079Z"
+  }
+]
