@@ -1,6 +1,6 @@
 {
   "id": "qwen3.8-27b-xhigh-20260927-214751",
-  "page": "crete-a-voxel-character-running-around",
+  "page": "voxel-character",
   "model": "openrouter/qwen/qwen3.8-27b",
   "effort": "xhigh",
   "kind": "godot",

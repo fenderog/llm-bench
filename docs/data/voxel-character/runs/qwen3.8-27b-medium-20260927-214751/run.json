@@ -1,11 +1,11 @@
 {
-  "id": "muse-spark-1.3-contributor-minimal-20260927-214751",
-  "page": "crete-a-voxel-character-running-around",
-  "model": "meta/muse-spark-1.3-contributor",
-  "effort": "minimal",
+  "id": "qwen3.8-27b-medium-20260927-214751",
+  "page": "voxel-character",
+  "model": "openrouter/qwen/qwen3.8-27b",
+  "effort": "medium",
   "kind": "godot",
   "started_at": "2026-09-28T04:47:51Z",
-  "batch": "2026-09-27-214751-musespark13contributor-crete-a-voxel-character-running-around",
+  "batch": "2026-09-27-214751-qwen3827b-crete-a-voxel-character-running-around",
   "harness": {
     "name": "pi",
     "version": "0.87.1"
@@ -14,15 +14,15 @@
   "error": null,
   "route": null,
   "metrics": {
-    "duration_ms": 64723,
-    "cost_usd": 0.003749604,
-    "tool_calls": 13,
-    "turns": 11,
-    "tokens_total": 29343,
-    "tokens_input": 22209,
-    "tokens_output": 7134,
-    "tokens_reasoning": 457,
-    "tokens_cache_read": 50952
+    "duration_ms": 251163,
+    "cost_usd": 0.08306813999999998,
+    "tool_calls": 21,
+    "turns": 20,
+    "tokens_total": 36531,
+    "tokens_input": 16227,
+    "tokens_output": 20304,
+    "tokens_reasoning": 12247,
+    "tokens_cache_read": 180480
   },
   "thumb": "thumb.png",
   "output": {
@@ -45,13 +45,10 @@
     "files": [
       "README.md",
       "export_presets.cfg",
-      "main.gd",
-      "main.gd.uid",
-      "main.tscn",
-      "player.gd",
-      "player.gd.uid",
-      "player.tscn",
-      "project.godot"
+      "project.godot",
+      "scenes/main.tscn",
+      "scripts/main.gd",
+      "scripts/main.gd.uid"
     ]
   }
 }

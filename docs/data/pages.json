@@ -29,8 +29,8 @@
     "thumb": "data/create-a-rubik-s-cube-in-3js/runs/deepseek-v4.1-flash-max-20260930-121814/thumb.png"
   },
   {
-    "slug": "crete-a-voxel-character-running-around",
-    "title": "Crete a voxel character running around",
+    "slug": "voxel-character",
+    "title": "Voxel character",
     "kind": "godot",
     "n_runs": 11,
     "models": [
@@ -39,6 +39,6 @@
       "openrouter/qwen/qwen3.8-27b"
     ],
     "updated": "2026-09-28T05:13:37Z",
-    "thumb": "data/crete-a-voxel-character-running-around/runs/deepseek-v4.1-flash-max-20260927-214751/thumb.png"
+    "thumb": "data/voxel-character/runs/deepseek-v4.1-flash-max-20260927-214751/thumb.png"
   }
 ]

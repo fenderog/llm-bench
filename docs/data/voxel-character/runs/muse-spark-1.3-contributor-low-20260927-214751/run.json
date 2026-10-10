@@ -1,11 +1,11 @@
 {
-  "id": "qwen3.8-27b-low-20260927-214751",
-  "page": "crete-a-voxel-character-running-around",
-  "model": "openrouter/qwen/qwen3.8-27b",
+  "id": "muse-spark-1.3-contributor-low-20260927-214751",
+  "page": "voxel-character",
+  "model": "meta/muse-spark-1.3-contributor",
   "effort": "low",
   "kind": "godot",
   "started_at": "2026-09-28T04:47:51Z",
-  "batch": "2026-09-27-214751-qwen3827b-crete-a-voxel-character-running-around",
+  "batch": "2026-09-27-214751-musespark13contributor-crete-a-voxel-character-running-around",
   "harness": {
     "name": "pi",
     "version": "0.87.1"
@@ -14,15 +14,15 @@
   "error": null,
   "route": null,
   "metrics": {
-    "duration_ms": 762141,
-    "cost_usd": 0.19218497999999998,
-    "tool_calls": 27,
-    "turns": 22,
-    "tokens_total": 74330,
-    "tokens_input": 21947,
-    "tokens_output": 52383,
-    "tokens_reasoning": 37357,
-    "tokens_cache_read": 303744
+    "duration_ms": 114175,
+    "cost_usd": 0.005022428000000001,
+    "tool_calls": 13,
+    "turns": 10,
+    "tokens_total": 34260,
+    "tokens_input": 19965,
+    "tokens_output": 14295,
+    "tokens_reasoning": 3007,
+    "tokens_cache_read": 83464
   },
   "thumb": "thumb.png",
   "output": {
@@ -44,17 +44,19 @@
     "root": "source/",
     "files": [
       "README.md",
-      "character.tscn",
       "export_presets.cfg",
+      "icon.svg",
+      "icon.svg.import",
       "main.tscn",
       "project.godot",
-      "resources/environment.tres",
-      "scripts/camera_rig.gd",
-      "scripts/camera_rig.gd.uid",
+      "scripts/follow_camera.gd",
+      "scripts/follow_camera.gd.uid",
+      "scripts/hud.gd",
+      "scripts/hud.gd.uid",
+      "scripts/main.gd",
+      "scripts/main.gd.uid",
       "scripts/player.gd",
-      "scripts/player.gd.uid",
-      "scripts/world.gd",
-      "scripts/world.gd.uid"
+      "scripts/player.gd.uid"
     ]
   }
 }

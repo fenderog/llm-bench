@@ -1,6 +1,6 @@
 {
-  "slug": "crete-a-voxel-character-running-around",
-  "title": "Crete a voxel character running around",
+  "slug": "voxel-character",
+  "title": "Voxel character",
   "kind": "godot",
   "prompt": "Crete a voxel character running around in a small sandbox environment",
   "final_prompt": "Crete a voxel character running around in a small sandbox environment\n\nBuild this as a complete, playable Godot 4.7.2 project in the current directory.\n- Use the gl_compatibility renderer, and don't enable thread support (it must run as a web export).\n- Set a main scene in project.godot. Add a short README.md with run instructions.\n- Keep it self-contained: no downloads, external assets or plugins.\n- Only create or edit files inside the current directory. Don't export the project; that happens afterwards.\n- Check it loads: run `godot --headless --path . --editor --quit` and fix any errors.\n- Finish with a short summary of what you built.\n",
@@ -9,7 +9,7 @@
   "runs": [
     {
       "id": "muse-spark-1.3-contributor-minimal-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "meta/muse-spark-1.3-contributor",
       "effort": "minimal",
       "kind": "godot",
@@ -67,7 +67,7 @@
     },
     {
       "id": "muse-spark-1.3-contributor-low-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "meta/muse-spark-1.3-contributor",
       "effort": "low",
       "kind": "godot",
@@ -130,7 +130,7 @@
     },
     {
       "id": "qwen3.8-27b-low-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "openrouter/qwen/qwen3.8-27b",
       "effort": "low",
       "kind": "godot",
@@ -191,7 +191,7 @@
     },
     {
       "id": "muse-spark-1.3-contributor-medium-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "meta/muse-spark-1.3-contributor",
       "effort": "medium",
       "kind": "godot",
@@ -258,7 +258,7 @@
     },
     {
       "id": "qwen3.8-27b-medium-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "openrouter/qwen/qwen3.8-27b",
       "effort": "medium",
       "kind": "godot",
@@ -313,7 +313,7 @@
     },
     {
       "id": "muse-spark-1.3-contributor-high-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "meta/muse-spark-1.3-contributor",
       "effort": "high",
       "kind": "godot",
@@ -382,7 +382,7 @@
     },
     {
       "id": "muse-spark-1.3-contributor-xhigh-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "meta/muse-spark-1.3-contributor",
       "effort": "xhigh",
       "kind": "godot",
@@ -447,7 +447,7 @@
     },
     {
       "id": "qwen3.8-27b-xhigh-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "openrouter/qwen/qwen3.8-27b",
       "effort": "xhigh",
       "kind": "godot",
@@ -506,7 +506,7 @@
     },
     {
       "id": "deepseek-v4.1-flash-low-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "openrouter/deepseek/deepseek-v4.1-flash",
       "effort": "low",
       "kind": "godot",
@@ -563,7 +563,7 @@
     },
     {
       "id": "deepseek-v4.1-flash-high-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "openrouter/deepseek/deepseek-v4.1-flash",
       "effort": "high",
       "kind": "godot",
@@ -622,7 +622,7 @@
     },
     {
       "id": "deepseek-v4.1-flash-max-20260927-214751",
-      "page": "crete-a-voxel-character-running-around",
+      "page": "voxel-character",
       "model": "openrouter/deepseek/deepseek-v4.1-flash",
       "effort": "max",
       "kind": "godot",
