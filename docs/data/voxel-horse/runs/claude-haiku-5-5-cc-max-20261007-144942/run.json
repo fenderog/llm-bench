@@ -1,0 +1,59 @@
+{
+  "id": "claude-haiku-5-5-cc-max-20261007-144942",
+  "page": "voxel-horse",
+  "model": "anthropic/claude-haiku-5-5",
+  "effort": "max",
+  "kind": "godot",
+  "started_at": "2026-10-07T21:49:43Z",
+  "batch": "2026-10-07-144942-create-a-running-voxel-horse-in",
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.293"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 1224170,
+    "cost_usd": 0.63931432,
+    "tool_calls": 42,
+    "turns": 38,
+    "tokens_total": 281309,
+    "tokens_input": 76,
+    "tokens_output": 281233,
+    "tokens_reasoning": 257182,
+    "tokens_cache_read": 4598630
+  },
+  "thumb": "thumb.png",
+  "output": {
+    "kind": "godot",
+    "entry": "game/index.html",
+    "engine": "dd54ab29f8a9",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "threads": false,
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      ".gitignore",
+      "README.md",
+      "course.gd",
+      "course.gd.uid",
+      "export_presets.cfg",
+      "main.gd",
+      "main.gd.uid",
+      "main.tscn",
+      "project.godot",
+      "voxel_builder.gd",
+      "voxel_builder.gd.uid",
+      "voxel_horse.gd",
+      "voxel_horse.gd.uid"
+    ]
+  }
+}

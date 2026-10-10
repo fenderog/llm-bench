@@ -1,0 +1,63 @@
+{
+  "id": "claude-sonnet-5-5-cc-high-20260928-191759",
+  "page": "voxel-horse",
+  "model": "anthropic/claude-sonnet-5-5",
+  "effort": "high",
+  "kind": "godot",
+  "started_at": "2026-09-29T02:18:01Z",
+  "batch": "2026-09-28-191759-claudesonnet55cc-create-a-running-voxel-horse-in",
+  "harness": {
+    "name": "claude-code",
+    "version": "2.1.284"
+  },
+  "state": "complete",
+  "error": null,
+  "route": null,
+  "metrics": {
+    "duration_ms": 580555,
+    "cost_usd": 1.2396045999999998,
+    "tool_calls": 22,
+    "turns": 19,
+    "tokens_total": 68840,
+    "tokens_input": 38,
+    "tokens_output": 68802,
+    "tokens_reasoning": 44426,
+    "tokens_cache_read": 1171203
+  },
+  "thumb": "thumb.png",
+  "output": {
+    "kind": "godot",
+    "entry": "game/index.html",
+    "engine": "dd54ab29f8a9",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "threads": false,
+    "ok": true,
+    "verified": true,
+    "error": null
+  },
+  "session": {
+    "conversation": "session/conversation.json",
+    "status": "session/status.json"
+  },
+  "source": {
+    "root": "source/",
+    "files": [
+      "README.md",
+      "export_presets.cfg",
+      "ground.gdshader",
+      "ground.gdshader.uid",
+      "horse.gd",
+      "horse.gd.uid",
+      "icon.svg",
+      "icon.svg.import",
+      "main.gd",
+      "main.gd.uid",
+      "main.tscn",
+      "project.godot",
+      "voxel_builder.gd",
+      "voxel_builder.gd.uid",
+      "world.gd",
+      "world.gd.uid"
+    ]
+  }
+}

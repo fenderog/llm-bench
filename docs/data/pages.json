@@ -1,7 +1,7 @@
 [
   {
-    "slug": "create-a-running-voxel-horse-in",
-    "title": "Create a running voxel horse in",
+    "slug": "voxel-horse",
+    "title": "Voxel horse",
     "kind": "godot",
     "n_runs": 20,
     "models": [
@@ -12,7 +12,7 @@
       "openrouter/mistralai/mistral-large-4-0"
     ],
     "updated": "2026-10-07T22:10:07Z",
-    "thumb": "data/create-a-running-voxel-horse-in/runs/claude-haiku-5-5-cc-max-20261007-144942/thumb.png"
+    "thumb": "data/voxel-horse/runs/claude-haiku-5-5-cc-max-20261007-144942/thumb.png"
   },
   {
     "slug": "create-a-rubik-s-cube-in-3js",
