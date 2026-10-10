@@ -1,124 +1,123 @@
 # llm-bench
 
-Give one prompt to several AI models, at each effort level, on your own computer. Then publish the
-results side by side as a static site: what each model made (a playable Godot game, images/videos,
-or a web page), its full transcript, the files it wrote, and what it cost.
+Pick a prompt, run it across models and effort levels, and publish the results side by side.
+For every run you get the thing the model made — a playable Godot game, images or video,
+or a packaged web page — plus the full transcript, the source files, and what it cost.
 
-**Site:** https://fenderog.github.io/llm-bench/
+**Live site:** https://fenderog.github.io/llm-bench/
 
-This repo holds both the `bench` tool (`src/bench/`, plain Python) and the site (`docs/`, plain
-JS, no build step, hosted by GitHub Pages from `main:/docs`). The tool writes files into `docs/`,
-and the pages show them in the browser. [SPEC.md](SPEC.md) has the full details; [AGENTS.md](AGENTS.md)
-is the guide for coding agents working on this repo.
+This repo is two things: the `bench` CLI in `src/bench/` (plain Python, stdlib only) and the
+site in `docs/` (plain JS, no build step, hosted from `main:/docs` on GitHub Pages). The CLI
+writes files to `docs/`; the site renders them. [SPEC.md](SPEC.md) is the full contract.
+[AGENTS.md](AGENTS.md) is where coding agents should start.
 
-## The site
+## What you'll see on the site
 
-- **Home:** one card per prompt (a *page*), marked Game, Media or Web, with its models and run count.
-- **Page:** the prompt and the full brief the agents got, a short summary (cheapest, fastest,
-  fewest tokens, how many passed checks, total cost), a gallery for image/video pages, and a runs table
-  you can sort. Effort shows as a meter, best values get a star, your ranking (🥇🥈🥉) comes first.
-  Click a row to play its game or see its files. On phones the table becomes cards.
-- **Run:** the output (game, files or web page), buttons to jump to the other runs for the same prompt,
-  stats compared to the other runs ("cheapest of 11"), and tabs for the transcript (every tool call,
-  with errors and edits marked), the source files, and all metrics. You can link to a tab (`#transcript`).
-- **Compare:** every run for a prompt in a grid, with its game, files or web page, key numbers,
-  and stars for the best.
+- **Home:** one card per prompt — called a *page* — labeled Game, Media, or Web, with its models and run count.
+- **Page:** the prompt, the exact brief the agents saw, a summary (cheapest, fastest, fewest
+  tokens, how many passed checks, total spend), a gallery for media pages, and a sortable runs
+  table. Effort is a meter, best numbers get a star, your own ranking comes first. Click a row
+  to play the game or open the files. On phones the table collapses into cards.
+- **Run:** the output front and center, quick links to the same prompt's other runs, stats in
+  context ("cheapest of 11"), and tabs for transcript, source, and metrics. The transcript shows
+  every tool call with errors and edits called out. Tabs are linkable (`#transcript`).
+- **Compare:** all runs for a prompt in one grid, with outputs, key numbers, and stars for the best.
 
-Games play in a locked-down frame and only after you click. Fullscreen links use the same safe
-frame in `play.html`. SVGs made by models are only shown as images, so scripts inside them cannot run.
-The viewer uses only local files and blocks outside content. Light and dark mode.
+Safety notes, briefly: games only start when you click, inside a sandboxed frame. Fullscreen
+uses the same sandbox via `play.html`. Model-made SVGs render as images only, so embedded scripts
+never run. The viewer ships its own assets (including the Markdown parser) and runs under a
+same-origin CSP. Light and dark mode both work.
 
-## Running a benchmark
+## Run a benchmark
 
 ```sh
 uv run bench run "a spinning low-poly windmill in a small field" -m openai-codex/gpt-6-sol:low..high
 ```
 
-This runs one agent per model × effort level, at the same time, on this machine. Finished work
-is packed up and, when possible, checked. Failed and timed-out tries are saved too.
-Nothing goes online until you run `bench publish` (or pass `--publish`). Preview first with `bench serve`.
-With `--publish` every run is imported, committed and pushed as soon as that run is done, so a long batch
-appears on the live site run by run instead of all at the end.
+That spins up one agent per model × effort level, in parallel, on your machine. When they finish,
+their work is packaged and checked where a check exists. Failures and timeouts are kept too —
+they're part of the comparison. Preview with `bench serve`; nothing goes public until
+`bench publish` (or pass `--publish` to publish each run as it lands, handy for long batches).
 
-- `-m MODEL[:LEVELS]` can be repeated. LEVELS can be `low,high`, `low..max`, `all`, or `off`. With no
-  suffix, it runs all levels the model supports except `off`. `-e LEVELS` sets the default for all
-  models without a suffix.
-- All models and levels are checked before anything starts, so typos fail fast.
-  `bench models [SEARCH]` lists models and their levels.
-- It shows the plan and asks you to confirm. `-n/--dry-run` only shows the plan;
-  `-y/--yes` skips the question (needed for scripts).
-- `-p/--page`, `-t/--title`, `-j N` (max agents at once), `-T/--timeout 30m`, `-b/--brief FILE`
-  (your own brief, with `{prompt}` replaced by the prompt), and `-P/--publish` (publish each run as it
-  finishes). `bench run -h` lists them all.
-- Ctrl-C stops all running agents. `bench run --resume <batch dir>` finishes a batch without
-  redoing agents that already finished.
+A few things worth knowing:
 
-Each agent gets your prompt as-is plus a fixed brief for the task type (`src/bench/kinds/<kind>.md`),
-and works in its own empty folder (`<run id>/work/`) under `[run].dir` (default `~/dev/bench-runs`,
-set in `bench.toml`).
+- `-m MODEL[:LEVELS]` repeats. Levels look like `low,high`, `low..max`, `all`, or `off`.
+  Leave the suffix off and you get every level except `off`. `-e LEVELS` sets the fallback for
+  models without one.
+- Models and levels are validated up front, so a typo fails before you spend anything.
+  `bench models [SEARCH]` shows what's available.
+- You'll see the plan and confirm it. `-n/--dry-run` prints the plan and stops.
+  `-y/--yes` skips the prompt for scripts.
+- Useful flags: `-p/--page`, `-t/--title`, `-j N` (how many agents at once),
+  `-T/--timeout 30m`, `-b/--brief FILE` (your own brief template, `{prompt}` is your prompt),
+  `-P/--publish`. `bench run -h` has the full list.
+- Ctrl-C stops everything. `bench run --resume <batch dir>` picks up a batch without
+  redoing finished agents.
 
-### Claude Code as the harness
+Each agent starts in an empty `<run id>/work/` folder under `[run].dir`
+(`~/dev/bench-runs` by default, configured in `bench.toml`) and gets your prompt verbatim
+plus the fixed brief for that task type in `src/bench/kinds/<kind>.md`.
 
-Models run through [pi](https://github.com/earendil-works/pi) by default. Put `claude-code:` in front
-to run through Claude Code instead. One batch can mix both, so you can compare the same model
-across harnesses:
+### Using Claude Code
+
+Default harness is [pi](https://github.com/earendil-works/pi). Prefix with `claude-code:` to use
+[Claude Code](https://claude.com/claude-code) instead — you can mix both in one batch to compare
+harnesses head to head:
 
 ```sh
 uv run bench run "a voxel horse" -m claude-code:claude-opus-5-5:high -m openai-codex/gpt-6-sol:high
-uv run bench models --harness claude-code        # its models and effort levels
+uv run bench models --harness claude-code
 ```
 
-Claude Code models: `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-sonnet-5`,
-`claude-haiku-4-5` (or `fable`, `opus`, `sonnet`, `haiku`), at low, medium, high, xhigh or max.
-Each run is one plain agent with only file and shell tools, like pi: no sub-agents, web, skills
-or scheduling, and none of your CLAUDE.md, memory, plugins, hooks or MCP servers (your login is used).
-Its cost is Claude Code's estimate at API prices, also on a subscription.
+Claude Code models are `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5`,
+`claude-sonnet-5`, and `claude-haiku-4-5` (`fable`, `opus`, `sonnet`, `haiku` work as shorthand),
+at low, medium, high, xhigh, or max. Runs are single agents with file and shell tools only —
+no subagents, web access, skills, scheduling, CLAUDE.md, memory, plugins, hooks, or MCP servers.
+It uses your login, and cost is Claude Code's API-price estimate, subscription included.
 
-### Pinning the OpenRouter upstream
+### Pinning an OpenRouter provider
 
-For a pi `openrouter/` model, `@slug` picks which provider serves the run, so you can compare
-the same model on different providers side by side on one page:
+For `openrouter/` models, `@slug` locks the run to a specific upstream provider, so you can put
+the same model on two providers on the same page:
 
 ```sh
 uv run bench run "a voxel horse" -m openrouter/deepseek/deepseek-v4.1-flash@deepinfra/fp8:low \
                    -m openrouter/deepseek/deepseek-v4.1-flash@fireworks:low
 ```
 
-Slugs are OpenRouter's endpoint tags, variants included (`deepinfra/fp8`, `fireworks/us`). List them with
-`curl -s https://openrouter.ai/api/v1/models/<model id>/endpoints`. `@deepinfra,fireworks` lets OpenRouter
-pick from the list. Pinning turns off fallbacks, so the run really used the named provider. The provider
-is part of the saved model name (`…flash@deepinfra`, shown as a `via …` chip) and `route.requested` /
-`route.served` are on the run's Metrics tab. Works in `-m`, `--set` entries and set files alike;
-any other use of `@` is an error.
+Slugs are OpenRouter endpoint tags, variants included (`deepinfra/fp8`, `fireworks/us`). Find them with
+`curl -s https://openrouter.ai/api/v1/models/<model id>/endpoints`. Comma-separate to let OpenRouter
+choose within your list (`@deepinfra,fireworks`). Pinning disables fallbacks, so the name on the run
+is what actually served it — recorded in the model name (`…flash@deepinfra`, shown as a `via …` chip)
+and in `route.requested` / `route.served` on the Metrics tab. Works in `-m`, `--set`, and set files;
+`@` anywhere else is an error.
 
-Cost: every OpenRouter run's cost, pinned or not, is what OpenRouter really charged (from each
-response), not pi's guess, which prices all OpenRouter calls at one rate and was 2–7× too low on
-real runs. Both numbers are on the Metrics tab (`route.cost_usd`, `route.pi_cost_usd`),
-with the providers that served the run (`route.served`). With BYOK (your own provider key in OpenRouter)
-the shown cost is only OpenRouter's fee.
+On cost: OpenRouter runs report what OpenRouter actually charged per response, not pi's estimate.
+pi prices every OpenRouter call at one catalog rate, which ran 2–7× low in practice. Both figures
+are on the Metrics tab (`route.cost_usd`, `route.pi_cost_usd`) alongside what served the run
+(`route.served`). With BYOK (your own provider key), the reported cost is just OpenRouter's fee.
 
-### Adding runs to an existing page
+### Add runs to an existing page
 
-Find the page slug in its URL (or with `uv run bench list`), check the new model's ID and levels,
-then name the page and skip the prompt. Its prompt and kind are reused:
+Grab the page slug from its URL (or `uv run bench list`), confirm the model ID and levels, then
+pass `--page` and skip the prompt — the page's prompt and kind carry over:
 
 ```sh
-uv run bench models deepseek                         # lists matching model IDs and supported levels
+uv run bench models deepseek
 uv run bench run --dry-run --page an-svg-of-a-chair-holding -m openrouter/deepseek/deepseek-v4.1-flash:low
 uv run bench run --page an-svg-of-a-chair-holding -m openrouter/deepseek/deepseek-v4.1-flash:low
-uv run bench serve                                   # preview at http://localhost:8000
-uv run bench publish -m "Add DeepSeek run to chair page"  # commit docs/ and push, if you have write access
+uv run bench serve
+uv run bench publish -m "Add DeepSeek run to chair page"
 ```
 
-The real `bench run` costs money; `--dry-run` does not. Without `:LEVELS`, `-m` runs all
-supported levels except `off`, not just one. Old runs, the title and your ranking stay as they are;
-new runs start unranked. Re-importing the same run ID replaces that run. Since a page shows one
-prompt for all its runs, a *different* prompt for an old page is refused. Pass
-`--change-prompt` if you really want to replace it for the whole page.
+Real runs cost money; `--dry-run` is free. Bare `-m` means all levels except `off`. Existing runs,
+the title, and your rankings are left alone; new runs arrive unranked, and re-importing a run ID
+replaces that run. A page has one prompt, so passing a different one is refused — use
+`--change-prompt` if you're deliberately rewriting it for the whole page.
 
 ### Model sets
 
-Save a list of models and levels once and run it with `--set NAME` (or `-s`) instead of repeating `-m`:
+If you reuse the same lineup, save it once and pass `--set NAME` (or `-s`):
 
 ```toml
 # bench.toml
@@ -130,31 +129,29 @@ cheap = ["openai-codex/gpt-6-luna:minimal,low", "openrouter/deepseek/deepseek-v4
 uv run bench run "a windmill" --set cheap
 ```
 
-Entries are the same as `-m`. `--set` also takes a file path with one `MODEL[:LEVELS]` per line
-(`#` starts a comment). Sets can be repeated and mixed with `-m`, and `-e` applies to entries
-without levels.
+Entries take the same form as `-m`. `--set` also accepts a file (one `MODEL[:LEVELS]` per line,
+`#` for comments). Sets compose with each other and with `-m`; `-e` fills in entries missing levels.
 
-### Games (default), images/videos (`--kind media`) and web pages (`--kind web`)
+### The three kinds of pages
 
-**Godot games** (`--kind godot`, the default): each project is exported to a web build and started
-in headless Chrome to check it runs. The Godot engine (~38 MB) is stored once in `docs/engines/` and shared
-by all runs, so a run adds only a few hundred KB.
+**Godot games** (`--kind godot`, the default) get exported to a web build and booted in headless
+Chrome to prove they run. The engine (~38 MB) lives once in `docs/engines/` and is shared, so each
+run adds only a few hundred KB.
 
-**Images and videos** (`--kind media`):
+**Images and video** (`--kind media`):
 
 ```sh
 uv run bench run --kind media "a pelican riding a bicycle, as a hand-written SVG" -m openai-codex/gpt-6-sol
 ```
 
-The agent saves its work in `./output/`: one or more images (`.png .jpg .jpeg .webp .gif .svg`) and/or
-videos (`.mp4 .webm .mov`). Anything else it leaves there is ignored (a text file is still published as
-source). Up to 8 files are kept, each at most 2 MB after processing; videos max
-10 seconds. How it makes them is up to your prompt ("hand-written SVG", "use Python", ...).
-The brief lists the tools on this machine, from `[run].tools` in `bench.toml`, with their
-versions. Then images and videos are checked with ffprobe, while SVGs are parsed as XML;
-videos are cut to 10 s and re-saved to H.264 mp4 when needed, and get a still image preview. Big
-non-GIF images become JPEG. Good files are still published if others fail; problems show
-on the run, and the check fails if an image or video is unreadable or over the limits.
+The agent drops results in `./output/`: images (`.png .jpg .jpeg .webp .gif .svg`) and/or video
+(`.mp4 .webm .mov`). Anything else there is ignored, though text files are kept as source. Limits
+are 8 files, 2 MB each after processing, 10 seconds per video. The *how* is up to your prompt
+("hand-written SVG", "use Python", …). The brief lists this machine's tools from `[run].tools` in
+`bench.toml`, with versions. Afterward, rasters and video go through ffprobe and SVGs through an XML
+parse; videos are trimmed to 10 s, re-encoded to H.264 mp4 if needed, and given a poster frame, and
+oversized non-GIF rasters become JPEG. Good files still publish when others fail; per-file problems
+appear on the run, and verification fails if any image or video is unreadable or over the limits.
 
 **Web pages** (`--kind web`):
 
@@ -162,83 +159,78 @@ on the run, and the check fails if an image or video is unreadable or over the l
 uv run bench run --kind web "a running voxel horse with three.js" -m openai-codex/gpt-6-sol
 ```
 
-The agent writes `index.html` plus ES modules and may `npm install` packages (three.js, ...) and import them by
-name. Then esbuild packs local module scripts and stylesheets with their imports into one file,
-and local classic script files are inlined as data URLs (keeping their globals). The result is one
-`index.html` (max 20 MB). Remote URLs and import maps stay as they are, but the headless-Chrome check
-loads the page offline inside the same safe frame the site uses: a page that loads anything from
-outside, or needs localStorage, fails the check. `node_modules/` is never published.
+The agent writes `index.html` plus ES modules, `npm install`s what it needs (three.js, …), and imports
+packages by name. esbuild then bundles local module scripts, stylesheets, and their imports, and inlines
+local classic scripts as data URLs to preserve their globals — leaving you with a single `index.html`
+(max 20 MB). Remote URLs and import maps stay untouched, but the check loads the page offline in the
+same sandboxed frame the site uses. Anything fetched from outside, or any need for localStorage, fails
+verification. `node_modules/` never ships.
 
-A page holds one kind: a media prompt can't be added to a Godot page.
+One kind per page: you can't add a media prompt to a Godot page, and so on.
 
-## Ranking runs
+## Rank runs
 
-Rank the runs of a page yourself, in the browser:
-
-```sh
-uv run bench serve        # then open http://localhost:8000 and pick a page
-```
-
-When served by `bench serve`, each row of the runs table gets a rank picker (– or 1st, 2nd, …;
-ties allowed). Each change is saved to `docs/data/<page>/ranking.json` at once. `bench publish` puts
-it online, where it can't be changed: ranked runs sort first and show 🥇🥈🥉 (then #4, #5…) on the page,
-gallery, compare and run pages. The live site can't change rankings; only `bench serve` on your
-machine can.
-
-## Importing runs
-
-`bench run` imports its batch when done. To publish a run (or a whole batch) again, for example after
-`bench rm`:
+Rankings are yours, done in the browser:
 
 ```sh
-uv run bench import ~/dev/bench-runs/2026-09-29-171151-create-a-rubik-s-cube-in-3js   # a batch: one run per directory
-uv run bench import ~/dev/bench-runs/<batch>/<run id>                                  # or a single run
-uv run bench serve                  # preview at http://localhost:8000 (served like GitHub Pages)
-uv run bench publish -m "voxel horse: gpt-6-sol"   # git add docs && commit && push
+uv run bench serve        # open http://localhost:8000, pick a page
 ```
 
-`import` options:
-- `--page SLUG` sets the page instead of the one saved in the run; `--title` sets its title.
-- `--dry-run` shows what would be written without writing it.
-- `--redact` masks secrets instead of stopping.
-- `--allow-threads` accepts threaded Godot exports, which only play in full screen.
+Under `bench serve`, each runs-table row gets a picker (– or 1st, 2nd, …, ties fine). It saves to
+`docs/data/<page>/ranking.json` as you go. `bench publish` puts it online read-only: ranked runs
+sort first and show 🥇🥈🥉 (then #4, #5…) across the page, gallery, compare, and run views. The live
+site can't write rankings — only your local `bench serve` can.
 
-Every import (including the one at the end of `bench run`) cleans the transcript and all other text files first:
-hidden reasoning data and machine-only keys are removed, and home and volume paths are rewritten (see
-`[clean]` in `bench.toml`). Then all files are scanned for secrets, and any hit stops the import before
-anything is written.
+## Import runs
+
+`bench run` imports its batch when it finishes. To re-publish a run or batch — say after `bench rm`:
+
+```sh
+uv run bench import ~/dev/bench-runs/2026-09-29-171151-create-a-rubik-s-cube-in-3js   # a batch
+uv run bench import ~/dev/bench-runs/<batch>/<run id>                                  # one run
+uv run bench serve                  # preview at http://localhost:8000, served like Pages
+uv run bench publish -m "voxel horse: gpt-6-sol"
+```
+
+Options: `--page SLUG` overrides the recorded page, `--title` sets its title, `--dry-run` previews
+without writing, `--redact` masks secrets instead of aborting, `--allow-threads` permits threaded
+Godot exports (fullscreen-only playback).
+
+Every import cleans first: hidden reasoning blobs and machine-specific keys go, home and volume paths
+get rewritten per `[clean]` in `bench.toml`, then everything is secret-scanned. A hit stops the import
+before anything is written.
 
 ## Other commands
 
-- `bench list` lists pages and their runs.
-- `bench rm <page> [<run>]` deletes a run, or a whole page.
-- `bench rename <page> <new-slug> [-t TITLE]` moves a page to a new slug. The title follows only if it was
-  built from the old slug (or you pass `-t`).
-- `bench rebuild` rebuilds the indexes and drops unused engines.
-- `bench publish [-m MSG]` commits `docs/` and pushes; GitHub Pages is live about a minute later.
+- `bench list` — pages and their runs.
+- `bench rm <page> [<run>]` — delete a run, or a whole page.
+- `bench rename <page> <new-slug> [-t TITLE]` — move a page. The title follows only if it came
+  from the old slug, unless you pass `-t`.
+- `bench rebuild` — regenerate indexes, drop unused engines.
+- `bench publish [-m MSG]` — commit `docs/` and push. Pages goes live about a minute later.
 
-Only people with write access to this repo can publish to the site. Anyone else who runs `bench publish`
-gets a permission error. To add runs without access, fork the repo and open a pull request.
+Publishing to this site needs write access — otherwise you'll get a permission error. Without it,
+fork and open a pull request.
 
 ## Requirements
 
-- [uv](https://docs.astral.sh/uv/) to run the tool (`uv run bench ...`). To type just `bench`, install it once from the
-  repo root with `uv tool install --editable '.[verify]'`. It stays linked to this checkout, so code changes apply
-  with no reinstall. Commands still use the site in the current folder (or `--root`).
-- [pi](https://github.com/earendil-works/pi) as the default agent; [Claude Code](https://claude.com/claude-code)
+- [uv](https://docs.astral.sh/uv/) — run everything as `uv run bench ...`. For a bare `bench`,
+  install once from the repo root: `uv tool install --editable '.[verify]'`. It stays linked to
+  this checkout, so edits apply without reinstalling. Commands act on the current directory (or `--root`).
+- [pi](https://github.com/earendil-works/pi) for default runs; [Claude Code](https://claude.com/claude-code)
   (`claude`, logged in) for `claude-code:` models.
-- `godot` on PATH with matching web export templates (game runs).
-- `ffmpeg` and `ffprobe` on PATH (media runs).
-- `esbuild` and `npm` on PATH (web runs): `brew install esbuild node`.
-- Google Chrome and Playwright for browser checks of Godot and web runs, and for the viewer tests
-  (`pip install bench[verify]`; already in the dev tools). Without Playwright, browser checks
-  are skipped and the run's `output.verified` is null, not false.
+- `godot` on PATH with matching web export templates (games).
+- `ffmpeg` + `ffprobe` on PATH (media).
+- `esbuild` + `npm` on PATH (web): `brew install esbuild node`.
+- Google Chrome + Playwright for browser checks and viewer tests (`pip install bench[verify]`,
+  already in dev deps). Without Playwright, browser checks are skipped and `output.verified`
+  comes back null rather than false.
 
 ## Tests
 
 ```sh
-uv run pytest    # ~40s: tool tests (bench run uses a fake pi, no model calls), media checks (ffmpeg),
-                 # viewer (Playwright on installed Chrome), ranking, Godot export + boot
+uv run pytest    # ~40s: CLI (bench run uses a fake pi, so no model spend), media checks,
+                 # viewer in Playwright on installed Chrome, ranking, Godot export + boot
 ```
 
-The full test serves the published voxel-horse page and checks its real Godot builds start in the safe frame.
+The integration test serves the published voxel-horse page and boots its real Godot builds in the sandbox.
