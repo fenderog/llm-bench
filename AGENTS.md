@@ -37,7 +37,7 @@ src/art_crit/          CLI, standard library only (argparse, json, subprocess, t
   clean.py          session cleaning, path rewrites, secret scan/redact
   site.py           rebuild page.json (with runs) / pages.json (+ each run's rank from ranking.json), rm, list, engine GC
   serve.py          `art-crit serve` (GitHub-Pages-like) + the local-only ranking API (PUT api/rank)
-  harness.py        Harness interface + Pi and ClaudeCode (stream-json -> pi-format session) + metrics parsers
+  harness.py        Harness interface + Pi, ClaudeCode, Agy, GrokBuild (streams -> pi-format session) + metrics parsers
   runner.py         `art-crit run`: plan -> run agents in parallel -> collect -> kind step (finalize + verify) -> import;
                     `RunDir` = <batch>/<run id>/{run.json,work/,harness/,output/}
   pi_ext/           art-crit-shipped pi extensions loaded with explicit `-e` (work under `-ne`):
@@ -75,6 +75,8 @@ uv run art-crit run --dry-run --page <slug> -m MODEL:LEVEL   # add runs to an ex
 uv run art-crit run --dry-run "prompt" -m openrouter/deepseek/deepseek-v4.1-flash@deepinfra:low   # pin the OpenRouter upstream
 uv run art-crit models gpt-6             # models + effort levels from pi
 uv run art-crit models --harness claude-code   # Claude Code's (from the table in harness.py)
+uv run art-crit models --harness agy           # live agy models (effort is part of its slug)
+uv run art-crit models --harness grok-build    # live grok models, effort menu from harness.py
 uv run art-crit run --dry-run "prompt" -m claude-code:opus:high -m openai-codex/gpt-6-sol:high   # mixed harnesses
 uv run art-crit import <run-dir|batch-dir> --page <slug>   # publish runs written by `art-crit run`
 uv run art-crit run --publish "prompt" -m MODEL:LEVEL      # import + push each run as it finishes (ADR-0019)
@@ -144,6 +146,12 @@ gh api repos/fenderog/art-crit/pages/builds/latest --jq .status   # deploy statu
   `--tools=...` it offers ~25 tools (web, cron, push notifications, SendMessage...); keep the core-tools list.
   Variadic flags (`--tools`, `--disallowed-tools`) must use the `=` form and the brief goes after `--`, or
   the brief gets swallowed as a tool name.
+- **Agy and Grok Build:** `agy models` lists effort-suffixed slugs; pass that slug as `--model` (not a separate
+  `--effort` override). Grok's `models` lists ids but not effort menus: `GrokBuild.MODELS` mirrors the current
+  catalog and must be updated as models change. Grok's `streaming-messages-json` reuses the Claude converter;
+  Agy's `step_update` ACTIVE/DONE events need deduplication for tools and ordered text deltas. Neither CLI
+  guarantees the same configuration isolation as Claude Code's `--safe-mode` (Grok's MCP meta-tools may remain).
+  Agy has no cost field and Grok's server sometimes omits cost; 0 in a run can mean unreported, not free.
 - **Model ids and levels of Claude Code aren't listed by any command:** the table lives in `ClaudeCode.MODELS`/
   `ALIASES` (harness.py), mirroring the CLI's own alias map; update it when models change. Levels are per model: the CLI
   silently clamps what a model doesn't take, and the recorded `thinking_level` is the *requested* one, so only list
@@ -186,6 +194,9 @@ gh api repos/fenderog/art-crit/pages/builds/latest --jq .status   # deploy statu
 - **Tests address table cells by `data-col`**, not position: adding a column (like Rank) shifted `nth()` indexes.
 - **Web kind packaging:** a classic `<script src>` is inlined as a `data:` URL, not bundled: esbuild's IIFE output turns
   its top-level `var`s (globals other scripts use) into locals. Only module scripts are bundled.
+- **Viewer end-to-end test can time out intermittently:** rerun it alone before diagnosing a regression.
+  Published `docs/data/` is not a fixed test fixture; avoid tests asserting its run count or requiring
+  live published games to remain unchanged.
 - **Sync Playwright can't nest:** `test_web.py` keeps a session-wide browser open, so other tests that start Playwright
   (verify, the web end-to-end test) run it in a worker thread (`in_thread()` in `test_web_kind.py`).
 - **ffmpeg here has no WebP encoder** (it can decode WebP), so oversized images are re-encoded as JPEG.

@@ -60,7 +60,7 @@ Each agent starts in an empty `<run id>/work/` folder under `[run].dir`
 (`~/dev/art-crit-runs` by default, configured in `art-crit.toml`) and gets your prompt verbatim
 plus the fixed brief for that task type in `src/art_crit/kinds/<kind>.md`.
 
-### Using Claude Code
+### Other agent harnesses
 
 Default harness is [pi](https://github.com/earendil-works/pi). Prefix with `claude-code:` to use
 [Claude Code](https://claude.com/claude-code) instead — you can mix both in one batch to compare
@@ -76,6 +76,16 @@ Claude Code models are `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5
 at low, medium, high, xhigh, or max. Runs are single agents with file and shell tools only —
 no subagents, web access, skills, scheduling, CLAUDE.md, memory, plugins, hooks, or MCP servers.
 It uses your login, and cost is Claude Code's API-price estimate, subscription included.
+
+[Antigravity CLI](https://www.agy.dev/docs/cli/headless/) (`agy`) and [Grok Build](https://github.com/xai-org/grok-build) (`grok`) can also run headlessly:
+
+```sh
+uv run art-crit models -H agy gemini
+uv run art-crit models -H grok-build grok-4.7
+uv run art-crit run --kind media "draw a circle" -m agy:gemini-3.8-flash:high -m grok-build:grok-4.7:low
+```
+
+Agy's model slugs already encode effort: `agy:gemini-3.8-flash:high` selects `gemini-3.8-flash-high`. Agy does not report cost (shown as 0, **unknown**, not free). Grok reports cost when the server supplies it; a missing cost is also shown as 0. Grok disables subagents and web and restricts built-in tools; MCP meta-tools may still load from your configuration. Agy does not offer a safe-mode/tool allowlist, so for strict comparisons run it with an isolated CLI profile.
 
 ### Pinning an OpenRouter provider
 
@@ -220,7 +230,7 @@ fork and open a pull request.
   install once from the repo root: `uv tool install --editable '.[verify]'`. It stays linked to
   this checkout, so edits apply without reinstalling. Commands act on the current directory (or `--root`).
 - [pi](https://github.com/earendil-works/pi) for default runs; [Claude Code](https://claude.com/claude-code)
-  (`claude`, logged in) for `claude-code:` models.
+  (`claude`, logged in) for `claude-code:` models; `agy` for `agy:` and `grok` for `grok-build:` models.
 - `godot` on PATH with matching web export templates (games).
 - `ffmpeg` + `ffprobe` on PATH (media).
 - `esbuild` + `npm` on PATH (web): `brew install esbuild node`.
@@ -231,8 +241,6 @@ fork and open a pull request.
 ## Tests
 
 ```sh
-uv run pytest    # ~40s: CLI (art-crit run uses a fake pi, so no model spend), media checks,
-                 # viewer in Playwright on installed Chrome, ranking, Godot export + boot
+uv run pytest    # CLI (art-crit run uses fake harnesses, so no model spend), media checks,
+                 # viewer in Playwright on installed Chrome, ranking, Godot export checks
 ```
-
-The integration test serves the published voxel-horse page and boots its real Godot builds in the sandbox.

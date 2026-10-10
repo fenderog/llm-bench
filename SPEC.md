@@ -197,7 +197,7 @@ art-crit serve [-p/--port 8000]    # serve docs/ like GitHub Pages: Access-Contr
                                 #   plus the local-only ranking API (see Ranking)
 art-crit publish [-m MSG]          # git add docs && git commit && git push
 art-crit run ...                   # run agents locally, then import (see "Running benchmarks")
-art-crit models [SEARCH] [-H/--harness pi|claude-code]   # models the harness can run; with SEARCH also their effort levels
+art-crit models [SEARCH] [-H/--harness pi|claude-code|agy|grok-build]   # models the harness can run; with SEARCH also their effort levels
 ```
 Every long option has a single-dash short form (shown as `-p/--page`); the short forms are listed with each command.
 - `import` is idempotent. Re-importing the same directory replaces runs with the same id.
@@ -348,13 +348,13 @@ session file, or the last assistant message has `stopReason: "error"`; `error` =
 non-empty stderr line (the first 200 characters).
 
 ### Harness interface (`src/art_crit/harness.py`)
-Harnesses: `pi` (the default) and `claude-code`. A `-m` spec picks one with a prefix: `claude-code:MODEL[:LEVELS]`
+Harnesses: `pi` (the default), `claude-code`, `agy` (Antigravity CLI) and `grok-build`. A `-m` spec picks one with a prefix: `HARNESS:MODEL[:LEVELS]`
 (no prefix, or `pi:`, = pi), in `-m`, `--set` entries and set files alike, so one batch can mix harnesses. Each run
 records its harness; batch.json has `harnesses: {name: version}`. The run ids of non-pi harnesses put the harness tag after
 the model (`claude-opus-5-5-cc-high-20260928-154152`), so one model under two harnesses never collides.
 ```python
 class Harness:           # one per agent program
-    name: str; tag: str                                 # tag: "" for pi, "cc" for claude-code
+    name: str; tag: str                                 # tag: "" for pi, "cc"/"agy"/"gb" for the others
     def version(self) -> str | None
     def models(self) -> list[str]
     def resolve(self, model) -> str                     # alias -> id (identity by default)
@@ -409,6 +409,10 @@ calls = their `tool_use` blocks; tokens from the final `result.usage` (the strea
 taken before output is written and undercounts it; it's only summed while the run is still going), reasoning =
 `result.usage.output_tokens_details.thinking_tokens`; cost = `result.total_cost_usd` (Claude Code's estimate at API
 prices, also on a subscription); failed = `result.is_error` (error = `result.result`).
+Agy (`agy`): models come from `agy models`, grouping the effort-suffixed slugs (`gemini-3.8-flash-high` → `gemini-3.8-flash:high`). The selected slug is passed with `--model`, **not** separately overridden with `--effort`. Runs use the underlying model vendor prefix (`google/`, `anthropic/`, `openai/` where recognizable), rather than grouping all models as Antigravity. Command uses `-p BRIEF --output-format stream-json --dangerously-skip-permissions --disable-slash-commands`. Stateless headless mode produces `init`, `step_update`, and `result` NDJSON. Tool steps are emitted once on `DONE` (not again on `ACTIVE`); agent response deltas are concatenated in order. The final result's usage supplies tokens (including `thinking_tokens`); cost is unavailable and recorded as 0, not a measured price. Non-success results fail the run. Agy currently has no documented equivalent of Claude Code's `--safe-mode` or tool allowlist: the headless session may load user configuration/tools. Runs should use an isolated CLI profile for reproducibility.
+
+Grok Build (`grok`): models are intersected with `grok models`; effort menus for known models are in `GrokBuild.MODELS` (update when the CLI changes, as `grok models` doesn't list levels). Command uses `-p BRIEF --model ID --reasoning-effort LEVEL --output-format streaming-messages-json --always-approve --verbatim --tools run_terminal_cmd,read_file,write_file,search_replace,grep,list_dir --disallowed-tools Agent --disable-web-search --no-subagents`. The stream's Messages-compatible `assistant`/`user`/`result` events reuse the Claude Code converter. Final result usage has `reasoning_tokens`, and cost is `total_cost_usd` when supplied; under pool/OAuth it can be missing (0 in the current numeric run schema means **unreported**, not free). Grok's MCP meta-tools may still be enabled by the user's configuration, even with `--tools`; run with isolated configuration for strict comparisons.
+
 Future harnesses and a VM runner plug in here and at "start one agent" in `runner.py`; a container executor mounts one run directory.
 
 ### Ctrl-C
@@ -566,7 +570,3 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
   classic scripts, stylesheets, imported assets, `</script>` escaping, remote/importmap left alone, missing imports and
   paths outside the project), verifies offline in the sandbox (a remote fetch and localStorage both fail it), and runs
   a web batch end to end into the viewer (kind chip, Page tab, the bundled package running in the sandboxed iframe).
-- Integration: serve the published voxel-horse page (real Godot builds) from a temp site, and check that all 3 games boot
-  inside the sandboxed iframe in compare. Headless Chrome
-  needs `--enable-unsafe-swiftshader --use-angle=swiftshader` for WebGL. Godot removes `#status` from its document
-  once the game has started, which is the boot signal.

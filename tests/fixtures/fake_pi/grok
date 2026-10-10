@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""Fake Grok Build headless Messages stream: no model calls."""
+import json
+import os
+import sys
+from pathlib import Path
+
+args = sys.argv[1:]
+if '--version' in args:
+    print('grok 1.0.50-fake (abc) [stable]')
+elif args == ['models']:
+    print('Available models:\n  * grok-4.7 (default)\n  - grok-4.7-build-fast\n  - grok-4.6\n  - grok-4.5')
+elif '-p' in args:
+    if os.environ.get('FAKE_GROK_ARGV'):
+        Path(os.environ['FAKE_GROK_ARGV']).write_text(json.dumps(args))
+    Path('output').mkdir(exist_ok=True)
+    Path('output/circle.svg').write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>')
+    events = [
+        {'type': 'system', 'subtype': 'init', 'cwd': os.getcwd(), 'model': args[args.index('--model') + 1]},
+        {'type': 'assistant', 'message': {'id': 'm1', 'content': [{'type': 'thinking', 'thinking': 'Plan.'}, {'type': 'tool_use', 'id': 't1', 'name': 'read_file', 'input': {'path': 'output/circle.svg'}}], 'usage': {'input_tokens': 2, 'output_tokens': 1}}},
+        {'type': 'user', 'message': {'content': [{'type': 'tool_result', 'tool_use_id': 't1', 'content': 'svg ok'}]}},
+        {'type': 'assistant', 'message': {'id': 'm2', 'content': [{'type': 'text', 'text': 'Done.'}], 'usage': {'input_tokens': 3, 'output_tokens': 1}}},
+        {'type': 'result', 'subtype': 'success', 'is_error': bool(os.environ.get('FAKE_GROK_ERROR')), 'result': 'model error' if os.environ.get('FAKE_GROK_ERROR') else 'Done.', 'usage': {'input_tokens': 12, 'output_tokens': 18, 'cache_read_input_tokens': 90, 'reasoning_tokens': 4}, 'total_cost_usd': 0.008},
+    ]
+    for e in events:
+        print(json.dumps(e), flush=True)
+else:
+    sys.exit(2)

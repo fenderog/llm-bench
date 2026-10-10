@@ -1,4 +1,4 @@
-"""The agent-program interface (`art-crit run` drives one of these): Pi and ClaudeCode. Also the
+"""The agent-program interface (`art-crit run` drives one of these): Pi, ClaudeCode, Agy and GrokBuild. Also the
 pure session parsers: metrics + state (see SPEC.md "Metrics" and "Harness interface").
 
 Every harness hands the runner the same things: a command line, a session in pi's format
@@ -535,17 +535,17 @@ def _tool_call(block, cwd):
     def rel(path):
         return path[len(cwd) + 1:] if cwd and isinstance(path, str) and path.startswith(cwd + "/") else path
 
-    if name == "Bash":
-        name, args = "bash", {"command": args.get("command", "")}
-    elif name == "Write":
-        name, args = "write", {"path": rel(args.get("file_path")), "content": args.get("content", "")}
+    if name in ("Bash", "run_terminal_cmd"):
+        name, args = "bash", {"command": args.get("command") or args.get("cmd") or ""}
+    elif name in ("Write", "write_file"):
+        name, args = "write", {"path": rel(args.get("file_path") or args.get("path")), "content": args.get("content", "")}
     elif name == "Edit":
         name, args = "edit", {"path": rel(args.get("file_path")), "edits": [{"oldText": args.get("old_string", ""), "newText": args.get("new_string", "")}]}
     elif name == "MultiEdit":
         edits = [{"oldText": e.get("old_string", ""), "newText": e.get("new_string", "")} for e in args.get("edits") or []]
         name, args = "edit", {"path": rel(args.get("file_path")), "edits": edits}
-    elif name == "Read":
-        name, args = "read", {"path": rel(args.get("file_path")), **{k: v for k, v in args.items() if k in ("offset", "limit")}}
+    elif name in ("Read", "read_file"):
+        name, args = "read", {"path": rel(args.get("file_path") or args.get("path")), **{k: v for k, v in args.items() if k in ("offset", "limit")}}
     return {"type": "toolCall", "id": block.get("id"), "name": name, "arguments": args}
 
 
@@ -627,6 +627,8 @@ def claude_metrics(events, level=None):
     if result and result.get("usage"):
         u = _pi_usage(result["usage"])
         reasoning = (result["usage"].get("output_tokens_details") or {}).get("thinking_tokens")
+        if reasoning is None:
+            reasoning = result["usage"].get("reasoning_tokens")
     else:
         u = {k: sum(_pi_usage(m.get("usage") or {})[k] for m in msgs) for k in ("input", "output", "cacheRead", "cacheWrite")}
         reasoning = None
@@ -644,7 +646,197 @@ def claude_metrics(events, level=None):
     }
 
 
-HARNESSES = {"pi": Pi, "claude-code": ClaudeCode}
+class Agy(Harness):
+    """Antigravity's headless NDJSON stream. Model slugs include the effort tier."""
+
+    name = "agy"
+    tag = "agy"
+
+    def __init__(self, binary="agy"):
+        self.binary = binary
+
+    def version(self):
+        try:
+            r = subprocess.run([self.binary, "--version"], capture_output=True, text=True, timeout=15)
+        except (OSError, subprocess.TimeoutExpired) as e:
+            raise CritError(f"cannot run {self.binary} --version: {e}")
+        if r.returncode:
+            raise CritError(f"{self.binary} --version failed: {r.stderr.strip()}")
+        return r.stdout.strip().splitlines()[0]
+
+    def _slugs(self):
+        try:
+            r = subprocess.run([self.binary, "models"], capture_output=True, text=True, timeout=30)
+        except (OSError, subprocess.TimeoutExpired) as e:
+            raise CritError(f"cannot run {self.binary} models: {e}")
+        if r.returncode:
+            raise CritError(f"{self.binary} models failed: {r.stderr.strip()}")
+        return [line.split()[0] for line in r.stdout.splitlines()
+                if line.split() and re.search(r"-(?:low|medium|high|xhigh|max)$", line.split()[0])]
+
+    def models(self):
+        return list(dict.fromkeys(re.sub(r"-(?:low|medium|high|xhigh|max)$", "", s) for s in self._slugs()))
+
+    def levels(self, model):
+        slugs = set(self._slugs())
+        return [level for level in LEVEL_ORDER if f"{model}-{level}" in slugs]
+
+    def display_model(self, model):
+        if "/" in model:
+            return model
+        vendor = next((v for prefix, v in (("gemini-", "google"), ("claude-", "anthropic"),
+                                            ("gpt-oss-", "openai")) if model.startswith(prefix)), "antigravity")
+        return f"{vendor}/{model}"
+
+    def command(self, model, level, brief, session_dir):
+        return [self.binary, "-p", brief, "--model", f"{model}-{level}",
+                "--output-format", "stream-json", "--dangerously-skip-permissions",
+                "--disable-slash-commands"]
+
+    def session_file(self, session_dir):
+        path = Path(session_dir) / "events.jsonl"
+        return path if path.is_file() else None
+
+    def session_entries(self, session_dir, brief, level):
+        path = self.session_file(session_dir)
+        return convert_agy_stream(read_jsonl(path), brief, level) if path else None
+
+    def metrics(self, session_dir, level=None):
+        path = self.session_file(session_dir)
+        return agy_metrics(read_jsonl(path), level) if path else None
+
+
+class GrokBuild(Harness):
+    """Grok Build's Messages-compatible headless stream (not Grok's ACP delta stream)."""
+
+    name = "grok-build"
+    tag = "gb"
+    # Grok's `models` command lists ids but not supported effort levels. Mirrors its current
+    # model menus; update when the CLI's catalog changes (an unsupported tier can be ignored).
+    MODELS = {"grok-4.7": ["low", "medium", "high", "xhigh"],
+              "grok-4.7-build-fast": ["low", "medium", "high", "xhigh"],
+              "grok-4.6": ["low", "medium", "high", "xhigh"],
+              "grok-4.5": ["low", "medium", "high"]}
+
+    def __init__(self, binary="grok"):
+        self.binary = binary
+
+    def version(self):
+        try:
+            r = subprocess.run([self.binary, "--version"], capture_output=True, text=True, timeout=15)
+        except (OSError, subprocess.TimeoutExpired) as e:
+            raise CritError(f"cannot run {self.binary} --version: {e}")
+        if r.returncode:
+            raise CritError(f"{self.binary} --version failed: {r.stderr.strip()}")
+        return r.stdout.strip().split()[1]  # grok 1.0.50 (...) [stable]
+
+    def models(self):
+        try:
+            r = subprocess.run([self.binary, "models"], capture_output=True, text=True, timeout=30)
+        except (OSError, subprocess.TimeoutExpired) as e:
+            raise CritError(f"cannot run {self.binary} models: {e}")
+        if r.returncode:
+            raise CritError(f"{self.binary} models failed: {r.stderr.strip()}")
+        return [m for m in self.MODELS if re.search(rf"(?m)^\s*[-*]\s+{re.escape(m)}(?:\s|$)", r.stdout)]
+
+    def levels(self, model):
+        return self.MODELS[model]
+
+    def display_model(self, model):
+        return f"xai/{model}"
+
+    def command(self, model, level, brief, session_dir):
+        return [self.binary, "-p", brief, "--model", model, "--reasoning-effort", level,
+                "--output-format", "streaming-messages-json", "--always-approve", "--verbatim",
+                "--tools", "run_terminal_cmd,read_file,write_file,search_replace,grep,list_dir",
+                "--disallowed-tools", "Agent", "--disable-web-search", "--no-subagents"]
+
+    def session_file(self, session_dir):
+        path = Path(session_dir) / "events.jsonl"
+        return path if path.is_file() else None
+
+    def session_entries(self, session_dir, brief, level):
+        path = self.session_file(session_dir)
+        return convert_claude_stream(read_jsonl(path), brief, level) if path else None
+
+    def metrics(self, session_dir, level=None):
+        path = self.session_file(session_dir)
+        if not path:
+            return None
+        events = read_jsonl(path)
+        metrics = claude_metrics(events, level)
+        if not any(e.get("type") == "result" for e in events):
+            metrics.update(ended_in_error=True, error_message="no final result from grok")
+        return metrics
+
+
+def _agy_result(events):
+    return next((e.get("result") or {} for e in reversed(events) if e.get("event") == "result"), {})
+
+
+def agy_metrics(events, level=None):
+    result = _agy_result(events)
+    u = result.get("usage") or {}
+    steps = {s.get("step_index") for e in events if e.get("event") == "step_update"
+             for s in [e.get("step_update") or {}] if s.get("step_type") == "tool"}
+    tokens = {"input": u.get("input_tokens") or 0, "output": u.get("output_tokens") or 0,
+              "reasoning": u.get("thinking_tokens") or 0, "cacheRead": u.get("cache_read_tokens") or 0,
+              "cacheWrite": 0}
+    tokens["total"] = tokens["input"] + tokens["output"]
+    status = result.get("status")
+    return {"thinking_level": level, "turns": result.get("num_turns") or 0,
+            "tool_calls": len(steps), "tokens": tokens, "cost_usd": 0.0,
+            "ended_in_error": status != "SUCCESS",
+            "error_message": str(result.get("error") or status or "no final result from agy")[:200] if status != "SUCCESS" else None}
+
+
+def convert_agy_stream(events, brief, level):
+    """Keep completed tool steps once, append streamed response deltas once (ACTIVE and DONE)."""
+    init = next((e.get("init") or {} for e in events if e.get("event") == "init"), {})
+    entries = [{"type": "session", "cwd": init.get("cwd", "")},
+               {"type": "model_change", "provider": "antigravity", "modelId": init.get("model")},
+               {"type": "thinking_level_change", "thinkingLevel": level},
+               {"type": "message", "message": {"role": "user", "content": [{"type": "text", "text": brief}]}}]
+    seen_tools = set()
+    for e in events:
+        if e.get("event") != "step_update":
+            continue
+        s = e.get("step_update") or {}
+        if s.get("step_type") == "agent_response" and s.get("text_delta"):
+            entries.append({"type": "message", "message": {"role": "assistant", "content":
+                            [{"type": "text", "text": s["text_delta"]}]}})
+        if s.get("step_type") != "tool" or s.get("state") != "DONE" or s.get("step_index") in seen_tools:
+            continue
+        seen_tools.add(s.get("step_index"))
+        info = s.get("tool_info") or {}
+        name = info.get("name") or s.get("tool_name") or "tool"
+        args = info.get("parameters") or {}
+        if name == "run_command":
+            call = {"type": "toolCall", "id": f"agy-{s.get('step_index')}", "name": "bash",
+                    "arguments": {"command": args.get("CommandLine", "")}}
+        else:
+            call = {"type": "toolCall", "id": f"agy-{s.get('step_index')}", "name": name, "arguments": args}
+        entries.append({"type": "message", "message": {"role": "assistant", "content": [call]}})
+        output = info.get("output")
+        result_msg = {"role": "toolResult", "toolCallId": call["id"],
+                      "content": [{"type": "text", "text": output if isinstance(output, str) else
+                                   json.dumps(output if output is not None else info.get("error") or "")}],
+                      "isError": bool(info.get("error"))}
+        if isinstance(s.get("duration_seconds"), (int, float)):
+            result_msg["durationMs"] = round(s["duration_seconds"] * 1000)
+        entries.append({"type": "message", "message": result_msg})
+    result = _agy_result(events)
+    if not any(e.get("message", {}).get("role") == "assistant" and
+               any(b.get("type") == "text" for b in e["message"].get("content", [])) for e in entries) and result.get("response"):
+        entries.append({"type": "message", "message": {"role": "assistant", "content":
+                        [{"type": "text", "text": result["response"]}]}})
+    if result.get("status") and result["status"] != "SUCCESS":
+        entries.append({"type": "message", "message": {"role": "assistant", "content":
+                        [{"type": "text", "text": str(result.get("error") or result["status"])}], "stopReason": "error"}})
+    return entries
+
+
+HARNESSES = {"pi": Pi, "claude-code": ClaudeCode, "agy": Agy, "grok-build": GrokBuild}
 
 
 def split_harness(spec):

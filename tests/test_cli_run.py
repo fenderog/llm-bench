@@ -15,7 +15,7 @@ import pytest
 
 from art_crit.cli import main
 from art_crit.config import Config, RunRequest
-from art_crit.harness import Pi, convert_claude_stream
+from art_crit.harness import GrokBuild, Pi, agy_metrics, convert_agy_stream, convert_claude_stream
 from art_crit.runner import assign_run_ids, expand_levels, parse_duration, plan_runs
 from art_crit.util import CritError
 
@@ -722,6 +722,89 @@ def test_page_without_prompt_must_exist(run_root, capsys):
     assert main(["run", "--yes", "--page", "nope", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 1
     assert "reuse its prompt" in capsys.readouterr().err
 
+
+
+# --- Agy and Grok Build harness -------------------------------------------------------------------
+
+
+def test_agy_and_grok_planning():
+    assert plan_for(["agy:gemini-3.8-flash"], None) == [
+        ("agy", "gemini-3.8-flash", "low"), ("agy", "gemini-3.8-flash", "high")]
+    with pytest.raises(CritError, match="medium not supported"):
+        plan_for(["agy:gemini-3.8-flash:medium"])
+    assert plan_for(["grok-build:grok-4.7:low,xhigh"]) == [
+        ("grok-build", "grok-4.7", "low"), ("grok-build", "grok-4.7", "xhigh")]
+    with pytest.raises(CritError, match="xhigh not supported"):
+        plan_for(["grok-build:grok-4.5:xhigh"])
+
+
+@pytest.mark.parametrize("harness,model,env_name", [
+    ("agy", "gemini-3.8-flash:high", "FAKE_AGY_ARGV"),
+    ("grok-build", "grok-4.7:high", "FAKE_GROK_ARGV"),
+])
+def test_new_harnesses_run_and_publish_transcripts(run_root, tmp_path, monkeypatch, harness, model, env_name):
+    argv_path = tmp_path / "argv.json"
+    monkeypatch.setenv(env_name, str(argv_path))
+    assert main(["run", "--yes", "--kind", "media", "draw a circle", "-m", f"{harness}:{model}",
+                 "--root", str(run_root)]) == 0
+    [run] = json.loads((run_root / "docs/data/draw-a-circle/page.json").read_text())["runs"]
+    assert run["harness"]["name"] == harness and run["state"] == "complete"
+    assert run["output"]["ok"] is True
+    assert run["metrics"]["tool_calls"] == 1
+    assert run["metrics"]["tokens_total"] == (14 if harness == "agy" else 30)
+    assert run["metrics"]["tokens_reasoning"] == (2 if harness == "agy" else 4)
+    assert run["metrics"]["cost_usd"] == (0 if harness == "agy" else 0.008)
+    argv = json.loads(argv_path.read_text())
+    assert argv[argv.index("--model") + 1] == ("gemini-3.8-flash-high" if harness == "agy" else "grok-4.7")
+    if harness == "agy":
+        assert "--effort" not in argv and "--dangerously-skip-permissions" in argv
+    else:
+        assert argv[argv.index("--reasoning-effort") + 1] == "high"
+        assert "streaming-messages-json" in argv and "Agent" in argv and "--no-subagents" in argv
+    run_dir = run_root / "docs/data/draw-a-circle/runs" / run["id"]
+    assert not (run_dir / "session/events.jsonl").exists()
+    convo = json.loads((run_dir / "session/conversation.json").read_text())
+    msgs = [e["message"] for e in convo if e["type"] == "message"]
+    assert msgs[0]["role"] == "user"
+    calls = [b for m in msgs for b in m["content"] if b["type"] == "toolCall"]
+    assert calls[0]["name"] == ("bash" if harness == "agy" else "read")
+    assert len([m for m in msgs if m["role"] == "toolResult"]) == 1
+    assert "Done" in json.dumps(convo)
+
+
+@pytest.mark.parametrize("harness,model,error", [("agy", "gemini-3.8-flash:low", "FAKE_AGY_ERROR"),
+                                                ("grok-build", "grok-4.7:low", "FAKE_GROK_ERROR")])
+def test_new_harness_error_result(run_root, monkeypatch, harness, model, error):
+    monkeypatch.setenv(error, "1")
+    assert main(["run", "--yes", "--kind", "media", "broken circle", "-m", f"{harness}:{model}",
+                 "--root", str(run_root)]) == 0
+    [run] = json.loads((run_root / "docs/data/broken-circle/page.json").read_text())["runs"]
+    assert run["state"] == "failed" and "model error" in run["error"]
+
+
+def test_agy_stream_deduplicates_steps_and_preserves_result_fallback():
+    events = [{"event": "step_update", "step_update": {"step_index": 3, "step_type": "tool", "state": "ACTIVE"}},
+              {"event": "step_update", "step_update": {"step_index": 3, "step_type": "tool", "state": "DONE",
+                                                        "tool_info": {"name": "run_command", "parameters": {"CommandLine": "pwd"}, "output": "ok"}}},
+              {"event": "result", "result": {"status": "SUCCESS", "response": "finished"}}]
+    entries = convert_agy_stream(events, "brief", "high")
+    assert sum(b.get("type") == "toolCall" for e in entries for b in e.get("message", {}).get("content", [])) == 1
+    assert entries[-1]["message"]["content"][0]["text"] == "finished"
+    assert agy_metrics(events, "high")["tool_calls"] == 1
+    assert agy_metrics(events[:-1], "high")["ended_in_error"]
+
+
+def test_grok_missing_result_fails_instead_of_publishing_success(tmp_path):
+    (tmp_path / "events.jsonl").write_text(json.dumps({"type": "assistant", "message": {"id": "m", "content": []}}) + "\n")
+    m = GrokBuild().metrics(tmp_path, "low")
+    assert m["ended_in_error"] and "no final result" in m["error_message"]
+
+
+def test_new_harness_model_listing(capsys):
+    assert main(["models", "--harness", "agy", "gemini-3.8"]) == 0
+    assert "gemini-3.8-flash: low, high" in capsys.readouterr().out
+    assert main(["models", "--harness", "grok-build", "grok-4.5"]) == 0
+    assert "grok-4.5: low, medium, high" in capsys.readouterr().out
 
 
 # --- Claude Code harness ---------------------------------------------------------------------------
