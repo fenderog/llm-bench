@@ -144,22 +144,30 @@ def do_video(src, dest_dir, name):
     return item, None
 
 
+MEDIA_EXTS = IMAGE_EXTS | VIDEO_EXTS | {SVG_EXT}
+
+
 def normalize(work_dir, out_dir):
-    """Check every file in work_dir/output/ and write the publishable versions plus manifest.json
+    """Check every media file in work_dir/output/ and write the publishable versions plus manifest.json
     to out_dir. Returns the manifest: {ok, items: [...], errors: [...]}. ok = at least one item
-    and no errors. Never raises for bad agent output: problems become `errors`."""
+    and no errors. Never raises for bad agent output: problems become `errors`.
+    A file that isn't an image or video isn't output at all: it's left alone, so a script the model
+    kept in ./output/ is not an error (the importer still publishes it as source when it's text)."""
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
     output = work_dir / "output"
     files = sorted(p for p in output.rglob("*") if p.is_file() and not p.name.startswith(".")) if output.is_dir() else []
+    media = [p for p in files if p.suffix.lower() in MEDIA_EXTS]
     items, errors = [], []
     if not files:
         errors.append("no files in ./output/")
-    if len(files) > MAX_FILES:
-        errors.append(f"{len(files)} files in ./output/; only the first {MAX_FILES} were kept")
-        files = files[:MAX_FILES]
-    for src in files:
+    elif not media:
+        errors.append("no image or video files in ./output/")
+    if len(media) > MAX_FILES:
+        errors.append(f"{len(media)} files in ./output/; only the first {MAX_FILES} were kept")
+        media = media[:MAX_FILES]
+    for src in media:
         name = "-".join(src.relative_to(output).parts)
         ext = src.suffix.lower()
         planned = Path(name).stem + ".mp4" if ext in VIDEO_EXTS else name
@@ -170,10 +178,8 @@ def normalize(work_dir, out_dir):
             item, error = do_svg(src, out_dir, name)
         elif ext in IMAGE_EXTS:
             item, error = do_image(src, out_dir, name)
-        elif ext in VIDEO_EXTS:
+        else:  # the only extension left in MEDIA_EXTS
             item, error = do_video(src, out_dir, name)
-        else:
-            item, error = None, f"{name}: unsupported file type"
         if item:
             items.append(item)
         if error:
@@ -201,7 +207,8 @@ class Media(Kind):
     tools = ("ffmpeg", "ffprobe")
 
     def finalize(self, work_dir, out_dir):
-        """ok = at least one file was kept; problems with the others are the error (they're still published)."""
+        """ok = at least one file was kept; problems with the ones it kept (unreadable, too big) are the
+        error (the kept files are still published); files that aren't images/videos are ignored."""
         manifest = normalize(work_dir, out_dir)
         return bool(manifest["items"]), "; ".join(manifest["errors"])[:200] or None
 
@@ -210,7 +217,12 @@ class Media(Kind):
         return {"ok": json.loads((out_dir / "manifest.json").read_text())["ok"]}
 
     def keep_source(self, rel, path):
-        return rel.parts[0] != "output" and path.stat().st_size <= SOURCE_MAX_BYTES and _is_text(path)
+        """Text files of at most 512 KB. `output/` itself is the media output, never source, but a non-media
+        file the model left there (its generator script) is: the media step ignores it and dropping it would
+        lose the code that made the files."""
+        if rel.parts[0] == "output" and path.suffix.lower() in MEDIA_EXTS:
+            return False
+        return path.stat().st_size <= SOURCE_MAX_BYTES and _is_text(path)
 
     def stage(self, out_dir, run_dir, ctx):
         """SVGs are text written by the model, so they're cleaned and secret-scanned like source."""

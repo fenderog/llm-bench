@@ -521,7 +521,7 @@ def test_media_run_publishes_output_files(run_root):
     for rel in [*by_path, "media/clip.poster.jpg"]:
         assert (run_dir / rel).is_file()
     assert str(Path.home()) not in (run_dir / "media/drawing.svg").read_text()  # SVGs are cleaned
-    # Source is the text code only: no ./output/, no leftover binary frames.
+    # Source is the text code only: media files in ./output/ and the leftover binary frame aren't source.
     assert run["source"]["files"] == ["make.py"]
     pages = json.loads((run_root / "docs/data/pages.json").read_text())
     assert pages[0]["kind"] == "media"
@@ -536,14 +536,74 @@ def test_media_run_with_bad_output_is_ok_but_not_verified_with_an_output_error(r
     [run] = json.loads((run_root / "docs/data/bad-media/page.json").read_text())["runs"]
     assert run["state"] == "complete" and run["error"] is None
     assert (run["output"]["ok"], run["output"]["verified"]) == (True, False)
-    assert "notes.txt: unsupported file type" in run["output"]["error"]
+    assert "broken.png: not a readable image" in run["output"]["error"]
     assert len(run["output"]["items"]) == 3  # the good files are still published
+    # notes.txt isn't an output (it's skipped, not an error) but it's still published as source.
+    assert run["source"]["files"] == ["make.py", "output/notes.txt"]
 
 
 def test_kind_must_match_the_existing_page(run_root):
     assert main(["run", "--yes", "mixed page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)]) == 0
     rc = main(["run", "--yes", "--kind", "media", "mixed page", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
     assert rc == 1
+
+
+# --- publishing as runs finish ---------------------------------------------------------------------
+
+
+def git_repo(root, tmp_path):
+    """`root` as a git repo with an empty bare origin, so publish's add/commit/push succeed here."""
+
+    def run(*args):
+        subprocess.run(args, check=True, capture_output=True)
+
+    origin = tmp_path / "origin.git"
+    run("git", "init", "--bare", "-q", "-b", "main", str(origin))
+    run("git", "init", "-q", "-b", "main", str(root))
+    for key, value in (("user.email", "bench@test"), ("user.name", "bench"), ("commit.gpgsign", "false")):
+        run("git", "-C", str(root), "config", key, value)
+    run("git", "-C", str(root), "remote", "add", "origin", str(origin))
+    run("git", "-C", str(root), "add", "-A")
+    run("git", "-C", str(root), "commit", "-q", "-m", "init")
+    run("git", "-C", str(root), "push", "-q", "-u", "origin", "main")
+    return origin
+
+
+def git_subjects(root):
+    out = subprocess.run(["git", "-C", str(root), "log", "--format=%s"], check=True, capture_output=True, text=True)
+    return out.stdout.splitlines()
+
+
+def test_run_publish_pushes_each_run_as_it_finishes(run_root, tmp_path, capsys):
+    """-P/--publish imports, commits and pushes every run on its own, and leaves nothing to the batch's
+    own import at the end (which would print the preview hint)."""
+    origin = git_repo(run_root, tmp_path)
+    rc = main(["run", "--yes", "--publish", "a horse as we go", "-m", "openai-codex/gpt-6-sol:low..high",
+               "--root", str(run_root)])
+    assert rc == 0
+    out = capsys.readouterr().out
+    runs = json.loads((run_root / "docs/data/a-horse-as-we-go/page.json").read_text())["runs"]
+    assert len(runs) == 3
+    assert f"published {len(runs)} runs to 'a-horse-as-we-go' as they finished" in out
+    assert "Preview with: bench serve" not in out
+    subjects = git_subjects(run_root)
+    assert sorted(subjects) == sorted(["init", *(f"bench run: a-horse-as-we-go ({r['id']})" for r in runs)])
+    assert git_subjects(origin) == subjects  # and pushed
+    status = subprocess.run(["git", "-C", str(run_root), "status", "--porcelain"], check=True, capture_output=True, text=True)
+    assert not status.stdout.strip(), "every published file is committed"
+
+
+def test_run_publish_falls_back_to_the_batch_import_for_a_missed_run(run_root, tmp_path, monkeypatch, capsys):
+    """A run that couldn't be published is picked up by the batch's own import at the end (the path that
+    also reports the failure and exits non-zero when it fails again)."""
+    monkeypatch.setattr("bench.runner.Publisher.publish", lambda self, run_id: None)
+    git_repo(run_root, tmp_path)
+    rc = main(["run", "--yes", "--publish", "a missed horse", "-m", "openai-codex/gpt-6-sol:low", "--root", str(run_root)])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "Preview with: bench serve" in out
+    assert "as they finished" not in out
+    assert len(json.loads((run_root / "docs/data/a-missed-horse/page.json").read_text())["runs"]) == 1
 
 
 # --- a new kind -----------------------------------------------------------------------------------

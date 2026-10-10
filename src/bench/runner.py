@@ -1,7 +1,8 @@
 """`bench run`: plan, launch, collect, finalize, verify and import a batch of agent runs.
 See SPEC.md "Running benchmarks (bench run)". A fresh batch and a `--resume`d one both end in
 `execute()`: for each run, either run its agent (if unfinished) or reuse its run.json, then the kind's
-output step if it hasn't succeeded yet, then import.
+output step if it hasn't succeeded yet, then import — with `--publish`, each run is imported and pushed
+as soon as its own output step is done, so the live site fills up while the batch still runs.
 
 A run's state (batch.json and run.json) says only what the agent did: queued | running | complete | failed
 | timeout. What the kind made of its work is `output` in run.json: {kind, ok, error, verified}. The progress
@@ -465,6 +466,34 @@ def read_batch(batch_dir):
     return batch
 
 
+class Publisher:
+    """`bench run --publish`: import and push each run as it finishes, so the live site fills up while the
+    batch is still running (nothing is left for the batch's own import at the end; see `execute`).
+    One run at a time: importing rewrites page.json, git needs the index to itself, and a push must never
+    see a half-written run directory. A run that can't be published — a secret hit, a failed push — is
+    reported and left to the batch's import at the end, which retries it and exits non-zero."""
+
+    def __init__(self, config, batch_dir, slug, title):
+        self.config, self.batch_dir, self.slug, self.title = config, batch_dir, slug, title
+        self.lock = threading.Lock()
+        self.published = set()
+
+    def publish(self, run_id):
+        from .cli import cmd_publish  # cli imports runner
+
+        with self.lock:
+            try:
+                cmd_import(self.config, self.batch_dir / run_id, page=self.slug, title=self.title)
+                cmd_publish(self.config.root, f"bench run: {self.slug} ({run_id})")
+            except BenchError as e:
+                print(f"note: {run_id} not published: {e}", file=sys.stderr)
+                return
+            self.published.add(run_id)
+
+    def missed(self, runs):
+        return [r["id"] for r in runs if r["id"] not in self.published]
+
+
 def execute(config, request, batch_dir, harnesses, verify=True):
     """Run every unfinished agent, finalize + verify what needs it, then import.
     Drives both a fresh batch and a `--resume`d one (see module docstring)."""
@@ -480,6 +509,9 @@ def execute(config, request, batch_dir, harnesses, verify=True):
     progress.start()
     finalize_lock = threading.Lock()
     live, live_lock, interrupted = {}, threading.Lock(), threading.Event()
+    page_exists = (config.root / "docs" / "data" / slug / "page.json").is_file()
+    import_title = title if (batch["title_is_explicit"] or not page_exists) else None
+    publisher = Publisher(config, batch_dir, slug, import_title) if request.publish else None
 
     def save():
         write_batch_json(batch_dir, batch)
@@ -505,6 +537,8 @@ def execute(config, request, batch_dir, harnesses, verify=True):
             return
         if record["state"] == "complete" and not (record["output"] and record["output"]["ok"]):
             finish_output(kind, rd, record, finalize_lock, verify, progress)
+        if publisher and not interrupted.is_set():  # --publish: this run is live from here on
+            publisher.publish(run["id"])
 
     pool = ThreadPoolExecutor(max_workers=parallel)
     futures = [pool.submit(work, r) for r in runs]
@@ -526,9 +560,9 @@ def execute(config, request, batch_dir, harnesses, verify=True):
         sys.exit(130)
     pool.shutdown(wait=True)
     progress.stop()
-
-    page_exists = (config.root / "docs" / "data" / slug / "page.json").is_file()
-    import_title = title if (batch["title_is_explicit"] or not page_exists) else None
+    if publisher and not publisher.missed(runs):  # every run is already imported and pushed
+        print(f"published {len(publisher.published)} runs to {slug!r} as they finished")
+        return 0
     return _import_and_publish(config, batch_dir, slug, import_title, request.publish)
 
 

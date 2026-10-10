@@ -111,8 +111,8 @@ All paths inside JSON are **relative to the run directory** (for Run) or to `doc
   when it was cut to 10 s (width/height can be `null` for an SVG without a size). Paths are relative to the run
   directory. `thumb` = `thumb.png` (the verify step's first screenshot) for godot and web, the first image's path or
   the first video's poster for media. Model-written text (SVGs, the packaged page) is cleaned and secret-scanned like
-  source. The run's `source` never includes `node_modules/`; for media it holds only text files of at most 512 KB
-  and never `output/`.
+  source. The run's `source` never includes `node_modules/`; for media it holds only text files of at most 512 KB,
+  and `output/` only for the files there that aren't media (a generator script kept in `./output/`).
 - `id` = `<model name after the last "/", lowercased>-<effort>-<YYYYMMDD-HHMMSS of the batch>`, with `-cc` after the
   model for Claude Code runs; URL/filesystem-safe: a pinned OpenRouter route (`@…`, which can contain `/` itself) is split
   off first and appended as `-via-<route>`, e.g. `…flash@deepinfra/fp8` → `deepseek-v4.1-flash-via-deepinfra-fp8-low-20261001-101500`;
@@ -232,7 +232,7 @@ bench run PROMPT | -f/--prompt-file FILE
     -T, --timeout DUR   per agent, "30m" / "90s" / "1h" (default [run].timeout or 30m)
     -y, --yes           don't ask for confirmation
     -n, --dry-run       print the plan and exit
-    -P, --publish       run `bench publish` after importing
+    -P, --publish       import and `bench publish` each run as it finishes
 bench run -r/--resume DIR  finish an interrupted batch (see Resume)
 ```
 `LEVEL_ORDER = off, minimal, low, medium, high, xhigh, max`. Every requested level is checked against the harness's
@@ -280,7 +280,11 @@ plain error for every command.
    `finalize(work, output/)` makes the publishable output, `verify(output/)` checks it (when `finalize` succeeded), and
    `run.json`'s `output` becomes `{kind, ok, error, verified}`. A step that fails leaves `state` alone. See Kinds.
 7. **Import**: `bench import` the batch directory with `--page` (and `--title` for a new page), then print where to
-   preview (`bench serve`) and publish, or run `bench publish` with `--publish`.
+   preview (`bench serve`) and publish, or run `bench publish` with `--publish`. With `--publish` each run is
+   imported and pushed on its own, right after its step 6 (`Publisher`, one run at a time: an import rewrites
+   page.json, and a push must never see a half-written run directory), so the live site fills up while the batch
+   still runs; the batch's own import at the end is then skipped. Only runs that couldn't be published (a secret
+   hit, a failed push — reported as a `note:`) fall back to it: it retries them and exits non-zero.
 
 Progress: on a tty a table (model, effort, state, elapsed, turns, tokens, cost) redrawn every 2s, read from each
 session file as it grows; otherwise one line per state change. The states are the agent's (queued, running, complete,
@@ -322,15 +326,18 @@ class Kind:
   pageErrors and no blockedRequests` (a static page is fine, so frames needn't differ). `stage` copies the page to
   `game/index.html` (cleaned like source). Both Chrome checks are one helper (`browser.verify_page`); Playwright is an
   optional dependency (`pip install bench[verify]`), and verification is skipped with a note when it's missing.
-- **media** (`Media`; `ffmpeg` and `ffprobe` on PATH): `finalize` checks every file in `work/output/` (sorted, flattened as
+- **media** (`Media`; `ffmpeg` and `ffprobe` on PATH): `finalize` checks every media file in `work/output/` (sorted, flattened as
   `a-b.png` for `a/b.png`, at most 8) into `output/`. Images (`.png .jpg .jpeg .webp .gif`) must be readable by ffprobe;
   one over 2 MB is re-encoded as JPEG (a GIF isn't). SVGs must parse as XML with an `<svg>` root (size from width/height
   or viewBox) and be ≤ 2 MB. Videos (`.mp4 .webm .mov`) must have a duration; one that isn't H.264/yuv420p mp4, is over
   10 s or over 2 MB is re-encoded (`libx264`, `-t 10`, max 1280 wide, CRF 26 → 32 → 38 until it fits). Each video gets a
-  `.poster.jpg` at 30% of its length. Unsupported types, unreadable files and name clashes are errors. `manifest.json` =
+  `.poster.jpg` at 30% of its length. A file that is none of those types isn't output at all: it's skipped without an
+  error (a model that keeps its generator script in `./output/` shouldn't fail the step), and `output/` holding no media
+  file at all is the error `no image or video files in ./output/`. Unreadable files and name clashes are errors. `manifest.json` =
   `{ok, items, errors}` with `ok` = at least one item and no errors. `ok` of the step = at least one item was kept;
   `error` = the manifest's errors (joined with `; `, the first 200 characters, the kept files are still published);
-  `verify` = the manifest's `ok`. `keep_source`: text files of at most 512 KB, never `output/`.
+  `verify` = the manifest's `ok`. `keep_source`: text files of at most 512 KB; `output/` only for the files there that
+  aren't media (the script that made them), never the images or videos themselves.
 
 ### Metrics (from the session log, the same numbers pi-subagents reported)
 Over assistant messages: `turns` = count; `tool_calls` = number of `toolCall` content blocks; `tokens_input/output/
@@ -548,8 +555,9 @@ them. Any output with an `entry` is shown in the sandbox, so a new kind needs no
   level → error before anything starts), the plan/confirmation, `-j`, timeout, failed runs being imported, metrics
   against the real voxel-horse `high/session.jsonl` numbers (when present), and `--resume` not rerunning finished
   agents (and retrying a failed output step), a toy kind defined in a test running end to end, and the run directory layout. For a media brief the fake pi writes `./output/` (SVG, PNG and an ffmpeg-made mp4) plus a script and a
-  leftover binary frame. `tests/test_media.py` checks the media step on ffmpeg-generated inputs (trim + re-encode,
-  oversized image → JPEG, bad files, empty output, too many files, name clashes); media tests are skipped without
+  leftover binary frame; with `FAKE_PI_BAD_OUTPUT` it adds an unreadable PNG (the step's error) and a text file in
+  `./output/` (published as source, not an error). `tests/test_media.py` checks the media step on ffmpeg-generated inputs (trim + re-encode,
+  oversized image → JPEG, bad files, empty output, too many files, name clashes, non-media files being skipped); media tests are skipped without
   ffmpeg. A slow test (skipped without `godot`) exports a tiny real project. No test calls a real model.
   For a web brief the fake pi writes `index.html`, `main.js`, `style.css` and a fake npm package in `node_modules/`.
   `tests/test_web_kind.py` (skipped without esbuild) packages pages with the real esbuild (module + inline module +

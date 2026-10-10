@@ -37,6 +37,8 @@ uv run bench run "a spinning low-poly windmill in a small field" -m openai-codex
 This runs one agent per model × effort level, at the same time, on this machine. Finished work
 is packed up and, when possible, checked. Failed and timed-out tries are saved too.
 Nothing goes online until you run `bench publish` (or pass `--publish`). Preview first with `bench serve`.
+With `--publish` every run is imported, committed and pushed as soon as that run is done, so a long batch
+appears on the live site run by run instead of all at the end.
 
 - `-m MODEL[:LEVELS]` can be repeated. LEVELS can be `low,high`, `low..max`, `all`, or `off`. With no
   suffix, it runs all levels the model supports except `off`. `-e LEVELS` sets the default for all
@@ -45,8 +47,9 @@ Nothing goes online until you run `bench publish` (or pass `--publish`). Preview
   `bench models [SEARCH]` lists models and their levels.
 - It shows the plan and asks you to confirm. `-n/--dry-run` only shows the plan;
   `-y/--yes` skips the question (needed for scripts).
-- `-p/--page`, `-t/--title`, `-j N` (max agents at once), `-T/--timeout 30m`, and `-b/--brief FILE`
-  (your own brief, with `{prompt}` replaced by the prompt). `bench run -h` lists them all.
+- `-p/--page`, `-t/--title`, `-j N` (max agents at once), `-T/--timeout 30m`, `-b/--brief FILE`
+  (your own brief, with `{prompt}` replaced by the prompt), and `-P/--publish` (publish each run as it
+  finishes). `bench run -h` lists them all.
 - Ctrl-C stops all running agents. `bench run --resume <batch dir>` finishes a batch without
   redoing agents that already finished.
 
@@ -144,13 +147,14 @@ uv run bench run --kind media "a pelican riding a bicycle, as a hand-written SVG
 ```
 
 The agent saves its work in `./output/`: one or more images (`.png .jpg .jpeg .webp .gif .svg`) and/or
-videos (`.mp4 .webm .mov`). Up to 8 files are kept, each at most 2 MB after processing; videos max
+videos (`.mp4 .webm .mov`). Anything else it leaves there is ignored (a text file is still published as
+source). Up to 8 files are kept, each at most 2 MB after processing; videos max
 10 seconds. How it makes them is up to your prompt ("hand-written SVG", "use Python", ...).
 The brief lists the tools on this machine, from `[run].tools` in `bench.toml`, with their
 versions. Then images and videos are checked with ffprobe, while SVGs are parsed as XML;
 videos are cut to 10 s and re-saved to H.264 mp4 when needed, and get a still image preview. Big
 non-GIF images become JPEG. Good files are still published if others fail; problems show
-on the run, and checks fail if any file has an error.
+on the run, and the check fails if an image or video is unreadable or over the limits.
 
 **Web pages** (`--kind web`):
 

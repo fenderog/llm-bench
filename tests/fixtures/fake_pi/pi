@@ -11,7 +11,7 @@ Behavior knobs (env vars), read at `-p` run time:
   FAKE_PI_EXIT_CODE=N   exit N immediately, writing nothing (simulates a crashed harness)
   FAKE_PI_HANG=1        sleep "forever" (simulates a hung agent; the caller must kill it)
   FAKE_PI_ERROR_STOP=1  write a session whose last assistant message has stopReason "error"
-  FAKE_PI_BAD_OUTPUT=1  (media briefs) also put an unsupported file in ./output/
+  FAKE_PI_BAD_OUTPUT=1  (media briefs) also put an unreadable image and a stray text file in ./output/
   FAKE_PI_BAD_WEB=1     (web briefs) import a module that doesn't exist, so packaging fails
   FAKE_PI_ARGV=FILE     write {argv, BENCH_OPENROUTER_ROUTING, BENCH_ROUTE_LOG} to FILE
   BENCH_ROUTE_LOG       (set by bench for routed runs) append what the routing extension would log:
@@ -193,7 +193,8 @@ def write_media():
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=160x120:rate=10", "-t", "2",
                     "-c:v", "libx264", "-pix_fmt", "yuv420p", str(out / "clip.mp4")], check=True)
     if os.environ.get("FAKE_PI_BAD_OUTPUT"):
-        (out / "notes.txt").write_text("not media")
+        (out / "broken.png").write_bytes(b"not a png")
+        (out / "notes.txt").write_text("not media")  # not an output: skipped by the media step, still source
     Path("make.py").write_text("print('made the files')\n")
     Path("frames").mkdir(exist_ok=True)
     (Path("frames") / "f001.png").write_bytes(PNG_1X1)  # a leftover binary: never published as source

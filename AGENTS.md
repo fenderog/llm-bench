@@ -76,6 +76,7 @@ uv run bench models gpt-6             # models + effort levels from pi
 uv run bench models --harness claude-code   # Claude Code's (from the table in harness.py)
 uv run bench run --dry-run "prompt" -m claude-code:opus:high -m openai-codex/gpt-6-sol:high   # mixed harnesses
 uv run bench import <run-dir|batch-dir> --page <slug>   # publish runs written by `bench run`
+uv run bench run --publish "prompt" -m MODEL:LEVEL      # import + push each run as it finishes (ADR-0019)
 uv run bench publish -m "msg"         # git add docs && commit && push (Pages deploys in ~1 min)
 gh api repos/fenderog/llm-bench/pages/builds/latest --jq .status   # deploy status
 ```
